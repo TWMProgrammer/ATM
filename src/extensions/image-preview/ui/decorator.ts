@@ -1,10 +1,15 @@
 import * as vscode from 'vscode';
-import { recognizers } from './recognizers';
-import { mappers } from './mappers';
-import { getConfig } from './config';
-import { getFileSize, isLocalFile, isDataUri } from './utils';
-import { ACCEPTED_EXTENSIONS } from './types';
-import type { DecorationEntry, ImageInfo } from './types';
+import { recognizers } from '../core/recognizers';
+import { mappers } from '../core/mappers';
+import { getConfig } from '../core/config';
+import {
+  getImageMeta, isLocalFile, isDataUri,
+  getCachedResolution, setCachedResolution,
+  pruneMetaCache, pruneResolveCache,
+  invalidateMetaCache, invalidateResolveCacheFor,
+} from '../core/utils';
+import { ACCEPTED_EXTENSIONS } from '../core/types';
+import type { DecorationEntry, ImageInfo } from '../core/types';
 
 /** Scan results per document URI */
 const scanResults = new Map<string, {
@@ -14,6 +19,10 @@ const scanResults = new Map<string, {
 
 /** Throttle timers per document URI */
 const throttleTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+// Quick-reject heuristic: skip lines that can't possibly contain an image reference.
+// This avoids running all recognizer regexes on every line.
+const IMAGE_SIGNAL_PATTERN = /\.(svg|png|jpe?g|bmp|gif|ico|webp|avif|jfif)\b|data:image|https?:\/\/|!\[/i;
 
 // ─── Core scanning logic ────────────────────────────────────────────
 
@@ -61,14 +70,23 @@ function scanDocument(document: vscode.TextDocument): void {
     const lineText = document.lineAt(lineIndex).text;
     if (!lineText || lineText.length > 20_000) { continue; }
 
+    // Quick reject: skip lines without any image-like signal
+    if (!IMAGE_SIGNAL_PATTERN.test(lineText)) { continue; }
+
     for (const recognizer of recognizers) {
       const matches = recognizer.recognize(lineIndex, lineText);
       for (const match of matches) {
-        // Try each mapper until one resolves
-        let resolved: string | undefined;
-        for (const mapper of mappers) {
-          resolved = mapper.map(document.fileName, match.url, workspaceFolder);
-          if (resolved) { break; }
+        // Try resolution cache first
+        const cacheKey = `${document.fileName}|${match.url}|${workspaceFolder ?? ''}`;
+        let resolved = getCachedResolution(cacheKey);
+        if (resolved === null) {
+          // Not cached – resolve through mappers
+          resolved = undefined;
+          for (const mapper of mappers) {
+            resolved = mapper.map(document.fileName, match.url, workspaceFolder);
+            if (resolved) { break; }
+          }
+          setCachedResolution(cacheKey, resolved);
         }
 
         if (!resolved) { continue; }
@@ -173,37 +191,57 @@ const hoverProvider: vscode.HoverProvider = {
 
       if (!match) { continue; }
 
-      let md = '';
       const imgPath = entry.imagePath;
+      const isLocal = isLocalFile(imgPath) && !isDataUri(imgPath);
 
-      // Action links for local files
-      if (isLocalFile(imgPath) && !isDataUri(imgPath)) {
-        const fileUri = vscode.Uri.file(imgPath);
-        const args = encodeURIComponent(JSON.stringify([fileUri]));
-        md += `[Reveal in Side Bar](command:revealInExplorer?${args})  \n`;
-        md += `[Open Containing Folder](command:revealFileInOS?${args})  \n`;
+      const imgSizeAttr = maxWidth > 0
+        ? `width="${maxWidth}"`
+        : maxHeight > 0
+          ? `height="${maxHeight}"`
+          : '';
 
-        // File size
-        const size = await getFileSize(imgPath);
-        if (size) { md += `${size}  \n`; }
-      }
-
-      // Image preview
-      let sizeAttr = '';
-      if (maxWidth > 0) {
-        sizeAttr = `|width=${maxWidth}`;
-      } else if (maxHeight > 0) {
-        sizeAttr = `|height=${maxHeight}`;
-      }
-
-      const displayPath = isLocalFile(imgPath) && !isDataUri(imgPath)
+      const displayPath = isLocal
         ? vscode.Uri.file(imgPath).toString()
         : imgPath;
 
-      md += `\n![preview](${displayPath}${sizeAttr})`;
+      // Build hover using Markdown + minimal HTML (VS Code sanitizes most CSS)
+      let md = '';
+
+      // Fetch metadata once (cached)
+      const meta = isLocal ? await getImageMeta(imgPath) : undefined;
+
+      // Centered image
+      md += `<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`;
+
+      // Metadata row: dimensions (left) | file size (right)
+      if (meta) {
+        const left = meta.dimensions ?? '';
+        const right = meta.fileSize ?? '';
+        if (left || right) {
+          md += `\n\n<table width="100%"><tr>`;
+          md += `<td align="left">${left}</td>`;
+          md += `<td align="right">${right}</td>`;
+          md += `</tr></table>`;
+        }
+      }
+
+      // Action links row — bottom
+      if (isLocal) {
+        const fileUri = vscode.Uri.file(imgPath);
+        const args = encodeURIComponent(JSON.stringify([fileUri]));
+        md += `\n\n`;
+        md += `[Open Folder](command:revealFileInOS?${args})`;
+        md += ` · `;
+        md += `[View File](command:revealInExplorer?${args})`;
+        md += ` · `;
+        if (meta?.format) { md += `${meta.format} `; }
+        md += `[$(link-external)](command:vscode.open?${args})`;
+      }
 
       const contents = new vscode.MarkdownString(md);
       contents.isTrusted = true;
+      contents.supportHtml = true;
+      contents.supportThemeIcons = true;
       return new vscode.Hover(contents, entry.decorations[0].range);
     }
 
@@ -237,12 +275,35 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
       for (const editor of vscode.window.visibleTextEditors) {
         throttledScan(editor.document);
       }
-    })
+    }),
+    // Invalidate caches when an image file is saved externally
+    vscode.workspace.onDidSaveTextDocument((doc) => {
+      const ext = doc.fileName.substring(doc.fileName.lastIndexOf('.')).toLowerCase();
+      if (ACCEPTED_EXTENSIONS.includes(ext)) {
+        invalidateMetaCache(doc.fileName);
+        invalidateResolveCacheFor(doc.fileName);
+      }
+    }),
+    // Re-scan all visible editors when config changes
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('atm.image.preview')) {
+        for (const editor of vscode.window.visibleTextEditors) {
+          throttledScan(editor.document, 100);
+        }
+      }
+    }),
   );
+
+  // Periodic cache cleanup (every 30 s)
+  const cacheInterval = setInterval(() => {
+    pruneMetaCache();
+    pruneResolveCache();
+  }, 30_000);
 
   // Cleanup on deactivation
   context.subscriptions.push({
     dispose() {
+      clearInterval(cacheInterval);
       for (const [, entry] of scanResults) {
         entry.token.cancel();
         for (const dec of entry.decorations) { dec.type.dispose(); }
