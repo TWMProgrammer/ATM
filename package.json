@@ -63,43 +63,43 @@
       "type": "object",
       "title": "ATM – Image Preview",
       "properties": {
-        "gutterpreview.showImagePreviewOnGutter": {
+        "atm.image.preview.showImagePreviewOnGutter": {
           "type": "boolean",
           "default": true,
           "scope": "resource",
           "description": "Show image thumbnail in the editor gutter"
         },
-        "gutterpreview.showUnderline": {
+        "atm.image.preview.showUnderline": {
           "type": "boolean",
           "default": true,
           "scope": "resource",
           "description": "Underline recognized image URLs"
         },
-        "gutterpreview.imagePreviewMaxHeight": {
+        "atm.image.preview.imagePreviewMaxHeight": {
           "type": "number",
           "default": 100,
           "scope": "resource",
           "description": "Maximum height (px) of the hover image preview"
         },
-        "gutterpreview.imagePreviewMaxWidth": {
+        "atm.image.preview.imagePreviewMaxWidth": {
           "type": "number",
           "default": -1,
           "scope": "resource",
           "description": "Maximum width (px) of the hover preview (overrides maxHeight when > 0)"
         },
-        "gutterpreview.sourceFolder": {
+        "atm.image.preview.sourceFolder": {
           "type": "string",
           "default": "src",
           "scope": "resource",
           "description": "Additional folder to consider when resolving relative URLs"
         },
-        "gutterpreview.sourceFolders": {
+        "atm.image.preview.sourceFolders": {
           "type": "array",
           "default": ["static", "public"],
           "scope": "resource",
           "description": "Additional folders to consider when resolving relative URLs"
         },
-        "gutterpreview.currentColorForSVG": {
+        "atm.image.preview.currentColorForSVG": {
           "type": "string",
           "default": "white",
           "scope": "resource",

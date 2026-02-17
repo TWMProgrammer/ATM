@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-const SECTION = 'gutterpreview';
+const SECTION = 'atm.image.preview';
 
 type ConfigKey =
   | 'sourceFolder'
