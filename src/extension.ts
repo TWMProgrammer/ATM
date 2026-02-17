@@ -1,21 +1,11 @@
 import * as vscode from 'vscode';
+import { activateExtensions } from './extensions/extensions';
 
-export function activate(context: vscode.ExtensionContext) {
-  console.log('🎉 La extensión "atm" está activa.');
+export function activate(context: vscode.ExtensionContext): void {
+  console.log('🎉 ATM extension activated');
 
-  const disposable = vscode.commands.registerCommand(
-    'atm.helloWorld',
-    async () => {
-      // Muestra un cuadro modal encima de todo
-      await vscode.window.showInformationMessage(
-        '¡Hola desde ATM!',
-        { modal: true },
-        'OK'
-      );
-    }
-  );
-
-  context.subscriptions.push(disposable);
+  // Register all sub-extensions (image-preview, etc.)
+  activateExtensions(context);
 }
 
-export function deactivate() {}
+export function deactivate(): void {}

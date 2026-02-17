@@ -52,7 +52,62 @@
     "url": "https://github.com/sponsors/bastndev"
   },
 
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+
   "main": "./dist/extension.js",
+
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "ATM – Image Preview",
+      "properties": {
+        "gutterpreview.showImagePreviewOnGutter": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Show image thumbnail in the editor gutter"
+        },
+        "gutterpreview.showUnderline": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Underline recognized image URLs"
+        },
+        "gutterpreview.imagePreviewMaxHeight": {
+          "type": "number",
+          "default": 100,
+          "scope": "resource",
+          "description": "Maximum height (px) of the hover image preview"
+        },
+        "gutterpreview.imagePreviewMaxWidth": {
+          "type": "number",
+          "default": -1,
+          "scope": "resource",
+          "description": "Maximum width (px) of the hover preview (overrides maxHeight when > 0)"
+        },
+        "gutterpreview.sourceFolder": {
+          "type": "string",
+          "default": "src",
+          "scope": "resource",
+          "description": "Additional folder to consider when resolving relative URLs"
+        },
+        "gutterpreview.sourceFolders": {
+          "type": "array",
+          "default": ["static", "public"],
+          "scope": "resource",
+          "description": "Additional folders to consider when resolving relative URLs"
+        },
+        "gutterpreview.currentColorForSVG": {
+          "type": "string",
+          "default": "white",
+          "scope": "resource",
+          "description": "Default currentColor for SVG previews"
+        }
+      }
+    }
+  },
 
 
   "scripts": {
