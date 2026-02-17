@@ -2,7 +2,11 @@ import * as vscode from 'vscode';
 import { recognizers } from '../core/recognizers';
 import { mappers } from '../core/mappers';
 import { getConfig } from '../core/config';
-import { getFileSize, isLocalFile, isDataUri } from '../core/utils';
+import {
+  getFileSize, isLocalFile, isDataUri,
+  getCachedResolution, setCachedResolution,
+  pruneFileSizeCache, pruneResolveCache,
+} from '../core/utils';
 import { ACCEPTED_EXTENSIONS } from '../core/types';
 import type { DecorationEntry, ImageInfo } from '../core/types';
 
@@ -64,11 +68,17 @@ function scanDocument(document: vscode.TextDocument): void {
     for (const recognizer of recognizers) {
       const matches = recognizer.recognize(lineIndex, lineText);
       for (const match of matches) {
-        // Try each mapper until one resolves
-        let resolved: string | undefined;
-        for (const mapper of mappers) {
-          resolved = mapper.map(document.fileName, match.url, workspaceFolder);
-          if (resolved) { break; }
+        // Try resolution cache first
+        const cacheKey = `${document.fileName}|${match.url}|${workspaceFolder ?? ''}`;
+        let resolved = getCachedResolution(cacheKey);
+        if (resolved === null) {
+          // Not cached – resolve through mappers
+          resolved = undefined;
+          for (const mapper of mappers) {
+            resolved = mapper.map(document.fileName, match.url, workspaceFolder);
+            if (resolved) { break; }
+          }
+          setCachedResolution(cacheKey, resolved);
         }
 
         if (!resolved) { continue; }
@@ -173,37 +183,46 @@ const hoverProvider: vscode.HoverProvider = {
 
       if (!match) { continue; }
 
-      let md = '';
       const imgPath = entry.imagePath;
+      const isLocal = isLocalFile(imgPath) && !isDataUri(imgPath);
 
-      // Action links for local files
-      if (isLocalFile(imgPath) && !isDataUri(imgPath)) {
-        const fileUri = vscode.Uri.file(imgPath);
-        const args = encodeURIComponent(JSON.stringify([fileUri]));
-        md += `[Reveal in Side Bar](command:revealInExplorer?${args})  \n`;
-        md += `[Open Containing Folder](command:revealFileInOS?${args})  \n`;
+      const imgSizeAttr = maxWidth > 0
+        ? `width="${maxWidth}"`
+        : maxHeight > 0
+          ? `height="${maxHeight}"`
+          : '';
 
-        // File size
-        const size = await getFileSize(imgPath);
-        if (size) { md += `${size}  \n`; }
-      }
-
-      // Image preview
-      let sizeAttr = '';
-      if (maxWidth > 0) {
-        sizeAttr = `|width=${maxWidth}`;
-      } else if (maxHeight > 0) {
-        sizeAttr = `|height=${maxHeight}`;
-      }
-
-      const displayPath = isLocalFile(imgPath) && !isDataUri(imgPath)
+      const displayPath = isLocal
         ? vscode.Uri.file(imgPath).toString()
         : imgPath;
 
-      md += `\n![preview](${displayPath}${sizeAttr})`;
+      // Build hover using Markdown + minimal HTML (VS Code sanitizes most CSS)
+      let md = '';
+
+      // Action links row
+      if (isLocal) {
+        const fileUri = vscode.Uri.file(imgPath);
+        const args = encodeURIComponent(JSON.stringify([fileUri]));
+        md += `[Reveal in Side Bar](command:revealInExplorer?${args})`;
+        md += ` · `;
+        md += `[Open Folder](command:revealFileInOS?${args})`;
+        md += `\n\n`;
+      }
+
+      // Centered image
+      md += `<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`;
+
+      // File size — right-aligned, compact
+      if (isLocal) {
+        const size = await getFileSize(imgPath);
+        if (size) {
+          md += `\n<p align="right">${size}</p>`;
+        }
+      }
 
       const contents = new vscode.MarkdownString(md);
       contents.isTrusted = true;
+      contents.supportHtml = true;
       return new vscode.Hover(contents, entry.decorations[0].range);
     }
 
@@ -240,9 +259,16 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
     })
   );
 
+  // Periodic cache cleanup (every 30 s)
+  const cacheInterval = setInterval(() => {
+    pruneFileSizeCache();
+    pruneResolveCache();
+  }, 30_000);
+
   // Cleanup on deactivation
   context.subscriptions.push({
     dispose() {
+      clearInterval(cacheInterval);
       for (const [, entry] of scanResults) {
         entry.token.cancel();
         for (const dec of entry.decorations) { dec.type.dispose(); }
