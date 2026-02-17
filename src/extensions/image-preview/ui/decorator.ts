@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { recognizers } from './recognizers';
-import { mappers } from './mappers';
-import { getConfig } from './config';
-import { getFileSize, isLocalFile, isDataUri } from './utils';
-import { ACCEPTED_EXTENSIONS } from './types';
-import type { DecorationEntry, ImageInfo } from './types';
+import { recognizers } from '../core/recognizers';
+import { mappers } from '../core/mappers';
+import { getConfig } from '../core/config';
+import { getFileSize, isLocalFile, isDataUri } from '../core/utils';
+import { ACCEPTED_EXTENSIONS } from '../core/types';
+import type { DecorationEntry, ImageInfo } from '../core/types';
 
 /** Scan results per document URI */
 const scanResults = new Map<string, {

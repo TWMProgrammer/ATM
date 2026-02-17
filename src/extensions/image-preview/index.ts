@@ -1,1 +1,1 @@
-export { activateImagePreview } from './decorator';
+export { activateImagePreview } from './ui/decorator';
