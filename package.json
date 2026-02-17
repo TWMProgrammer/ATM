@@ -1,30 +1,51 @@
 {
   "name": "atm",
   "displayName": "ATM",
-  "description": "Available now: VScode, Cursor-AI",
+  "description": "Available now: VSCode • Antigravity • Cursor • Windsurf • Trae.ai • Kiro & (Firebase Studio)... 雨",
   "version": "0.0.1",
+  "publisher": "bastndev",
+  "preview": true,
+  "license": "MIT",
   "engines": {
-    "vscode": "^1.100.0"
+    "vscode": "^1.74.0"
   },
-  "categories": [
-    "Other"
+  "categories": ["Other"],
+  "keywords": [
+    "compare",
+    "code",
+    "diff",
+    "Draw",
+    "match",
+    "vscode",
+    "extension",
+    "productivity",
+    "cc"
   ],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "atm.helloWorld",
-        "title": "Hello World"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "atm.helloWorld",
-        "key": "alt+g",
-        "when": "editorTextFocus"
-      }
-    ]
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#0a0a0a",
+    "theme": "dark"
   },
+  "homepage": "https://github.com/bastndev/ATM#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bastndev/ATM"
+  },
+  "bugs": {
+    "url": "https://github.com/bastndev/ATM/issues"
+  },
+  "author": {
+    "name": "Gohit Bastian",
+    "email": "hello@gohit.xyz",
+    "url": "https://www.gohit.xyz/me"
+  },
+  "sponsor": {
+    "url": "https://github.com/sponsors/bastndev"
+  },
+
+  "main": "./dist/extension.js",
+
+  
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
