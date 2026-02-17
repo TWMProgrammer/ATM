@@ -86,15 +86,19 @@ const dataUrlRecognizer: Recognizer = {
 };
 
 // ─── Sibling File Recognizer ────────────────────────────────────────
-// Detects filenames with known image extensions
+// Detects filenames with known image extensions (regex pre-compiled once)
+
+const SIBLING_PATTERN = new RegExp(
+  `([^\\0\\s!$\`&*()\\[\\]+'":;\\\\]+(?:${ACCEPTED_EXTENSIONS.map((e) => e.replace('.', '\\.')).join('|')}))(?=[\\s'"\`)\\]},;]|$)`,
+  'gi',
+);
 
 const siblingRecognizer: Recognizer = {
   recognize(lineIndex, line) {
-    const extGroup = ACCEPTED_EXTENSIONS.map((e) => `(\\${e})`).join('|');
-    const pattern = new RegExp(`([^\\0\\s!$\`&*()\\[\\]+'":;\\\\]+[${extGroup}])`, 'ig');
     const results: UrlMatch[] = [];
     let match: RegExpExecArray | null;
-    while ((match = pattern.exec(line)) !== null) {
+    SIBLING_PATTERN.lastIndex = 0;
+    while ((match = SIBLING_PATTERN.exec(line)) !== null) {
       results.push({
         url: match[0],
         lineIndex,

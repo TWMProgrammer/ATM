@@ -15,38 +15,71 @@ export function formatFileSize(bytes: number): string {
   return `${i === 0 ? size : size.toFixed(1)} ${units[i]}`;
 }
 
-// ─── File-size cache (TTL: 10 s) ───────────────────────────────────
+// ─── Combined image metadata cache (TTL: 15 s) ─────────────────────
 
-const FILE_SIZE_TTL = 10_000;
-const fileSizeCache = new Map<string, { value: string | undefined; ts: number }>();
+export interface ImageMeta {
+  fileSize?: string;
+  dimensions?: string;
+  format?: string;
+}
+
+const META_TTL = 15_000;
+const IMAGE_HEADER_BYTES = 4096; // enough bytes for image-size to detect dimensions
+const metaCache = new Map<string, { value: ImageMeta; ts: number }>();
 
 /**
- * Get file size as a formatted string (cached for 10 s).
- * Returns undefined for non-existent files.
+ * Get all image metadata in a single FS pass (cached for 15 s).
+ * Reads only the file header for dimensions (not the entire file).
  */
-export async function getFileSize(filePath: string): Promise<string | undefined> {
+export async function getImageMeta(filePath: string): Promise<ImageMeta> {
   const now = Date.now();
-  const cached = fileSizeCache.get(filePath);
-  if (cached && now - cached.ts < FILE_SIZE_TTL) {
-    return cached.value;
-  }
+  const cached = metaCache.get(filePath);
+  if (cached && now - cached.ts < META_TTL) { return cached.value; }
+
+  const meta: ImageMeta = {};
+
   try {
-    const stat = await fs.promises.stat(filePath);
-    const value = formatFileSize(stat.size);
-    fileSizeCache.set(filePath, { value, ts: now });
-    return value;
+    // Single FS call: open file descriptor
+    const fd = await fs.promises.open(filePath, 'r');
+    try {
+      // File size from stat
+      const stat = await fd.stat();
+      meta.fileSize = formatFileSize(stat.size);
+
+      // Read only header bytes for dimensions + format
+      const headerSize = Math.min(IMAGE_HEADER_BYTES, stat.size);
+      const buf = Buffer.alloc(headerSize);
+      await fd.read(buf, 0, headerSize, 0);
+
+      const result = sizeOf(new Uint8Array(buf));
+      if (result.width && result.height) {
+        meta.dimensions = `${result.width}x${result.height}`;
+      }
+      if (result.type) {
+        meta.format = result.type.toUpperCase();
+      }
+    } finally {
+      await fd.close();
+    }
   } catch {
-    fileSizeCache.set(filePath, { value: undefined, ts: now });
-    return undefined;
+    // file doesn't exist or unreadable — return partial meta
+  }
+
+  metaCache.set(filePath, { value: meta, ts: now });
+  return meta;
+}
+
+/** Flush stale entries from the metadata cache. */
+export function pruneMetaCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of metaCache) {
+    if (now - entry.ts >= META_TTL) { metaCache.delete(key); }
   }
 }
 
-/** Flush stale entries from the file-size cache. */
-export function pruneFileSizeCache(): void {
-  const now = Date.now();
-  for (const [key, entry] of fileSizeCache) {
-    if (now - entry.ts >= FILE_SIZE_TTL) { fileSizeCache.delete(key); }
-  }
+/** Invalidate a specific path from the metadata cache (e.g. on file save). */
+export function invalidateMetaCache(filePath: string): void {
+  metaCache.delete(filePath);
 }
 
 // ─── Resolution cache ───────────────────────────────────────────────
@@ -72,34 +105,10 @@ export function pruneResolveCache(): void {
   }
 }
 
-// ─── Image dimensions cache (TTL: 30 s) ────────────────────────────
-
-const DIM_TTL = 30_000;
-const dimCache = new Map<string, { value: string | undefined; ts: number }>();
-
-/**
- * Get image dimensions as "WxH" string (cached for 30 s).
- */
-export async function getImageDimensions(filePath: string): Promise<string | undefined> {
-  const now = Date.now();
-  const cached = dimCache.get(filePath);
-  if (cached && now - cached.ts < DIM_TTL) { return cached.value; }
-  try {
-    const buffer = await fs.promises.readFile(filePath);
-    const result = sizeOf(new Uint8Array(buffer));
-    const value = result.width && result.height ? `${result.width}x${result.height}` : undefined;
-    dimCache.set(filePath, { value, ts: now });
-    return value;
-  } catch {
-    dimCache.set(filePath, { value: undefined, ts: now });
-    return undefined;
-  }
-}
-
-export function pruneDimCache(): void {
-  const now = Date.now();
-  for (const [key, entry] of dimCache) {
-    if (now - entry.ts >= DIM_TTL) { dimCache.delete(key); }
+/** Invalidate resolution entries that reference a specific file path. */
+export function invalidateResolveCacheFor(filePath: string): void {
+  for (const [key, entry] of resolveCache) {
+    if (entry.value === filePath) { resolveCache.delete(key); }
   }
 }
 

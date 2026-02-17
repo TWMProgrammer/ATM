@@ -3,9 +3,10 @@ import { recognizers } from '../core/recognizers';
 import { mappers } from '../core/mappers';
 import { getConfig } from '../core/config';
 import {
-  getFileSize, getImageDimensions, isLocalFile, isDataUri,
+  getImageMeta, isLocalFile, isDataUri,
   getCachedResolution, setCachedResolution,
-  pruneFileSizeCache, pruneResolveCache, pruneDimCache,
+  pruneMetaCache, pruneResolveCache,
+  invalidateMetaCache, invalidateResolveCacheFor,
 } from '../core/utils';
 import { ACCEPTED_EXTENSIONS } from '../core/types';
 import type { DecorationEntry, ImageInfo } from '../core/types';
@@ -18,6 +19,10 @@ const scanResults = new Map<string, {
 
 /** Throttle timers per document URI */
 const throttleTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+// Quick-reject heuristic: skip lines that can't possibly contain an image reference.
+// This avoids running all recognizer regexes on every line.
+const IMAGE_SIGNAL_PATTERN = /\.(svg|png|jpe?g|bmp|gif|ico|webp|avif|jfif)\b|data:image|https?:\/\/|!\[/i;
 
 // ─── Core scanning logic ────────────────────────────────────────────
 
@@ -64,6 +69,9 @@ function scanDocument(document: vscode.TextDocument): void {
 
     const lineText = document.lineAt(lineIndex).text;
     if (!lineText || lineText.length > 20_000) { continue; }
+
+    // Quick reject: skip lines without any image-like signal
+    if (!IMAGE_SIGNAL_PATTERN.test(lineText)) { continue; }
 
     for (const recognizer of recognizers) {
       const matches = recognizer.recognize(lineIndex, lineText);
@@ -202,16 +210,16 @@ const hoverProvider: vscode.HoverProvider = {
       // Centered image
       md += `<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`;
 
-      // Dimensions (left) + File size (right) on same line
+      // Metadata row: dimensions (left) | format + file size (right)
       if (isLocal) {
-        const [dims, size] = await Promise.all([
-          getImageDimensions(imgPath),
-          getFileSize(imgPath),
-        ]);
-        if (dims || size) {
+        const meta = await getImageMeta(imgPath);
+        const left = meta.dimensions ?? '';
+        const rightParts = [meta.format, meta.fileSize].filter(Boolean);
+        const right = rightParts.join(' · ');
+        if (left || right) {
           md += `\n\n<table width="100%"><tr>`;
-          md += `<td align="left">${dims ?? ''}</td>`;
-          md += `<td align="right">${size ?? ''}</td>`;
+          md += `<td align="left">${left}</td>`;
+          md += `<td align="right">${right}</td>`;
           md += `</tr></table>`;
         }
       }
@@ -265,14 +273,29 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
       for (const editor of vscode.window.visibleTextEditors) {
         throttledScan(editor.document);
       }
-    })
+    }),
+    // Invalidate caches when an image file is saved externally
+    vscode.workspace.onDidSaveTextDocument((doc) => {
+      const ext = doc.fileName.substring(doc.fileName.lastIndexOf('.')).toLowerCase();
+      if (ACCEPTED_EXTENSIONS.includes(ext)) {
+        invalidateMetaCache(doc.fileName);
+        invalidateResolveCacheFor(doc.fileName);
+      }
+    }),
+    // Re-scan all visible editors when config changes
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('atm.image.preview')) {
+        for (const editor of vscode.window.visibleTextEditors) {
+          throttledScan(editor.document, 100);
+        }
+      }
+    }),
   );
 
   // Periodic cache cleanup (every 30 s)
   const cacheInterval = setInterval(() => {
-    pruneFileSizeCache();
+    pruneMetaCache();
     pruneResolveCache();
-    pruneDimCache();
   }, 30_000);
 
   // Cleanup on deactivation
