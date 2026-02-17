@@ -3,9 +3,9 @@ import { recognizers } from '../core/recognizers';
 import { mappers } from '../core/mappers';
 import { getConfig } from '../core/config';
 import {
-  getFileSize, isLocalFile, isDataUri,
+  getFileSize, getImageDimensions, isLocalFile, isDataUri,
   getCachedResolution, setCachedResolution,
-  pruneFileSizeCache, pruneResolveCache,
+  pruneFileSizeCache, pruneResolveCache, pruneDimCache,
 } from '../core/utils';
 import { ACCEPTED_EXTENSIONS } from '../core/types';
 import type { DecorationEntry, ImageInfo } from '../core/types';
@@ -199,30 +199,39 @@ const hoverProvider: vscode.HoverProvider = {
       // Build hover using Markdown + minimal HTML (VS Code sanitizes most CSS)
       let md = '';
 
-      // Action links row
-      if (isLocal) {
-        const fileUri = vscode.Uri.file(imgPath);
-        const args = encodeURIComponent(JSON.stringify([fileUri]));
-        md += `[Reveal in Side Bar](command:revealInExplorer?${args})`;
-        md += ` · `;
-        md += `[Open Folder](command:revealFileInOS?${args})`;
-        md += `\n\n`;
-      }
-
       // Centered image
       md += `<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`;
 
-      // File size — right-aligned, compact
+      // Dimensions (left) + File size (right) on same line
       if (isLocal) {
-        const size = await getFileSize(imgPath);
-        if (size) {
-          md += `\n<p align="right">${size}</p>`;
+        const [dims, size] = await Promise.all([
+          getImageDimensions(imgPath),
+          getFileSize(imgPath),
+        ]);
+        if (dims || size) {
+          md += `\n\n<table width="100%"><tr>`;
+          md += `<td align="left">${dims ?? ''}</td>`;
+          md += `<td align="right">${size ?? ''}</td>`;
+          md += `</tr></table>`;
         }
+      }
+
+      // Action links row — bottom
+      if (isLocal) {
+        const fileUri = vscode.Uri.file(imgPath);
+        const args = encodeURIComponent(JSON.stringify([fileUri]));
+        md += `\n\n`;
+        md += `[Reveal img](command:revealInExplorer?${args})`;
+        md += ` · `;
+        md += `[Open Folder](command:revealFileInOS?${args})`;
+        md += ` · `;
+        md += `[$(link-external)](command:vscode.open?${args})`;
       }
 
       const contents = new vscode.MarkdownString(md);
       contents.isTrusted = true;
       contents.supportHtml = true;
+      contents.supportThemeIcons = true;
       return new vscode.Hover(contents, entry.decorations[0].range);
     }
 
@@ -263,6 +272,7 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
   const cacheInterval = setInterval(() => {
     pruneFileSizeCache();
     pruneResolveCache();
+    pruneDimCache();
   }, 30_000);
 
   // Cleanup on deactivation

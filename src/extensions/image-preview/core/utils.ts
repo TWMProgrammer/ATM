@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import sizeOf from 'image-size';
 
 /**
  * Returns a human-readable file size string (e.g. "12.5 KB").
@@ -68,6 +69,37 @@ export function pruneResolveCache(): void {
   const now = Date.now();
   for (const [key, entry] of resolveCache) {
     if (now - entry.ts >= RESOLVE_TTL) { resolveCache.delete(key); }
+  }
+}
+
+// ─── Image dimensions cache (TTL: 30 s) ────────────────────────────
+
+const DIM_TTL = 30_000;
+const dimCache = new Map<string, { value: string | undefined; ts: number }>();
+
+/**
+ * Get image dimensions as "WxH" string (cached for 30 s).
+ */
+export async function getImageDimensions(filePath: string): Promise<string | undefined> {
+  const now = Date.now();
+  const cached = dimCache.get(filePath);
+  if (cached && now - cached.ts < DIM_TTL) { return cached.value; }
+  try {
+    const buffer = await fs.promises.readFile(filePath);
+    const result = sizeOf(new Uint8Array(buffer));
+    const value = result.width && result.height ? `${result.width}x${result.height}` : undefined;
+    dimCache.set(filePath, { value, ts: now });
+    return value;
+  } catch {
+    dimCache.set(filePath, { value: undefined, ts: now });
+    return undefined;
+  }
+}
+
+export function pruneDimCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of dimCache) {
+    if (now - entry.ts >= DIM_TTL) { dimCache.delete(key); }
   }
 }
 
