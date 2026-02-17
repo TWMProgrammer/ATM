@@ -207,15 +207,16 @@ const hoverProvider: vscode.HoverProvider = {
       // Build hover using Markdown + minimal HTML (VS Code sanitizes most CSS)
       let md = '';
 
+      // Fetch metadata once (cached)
+      const meta = isLocal ? await getImageMeta(imgPath) : undefined;
+
       // Centered image
       md += `<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`;
 
-      // Metadata row: dimensions (left) | format + file size (right)
-      if (isLocal) {
-        const meta = await getImageMeta(imgPath);
+      // Metadata row: dimensions (left) | file size (right)
+      if (meta) {
         const left = meta.dimensions ?? '';
-        const rightParts = [meta.format, meta.fileSize].filter(Boolean);
-        const right = rightParts.join(' · ');
+        const right = meta.fileSize ?? '';
         if (left || right) {
           md += `\n\n<table width="100%"><tr>`;
           md += `<td align="left">${left}</td>`;
@@ -233,6 +234,7 @@ const hoverProvider: vscode.HoverProvider = {
         md += ` · `;
         md += `[Open Folder](command:revealFileInOS?${args})`;
         md += ` · `;
+        if (meta?.format) { md += `${meta.format} `; }
         md += `[$(link-external)](command:vscode.open?${args})`;
       }
 
