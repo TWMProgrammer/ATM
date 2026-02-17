@@ -1,7 +1,7 @@
 {
   "name": "atm",
   "displayName": "ATM",
-  "description": "Avaible now: VScode, Cursor-AI",
+  "description": "Available now: VScode, Cursor-AI",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.100.0"
