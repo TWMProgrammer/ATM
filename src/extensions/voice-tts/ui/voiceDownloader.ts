@@ -16,6 +16,8 @@ import {
     downloadFile,
     formatBytes,
     stopCurrentPlayback,
+    isPiperInstalled,
+    installPiper,
     CONFIG_SECTION,
     type PresetLanguage
 } from '../core';
@@ -138,24 +140,33 @@ async function executeDownload(
         const { modelPath, configPath } = getVoiceFilePaths(context, voiceId);
         const modelSize = formatBytes(urls.modelSizeBytes);
 
-        // Download with real progress
+        // Download with real progress (includes Piper engine if needed)
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
-            title: `Downloading "${voiceId}" (${modelSize})`,
+            title: 'ATM Voice TTS — Setup',
             cancellable: false
         }, async (progress) => {
-            // Download model
-            progress.report({ message: 'Downloading model... 0%' });
+            // Step 1: Install Piper engine if not present
+            if (!isPiperInstalled(context)) {
+                progress.report({ message: 'Installing Piper TTS engine (first time only)...' });
+                await installPiper(context, progress);
+                progress.report({ message: 'Piper engine installed!' });
+                // Brief pause so user can see the message
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
+            // Step 2: Download voice model
+            progress.report({ message: `Downloading voice model... 0% (${modelSize})` });
             await downloadFile(urls.modelUrl, modelPath, (p) => {
                 const pct = p.percentage ?? 0;
                 const downloaded = formatBytes(p.bytesDownloaded);
                 progress.report({ 
-                    message: `Downloading model... ${pct}% (${downloaded} / ${modelSize})`,
+                    message: `Downloading voice... ${pct}% (${downloaded} / ${modelSize})`,
                     increment: pct > 0 ? 1 : 0
                 });
             });
 
-            // Download config
+            // Step 3: Download config
             progress.report({ message: 'Downloading config...' });
             await downloadFile(urls.configUrl, configPath);
             progress.report({ message: 'Complete!' });

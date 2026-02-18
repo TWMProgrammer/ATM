@@ -19,6 +19,70 @@ export const SUPPORTED_PLATFORMS = ['win32', 'darwin', 'linux'] as const;
 export type SupportedPlatform = typeof SUPPORTED_PLATFORMS[number];
 
 /**
+ * Piper TTS engine download URLs per platform/architecture.
+ * From: https://github.com/rhasspy/piper/releases
+ */
+export const PIPER_RELEASE_BASE = 'https://github.com/rhasspy/piper/releases/download/2023.11.14-2';
+
+export interface PiperBinaryInfo {
+    /** Download URL */
+    url: string;
+    /** Target directory name inside piper/ */
+    dirName: string;
+    /** Whether it's a tar.gz (true) or zip (false) */
+    isTarGz: boolean;
+}
+
+export function getPiperDownloadInfo(): PiperBinaryInfo {
+    const platform = process.platform;
+    const arch = process.arch;
+
+    switch (platform) {
+        case 'win32':
+            return {
+                url: `${PIPER_RELEASE_BASE}/piper_windows_amd64.zip`,
+                dirName: 'windows_amd64',
+                isTarGz: false
+            };
+        case 'darwin':
+            if (arch === 'arm64') {
+                return {
+                    url: `${PIPER_RELEASE_BASE}/piper_macos_aarch64.tar.gz`,
+                    dirName: 'macos_aarch64',
+                    isTarGz: true
+                };
+            }
+            return {
+                url: `${PIPER_RELEASE_BASE}/piper_macos_x64.tar.gz`,
+                dirName: 'macos_x64',
+                isTarGz: true
+            };
+        case 'linux':
+            if (arch === 'arm64') {
+                return {
+                    url: `${PIPER_RELEASE_BASE}/piper_linux_aarch64.tar.gz`,
+                    dirName: 'linux_aarch64',
+                    isTarGz: true
+                };
+            }
+            if (arch === 'arm') {
+                return {
+                    url: `${PIPER_RELEASE_BASE}/piper_linux_armv7l.tar.gz`,
+                    dirName: 'linux_armv7l',
+                    isTarGz: true
+                };
+            }
+            return {
+                url: `${PIPER_RELEASE_BASE}/piper_linux_x86_64.tar.gz`,
+                dirName: 'linux_x86_64',
+                isTarGz: true
+            };
+        default:
+            throw new Error(`Unsupported platform: ${platform}`);
+    }
+}
+
+/**
  * Preset language definitions available for download.
  * Only EN (US) and ES (MX) are supported.
  */

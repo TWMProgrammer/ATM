@@ -48,3 +48,6 @@ export {
 
 // Symlinks
 export { fixSymlinks, getLinuxArchitecture, getSymlinkMappings } from './symlinks';
+
+// Piper installer
+export { isPiperInstalled, installPiper } from './piperInstaller';

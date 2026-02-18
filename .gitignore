@@ -22,3 +22,4 @@ Thumbs.db
 # Voice TTS: modelos descargados (muy pesados, no subir al repo)
 **/*.onnx
 voices
+piper
