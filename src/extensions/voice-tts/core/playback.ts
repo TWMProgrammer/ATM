@@ -18,6 +18,11 @@ let stoppedByUser = false;
 export function stopCurrentPlayback(): void {
     stoppedByUser = true;
     try {
+        // Disconnect the pipe before killing to avoid SIGPIPE
+        if (piperProcess && playerProcess) {
+            piperProcess.stdout?.unpipe(playerProcess.stdin ?? undefined);
+            playerProcess.stdin?.destroy();
+        }
         if (piperProcess && !piperProcess.killed) {
             piperProcess.kill();
             piperProcess = undefined;
@@ -75,6 +80,11 @@ export async function readText(context: vscode.ExtensionContext, text: string): 
 
     const player = spawn(playback.command, playback.args);
     playerProcess = player;
+
+    // Swallow broken-pipe errors on the streams to prevent SIGPIPE crashes
+    const noop = () => {};
+    piper.stdout.on('error', noop);
+    player.stdin.on('error', noop);
 
     piper.stdout.pipe(player.stdin);
     piper.stdin.write(text);
