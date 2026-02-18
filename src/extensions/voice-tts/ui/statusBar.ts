@@ -1,70 +1,108 @@
-/**
- * Status bar UI components for Voice TTS extension.
- * Provides a globe icon (voice selector) and play/pause button in the bottom-left.
- */
-
 import * as vscode from 'vscode';
 import {
   CONFIG_SECTION,
   DEFAULT_VOICE,
   getAvailableVoices,
-  getVoiceLabel,
-  isPlaying,
-} from '../core';
+} from '../core/core';
 
-let voiceStatusBarItem: vscode.StatusBarItem;
-let playStatusBarItem: vscode.StatusBarItem;
+// ─── Status Bar Config ──────────────────────────────────────────────
+
+const STATUS_BAR_CONFIG = {
+  voice: {
+    icon: 'globe',
+    tooltip: 'ATM Voice TTS — Select voice',
+    command: 'atm.voiceTts.selectVoice',
+    alignment: vscode.StatusBarAlignment.Left,
+    priority: 1001,
+    background: 'statusBarItem.errorBackground',
+    color: undefined as string | undefined,
+  },
+
+  play: {
+    alignment: vscode.StatusBarAlignment.Left,
+    priority: 1000,
+    command: 'atm.voiceTts.togglePlayback',
+
+    playing: {
+      icon: 'debug-stop',
+      label: 'Stop',
+      tooltip: 'ATM Voice (pause)',
+      background: 'statusBarItem.errorBackground',
+      color: undefined as string | undefined,
+    },
+
+    ready: {
+      icon: 'play',
+      label: 'Read',
+      tooltip: 'ATM Voice (play)',
+      background: undefined as string | undefined,
+      color: undefined as string | undefined,
+    },
+
+    idle: {
+      icon: 'play',
+      label: 'Read',
+      tooltip: 'ATM Voice (play)',
+      background: undefined as string | undefined,
+      color: 'disabledForeground',
+    },
+  },
+};
+
+// ─── State ──────────────────────────────────────────────────────────
+
+let voiceItem: vscode.StatusBarItem;
+let playItem: vscode.StatusBarItem;
 let selectionWatcher: vscode.Disposable | undefined;
 let hasTextSelection = false;
 let currentlyPlaying = false;
 
-/**
- * Create and register the status bar items.
- */
+// ─── Helpers ────────────────────────────────────────────────────────
+
+interface PlayButtonState {
+  icon: string;
+  label: string;
+  tooltip: string;
+  background: string | undefined;
+  color: string | undefined;
+}
+
+function themeColor(id: string | undefined): vscode.ThemeColor | undefined {
+  return id ? new vscode.ThemeColor(id) : undefined;
+}
+
+// ─── Public API ─────────────────────────────────────────────────────
+
 export function createStatusBarItems(context: vscode.ExtensionContext): void {
-  // Globe icon — voice selector (priority 1001 = left of play button)
-  voiceStatusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Left,
-    1001,
-  );
-  voiceStatusBarItem.command = 'atm.voiceTts.selectVoice';
-  voiceStatusBarItem.tooltip = 'ATM Voice TTS — Select voice';
-  voiceStatusBarItem.backgroundColor = new vscode.ThemeColor(
-    'statusBarItem.errorBackground',
-  );
+  const vc = STATUS_BAR_CONFIG.voice;
+  const pc = STATUS_BAR_CONFIG.play;
+
+  voiceItem = vscode.window.createStatusBarItem(vc.alignment, vc.priority);
+  voiceItem.command = vc.command;
+  voiceItem.tooltip = vc.tooltip;
+  voiceItem.backgroundColor = themeColor(vc.background);
+  voiceItem.color = themeColor(vc.color);
   updateVoiceStatusBar(context);
-  voiceStatusBarItem.show();
+  voiceItem.show();
 
-  // Play/pause button (priority 1000 = right of globe)
-  playStatusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Left,
-    1000,
-  );
-  playStatusBarItem.command = 'atm.voiceTts.togglePlayback';
+  playItem = vscode.window.createStatusBarItem(pc.alignment, pc.priority);
+  playItem.command = pc.command;
   updatePlayButton();
-  playStatusBarItem.show();
+  playItem.show();
 
-  // Watch text selection changes
   selectionWatcher = vscode.window.onDidChangeTextEditorSelection((e) => {
-    const selection = e.textEditor.selection;
-    const newHasSelection = !selection.isEmpty;
-    if (newHasSelection !== hasTextSelection) {
-      hasTextSelection = newHasSelection;
+    const newHas = !e.textEditor.selection.isEmpty;
+    if (newHas !== hasTextSelection) {
+      hasTextSelection = newHas;
       updatePlayButton();
     }
   });
 
-  // Watch active editor changes
   const editorWatcher = vscode.window.onDidChangeActiveTextEditor((editor) => {
-    if (editor) {
-      hasTextSelection = !editor.selection.isEmpty;
-    } else {
-      hasTextSelection = false;
-    }
+    hasTextSelection = editor ? !editor.selection.isEmpty : false;
     updatePlayButton();
   });
 
-  // Watch configuration changes to update voice label
   const configWatcher = vscode.workspace.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration(CONFIG_SECTION)) {
       updateVoiceStatusBar(context);
@@ -72,86 +110,63 @@ export function createStatusBarItems(context: vscode.ExtensionContext): void {
   });
 
   context.subscriptions.push(
-    voiceStatusBarItem,
-    playStatusBarItem,
+    voiceItem,
+    playItem,
     selectionWatcher,
     editorWatcher,
     configWatcher,
   );
 }
 
-/**
- * Update the voice status bar item with current voice info.
- */
 export function updateVoiceStatusBar(context: vscode.ExtensionContext): void {
   const voices = getAvailableVoices(context);
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
+  const icon = STATUS_BAR_CONFIG.voice.icon;
 
   if (voices.length === 0) {
-    voiceStatusBarItem.text = '$(globe) No Voice';
-    voiceStatusBarItem.tooltip =
+    voiceItem.text = `$(${icon}) No Voice`;
+    voiceItem.tooltip =
       'ATM Voice TTS — No voices installed. Click to download.';
   } else {
-    // Show short language code from voice ID (e.g., "en_US" → "EN")
     const langCode =
       currentVoice.split('-')[0]?.split('_')[0]?.toUpperCase() ?? '??';
-    voiceStatusBarItem.text = `$(globe) ${langCode}`;
-    voiceStatusBarItem.tooltip = `ATM Language (${langCode})`;
+    voiceItem.text = `$(${icon}) ${langCode}`;
+    voiceItem.tooltip = `ATM Language (${langCode})`;
   }
 }
 
-/**
- * Update the play/pause button state.
- */
 export function updatePlayButton(): void {
+  const pc = STATUS_BAR_CONFIG.play;
+  let state: PlayButtonState;
+
   if (currentlyPlaying) {
-    playStatusBarItem.text = '$(debug-stop) Stop';
-    playStatusBarItem.tooltip = 'ATM Voice (pause)';
-    playStatusBarItem.backgroundColor = new vscode.ThemeColor(
-      'statusBarItem.errorBackground',
-    );
-    playStatusBarItem.color = undefined;
+    state = pc.playing;
   } else if (hasTextSelection) {
-    playStatusBarItem.text = '$(play) Read';
-    playStatusBarItem.tooltip = 'ATM Voice (play)';
-    playStatusBarItem.backgroundColor = undefined;
-    playStatusBarItem.color = undefined;
+    state = pc.ready;
   } else {
-    playStatusBarItem.text = '$(play) Read';
-    playStatusBarItem.tooltip = 'ATM Voice (play)';
-    playStatusBarItem.backgroundColor = undefined;
-    playStatusBarItem.color = new vscode.ThemeColor('disabledForeground');
+    state = pc.idle;
   }
+
+  playItem.text = `$(${state.icon}) ${state.label}`;
+  playItem.tooltip = state.tooltip;
+  playItem.backgroundColor = themeColor(state.background);
+  playItem.color = themeColor(state.color);
 }
 
-/**
- * Set the playing state and update button.
- */
 export function setPlayingState(playing: boolean): void {
   currentlyPlaying = playing;
   updatePlayButton();
 }
 
-/**
- * Check if there is a text selection.
- */
 export function getHasTextSelection(): boolean {
   return hasTextSelection;
 }
 
-/**
- * Check if currently in playing state.
- */
 export function getIsPlaying(): boolean {
   return currentlyPlaying;
 }
 
-/**
- * Dispose status bar resources.
- */
 export function disposeStatusBar(): void {
-  if (selectionWatcher) {
-    selectionWatcher.dispose();
-  }
+  selectionWatcher?.dispose();
 }
