@@ -1,1 +1,2 @@
-export { activateVoiceTts, deactivateVoiceTts, type VoiceTtsApi } from './piper-tts';
+export { activateVoiceTts, deactivateVoiceTts } from './activation';
+export type { VoiceTtsApi } from './core';

@@ -1,3 +1,7 @@
+/**
+ * Symlink management for Linux Piper binaries
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -7,6 +11,9 @@ export interface SymlinkMapping {
     link: string;
 }
 
+/**
+ * Get the Linux architecture string for the current system.
+ */
 export function getLinuxArchitecture(): string {
     const arch = os.arch();
     switch (arch) {
@@ -17,6 +24,9 @@ export function getLinuxArchitecture(): string {
     }
 }
 
+/**
+ * Get the symlink mappings required for Piper on Linux.
+ */
 export function getSymlinkMappings(): SymlinkMapping[] {
     return [
         { target: 'libespeak-ng.so.1.52.0.1', link: 'libespeak-ng.so.1' },
@@ -27,7 +37,10 @@ export function getSymlinkMappings(): SymlinkMapping[] {
     ];
 }
 
-/** @param resourcesBasePath - Ruta base donde están las carpetas piper/ y voices/ */
+/**
+ * Fix symlinks in the Piper binary directory for Linux.
+ * @param resourcesBasePath - Base path where piper/ and voices/ directories are located
+ */
 export async function fixSymlinks(resourcesBasePath: string): Promise<void> {
     if (process.platform !== 'linux') {
         return;
@@ -48,6 +61,9 @@ export async function fixSymlinks(resourcesBasePath: string): Promise<void> {
     }
 }
 
+/**
+ * Create a symlink in a directory.
+ */
 async function createSymlink(dir: string, target: string, link: string): Promise<void> {
     const linkPath = path.join(dir, link);
     const targetPath = path.join(dir, target);
