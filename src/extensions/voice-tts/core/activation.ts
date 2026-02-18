@@ -12,7 +12,6 @@ import { fixSymlinks } from './installer';
 import {
   createStatusBarItems,
   setPlayingState,
-  getHasTextSelection,
   getIsPlaying,
   disposeStatusBar,
   showVoiceSelector,
@@ -87,18 +86,50 @@ export function activateVoiceTts(
         return;
       }
 
-      if (!getHasTextSelection()) {
-        vscode.window.showInformationMessage('SELECT TEXT 📃');
-        return;
-      }
-
+      // 1. Try editor selection first
+      let text = '';
       const editor = vscode.window.activeTextEditor;
-      if (!editor) {
+      if (editor && !editor.selection.isEmpty) {
+        text = editor.document.getText(editor.selection);
+      }
+
+      // 2. Fallback: read from clipboard (for AI chat, terminal, etc.)
+      if (!text) {
+        text = (await vscode.env.clipboard.readText()).trim();
+      }
+
+      // 3. Nothing available
+      if (!text) {
+        vscode.window.showInformationMessage('SELECT TEXT or COPY (Ctrl+C) 📃');
         return;
       }
 
-      const text = editor.document.getText(editor.selection);
+      try {
+        setPlayingState(true);
+        await api.readText(text);
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          'Error running text-to-speech: ' +
+            (error instanceof Error ? error.message : String(error)),
+        );
+      } finally {
+        setPlayingState(false);
+      }
+    }),
+
+    // Shift+Alt+V → copy whatever is selected + read it aloud
+    vscode.commands.registerCommand('atm.voiceTts.copyAndRead', async () => {
+      if (getIsPlaying()) {
+        api.stopPlayback();
+        return;
+      }
+
+      await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      const text = (await vscode.env.clipboard.readText()).trim();
       if (!text) {
+        vscode.window.showInformationMessage('SELECT TEXT 📃');
         return;
       }
 
