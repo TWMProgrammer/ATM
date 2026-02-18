@@ -1,5 +1,6 @@
 import type * as vscode from 'vscode';
 import { activateImagePreview } from './image-preview';
+import { activateVoiceTts } from './voice-tts';
 
 /**
  * Register all sub-extensions here.
@@ -7,4 +8,5 @@ import { activateImagePreview } from './image-preview';
  */
 export function activateExtensions(context: vscode.ExtensionContext): void {
   activateImagePreview(context);
+  activateVoiceTts(context);
 }

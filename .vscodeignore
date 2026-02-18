@@ -12,3 +12,8 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+
+# Voice TTS: no incluir modelos de voz en el .vsix (cada usuario los descarga con "Download Voice")
+**/*.onnx
+voices
+piper
