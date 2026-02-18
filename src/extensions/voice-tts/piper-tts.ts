@@ -124,22 +124,42 @@ function downloadFile(url: string, destination: string): Promise<void> {
     });
 }
 
-function loadVoicesData(context: vscode.ExtensionContext): Record<string, unknown> {
+const VOICES_JSON_URL = 'https://huggingface.co/rhasspy/piper-voices/raw/main/voices.json';
+
+async function loadVoicesData(context: vscode.ExtensionContext): Promise<Record<string, unknown>> {
     const baseDir = getResourcesBasePath(context);
-    const voicesJsonPath = path.join(baseDir, 'voices', 'voices.json');
+    const voicesDir = path.join(baseDir, 'voices');
+    const voicesJsonPath = path.join(voicesDir, 'voices.json');
+
+    // If voices.json exists locally, read it
+    if (fs.existsSync(voicesJsonPath)) {
+        try {
+            const voicesJson = fs.readFileSync(voicesJsonPath, 'utf8');
+            return JSON.parse(voicesJson) as Record<string, unknown>;
+        } catch (error) {
+            console.error('[voice-tts] Error parsing local voices.json:', error);
+        }
+    }
+
+    // Download voices.json from HuggingFace
+    console.log('[voice-tts] voices.json not found locally, downloading from HuggingFace...');
+    if (!fs.existsSync(voicesDir)) {
+        fs.mkdirSync(voicesDir, { recursive: true });
+    }
 
     try {
+        await downloadFile(VOICES_JSON_URL, voicesJsonPath);
         const voicesJson = fs.readFileSync(voicesJsonPath, 'utf8');
         return JSON.parse(voicesJson) as Record<string, unknown>;
     } catch (error) {
-        console.error('[voice-tts] Error reading voices.json:', error);
-        throw new Error('Failed to load voices data');
+        console.error('[voice-tts] Error downloading voices.json:', error);
+        throw new Error('Failed to download voices catalog. Check your internet connection and try again.');
     }
 }
 
 async function downloadVoice(context: vscode.ExtensionContext): Promise<void> {
     try {
-        const voicesData = loadVoicesData(context);
+        const voicesData = await loadVoicesData(context);
         const languages = Object.keys(voicesData);
 
         const selectedLanguage = await vscode.window.showQuickPick(languages, {
