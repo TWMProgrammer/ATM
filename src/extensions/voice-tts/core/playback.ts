@@ -10,11 +10,13 @@ import { getPiperPath, getVoicePath, getPlaybackCommand } from './paths';
 
 let piperProcess: ChildProcess | undefined;
 let playerProcess: ChildProcess | undefined;
+let stoppedByUser = false;
 
 /**
  * Stop any currently running TTS playback.
  */
 export function stopCurrentPlayback(): void {
+    stoppedByUser = true;
     try {
         if (piperProcess && !piperProcess.killed) {
             piperProcess.kill();
@@ -78,13 +80,23 @@ export async function readText(context: vscode.ExtensionContext, text: string): 
     piper.stdin.write(text);
     piper.stdin.end();
 
+    stoppedByUser = false;
+
     return new Promise((resolve, reject) => {
-        piper.on('error', reject);
-        player.on('error', reject);
+        piper.on('error', (err) => {
+            if (!stoppedByUser) { reject(err); }
+            else { resolve(); }
+        });
+        player.on('error', (err) => {
+            if (!stoppedByUser) { reject(err); }
+            else { resolve(); }
+        });
         
         piper.on('close', (code) => {
             piperProcess = undefined;
-            if (code !== 0 && code !== null) {
+            if (stoppedByUser) {
+                resolve();
+            } else if (code !== 0 && code !== null) {
                 reject(new Error(`Piper process exited with code: ${code}`));
             } else {
                 resolve();
@@ -93,7 +105,7 @@ export async function readText(context: vscode.ExtensionContext, text: string): 
         
         player.on('close', (code) => {
             playerProcess = undefined;
-            if (code === 0) {
+            if (stoppedByUser || code === 0) {
                 resolve();
             } else {
                 reject(new Error(`Player process exited with code: ${code}`));
