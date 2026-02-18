@@ -1,181 +1,164 @@
 /**
- * Voice selector QuickPick UI.
- * Shows installed voices with option to download more or remove existing ones.
- * Displays upward from status bar click.
+ * Unified voice selector QuickPick UI.
+ * Shows all preset voices grouped by language.
+ * - Not installed → gray row with $(cloud-download) button → click to download.
+ * - Installed → colored row with $(trash) button → click row to select, button to delete.
  */
 
 import * as vscode from 'vscode';
 import {
     CONFIG_SECTION,
     DEFAULT_VOICE,
-    getAvailableVoices,
-    getVoiceLabel,
+    PRESET_LANGUAGES,
+    isVoiceInstalled,
     deleteVoiceFiles,
-    isVoiceInstalled
+    getAvailableVoices,
+    type PresetVoice,
+    type PresetLanguage
 } from '../core';
 import { updateVoiceStatusBar } from './statusBar';
-import { showVoiceDownloader } from './voiceDownloader';
+import { executeVoiceDownload } from './voiceDownloader';
 
-/** Separator item for QuickPick */
-interface SeparatorItem extends vscode.QuickPickItem {
-    kind: vscode.QuickPickItemKind.Separator;
+// ── Button icons ──────────────────────────────────────────────────────
+
+const downloadButton: vscode.QuickInputButton = {
+    iconPath: new vscode.ThemeIcon('cloud-download'),
+    tooltip: 'Download voice'
+};
+
+const deleteButton: vscode.QuickInputButton = {
+    iconPath: new vscode.ThemeIcon('trash'),
+    tooltip: 'Remove voice'
+};
+
+// ── Item type ─────────────────────────────────────────────────────────
+
+interface VoiceItem extends vscode.QuickPickItem {
+    voiceId: string;
+    installed: boolean;
+    preset: PresetVoice;
+    lang: PresetLanguage;
 }
 
-/** Action item for QuickPick */
-interface ActionItem extends vscode.QuickPickItem {
-    action: 'select' | 'download' | 'remove';
-    voiceId?: string;
-}
+// ── Build items ───────────────────────────────────────────────────────
 
-type VoiceSelectorItem = ActionItem | SeparatorItem;
-
-/**
- * Show the voice selector QuickPick.
- * If no voices installed, shows download prompt.
- */
-export async function showVoiceSelector(context: vscode.ExtensionContext): Promise<void> {
-    const voices = getAvailableVoices(context);
+function buildItems(context: vscode.ExtensionContext): VoiceItem[] {
     const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
     const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
+    const items: VoiceItem[] = [];
 
-    const items: VoiceSelectorItem[] = [];
-
-    if (voices.length === 0) {
-        // No voices installed
+    for (const lang of PRESET_LANGUAGES) {
+        // Language separator
         items.push({
-            label: '$(warning) No voices installed',
-            description: '',
-            detail: 'Download a voice to get started with text-to-speech',
-            action: 'download'
-        } as ActionItem);
+            label: lang.label,
+            kind: vscode.QuickPickItemKind.Separator,
+            voiceId: '',
+            installed: false,
+            preset: {} as PresetVoice,
+            lang
+        });
 
-        items.push({
-            label: '',
-            kind: vscode.QuickPickItemKind.Separator
-        } as SeparatorItem);
+        for (const voice of lang.recommendedVoices) {
+            const voiceId = `${lang.catalogKey}-${voice.name}-${voice.quality}`;
+            const installed = isVoiceInstalled(context, voiceId);
+            const isCurrent = voiceId === currentVoice;
 
-        items.push({
-            label: '$(cloud-download) Download Voice...',
-            description: 'EN (US) / ES (MX)',
-            action: 'download'
-        } as ActionItem);
-    } else {
-        // Show installed voices
-        for (const voice of voices) {
-            const isCurrent = voice === currentVoice;
             items.push({
-                label: `${isCurrent ? '$(check) ' : '     '}${getVoiceLabel(voice)}`,
-                description: isCurrent ? 'Current' : '',
-                detail: voice,
-                action: 'select',
-                voiceId: voice
-            } as ActionItem);
+                voiceId,
+                installed,
+                preset: voice,
+                lang,
+                label: installed
+                    ? `$(check) ${voice.label}`
+                    : `$(circle-slash) ${voice.label}`,
+                description: installed
+                    ? isCurrent ? 'Current' : voice.quality
+                    : 'Not installed',
+                detail: voice.description,
+                buttons: installed ? [deleteButton] : [downloadButton]
+            });
         }
-
-        items.push({
-            label: '',
-            kind: vscode.QuickPickItemKind.Separator
-        } as SeparatorItem);
-
-        items.push({
-            label: '$(cloud-download) Download Voice...',
-            description: 'EN (US) / ES (MX)',
-            action: 'download'
-        } as ActionItem);
-
-        items.push({
-            label: '$(trash) Remove Voice...',
-            description: '',
-            action: 'remove'
-        } as ActionItem);
     }
 
-    const selected = await vscode.window.showQuickPick(items, {
-        title: '$(globe) ATM Voice TTS',
-        placeHolder: voices.length > 0
-            ? 'Select a voice or manage voices'
-            : 'No voices installed — download one to start',
-    });
-
-    if (!selected || (selected as SeparatorItem).kind === vscode.QuickPickItemKind.Separator) {
-        return;
-    }
-
-    const actionItem = selected as ActionItem;
-
-    switch (actionItem.action) {
-        case 'select':
-            if (actionItem.voiceId) {
-                await vscode.workspace.getConfiguration(CONFIG_SECTION).update(
-                    'voice',
-                    actionItem.voiceId,
-                    vscode.ConfigurationTarget.Global
-                );
-                updateVoiceStatusBar(context);
-            }
-            break;
-
-        case 'download':
-            await showVoiceDownloader(context);
-            break;
-
-        case 'remove':
-            await showVoiceRemover(context);
-            break;
-    }
+    return items;
 }
 
+// ── Show selector ─────────────────────────────────────────────────────
+
 /**
- * Show the voice remover QuickPick.
+ * Show the unified voice selector.
  */
-async function showVoiceRemover(context: vscode.ExtensionContext): Promise<void> {
-    const voices = getAvailableVoices(context);
-    if (voices.length === 0) {
-        vscode.window.showInformationMessage('No voices to remove.');
-        return;
-    }
+export async function showVoiceSelector(context: vscode.ExtensionContext): Promise<void> {
+    const qp = vscode.window.createQuickPick<VoiceItem>();
+    qp.title = '$(globe) ATM Voice TTS';
+    qp.placeholder = 'Select a voice or download one';
+    qp.matchOnDescription = true;
+    qp.items = buildItems(context);
 
-    const items = voices.map(voice => ({
-        label: `$(trash) ${getVoiceLabel(voice)}`,
-        description: voice,
-        detail: 'Click to remove this voice'
-    }));
+    // ── Row click ─────────────────────────────────────────────────
+    qp.onDidAccept(async () => {
+        const selected = qp.selectedItems[0];
+        if (!selected || selected.kind === vscode.QuickPickItemKind.Separator) { return; }
 
-    const selected = await vscode.window.showQuickPick(items, {
-        title: '$(trash) Remove Voice',
-        placeHolder: 'Select a voice to remove',
+        if (selected.installed) {
+            // Select as current voice
+            await vscode.workspace.getConfiguration(CONFIG_SECTION).update(
+                'voice',
+                selected.voiceId,
+                vscode.ConfigurationTarget.Global
+            );
+            updateVoiceStatusBar(context);
+            qp.dispose();
+        } else {
+            // Download the voice
+            qp.dispose();
+            await executeVoiceDownload(context, selected.voiceId);
+        }
     });
 
-    if (!selected) { return; }
+    // ── Button click ──────────────────────────────────────────────
+    qp.onDidTriggerItemButton(async (e) => {
+        const item = e.item;
 
-    const voiceId = selected.description;
+        if (item.installed) {
+            // Delete voice
+            const confirm = await vscode.window.showWarningMessage(
+                `Remove voice "${item.preset.label}"?`,
+                { modal: true },
+                'Remove'
+            );
+            if (confirm !== 'Remove') { return; }
 
-    const confirm = await vscode.window.showWarningMessage(
-        `Remove voice "${voiceId}"?`,
-        { modal: true },
-        'Remove'
-    );
+            try {
+                deleteVoiceFiles(context, item.voiceId);
 
-    if (confirm !== 'Remove') { return; }
+                // If we removed the current voice, switch to another
+                const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
+                const currentVoice = config.get<string>('voice');
+                if (currentVoice === item.voiceId) {
+                    const remaining = getAvailableVoices(context);
+                    const newVoice = remaining.length > 0 ? remaining[0] : DEFAULT_VOICE;
+                    await config.update('voice', newVoice, vscode.ConfigurationTarget.Global);
+                }
 
-    try {
-        deleteVoiceFiles(context, voiceId);
-        vscode.window.showInformationMessage(`Voice "${voiceId}" removed.`);
+                updateVoiceStatusBar(context);
 
-        // Reset to default if we removed the current voice
-        const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
-        const currentVoice = config.get<string>('voice');
-        if (currentVoice === voiceId) {
-            const remaining = getAvailableVoices(context);
-            const newVoice = remaining.length > 0 ? remaining[0] : DEFAULT_VOICE;
-            await config.update('voice', newVoice, vscode.ConfigurationTarget.Global);
+                // Refresh the list in-place
+                qp.items = buildItems(context);
+
+                vscode.window.showInformationMessage(`Voice "${item.preset.label}" removed.`);
+            } catch (error) {
+                vscode.window.showErrorMessage(
+                    'Failed to remove voice: ' + (error instanceof Error ? error.message : String(error))
+                );
+            }
+        } else {
+            // Download voice (button clicked)
+            qp.dispose();
+            await executeVoiceDownload(context, item.voiceId);
         }
+    });
 
-        updateVoiceStatusBar(context);
-    } catch (error) {
-        console.error('[voice-tts] Error removing voice:', error);
-        vscode.window.showErrorMessage(
-            'Failed to remove voice: ' + (error instanceof Error ? error.message : String(error))
-        );
-    }
+    qp.onDidHide(() => qp.dispose());
+    qp.show();
 }

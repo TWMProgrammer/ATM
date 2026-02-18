@@ -13,4 +13,4 @@ export {
 } from './statusBar';
 
 export { showVoiceSelector } from './voiceSelector';
-export { showVoiceDownloader } from './voiceDownloader';
+export { executeVoiceDownload } from './voiceDownloader';

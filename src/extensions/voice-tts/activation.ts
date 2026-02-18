@@ -22,7 +22,6 @@ import {
     getIsPlaying,
     disposeStatusBar,
     showVoiceSelector,
-    showVoiceDownloader,
     updateVoiceStatusBar
 } from './ui';
 
@@ -79,8 +78,8 @@ export function activateVoiceTts(context: vscode.ExtensionContext): VoiceTtsApi 
             setPlayingState(false);
         },
         selectVoice: () => showVoiceSelector(context),
-        downloadVoice: () => showVoiceDownloader(context),
-        removeVoice: () => showVoiceSelector(context) // Opens selector which includes remove
+        downloadVoice: () => showVoiceSelector(context), // Unified panel handles download
+        removeVoice: () => showVoiceSelector(context)    // Unified panel handles remove
     };
 
     // Register commands
