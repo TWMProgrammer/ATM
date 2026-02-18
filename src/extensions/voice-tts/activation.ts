@@ -115,34 +115,7 @@ export function activateVoiceTts(context: vscode.ExtensionContext): VoiceTtsApi 
             } finally {
                 setPlayingState(false);
             }
-        }),
-
-        // Legacy commands (command palette compatibility)
-        vscode.commands.registerCommand('atm.voiceTts.readAloud', async () => {
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) { return; }
-            
-            const text = editor.document.getText(editor.selection);
-            if (!text) {
-                vscode.window.showInformationMessage('Please select some text to read aloud');
-                return;
-            }
-            
-            try {
-                setPlayingState(true);
-                await api.readText(text);
-            } catch (error) {
-                vscode.window.showErrorMessage(
-                    'Error running text-to-speech: ' + (error instanceof Error ? error.message : String(error))
-                );
-            } finally {
-                setPlayingState(false);
-            }
-        }),
-
-        vscode.commands.registerCommand('atm.voiceTts.stopPlayback', () => api.stopPlayback()),
-        vscode.commands.registerCommand('atm.voiceTts.downloadVoice', () => api.downloadVoice()),
-        vscode.commands.registerCommand('atm.voiceTts.removeVoice', () => api.removeVoice())
+        })
     );
 
     return api;

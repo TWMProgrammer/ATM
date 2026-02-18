@@ -114,69 +114,8 @@
         }
       }
     },
-    "commands": [
-      {
-        "command": "atm.voiceTts.readAloud",
-        "title": "Read Aloud",
-        "category": "ATM Voice TTS"
-      },
-      {
-        "command": "atm.voiceTts.stopPlayback",
-        "title": "Stop Reading",
-        "category": "ATM Voice TTS"
-      },
-      {
-        "command": "atm.voiceTts.togglePlayback",
-        "title": "Toggle Play/Stop",
-        "category": "ATM Voice TTS"
-      },
-      {
-        "command": "atm.voiceTts.selectVoice",
-        "title": "Select Voice",
-        "category": "ATM Voice TTS"
-      },
-      {
-        "command": "atm.voiceTts.downloadVoice",
-        "title": "Download Voice",
-        "category": "ATM Voice TTS"
-      },
-      {
-        "command": "atm.voiceTts.removeVoice",
-        "title": "Remove Voice",
-        "category": "ATM Voice TTS"
-      }
-    ],
-    "menus": {
-      "editor/context": [
-        {
-          "when": "editorHasSelection",
-          "command": "atm.voiceTts.readAloud",
-          "group": "1_modification"
-        },
-        {
-          "command": "atm.voiceTts.stopPlayback",
-          "group": "1_modification"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "atm.voiceTts.readAloud",
-          "when": "editorHasSelection"
-        },
-        {
-          "command": "atm.voiceTts.stopPlayback"
-        },
-        {
-          "command": "atm.voiceTts.selectVoice"
-        },
-        {
-          "command": "atm.voiceTts.downloadVoice"
-        },
-        {
-          "command": "atm.voiceTts.removeVoice"
-        }
-      ]
-    }
+    "commands": [],
+    "menus": {}
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
