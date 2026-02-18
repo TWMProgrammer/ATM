@@ -30,7 +30,7 @@ export function createStatusBarItems(context: vscode.ExtensionContext): void {
   voiceStatusBarItem.command = 'atm.voiceTts.selectVoice';
   voiceStatusBarItem.tooltip = 'ATM Voice TTS — Select voice';
   voiceStatusBarItem.backgroundColor = new vscode.ThemeColor(
-    'statusBarItem.warningBackground',
+    'statusBarItem.errorBackground',
   );
   updateVoiceStatusBar(context);
   voiceStatusBarItem.show();
@@ -42,7 +42,7 @@ export function createStatusBarItems(context: vscode.ExtensionContext): void {
   );
   playStatusBarItem.command = 'atm.voiceTts.togglePlayback';
   playStatusBarItem.backgroundColor = new vscode.ThemeColor(
-    'statusBarItem.warningBackground',
+    'statusBarItem.errorBackground',
   );
   updatePlayButton();
   playStatusBarItem.show();
