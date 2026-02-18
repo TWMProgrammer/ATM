@@ -41,9 +41,6 @@ export function createStatusBarItems(context: vscode.ExtensionContext): void {
     1000,
   );
   playStatusBarItem.command = 'atm.voiceTts.togglePlayback';
-  playStatusBarItem.backgroundColor = new vscode.ThemeColor(
-    'statusBarItem.errorBackground',
-  );
   updatePlayButton();
   playStatusBarItem.show();
 
@@ -100,7 +97,7 @@ export function updateVoiceStatusBar(context: vscode.ExtensionContext): void {
     const langCode =
       currentVoice.split('-')[0]?.split('_')[0]?.toUpperCase() ?? '??';
     voiceStatusBarItem.text = `$(globe) ${langCode}`;
-    voiceStatusBarItem.tooltip = `ATM Voice TTS — ${getVoiceLabel(currentVoice)}`;
+    voiceStatusBarItem.tooltip = `ATM Language (${langCode})`;
   }
 }
 
@@ -110,17 +107,20 @@ export function updateVoiceStatusBar(context: vscode.ExtensionContext): void {
 export function updatePlayButton(): void {
   if (currentlyPlaying) {
     playStatusBarItem.text = '$(debug-stop) Stop';
-    playStatusBarItem.tooltip = 'ATM Voice TTS — Stop reading';
-    playStatusBarItem.color = new vscode.ThemeColor(
-      'statusBarItem.warningForeground',
+    playStatusBarItem.tooltip = 'ATM Voice (pause)';
+    playStatusBarItem.backgroundColor = new vscode.ThemeColor(
+      'statusBarItem.errorBackground',
     );
+    playStatusBarItem.color = undefined;
   } else if (hasTextSelection) {
     playStatusBarItem.text = '$(play) Read';
-    playStatusBarItem.tooltip = 'ATM Voice TTS — Read selected text aloud';
+    playStatusBarItem.tooltip = 'ATM Voice (play)';
+    playStatusBarItem.backgroundColor = undefined;
     playStatusBarItem.color = undefined;
   } else {
     playStatusBarItem.text = '$(play) Read';
-    playStatusBarItem.tooltip = 'ATM Voice TTS — Select text to read aloud';
+    playStatusBarItem.tooltip = 'ATM Voice (play)';
+    playStatusBarItem.backgroundColor = undefined;
     playStatusBarItem.color = new vscode.ThemeColor('disabledForeground');
   }
 }

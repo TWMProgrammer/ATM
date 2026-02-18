@@ -95,7 +95,7 @@ export function activateVoiceTts(context: vscode.ExtensionContext): VoiceTtsApi 
             }
 
             if (!getHasTextSelection()) {
-                vscode.window.showInformationMessage('Select some text to read aloud.');
+                vscode.window.showInformationMessage('SELECT TEXT 📃');
                 return;
             }
 
