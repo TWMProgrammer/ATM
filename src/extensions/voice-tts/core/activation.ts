@@ -93,14 +93,18 @@ export function activateVoiceTts(
         text = editor.document.getText(editor.selection);
       }
 
-      // 2. Fallback: read from clipboard (for AI chat, terminal, etc.)
+      // 2. Fallback: auto-copy + read from clipboard
       if (!text) {
+        await vscode.commands.executeCommand(
+          'editor.action.clipboardCopyAction',
+        );
+        await new Promise((resolve) => setTimeout(resolve, 150));
         text = (await vscode.env.clipboard.readText()).trim();
       }
 
       // 3. Nothing available
       if (!text) {
-        vscode.window.showInformationMessage('SELECT TEXT or COPY (Ctrl+C) 📃');
+        vscode.window.showInformationMessage('SELECT TEXT 📃');
         return;
       }
 
