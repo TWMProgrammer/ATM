@@ -126,7 +126,7 @@ export const PRESET_LANGUAGES: PresetLanguage[] = [
     ],
   },
   {
-    label: '🇲🇽 Español (MX)',
+    label: '🇵🇪 Español (PE)',
     shortCode: 'ES',
     catalogKey: 'es_MX',
     recommendedVoices: [
