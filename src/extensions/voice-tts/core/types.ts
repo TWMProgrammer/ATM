@@ -2,25 +2,44 @@
  * Type definitions for Voice TTS extension
  */
 
-/** Voice entry with model URLs for a specific quality/size */
-export interface VoiceModelEntry {
-    model: string;
-    config: string;
+/** File entry inside a voice catalog entry */
+export interface CatalogFileEntry {
+    size_bytes: number;
+    md5_digest: string;
 }
 
-/** Voice with multiple quality options */
-export interface VoiceEntry {
-    [quality: string]: VoiceModelEntry;
+/** Language info inside a catalog voice entry */
+export interface CatalogLanguage {
+    code: string;
+    family: string;
+    region: string;
+    name_native: string;
+    name_english: string;
+    country_english: string;
 }
 
-/** Language containing multiple voices */
-export interface LanguageEntry {
-    [voiceName: string]: VoiceEntry;
+/** Single voice entry in the flat voices.json catalog */
+export interface CatalogVoiceEntry {
+    key: string;
+    name: string;
+    language: CatalogLanguage;
+    quality: string;
+    num_speakers: number;
+    speaker_id_map: Record<string, number>;
+    files: Record<string, CatalogFileEntry>;
+    aliases: string[];
 }
 
-/** Full voices catalog structure from voices.json */
+/** Full voices catalog — flat map keyed by voice ID (e.g., "es_MX-ald-medium") */
 export interface VoicesCatalog {
-    [language: string]: LanguageEntry;
+    [voiceId: string]: CatalogVoiceEntry;
+}
+
+/** Resolved download URLs for a voice */
+export interface VoiceDownloadUrls {
+    modelUrl: string;
+    configUrl: string;
+    modelSizeBytes: number;
 }
 
 /** Playback command configuration */

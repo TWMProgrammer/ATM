@@ -126,6 +126,11 @@
         "category": "ATM Voice TTS"
       },
       {
+        "command": "atm.voiceTts.togglePlayback",
+        "title": "Toggle Play/Stop",
+        "category": "ATM Voice TTS"
+      },
+      {
         "command": "atm.voiceTts.selectVoice",
         "title": "Select Voice",
         "category": "ATM Voice TTS"

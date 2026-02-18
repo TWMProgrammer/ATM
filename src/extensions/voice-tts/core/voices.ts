@@ -5,10 +5,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { VOICES_JSON_URL } from './config';
+import { VOICES_JSON_URL, VOICES_DOWNLOAD_BASE_URL } from './config';
 import { getVoicesDir } from './paths';
 import { downloadFile } from './download';
-import type { VoicesCatalog } from './types';
+import type { VoicesCatalog, CatalogVoiceEntry, VoiceDownloadUrls } from './types';
 
 /**
  * Get list of locally available voice models.
@@ -77,6 +77,34 @@ export async function loadVoicesCatalog(context: vscode.ExtensionContext): Promi
 }
 
 /**
+ * Look up a voice entry in the catalog by voice ID.
+ * Voice ID format: "es_MX-ald-medium" (same as catalog key)
+ */
+export function lookupVoice(catalog: VoicesCatalog, voiceId: string): CatalogVoiceEntry | null {
+    return catalog[voiceId] ?? null;
+}
+
+/**
+ * Resolve download URLs for a voice from its catalog entry.
+ * Constructs full HuggingFace URLs from the relative file paths.
+ */
+export function resolveDownloadUrls(entry: CatalogVoiceEntry): VoiceDownloadUrls | null {
+    const files = Object.keys(entry.files);
+    const onnxFile = files.find(f => f.endsWith('.onnx') && !f.endsWith('.onnx.json'));
+    const configFile = files.find(f => f.endsWith('.onnx.json'));
+
+    if (!onnxFile || !configFile) {
+        return null;
+    }
+
+    return {
+        modelUrl: `${VOICES_DOWNLOAD_BASE_URL}${onnxFile}`,
+        configUrl: `${VOICES_DOWNLOAD_BASE_URL}${configFile}`,
+        modelSizeBytes: entry.files[onnxFile].size_bytes
+    };
+}
+
+/**
  * Get the model and config file paths for a voice.
  */
 export function getVoiceFilePaths(context: vscode.ExtensionContext, voiceId: string): {
@@ -110,21 +138,4 @@ export function deleteVoiceFiles(context: vscode.ExtensionContext, voiceId: stri
     if (fs.existsSync(configPath)) {
         fs.unlinkSync(configPath);
     }
-}
-
-/**
- * Extract language code from a language key.
- * Example: "English (en_US)" -> "en_US"
- */
-export function extractLanguageCode(languageKey: string): string {
-    const match = languageKey.match(/\(([^)]+)\)/);
-    return match?.[1] ?? '';
-}
-
-/**
- * Build a voice ID from catalog selection.
- */
-export function buildVoiceId(languageKey: string, voiceName: string, quality: string): string {
-    const languageCode = extractLanguageCode(languageKey);
-    return `${languageCode}-${voiceName}-${quality}`;
 }

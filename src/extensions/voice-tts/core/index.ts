@@ -3,14 +3,16 @@
  */
 
 // Configuration
-export { CONFIG_SECTION, DEFAULT_VOICE, VOICES_JSON_URL } from './config';
+export { CONFIG_SECTION, DEFAULT_VOICE, VOICES_JSON_URL, VOICES_DOWNLOAD_BASE_URL, PRESET_LANGUAGES } from './config';
+export type { PresetLanguage, PresetVoice } from './config';
 
 // Types
 export type { 
     VoicesCatalog, 
-    VoiceEntry, 
-    LanguageEntry, 
-    VoiceModelEntry,
+    CatalogVoiceEntry,
+    CatalogFileEntry,
+    CatalogLanguage,
+    VoiceDownloadUrls,
     PlaybackCommand,
     VoiceTtsApi,
     VoiceQuickPickItem
@@ -37,11 +39,11 @@ export {
     getAvailableVoices, 
     getVoiceLabel, 
     loadVoicesCatalog,
+    lookupVoice,
+    resolveDownloadUrls,
     getVoiceFilePaths,
     isVoiceInstalled,
-    deleteVoiceFiles,
-    extractLanguageCode,
-    buildVoiceId
+    deleteVoiceFiles
 } from './voices';
 
 // Symlinks
