@@ -11,22 +11,17 @@ import type { PlaybackCommand } from './types';
 
 /**
  * Get the base path where piper/ and voices/ directories are located.
- * First tries extension root; falls back to piper-tts/Piper_TTS-main for development.
+ * Uses VS Code's globalStorageUri so downloads persist across extension updates.
  */
 export function getResourcesBasePath(context: vscode.ExtensionContext): string {
-    const extPath = context.extensionUri.fsPath;
-    const atRoot = path.join(extPath, 'piper');
-    
-    if (fs.existsSync(atRoot)) {
-        return extPath;
+    const globalDir = context.globalStorageUri.fsPath;
+
+    // Ensure the directory exists (VS Code does not create it automatically)
+    if (!fs.existsSync(globalDir)) {
+        fs.mkdirSync(globalDir, { recursive: true });
     }
-    
-    const fallback = path.join(extPath, 'piper-tts', 'Piper_TTS-main');
-    if (fs.existsSync(path.join(fallback, 'piper'))) {
-        return fallback;
-    }
-    
-    return extPath;
+
+    return globalDir;
 }
 
 /**
@@ -91,7 +86,8 @@ export function getPlaybackCommand(context: vscode.ExtensionContext): PlaybackCo
 
     switch (platform) {
         case 'win32': {
-            const playPath = path.join(baseDir, 'sox', 'play.exe');
+            // sox ships inside the downloaded piper directory
+            const playPath = path.join(baseDir, 'piper', 'windows_amd64', 'sox', 'play.exe');
             return {
                 command: playPath,
                 args: ['-t', 'raw', '-r', '22050', '-b', '16', '-e', 'signed', '-c', '1', '-L', '-', 'remix', '1']
