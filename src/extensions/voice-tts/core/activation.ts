@@ -120,22 +120,35 @@ export async function activateVoiceTts(
         return;
       }
 
-      // 1. Try editor selection first
-      let text = '';
-      const editor = vscode.window.activeTextEditor;
-      if (editor && !editor.selection.isEmpty) {
-        text = editor.document.getText(editor.selection);
-      }
+      // 1. Save current clipboard to detect changes
+      const previousClipboard = await vscode.env.clipboard.readText();
 
-      // 2. Fallback: auto-copy + read from clipboard
-      if (!text) {
+      // 2. Try Ctrl+C from whichever panel has focus
+      try {
         await vscode.commands.executeCommand(
           'editor.action.clipboardCopyAction',
         );
-        text = (await vscode.env.clipboard.readText()).trim();
+      } catch {
+        // Command may fail if focus is not on a text editor, that's ok
       }
 
-      // 3. Nothing available
+      let text = '';
+      const newClipboard = (await vscode.env.clipboard.readText()).trim();
+
+      // 3. If clipboard changed, use the newly copied text
+      if (newClipboard && newClipboard !== previousClipboard.trim()) {
+        text = newClipboard;
+      }
+
+      // 4. Fallback: editor selection (if clipboard didn't capture anything new)
+      if (!text) {
+        const editor = vscode.window.activeTextEditor;
+        if (editor && !editor.selection.isEmpty) {
+          text = editor.document.getText(editor.selection);
+        }
+      }
+
+      // 5. Nothing available
       if (!text) {
         vscode.window.showInformationMessage('SELECT TEXT 📃');
         return;
@@ -166,9 +179,35 @@ export async function activateVoiceTts(
         return;
       }
 
-      await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+      // 1. Save current clipboard to detect changes
+      const previousClipboard = await vscode.env.clipboard.readText();
 
-      const text = (await vscode.env.clipboard.readText()).trim();
+      // 2. Try Ctrl+C from whichever panel has focus
+      try {
+        await vscode.commands.executeCommand(
+          'editor.action.clipboardCopyAction',
+        );
+      } catch {
+        // Command may fail if focus is not on a text editor, that's ok
+      }
+
+      let text = '';
+      const newClipboard = (await vscode.env.clipboard.readText()).trim();
+
+      // 3. If clipboard changed, use the newly copied text
+      if (newClipboard && newClipboard !== previousClipboard.trim()) {
+        text = newClipboard;
+      }
+
+      // 4. Fallback: editor selection
+      if (!text) {
+        const editor = vscode.window.activeTextEditor;
+        if (editor && !editor.selection.isEmpty) {
+          text = editor.document.getText(editor.selection);
+        }
+      }
+
+      // 5. Nothing available
       if (!text) {
         vscode.window.showInformationMessage('SELECT TEXT 📃');
         return;
