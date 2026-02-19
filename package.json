@@ -114,7 +114,18 @@
         }
       }
     },
-    "commands": [],
+    "commands": [
+      {
+        "command": "atm.voiceTts.copyAndRead",
+        "title": "ATM Voice TTS: Copy & Read"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "atm.voiceTts.copyAndRead",
+        "key": "shift+alt+v"
+      }
+    ],
     "menus": {}
   },
   "scripts": {

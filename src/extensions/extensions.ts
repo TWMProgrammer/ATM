@@ -6,7 +6,7 @@ import { activateVoiceTts } from './voice-tts';
  * Register all sub-extensions here.
  * Each receives the shared ExtensionContext.
  */
-export function activateExtensions(context: vscode.ExtensionContext): void {
+export async function activateExtensions(context: vscode.ExtensionContext): Promise<void> {
   activateImagePreview(context);
-  activateVoiceTts(context);
+  await activateVoiceTts(context);
 }
