@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
 import {
   CONFIG_SECTION,
   DEFAULT_VOICE,
   PRESET_LANGUAGES,
   getAvailableVoices,
-  getVoicesDir,
+  ensureVoicesDir,
   getVoiceFilePaths,
   loadVoicesCatalog,
   lookupVoice,
@@ -226,8 +225,7 @@ async function executeVoiceDownload(
       return;
     }
 
-    const voicesDir = await getVoicesDir(context);
-    await fs.promises.mkdir(voicesDir, { recursive: true });
+    const voicesDir = await ensureVoicesDir(context);
 
     const { modelPath, configPath } = await getVoiceFilePaths(context, voiceId);
     const modelSize = formatBytes(urls.modelSizeBytes);
@@ -245,7 +243,7 @@ async function executeVoiceDownload(
           'piper',
         );
 
-        if (!isPiperInstalled(piperPath)) {
+        if (!(await isPiperInstalled(piperPath))) {
           progress.report({
             message: 'Installing Piper TTS engine (first time only)...',
           });

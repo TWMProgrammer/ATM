@@ -116,6 +116,14 @@ export async function getVoicesDir(
   return path.join(baseDir, 'voices');
 }
 
+export async function ensureVoicesDir(
+  context: vscode.ExtensionContext,
+): Promise<string> {
+  const voicesDir = await getVoicesDir(context);
+  await fs.promises.mkdir(voicesDir, { recursive: true });
+  return voicesDir;
+}
+
 export async function getPlaybackCommand(
   context: vscode.ExtensionContext,
 ): Promise<PlaybackCommand> {
