@@ -5,7 +5,10 @@ import * as path from 'path';
 import {
   getResourcesBasePath,
   getPiperPath,
+  CONFIG_SECTION,
+  DEFAULT_VOICE,
   readText,
+  isVoiceInstalled,
   stopCurrentPlayback,
 } from './core';
 import { fixSymlinks } from './installer';
@@ -39,6 +42,24 @@ function setExecutePermissions(context: vscode.ExtensionContext): void {
   } catch (error) {
     console.error('[voice-tts] Error setting execute permissions:', error);
   }
+}
+
+async function ensureVoiceForPlayback(
+  context: vscode.ExtensionContext,
+): Promise<boolean> {
+  const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
+  const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
+
+  if (isVoiceInstalled(context, currentVoice)) {
+    return true;
+  }
+
+  vscode.window.showInformationMessage(
+    'No voice installed - Download 📥 one.',
+  );
+
+  await showVoiceSelector(context);
+  return false;
 }
 
 export function activateVoiceTts(
@@ -86,6 +107,11 @@ export function activateVoiceTts(
         return;
       }
 
+      const hasVoice = await ensureVoiceForPlayback(context);
+      if (!hasVoice) {
+        return;
+      }
+
       // 1. Try editor selection first
       let text = '';
       const editor = vscode.window.activeTextEditor;
@@ -125,6 +151,11 @@ export function activateVoiceTts(
     vscode.commands.registerCommand('atm.voiceTts.copyAndRead', async () => {
       if (getIsPlaying()) {
         api.stopPlayback();
+        return;
+      }
+
+      const hasVoice = await ensureVoiceForPlayback(context);
+      if (!hasVoice) {
         return;
       }
 
