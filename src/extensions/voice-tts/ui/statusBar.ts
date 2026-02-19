@@ -129,12 +129,14 @@ export function updateVoiceStatusBar(context: vscode.ExtensionContext): void {
     voiceItem.backgroundColor = themeColor(
       STATUS_BAR_CONFIG.voice.background,
     );
+    voiceItem.color = undefined;
   } else {
     const langCode =
       currentVoice.split('-')[0]?.split('_')[0]?.toUpperCase() ?? '??';
     voiceItem.text = `$(${icon}) ${langCode}`;
     voiceItem.tooltip = `ATM Language (${langCode})`;
     voiceItem.backgroundColor = undefined;
+    voiceItem.color = themeColor('focusBorder');
   }
 }
 
