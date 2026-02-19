@@ -80,8 +80,6 @@ export function createStatusBarItems(context: vscode.ExtensionContext): void {
   voiceItem = vscode.window.createStatusBarItem(vc.alignment, vc.priority);
   voiceItem.command = vc.command;
   voiceItem.tooltip = vc.tooltip;
-  voiceItem.backgroundColor = themeColor(vc.background);
-  voiceItem.color = themeColor(vc.color);
   updateVoiceStatusBar(context);
   voiceItem.show();
 
@@ -128,11 +126,15 @@ export function updateVoiceStatusBar(context: vscode.ExtensionContext): void {
     voiceItem.text = `$(${icon}) No Voice`;
     voiceItem.tooltip =
       'ATM Voice TTS — No voices installed. Click to download.';
+    voiceItem.backgroundColor = themeColor(
+      STATUS_BAR_CONFIG.voice.background,
+    );
   } else {
     const langCode =
       currentVoice.split('-')[0]?.split('_')[0]?.toUpperCase() ?? '??';
     voiceItem.text = `$(${icon}) ${langCode}`;
     voiceItem.tooltip = `ATM Language (${langCode})`;
+    voiceItem.backgroundColor = undefined;
   }
 }
 
