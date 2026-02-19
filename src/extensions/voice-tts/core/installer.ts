@@ -441,8 +441,17 @@ async function createSymlink(
       return;
     }
 
-    if (fs.existsSync(linkPath)) {
+    // Check if symlink already exists and points to correct target
+    try {
+      const existingTarget = await fs.promises.readlink(linkPath);
+      if (existingTarget === target) {
+        // Symlink already exists and is correct
+        return;
+      }
+      // Remove incorrect symlink
       await fs.promises.unlink(linkPath);
+    } catch {
+      // Link doesn't exist or is not a symlink, proceed to create
     }
 
     await fs.promises.symlink(target, linkPath);

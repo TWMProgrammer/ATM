@@ -5,6 +5,38 @@ import {
   getAvailableVoices,
 } from '../core/core';
 
+// ─── Debounce Helper ───────────────────────────────────────────────
+
+function debounce<T extends (...args: unknown[]) => void>(
+  fn: T,
+  delay: number,
+): { (): void; dispose(): void } {
+  let timer: NodeJS.Timeout | undefined;
+  let disposed = false;
+
+  const wrapper = () => {
+    if (disposed) {
+      return;
+    }
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      timer = undefined;
+      fn();
+    }, delay);
+  };
+
+  wrapper.dispose = () => {
+    disposed = true;
+    if (timer) {
+      clearTimeout(timer);
+    }
+  };
+
+  return wrapper;
+}
+
 // ─── Status Bar Config ──────────────────────────────────────────────
 
 const STATUS_BAR_CONFIG = {
@@ -54,6 +86,7 @@ const STATUS_BAR_CONFIG = {
 let voiceItem: vscode.StatusBarItem;
 let playItem: vscode.StatusBarItem;
 let selectionWatcher: vscode.Disposable | undefined;
+let debouncedUpdate: { (): void; dispose(): void } | undefined;
 let hasTextSelection = false;
 let currentlyPlaying = false;
 
@@ -88,11 +121,14 @@ export function createStatusBarItems(context: vscode.ExtensionContext): void {
   updatePlayButton();
   playItem.show();
 
+  // Debounced update to avoid excessive calls while typing
+  debouncedUpdate = debounce(() => updatePlayButton(), 50);
+
   selectionWatcher = vscode.window.onDidChangeTextEditorSelection((e) => {
     const newHas = !e.textEditor.selection.isEmpty;
     if (newHas !== hasTextSelection) {
       hasTextSelection = newHas;
-      updatePlayButton();
+      debouncedUpdate?.();
     }
   });
 
@@ -116,8 +152,10 @@ export function createStatusBarItems(context: vscode.ExtensionContext): void {
   );
 }
 
-export function updateVoiceStatusBar(context: vscode.ExtensionContext): void {
-  const voices = getAvailableVoices(context);
+export async function updateVoiceStatusBar(
+  context: vscode.ExtensionContext,
+): Promise<void> {
+  const voices = await getAvailableVoices(context);
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
   const icon = STATUS_BAR_CONFIG.voice.icon;
@@ -126,9 +164,7 @@ export function updateVoiceStatusBar(context: vscode.ExtensionContext): void {
     voiceItem.text = `$(${icon}) No Voice`;
     voiceItem.tooltip =
       'ATM Voice TTS — No voices installed. Click to download.';
-    voiceItem.backgroundColor = themeColor(
-      STATUS_BAR_CONFIG.voice.background,
-    );
+    voiceItem.backgroundColor = themeColor(STATUS_BAR_CONFIG.voice.background);
     voiceItem.color = undefined;
   } else {
     const langCode =
@@ -172,5 +208,6 @@ export function getIsPlaying(): boolean {
 }
 
 export function disposeStatusBar(): void {
+  debouncedUpdate?.dispose();
   selectionWatcher?.dispose();
 }

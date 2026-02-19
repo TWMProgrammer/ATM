@@ -22,22 +22,31 @@ import {
 } from '../ui/ui';
 import type { VoiceTtsApi } from './types';
 
-function setExecutePermissions(context: vscode.ExtensionContext): void {
+async function setExecutePermissions(
+  context: vscode.ExtensionContext,
+): Promise<void> {
   if (os.platform() !== 'linux' && os.platform() !== 'darwin') {
     return;
   }
 
   try {
-    const piperPath = getPiperPath(context);
-    if (fs.existsSync(piperPath)) {
-      fs.chmodSync(piperPath, 0o755);
+    const piperPath = await getPiperPath(context);
+
+    try {
+      await fs.promises.access(piperPath, fs.constants.F_OK);
+      await fs.promises.chmod(piperPath, 0o755);
+    } catch {
+      // File doesn't exist yet, skip
     }
 
     const binDir = path.dirname(piperPath);
     for (const binary of ['espeak-ng', 'piper_phonemize']) {
       const binaryPath = path.join(binDir, binary);
-      if (fs.existsSync(binaryPath)) {
-        fs.chmodSync(binaryPath, 0o755);
+      try {
+        await fs.promises.access(binaryPath, fs.constants.F_OK);
+        await fs.promises.chmod(binaryPath, 0o755);
+      } catch {
+        // Skip if file doesn't exist
       }
     }
   } catch (error) {
@@ -51,22 +60,20 @@ async function ensureVoiceForPlayback(
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
 
-  if (isVoiceInstalled(context, currentVoice)) {
+  if (await isVoiceInstalled(context, currentVoice)) {
     return true;
   }
 
-  vscode.window.showInformationMessage(
-    'No voice installed - Download 📥 one.',
-  );
+  vscode.window.showInformationMessage('No voice installed - Download 📥 one.');
 
   await showVoiceSelector(context);
   return false;
 }
 
-export function activateVoiceTts(
+export async function activateVoiceTts(
   context: vscode.ExtensionContext,
-): VoiceTtsApi {
-  const basePath = getResourcesBasePath(context);
+): Promise<VoiceTtsApi> {
+  const basePath = await getResourcesBasePath(context);
 
   if (os.platform() === 'linux') {
     const arch = os.arch();
@@ -83,7 +90,7 @@ export function activateVoiceTts(
     });
   }
 
-  setExecutePermissions(context);
+  await setExecutePermissions(context);
   createStatusBarItems(context);
 
   const api: VoiceTtsApi = {
@@ -125,7 +132,6 @@ export function activateVoiceTts(
         await vscode.commands.executeCommand(
           'editor.action.clipboardCopyAction',
         );
-        await new Promise((resolve) => setTimeout(resolve, 150));
         text = (await vscode.env.clipboard.readText()).trim();
       }
 
@@ -161,7 +167,6 @@ export function activateVoiceTts(
       }
 
       await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
-      await new Promise((resolve) => setTimeout(resolve, 150));
 
       const text = (await vscode.env.clipboard.readText()).trim();
       if (!text) {

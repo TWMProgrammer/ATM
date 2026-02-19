@@ -49,22 +49,28 @@ export const PRESET_LANGUAGES: PresetLanguage[] = [
   },
 ];
 
-// ─── Paths ──────────────────────────────────────────────────────────
+// ─── Paths (Async) ──────────────────────────────────────────────────
 
-export function getResourcesBasePath(context: vscode.ExtensionContext): string {
+export async function getResourcesBasePath(
+  context: vscode.ExtensionContext,
+): Promise<string> {
   const globalDir = context.globalStorageUri.fsPath;
 
-  if (!fs.existsSync(globalDir)) {
-    fs.mkdirSync(globalDir, { recursive: true });
+  try {
+    await fs.promises.mkdir(globalDir, { recursive: true });
+  } catch (error) {
+    console.error('[voice-tts] Error creating storage directory:', error);
   }
 
   return globalDir;
 }
 
-export function getPiperPath(context: vscode.ExtensionContext): string {
+export async function getPiperPath(
+  context: vscode.ExtensionContext,
+): Promise<string> {
   const platform = os.platform();
   const arch = os.arch();
-  const baseDir = getResourcesBasePath(context);
+  const baseDir = await getResourcesBasePath(context);
 
   let piperPath: string;
 
@@ -94,23 +100,27 @@ export function getPiperPath(context: vscode.ExtensionContext): string {
   return piperPath;
 }
 
-export function getVoicePath(context: vscode.ExtensionContext): string {
+export async function getVoicePath(
+  context: vscode.ExtensionContext,
+): Promise<string> {
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const selectedVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
-  const baseDir = getResourcesBasePath(context);
+  const baseDir = await getResourcesBasePath(context);
   return path.join(baseDir, 'voices', `${selectedVoice}.onnx`);
 }
 
-export function getVoicesDir(context: vscode.ExtensionContext): string {
-  const baseDir = getResourcesBasePath(context);
+export async function getVoicesDir(
+  context: vscode.ExtensionContext,
+): Promise<string> {
+  const baseDir = await getResourcesBasePath(context);
   return path.join(baseDir, 'voices');
 }
 
-export function getPlaybackCommand(
+export async function getPlaybackCommand(
   context: vscode.ExtensionContext,
-): PlaybackCommand {
+): Promise<PlaybackCommand> {
   const platform = os.platform();
-  const baseDir = getResourcesBasePath(context);
+  const baseDir = await getResourcesBasePath(context);
 
   switch (platform) {
     case 'win32': {
@@ -153,16 +163,30 @@ export function getPlaybackCommand(
   }
 }
 
-// ─── Voices Management ──────────────────────────────────────────────
+// ─── Helper: File existence check ──────────────────────────────────
 
-export function getAvailableVoices(context: vscode.ExtensionContext): string[] {
-  const voicesDir = getVoicesDir(context);
+export async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.promises.access(filePath, fs.constants.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ─── Voices Management (Async + Cached) ─────────────────────────────
+
+export async function getAvailableVoices(
+  context: vscode.ExtensionContext,
+): Promise<string[]> {
+  const voicesDir = await getVoicesDir(context);
 
   try {
-    if (!fs.existsSync(voicesDir)) {
+    const exists = await fileExists(voicesDir);
+    if (!exists) {
       return [];
     }
-    const files = fs.readdirSync(voicesDir);
+    const files = await fs.promises.readdir(voicesDir);
     return files
       .filter((file) => file.endsWith('.onnx'))
       .map((file) => path.basename(file, '.onnx'));
@@ -183,30 +207,43 @@ export function getVoiceLabel(voice: string): string {
 export async function loadVoicesCatalog(
   context: vscode.ExtensionContext,
 ): Promise<VoicesCatalog> {
-  const voicesDir = getVoicesDir(context);
+  // Check cache first
+  const cached = context.globalState.get<VoicesCatalog>('voicesCatalog');
+  if (cached) {
+    return cached;
+  }
+
+  const voicesDir = await getVoicesDir(context);
   const voicesJsonPath = path.join(voicesDir, 'voices.json');
 
-  if (fs.existsSync(voicesJsonPath)) {
-    try {
-      const voicesJson = fs.readFileSync(voicesJsonPath, 'utf8');
-      return JSON.parse(voicesJson) as VoicesCatalog;
-    } catch (error) {
-      console.error('[voice-tts] Error parsing local voices.json:', error);
+  try {
+    const exists = await fileExists(voicesJsonPath);
+    if (exists) {
+      const voicesJson = await fs.promises.readFile(voicesJsonPath, 'utf8');
+      const catalog = JSON.parse(voicesJson) as VoicesCatalog;
+      // Cache for future use
+      await context.globalState.update('voicesCatalog', catalog);
+      return catalog;
     }
+  } catch (error) {
+    console.error('[voice-tts] Error parsing local voices.json:', error);
   }
 
   console.log('[voice-tts] Downloading voices.json from HuggingFace...');
 
-  if (!fs.existsSync(voicesDir)) {
-    fs.mkdirSync(voicesDir, { recursive: true });
-  }
-
   try {
+    await fs.promises.mkdir(voicesDir, { recursive: true });
+
     // Dynamic import to avoid circular dependency
     const { downloadFile } = await import('./installer.js');
     await downloadFile(VOICES_JSON_URL, voicesJsonPath);
-    const voicesJson = fs.readFileSync(voicesJsonPath, 'utf8');
-    return JSON.parse(voicesJson) as VoicesCatalog;
+    const voicesJson = await fs.promises.readFile(voicesJsonPath, 'utf8');
+    const catalog = JSON.parse(voicesJson) as VoicesCatalog;
+
+    // Cache for future use
+    await context.globalState.update('voicesCatalog', catalog);
+
+    return catalog;
   } catch (error) {
     console.error('[voice-tts] Error downloading voices.json:', error);
     throw new Error(
@@ -242,43 +279,56 @@ export function resolveDownloadUrls(
   };
 }
 
-export function getVoiceFilePaths(
+export async function getVoiceFilePaths(
   context: vscode.ExtensionContext,
   voiceId: string,
-): {
+): Promise<{
   modelPath: string;
   configPath: string;
-} {
-  const voicesDir = getVoicesDir(context);
+}> {
+  const voicesDir = await getVoicesDir(context);
   return {
     modelPath: path.join(voicesDir, `${voiceId}.onnx`),
     configPath: path.join(voicesDir, `${voiceId}.onnx.json`),
   };
 }
 
-export function isVoiceInstalled(
+export async function isVoiceInstalled(
   context: vscode.ExtensionContext,
   voiceId: string,
-): boolean {
-  const { modelPath, configPath } = getVoiceFilePaths(context, voiceId);
-  return fs.existsSync(modelPath) && fs.existsSync(configPath);
+): Promise<boolean> {
+  const { modelPath, configPath } = await getVoiceFilePaths(context, voiceId);
+  const modelExists = await fileExists(modelPath);
+  const configExists = await fileExists(configPath);
+  return modelExists && configExists;
 }
 
-export function deleteVoiceFiles(
+export async function deleteVoiceFiles(
   context: vscode.ExtensionContext,
   voiceId: string,
-): void {
-  const { modelPath, configPath } = getVoiceFilePaths(context, voiceId);
+): Promise<void> {
+  const { modelPath, configPath } = await getVoiceFilePaths(context, voiceId);
 
-  if (fs.existsSync(modelPath)) {
-    fs.unlinkSync(modelPath);
+  try {
+    const modelExists = await fileExists(modelPath);
+    if (modelExists) {
+      await fs.promises.unlink(modelPath);
+    }
+  } catch (error) {
+    console.error('[voice-tts] Error deleting model file:', error);
   }
-  if (fs.existsSync(configPath)) {
-    fs.unlinkSync(configPath);
+
+  try {
+    const configExists = await fileExists(configPath);
+    if (configExists) {
+      await fs.promises.unlink(configPath);
+    }
+  } catch (error) {
+    console.error('[voice-tts] Error deleting config file:', error);
   }
 }
 
-// ─── Playback ───────────────────────────────────────────────────────
+// ─── Playback (Async) ───────────────────────────────────────────────
 
 let piperProcess: ChildProcess | undefined;
 let playerProcess: ChildProcess | undefined;
@@ -315,29 +365,31 @@ export async function readText(
   }
 
   stopCurrentPlayback();
-  await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const piperPath = getPiperPath(context);
-  const voicePath = getVoicePath(context);
+  const piperPath = await getPiperPath(context);
+  const voicePath = await getVoicePath(context);
 
-  if (!fs.existsSync(piperPath)) {
+  const piperExists = await fileExists(piperPath);
+  if (!piperExists) {
     throw new Error(`Piper executable not found at: ${piperPath}`);
   }
-  if (!fs.existsSync(voicePath)) {
+
+  const voiceExists = await fileExists(voicePath);
+  if (!voiceExists) {
     throw new Error(
       `Voice model not found. Use "ATM Voice TTS: Download Voice" to add one.`,
     );
   }
 
   try {
-    const fd = fs.openSync(voicePath, 'r');
-    fs.closeSync(fd);
+    const fd = await fs.promises.open(voicePath, 'r');
+    await fd.close();
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new Error(`Voice model file is not accessible: ${msg}`);
   }
 
-  const playback = getPlaybackCommand(context);
+  const playback = await getPlaybackCommand(context);
 
   const piper = spawn(piperPath, ['--model', voicePath, '--output-raw'], {
     cwd: path.dirname(piperPath),
@@ -365,13 +417,17 @@ export async function readText(
     let playerClosed = false;
 
     const resolveOnce = () => {
-      if (settled) return;
+      if (settled) {
+        return;
+      }
       settled = true;
       resolve();
     };
 
     const rejectOnce = (err: unknown) => {
-      if (settled) return;
+      if (settled) {
+        return;
+      }
       settled = true;
       reject(err);
     };

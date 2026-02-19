@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as path from 'path';
 import {
   CONFIG_SECTION,
   DEFAULT_VOICE,
@@ -13,6 +14,9 @@ import {
   isVoiceInstalled,
   deleteVoiceFiles,
   stopCurrentPlayback,
+  fileExists,
+  getPiperPath,
+  getResourcesBasePath,
 } from '../core/core';
 import {
   downloadFile,
@@ -57,7 +61,9 @@ interface VoiceItem extends vscode.QuickPickItem {
 
 // ─── Voice Selector ─────────────────────────────────────────────────
 
-function buildItems(context: vscode.ExtensionContext): VoiceItem[] {
+async function buildItems(
+  context: vscode.ExtensionContext,
+): Promise<VoiceItem[]> {
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
   const items: VoiceItem[] = [];
@@ -74,7 +80,7 @@ function buildItems(context: vscode.ExtensionContext): VoiceItem[] {
 
     for (const voice of lang.recommendedVoices) {
       const voiceId = `${lang.catalogKey}-${voice.name}-${voice.quality}`;
-      const installed = isVoiceInstalled(context, voiceId);
+      const installed = await isVoiceInstalled(context, voiceId);
       const isCurrent = voiceId === currentVoice;
 
       items.push({
@@ -108,7 +114,7 @@ export async function showVoiceSelector(
   qp.title = '$(globe) ATM Voice TTS';
   qp.placeholder = 'Select a voice or download one';
   qp.matchOnDescription = true;
-  qp.items = buildItems(context);
+  qp.items = await buildItems(context);
 
   qp.onDidAccept(async () => {
     const selected = qp.selectedItems[0];
@@ -160,19 +166,19 @@ async function handleDeleteVoice(
   }
 
   try {
-    deleteVoiceFiles(context, item.voiceId);
+    await deleteVoiceFiles(context, item.voiceId);
 
     const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
     const currentVoice = config.get<string>('voice');
 
     if (currentVoice === item.voiceId) {
-      const remaining = getAvailableVoices(context);
+      const remaining = await getAvailableVoices(context);
       const newVoice = remaining.length > 0 ? remaining[0] : DEFAULT_VOICE;
       await config.update('voice', newVoice, vscode.ConfigurationTarget.Global);
     }
 
     updateVoiceStatusBar(context);
-    qp.items = buildItems(context);
+    qp.items = await buildItems(context);
 
     vscode.window.showInformationMessage(
       `Voice "${item.preset.label}" removed.`,
@@ -220,12 +226,10 @@ async function executeVoiceDownload(
       return;
     }
 
-    const voicesDir = getVoicesDir(context);
-    if (!fs.existsSync(voicesDir)) {
-      fs.mkdirSync(voicesDir, { recursive: true });
-    }
+    const voicesDir = await getVoicesDir(context);
+    await fs.promises.mkdir(voicesDir, { recursive: true });
 
-    const { modelPath, configPath } = getVoiceFilePaths(context, voiceId);
+    const { modelPath, configPath } = await getVoiceFilePaths(context, voiceId);
     const modelSize = formatBytes(urls.modelSizeBytes);
 
     await vscode.window.withProgress(
@@ -235,9 +239,9 @@ async function executeVoiceDownload(
         cancellable: false,
       },
       async (progress) => {
-        const piperPath = require('../core/core').getPiperPath(context);
-        const piperDir = require('path').join(
-          require('../core/core').getResourcesBasePath(context),
+        const piperPath = await getPiperPath(context);
+        const piperDir = path.join(
+          await getResourcesBasePath(context),
           'piper',
         );
 
@@ -247,7 +251,6 @@ async function executeVoiceDownload(
           });
           await installPiper(piperDir, piperPath, progress);
           progress.report({ message: 'Piper engine installed!' });
-          await new Promise((resolve) => setTimeout(resolve, 800));
         }
 
         progress.report({
@@ -269,9 +272,10 @@ async function executeVoiceDownload(
     );
 
     stopCurrentPlayback();
-    await new Promise((resolve) => setTimeout(resolve, 300));
 
-    if (!fs.existsSync(modelPath) || !fs.existsSync(configPath)) {
+    const modelExists = await fileExists(modelPath);
+    const configExists = await fileExists(configPath);
+    if (!modelExists || !configExists) {
       throw new Error('Downloaded files not found or not accessible');
     }
 
