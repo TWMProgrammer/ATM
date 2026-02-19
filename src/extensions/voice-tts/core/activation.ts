@@ -7,6 +7,7 @@ import {
   getPiperPath,
   CONFIG_SECTION,
   DEFAULT_VOICE,
+  isPlaying,
   readText,
   isVoiceInstalled,
   stopCurrentPlayback,
@@ -102,7 +103,7 @@ export function activateVoiceTts(
     ),
 
     vscode.commands.registerCommand('atm.voiceTts.togglePlayback', async () => {
-      if (getIsPlaying()) {
+      if (isPlaying() || getIsPlaying()) {
         api.stopPlayback();
         return;
       }
@@ -149,7 +150,7 @@ export function activateVoiceTts(
 
     // Shift+Alt+V → copy whatever is selected + read it aloud
     vscode.commands.registerCommand('atm.voiceTts.copyAndRead', async () => {
-      if (getIsPlaying()) {
+      if (isPlaying() || getIsPlaying()) {
         api.stopPlayback();
         return;
       }

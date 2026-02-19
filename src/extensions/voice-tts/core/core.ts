@@ -360,38 +360,73 @@ export async function readText(
   stoppedByUser = false;
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    let piperClosed = false;
+    let playerClosed = false;
+
+    const resolveOnce = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+
+    const rejectOnce = (err: unknown) => {
+      if (settled) return;
+      settled = true;
+      reject(err);
+    };
+
+    const maybeFinish = () => {
+      if (stoppedByUser) {
+        resolveOnce();
+        return;
+      }
+      if (piperClosed && playerClosed) {
+        resolveOnce();
+      }
+    };
+
     piper.on('error', (err) => {
       if (!stoppedByUser) {
-        reject(err);
+        stopCurrentPlayback();
+        rejectOnce(err);
       } else {
-        resolve();
+        resolveOnce();
       }
     });
     player.on('error', (err) => {
       if (!stoppedByUser) {
-        reject(err);
+        stopCurrentPlayback();
+        rejectOnce(err);
       } else {
-        resolve();
+        resolveOnce();
       }
     });
 
     piper.on('close', (code) => {
       piperProcess = undefined;
       if (stoppedByUser) {
-        resolve();
+        piperClosed = true;
+        maybeFinish();
       } else if (code !== 0 && code !== null) {
-        reject(new Error(`Piper process exited with code: ${code}`));
+        piperClosed = true;
+        stopCurrentPlayback();
+        rejectOnce(new Error(`Piper process exited with code: ${code}`));
       } else {
-        resolve();
+        piperClosed = true;
+        maybeFinish();
       }
     });
 
     player.on('close', (code) => {
       playerProcess = undefined;
       if (stoppedByUser || code === 0) {
-        resolve();
+        playerClosed = true;
+        maybeFinish();
       } else {
-        reject(new Error(`Player process exited with code: ${code}`));
+        playerClosed = true;
+        stopCurrentPlayback();
+        rejectOnce(new Error(`Player process exited with code: ${code}`));
       }
     });
   });
