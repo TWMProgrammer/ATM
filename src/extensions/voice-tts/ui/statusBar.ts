@@ -35,7 +35,7 @@ const STATUS_BAR_CONFIG = {
       icon: 'play',
       label: 'Read',
       tooltip: 'ATM Voice (play)',
-      background: 'statusBarItem.errorBackground',
+      background: 'statusBarItem.warningBackground',
       color: undefined as string | undefined,
     },
 
