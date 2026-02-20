@@ -44,13 +44,13 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
     context.subscriptions,
   );
 
-  // Activar de inmediato si hay algun editor abierto al momento de iniciar ATM
+  // Activate immediately if there is any open editor when ATM starts
   if (vscode.window.activeTextEditor) {
     scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
   }
 
   // 4. Register CodeActions provider for spelling suggestions
-  // Suscribes to read all types of extensions (*)
+  // Subscribes to read all types of extensions (*)
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       '*',
@@ -69,10 +69,6 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
         if (word) {
           await addWordToUserSettings(word);
 
-          vscode.window.showInformationMessage(
-            `✅ "${word}" added to User Settings.`,
-          );
-
           if (vscode.window.activeTextEditor) {
             scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
           }
@@ -84,10 +80,6 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
       async (word: string) => {
         if (word) {
           await addWordToWorkspaceSettings(word);
-
-          vscode.window.showInformationMessage(
-            `✅ "${word}" added to Workspace Settings.`,
-          );
 
           if (vscode.window.activeTextEditor) {
             scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
