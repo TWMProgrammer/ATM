@@ -1,9 +1,5 @@
 import * as vscode from 'vscode';
-import {
-  CONFIG_SECTION,
-  DEFAULT_VOICE,
-  getAvailableVoices,
-} from '../core/core';
+import {CONFIG_SECTION, DEFAULT_VOICE, getAvailableVoices } from '../core/core';
 
 // ─── Debounce Helper ───────────────────────────────────────────────
 

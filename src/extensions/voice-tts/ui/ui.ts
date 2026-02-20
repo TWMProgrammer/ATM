@@ -1,39 +1,10 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import {
-  CONFIG_SECTION,
-  DEFAULT_VOICE,
-  PRESET_LANGUAGES,
-  getAvailableVoices,
-  ensureVoicesDir,
-  getVoiceFilePaths,
-  loadVoicesCatalog,
-  lookupVoice,
-  resolveDownloadUrls,
-  isVoiceInstalled,
-  deleteVoiceFiles,
-  stopCurrentPlayback,
-  fileExists,
-  getPiperPath,
-  getResourcesBasePath,
-} from '../core/core';
-import {
-  downloadFile,
-  formatBytes,
-  isPiperInstalled,
-  installPiper,
-} from '../core/installer';
+import { CONFIG_SECTION, DEFAULT_VOICE, PRESET_LANGUAGES, getAvailableVoices, ensureVoicesDir, getVoiceFilePaths, loadVoicesCatalog, lookupVoice, resolveDownloadUrls, isVoiceInstalled, deleteVoiceFiles, stopCurrentPlayback, fileExists, getPiperPath, getResourcesBasePath } from '../core/core';
+import { downloadFile, formatBytes, isPiperInstalled, installPiper } from '../core/installer';
 import type { PresetVoice, PresetLanguage } from '../core/types';
 
-export {
-  createStatusBarItems,
-  updateVoiceStatusBar,
-  updatePlayButton,
-  setPlayingState,
-  getHasTextSelection,
-  getIsPlaying,
-  disposeStatusBar,
-} from './statusBar';
+export { createStatusBarItems, updateVoiceStatusBar, updatePlayButton, setPlayingState, getHasTextSelection, getIsPlaying, disposeStatusBar } from './statusBar';
 
 import { updateVoiceStatusBar } from './statusBar';
 

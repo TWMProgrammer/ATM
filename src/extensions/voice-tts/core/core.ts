@@ -3,13 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
-import type {
-  VoicesCatalog,
-  CatalogVoiceEntry,
-  VoiceDownloadUrls,
-  PlaybackCommand,
-  PresetLanguage,
-} from './types';
+import type { VoicesCatalog, CatalogVoiceEntry, VoiceDownloadUrls, PlaybackCommand, PresetLanguage } from './types';
 
 // ─── Configuration ──────────────────────────────────────────────────
 
