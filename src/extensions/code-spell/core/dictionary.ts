@@ -194,7 +194,7 @@ export function initDictionary(context: vscode.ExtensionContext) {
 /**
  * Adds a new word to the user's global settings.json
  */
-export function addWordToUserSettings(word: string) {
+export async function addWordToUserSettings(word: string) {
   const lower = word.toLowerCase();
 
   // Add to RAM memory
@@ -203,17 +203,23 @@ export function addWordToUserSettings(word: string) {
 
   // Save to persistence
   const config = vscode.workspace.getConfiguration('atm.codeSpell');
-  const userWords = config.inspect<string[]>('customWords')?.globalValue || [];
+  const baseWords = config.inspect<string[]>('customWords')?.globalValue || [];
+  const userWords = [...baseWords]; // Clone to avoid modifying read-only array
+
   if (!userWords.includes(lower)) {
     userWords.push(lower);
-    config.update('customWords', userWords, vscode.ConfigurationTarget.Global);
+    await config.update(
+      'customWords',
+      userWords,
+      vscode.ConfigurationTarget.Global,
+    );
   }
 }
 
 /**
  * Adds a new word to the workspace's local .vscode/settings.json
  */
-export function addWordToWorkspaceSettings(word: string) {
+export async function addWordToWorkspaceSettings(word: string) {
   const lower = word.toLowerCase();
 
   // Add to RAM memory
@@ -222,11 +228,13 @@ export function addWordToWorkspaceSettings(word: string) {
 
   // Save to persistence
   const config = vscode.workspace.getConfiguration('atm.codeSpell');
-  const workspaceWords =
+  const baseWords =
     config.inspect<string[]>('customWords')?.workspaceValue || [];
+  const workspaceWords = [...baseWords]; // Clone to avoid modifying read-only array
+
   if (!workspaceWords.includes(lower)) {
     workspaceWords.push(lower);
-    config.update(
+    await config.update(
       'customWords',
       workspaceWords,
       vscode.ConfigurationTarget.Workspace,

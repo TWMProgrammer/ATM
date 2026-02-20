@@ -34,6 +34,15 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
     null,
     context.subscriptions,
   );
+  vscode.window.onDidChangeActiveTextEditor(
+    (editor) => {
+      if (editor) {
+        scheduleDiagnosticsCheck(editor.document);
+      }
+    },
+    null,
+    context.subscriptions,
+  );
 
   // Activar de inmediato si hay algun editor abierto al momento de iniciar ATM
   if (vscode.window.activeTextEditor) {
@@ -58,7 +67,7 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
       'atm.code-spell.addWordUser',
       async (word: string) => {
         if (word) {
-          addWordToUserSettings(word);
+          await addWordToUserSettings(word);
 
           vscode.window.showInformationMessage(
             `✅ "${word}" added to User Settings.`,
@@ -74,7 +83,7 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
       'atm.code-spell.addWordWorkspace',
       async (word: string) => {
         if (word) {
-          addWordToWorkspaceSettings(word);
+          await addWordToWorkspaceSettings(word);
 
           vscode.window.showInformationMessage(
             `✅ "${word}" added to Workspace Settings.`,

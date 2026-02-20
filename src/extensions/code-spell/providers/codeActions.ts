@@ -34,20 +34,9 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
         actions.push(action);
       }
 
-      // Action: Add to Workspace Settings
-      const workspaceAction = new vscode.CodeAction(
-        `Add: "${word}" to workspace settings`,
-        vscode.CodeActionKind.QuickFix,
-      );
-      workspaceAction.command = {
-        command: 'atm.code-spell.addWordWorkspace',
-        title: 'Add Word Workspace',
-        arguments: [word],
-      };
-
-      // Action: Add to User Settings
+      // Action: Add to User Settings (Shorter text first)
       const userAction = new vscode.CodeAction(
-        `Add: "${word}" to user settings`,
+        `Add "${word}" to User Settings`,
         vscode.CodeActionKind.QuickFix,
       );
       userAction.command = {
@@ -56,7 +45,18 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
         arguments: [word],
       };
 
-      actions.push(workspaceAction, userAction);
+      // Action: Add to Workspace Settings (Longer text at the end)
+      const workspaceAction = new vscode.CodeAction(
+        `Add "${word}" to Workspace Settings`,
+        vscode.CodeActionKind.QuickFix,
+      );
+      workspaceAction.command = {
+        command: 'atm.code-spell.addWordWorkspace',
+        title: 'Add Word Workspace',
+        arguments: [word],
+      };
+
+      actions.push(userAction, workspaceAction);
     }
 
     return actions;

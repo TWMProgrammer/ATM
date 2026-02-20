@@ -13,6 +13,6 @@ import * as vscode from 'vscode';
  */
 export const spellDecorationType = vscode.window.createTextEditorDecorationType(
   {
-    textDecoration: 'underline wavy #06B6D4', // cyan / celeste like requested
+    textDecoration: 'underline wavy #06A7D4', // cyan / celeste like requested
   },
 );
