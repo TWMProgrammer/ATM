@@ -3,7 +3,13 @@ import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
 import { spawn, ChildProcess } from 'child_process';
-import type { VoicesCatalog, CatalogVoiceEntry, VoiceDownloadUrls, PlaybackCommand, PresetLanguage } from './types';
+import type {
+  VoicesCatalog,
+  CatalogVoiceEntry,
+  VoiceDownloadUrls,
+  PlaybackCommand,
+  PresetLanguage,
+} from './types';
 
 // ─── Configuration ──────────────────────────────────────────────────
 
@@ -31,11 +37,11 @@ export const PRESET_LANGUAGES: PresetLanguage[] = [
   {
     label: '🇵🇪 Español (PE)',
     shortCode: 'ES',
-    catalogKey: 'es_MX',
+    catalogKey: 'es_ES',
     recommendedVoices: [
       {
-        name: 'ald',
-        label: 'Ald',
+        name: 'sharvard',
+        label: 'Sharvard',
         quality: 'medium',
         description: 'Male voice — medium quality',
       },

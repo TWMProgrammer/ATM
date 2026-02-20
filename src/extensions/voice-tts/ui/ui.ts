@@ -1,10 +1,39 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { CONFIG_SECTION, DEFAULT_VOICE, PRESET_LANGUAGES, getAvailableVoices, ensureVoicesDir, getVoiceFilePaths, loadVoicesCatalog, lookupVoice, resolveDownloadUrls, isVoiceInstalled, deleteVoiceFiles, stopCurrentPlayback, fileExists, getPiperPath, getResourcesBasePath } from '../core/core';
-import { downloadFile, formatBytes, isPiperInstalled, installPiper } from '../core/installer';
+import {
+  CONFIG_SECTION,
+  DEFAULT_VOICE,
+  PRESET_LANGUAGES,
+  getAvailableVoices,
+  ensureVoicesDir,
+  getVoiceFilePaths,
+  loadVoicesCatalog,
+  lookupVoice,
+  resolveDownloadUrls,
+  isVoiceInstalled,
+  deleteVoiceFiles,
+  stopCurrentPlayback,
+  fileExists,
+  getPiperPath,
+  getResourcesBasePath,
+} from '../core/core';
+import {
+  downloadFile,
+  formatBytes,
+  isPiperInstalled,
+  installPiper,
+} from '../core/installer';
 import type { PresetVoice, PresetLanguage } from '../core/types';
 
-export { createStatusBarItems, updateVoiceStatusBar, updatePlayButton, setPlayingState, getHasTextSelection, getIsPlaying, disposeStatusBar } from './statusBar';
+export {
+  createStatusBarItems,
+  updateVoiceStatusBar,
+  updatePlayButton,
+  setPlayingState,
+  getHasTextSelection,
+  getIsPlaying,
+  disposeStatusBar,
+} from './statusBar';
 
 import { updateVoiceStatusBar } from './statusBar';
 
@@ -38,6 +67,13 @@ async function buildItems(
   const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
   const items: VoiceItem[] = [];
 
+  let catalog;
+  try {
+    catalog = await loadVoicesCatalog(context);
+  } catch (error) {
+    console.warn('[voice-tts] Could not load catalog for sizes:', error);
+  }
+
   for (const lang of PRESET_LANGUAGES) {
     items.push({
       label: lang.label,
@@ -53,6 +89,17 @@ async function buildItems(
       const installed = await isVoiceInstalled(context, voiceId);
       const isCurrent = voiceId === currentVoice;
 
+      let sizeLabel = '';
+      if (catalog) {
+        const entry = lookupVoice(catalog, voiceId);
+        if (entry) {
+          const urls = resolveDownloadUrls(entry);
+          if (urls) {
+            sizeLabel = ` - ${formatBytes(urls.modelSizeBytes)}`;
+          }
+        }
+      }
+
       items.push({
         voiceId,
         installed,
@@ -60,9 +107,9 @@ async function buildItems(
         lang,
         label: installed
           ? isCurrent
-            ? `$(star-full) ${voice.label}`
-            : `$(check) ${voice.label}`
-          : `$(circle-slash) ${voice.label}`,
+            ? `$(star-full) ${voice.label}${sizeLabel}`
+            : `$(check) ${voice.label}${sizeLabel}`
+          : `$(circle-slash) ${voice.label}${sizeLabel}`,
         description: installed
           ? isCurrent
             ? '★ Current'
@@ -84,7 +131,11 @@ export async function showVoiceSelector(
   qp.title = '$(globe) ATM Voice TTS';
   qp.placeholder = 'Select a voice or download one';
   qp.matchOnDescription = true;
+  qp.busy = true;
+  qp.show();
+
   qp.items = await buildItems(context);
+  qp.busy = false;
 
   qp.onDidAccept(async () => {
     const selected = qp.selectedItems[0];
@@ -148,7 +199,9 @@ async function handleDeleteVoice(
     }
 
     updateVoiceStatusBar(context);
+    qp.busy = true;
     qp.items = await buildItems(context);
+    qp.busy = false;
 
     vscode.window.showInformationMessage(
       `Voice "${item.preset.label}" removed.`,
