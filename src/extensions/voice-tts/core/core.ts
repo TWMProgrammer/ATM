@@ -47,6 +47,19 @@ export const PRESET_LANGUAGES: PresetLanguage[] = [
       },
     ],
   },
+  {
+    label: '🇨🇳 中文 (CN)',
+    shortCode: 'ZH',
+    catalogKey: 'zh_CN',
+    recommendedVoices: [
+      {
+        name: 'huayan',
+        label: 'Huayan',
+        quality: 'medium',
+        description: 'Clear Chinese voice — medium quality',
+      },
+    ],
+  },
 ];
 
 // ─── Paths (Async) ──────────────────────────────────────────────────
