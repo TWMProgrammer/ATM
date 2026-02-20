@@ -2,24 +2,9 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import {
-  getResourcesBasePath,
-  getPiperPath,
-  CONFIG_SECTION,
-  DEFAULT_VOICE,
-  isPlaying,
-  readText,
-  isVoiceInstalled,
-  stopCurrentPlayback,
-} from './core';
+import { getResourcesBasePath, getPiperPath, CONFIG_SECTION, DEFAULT_VOICE, isPlaying, readText, isVoiceInstalled, stopCurrentPlayback } from './core';
+import { createStatusBarItems, setPlayingState, getIsPlaying, disposeStatusBar, showVoiceSelector } from '../ui/ui';
 import { fixSymlinks } from './installer';
-import {
-  createStatusBarItems,
-  setPlayingState,
-  getIsPlaying,
-  disposeStatusBar,
-  showVoiceSelector,
-} from '../ui/ui';
 import type { VoiceTtsApi } from './types';
 
 async function setExecutePermissions(

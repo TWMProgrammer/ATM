@@ -6,6 +6,17 @@ import * as https from 'https';
 import * as http from 'http';
 import { execFile } from 'child_process';
 
+// ─── Helper: File existence check ──────────────────────────────────
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.promises.access(filePath, fs.constants.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ─── Download Utilities ─────────────────────────────────────────────
 
 export interface DownloadProgress {
@@ -16,32 +27,25 @@ export interface DownloadProgress {
 
 export type ProgressCallback = (progress: DownloadProgress) => void;
 
-export function downloadFile(
+export async function downloadFile(
   url: string,
   destination: string,
   onProgress?: ProgressCallback,
 ): Promise<void> {
+  const protocol = url.startsWith('https') ? https : http;
+
+  const destDir = path.dirname(destination);
+  await fs.promises.mkdir(destDir, { recursive: true });
+
+  try {
+    await fs.promises.unlink(destination);
+  } catch {
+    // File doesn't exist, that's fine
+  }
+
+  const file = fs.createWriteStream(destination, { flags: 'wx' });
+
   return new Promise((resolve, reject) => {
-    const protocol = url.startsWith('https') ? https : http;
-
-    const destDir = path.dirname(destination);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-
-    if (fs.existsSync(destination)) {
-      try {
-        fs.unlinkSync(destination);
-      } catch (err) {
-        console.error(
-          `[voice-tts] Error removing existing file ${destination}:`,
-          err,
-        );
-      }
-    }
-
-    const file = fs.createWriteStream(destination, { flags: 'wx' });
-
     const request = protocol.get(url, (response) => {
       // Handle redirects
       if (
@@ -64,7 +68,7 @@ export function downloadFile(
 
       if (response.statusCode !== 200) {
         file.close();
-        fs.unlink(destination, () => {});
+        fs.promises.unlink(destination).catch(() => {});
         reject(
           new Error(
             `Failed to download file: ${response.statusCode} ${response.statusMessage}`,
@@ -96,33 +100,35 @@ export function downloadFile(
       file.on('finish', () => {
         file.end(() => {
           file.close();
-          try {
-            const stats = fs.statSync(destination);
-            if (stats.size === 0) {
-              reject(new Error(`Downloaded file is empty: ${destination}`));
-              return;
-            }
-            resolve();
-          } catch (err) {
-            const errorMessage =
-              err instanceof Error ? err.message : String(err);
-            reject(
-              new Error(`Error verifying downloaded file: ${errorMessage}`),
-            );
-          }
+          fs.promises
+            .stat(destination)
+            .then((stats) => {
+              if (stats.size === 0) {
+                reject(new Error(`Downloaded file is empty: ${destination}`));
+                return;
+              }
+              resolve();
+            })
+            .catch((err) => {
+              const errorMessage =
+                err instanceof Error ? err.message : String(err);
+              reject(
+                new Error(`Error verifying downloaded file: ${errorMessage}`),
+              );
+            });
         });
       });
     });
 
     request.on('error', (err) => {
       file.close();
-      fs.unlink(destination, () => {});
+      fs.promises.unlink(destination).catch(() => {});
       reject(err);
     });
 
     file.on('error', (err) => {
       file.close();
-      fs.unlink(destination, () => {});
+      fs.promises.unlink(destination).catch(() => {});
       reject(err);
     });
   });
@@ -198,12 +204,8 @@ function getPiperDownloadInfo(): PiperBinaryInfo {
   }
 }
 
-export function isPiperInstalled(piperPath: string): boolean {
-  try {
-    return fs.existsSync(piperPath);
-  } catch {
-    return false;
-  }
+export async function isPiperInstalled(piperPath: string): Promise<boolean> {
+  return fileExists(piperPath);
 }
 
 export async function installPiper(
@@ -214,9 +216,7 @@ export async function installPiper(
   const info = getPiperDownloadInfo();
   const targetDir = path.join(piperDir, info.dirName);
 
-  if (!fs.existsSync(piperDir)) {
-    fs.mkdirSync(piperDir, { recursive: true });
-  }
+  await fs.promises.mkdir(piperDir, { recursive: true });
 
   const tempFileName = info.isTarGz
     ? 'piper-download.tar.gz'
@@ -243,14 +243,14 @@ export async function installPiper(
     }
 
     if (os.platform() === 'linux' || os.platform() === 'darwin') {
-      setPermissions(targetDir);
+      await setPermissions(targetDir);
     }
 
     if (os.platform() === 'linux') {
       await fixSymlinks(targetDir);
     }
 
-    if (!fs.existsSync(piperPath)) {
+    if (!(await fileExists(piperPath))) {
       throw new Error(
         `Piper binary not found after extraction at: ${piperPath}`,
       );
@@ -259,9 +259,7 @@ export async function installPiper(
     progress.report({ message: 'Piper engine installed!' });
   } finally {
     try {
-      if (fs.existsSync(tempFile)) {
-        fs.unlinkSync(tempFile);
-      }
+      await fs.promises.unlink(tempFile);
     } catch {
       // Ignore cleanup errors
     }
@@ -270,111 +268,123 @@ export async function installPiper(
 
 // ─── Archive Extraction ─────────────────────────────────────────────
 
-function extractTarGz(
+async function extractTarGz(
   archivePath: string,
   outputDir: string,
   targetDirName: string,
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const tempExtractDir = path.join(outputDir, '_temp_extract');
+  const tempExtractDir = path.join(outputDir, '_temp_extract');
 
-    if (fs.existsSync(tempExtractDir)) {
-      fs.rmSync(tempExtractDir, { recursive: true });
-    }
-    fs.mkdirSync(tempExtractDir, { recursive: true });
+  await fs.promises.rm(tempExtractDir, { recursive: true, force: true });
+  await fs.promises.mkdir(tempExtractDir, { recursive: true });
 
-    execFile('tar', ['xzf', archivePath, '-C', tempExtractDir], (error) => {
-      if (error) {
-        fs.rmSync(tempExtractDir, { recursive: true, force: true });
-        reject(new Error(`Failed to extract archive: ${error.message}`));
-        return;
-      }
-
-      try {
-        const extractedPiperDir = path.join(tempExtractDir, 'piper');
-        const finalDir = path.join(outputDir, targetDirName);
-
-        if (!fs.existsSync(extractedPiperDir)) {
-          if (fs.existsSync(finalDir)) {
-            fs.rmSync(finalDir, { recursive: true });
-          }
-          fs.renameSync(tempExtractDir, finalDir);
-        } else {
-          if (fs.existsSync(finalDir)) {
-            fs.rmSync(finalDir, { recursive: true });
-          }
-          fs.renameSync(extractedPiperDir, finalDir);
-          fs.rmSync(tempExtractDir, { recursive: true, force: true });
-        }
-
-        resolve();
-      } catch (err) {
-        fs.rmSync(tempExtractDir, { recursive: true, force: true });
-        reject(err);
-      }
-    });
-  });
-}
-
-function extractZip(
-  archivePath: string,
-  outputDir: string,
-  targetDirName: string,
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const tempExtractDir = path.join(outputDir, '_temp_extract');
-
-    if (fs.existsSync(tempExtractDir)) {
-      fs.rmSync(tempExtractDir, { recursive: true });
-    }
-    fs.mkdirSync(tempExtractDir, { recursive: true });
-
-    const cmd = 'powershell.exe';
-    const args = [
-      '-NoProfile',
-      '-Command',
-      `Expand-Archive -Path '${archivePath}' -DestinationPath '${tempExtractDir}' -Force`,
-    ];
-
-    execFile(cmd, args, (error) => {
-      if (error) {
-        fs.rmSync(tempExtractDir, { recursive: true, force: true });
-        reject(new Error(`Failed to extract archive: ${error.message}`));
-        return;
-      }
-
-      try {
-        const extractedPiperDir = path.join(tempExtractDir, 'piper');
-        const finalDir = path.join(outputDir, targetDirName);
-
-        if (!fs.existsSync(extractedPiperDir)) {
-          if (fs.existsSync(finalDir)) {
-            fs.rmSync(finalDir, { recursive: true });
-          }
-          fs.renameSync(tempExtractDir, finalDir);
-        } else {
-          if (fs.existsSync(finalDir)) {
-            fs.rmSync(finalDir, { recursive: true });
-          }
-          fs.renameSync(extractedPiperDir, finalDir);
-          fs.rmSync(tempExtractDir, { recursive: true, force: true });
-        }
-
-        resolve();
-      } catch (err) {
-        fs.rmSync(tempExtractDir, { recursive: true, force: true });
-        reject(err);
-      }
-    });
-  });
-}
-
-function setPermissions(dir: string): void {
   try {
-    const files = fs.readdirSync(dir);
+    await new Promise<void>((resolve, reject) => {
+      execFile('tar', ['xzf', archivePath, '-C', tempExtractDir], (error) => {
+        if (error) {
+          reject(new Error(`Failed to extract archive: ${error.message}`));
+        } else {
+          resolve();
+        }
+      });
+    });
+  } catch (error) {
+    await fs.promises
+      .rm(tempExtractDir, { recursive: true, force: true })
+      .catch(() => {});
+    throw error;
+  }
+
+  try {
+    const extractedPiperDir = path.join(tempExtractDir, 'piper');
+    const finalDir = path.join(outputDir, targetDirName);
+    const extractedExists = await fileExists(extractedPiperDir);
+
+    await fs.promises
+      .rm(finalDir, { recursive: true, force: true })
+      .catch(() => {});
+
+    if (!extractedExists) {
+      await fs.promises.rename(tempExtractDir, finalDir);
+    } else {
+      await fs.promises.rename(extractedPiperDir, finalDir);
+      await fs.promises
+        .rm(tempExtractDir, { recursive: true, force: true })
+        .catch(() => {});
+    }
+  } catch (err) {
+    await fs.promises
+      .rm(tempExtractDir, { recursive: true, force: true })
+      .catch(() => {});
+    throw err;
+  }
+}
+
+async function extractZip(
+  archivePath: string,
+  outputDir: string,
+  targetDirName: string,
+): Promise<void> {
+  const tempExtractDir = path.join(outputDir, '_temp_extract');
+
+  await fs.promises.rm(tempExtractDir, { recursive: true, force: true });
+  await fs.promises.mkdir(tempExtractDir, { recursive: true });
+
+  const cmd = 'powershell.exe';
+  const args = [
+    '-NoProfile',
+    '-Command',
+    `Expand-Archive -Path '${archivePath}' -DestinationPath '${tempExtractDir}' -Force`,
+  ];
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      execFile(cmd, args, (error) => {
+        if (error) {
+          reject(new Error(`Failed to extract archive: ${error.message}`));
+        } else {
+          resolve();
+        }
+      });
+    });
+  } catch (error) {
+    await fs.promises
+      .rm(tempExtractDir, { recursive: true, force: true })
+      .catch(() => {});
+    throw error;
+  }
+
+  try {
+    const extractedPiperDir = path.join(tempExtractDir, 'piper');
+    const finalDir = path.join(outputDir, targetDirName);
+    const extractedExists = await fileExists(extractedPiperDir);
+
+    await fs.promises
+      .rm(finalDir, { recursive: true, force: true })
+      .catch(() => {});
+
+    if (!extractedExists) {
+      await fs.promises.rename(tempExtractDir, finalDir);
+    } else {
+      await fs.promises.rename(extractedPiperDir, finalDir);
+      await fs.promises
+        .rm(tempExtractDir, { recursive: true, force: true })
+        .catch(() => {});
+    }
+  } catch (err) {
+    await fs.promises
+      .rm(tempExtractDir, { recursive: true, force: true })
+      .catch(() => {});
+    throw err;
+  }
+}
+
+async function setPermissions(dir: string): Promise<void> {
+  try {
+    const files = await fs.promises.readdir(dir);
     for (const file of files) {
       const filePath = path.join(dir, file);
-      const stat = fs.statSync(filePath);
+      const stat = await fs.promises.stat(filePath);
       if (stat.isFile()) {
         const name = file.toLowerCase();
         if (
@@ -384,7 +394,7 @@ function setPermissions(dir: string): void {
           name.endsWith('.so') ||
           name.includes('.so.')
         ) {
-          fs.chmodSync(filePath, 0o755);
+          await fs.promises.chmod(filePath, 0o755);
         }
       }
     }
@@ -415,7 +425,7 @@ export async function fixSymlinks(binaryDir: string): Promise<void> {
     return;
   }
 
-  if (!fs.existsSync(binaryDir)) {
+  if (!(await fileExists(binaryDir))) {
     console.warn(`[voice-tts] Piper binary directory not found: ${binaryDir}`);
     return;
   }
@@ -436,7 +446,7 @@ async function createSymlink(
   const targetPath = path.join(dir, target);
 
   try {
-    if (!fs.existsSync(targetPath)) {
+    if (!(await fileExists(targetPath))) {
       console.warn(`[voice-tts] Target file not found: ${targetPath}`);
       return;
     }

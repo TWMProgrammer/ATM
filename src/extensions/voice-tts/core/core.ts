@@ -37,13 +37,26 @@ export const PRESET_LANGUAGES: PresetLanguage[] = [
   {
     label: '🇵🇪 Español (PE)',
     shortCode: 'ES',
-    catalogKey: 'es_MX',
+    catalogKey: 'es_ES',
     recommendedVoices: [
       {
-        name: 'ald',
-        label: 'Ald',
+        name: 'sharvard',
+        label: 'Sharvard',
         quality: 'medium',
         description: 'Male voice — medium quality',
+      },
+    ],
+  },
+  {
+    label: '🇨🇳 中文 (CN)',
+    shortCode: 'ZH',
+    catalogKey: 'zh_CN',
+    recommendedVoices: [
+      {
+        name: 'huayan',
+        label: 'Huayan',
+        quality: 'medium',
+        description: 'Clear Chinese voice — medium quality',
       },
     ],
   },
@@ -114,6 +127,14 @@ export async function getVoicesDir(
 ): Promise<string> {
   const baseDir = await getResourcesBasePath(context);
   return path.join(baseDir, 'voices');
+}
+
+export async function ensureVoicesDir(
+  context: vscode.ExtensionContext,
+): Promise<string> {
+  const voicesDir = await getVoicesDir(context);
+  await fs.promises.mkdir(voicesDir, { recursive: true });
+  return voicesDir;
 }
 
 export async function getPlaybackCommand(
