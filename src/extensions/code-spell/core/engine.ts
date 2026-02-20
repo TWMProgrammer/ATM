@@ -14,20 +14,14 @@ export interface SpellIssue {
 export function checkText(text: string): SpellIssue[] {
   const issues: SpellIssue[] = [];
 
-  // Remove raw URLs from text before tokenization
-  const cleanText = text.replace(/https?:\/\/[^\s"'<>]*/g, ' ');
+  // Remove raw URLs from text while preserving the length to maintain correct token offsets
+  const cleanText = text.replace(/https?:\/\/[^\s"'<>]*/g, (match) =>
+    ' '.repeat(match.length),
+  );
 
   const tokens = tokenizeText(cleanText);
 
   for (const token of tokens) {
-    // Ignore purely numeric or hex values
-    if (/^[0-9]+$/.test(token.text)) {
-      continue;
-    }
-    if (/^0x[0-9a-fA-F]+$/.test(token.text)) {
-      continue;
-    }
-
     const isValid = isWordValid(token.text);
     if (!isValid) {
       issues.push({

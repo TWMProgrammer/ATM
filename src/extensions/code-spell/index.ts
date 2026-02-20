@@ -5,7 +5,11 @@ import {
   clearDiagnostics,
 } from './providers/diagnostics';
 import { SpellCodeActionProvider } from './providers/codeActions';
-import { initDictionary, addWordToDictionary } from './core/dictionary';
+import {
+  initDictionary,
+  addWordToUserSettings,
+  addWordToWorkspaceSettings,
+} from './core/dictionary';
 
 export function activateCodeSpell(context: vscode.ExtensionContext) {
   // 1. Initialize custom extension dictionary (10k words + Tech Keywords)
@@ -51,17 +55,31 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
   // 5. Code Action trigger command internally
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      'atm.code-spell.addWord',
+      'atm.code-spell.addWordUser',
       async (word: string) => {
         if (word) {
-          // Save word persistently and to current session RAM
-          addWordToDictionary(word, context);
+          addWordToUserSettings(word);
 
           vscode.window.showInformationMessage(
-            `✅ "${word}" fue agregado exitosamente al Diccionario de ATM.`,
+            `✅ "${word}" added to User Settings.`,
           );
 
-          // Force immediate rescan so the wavy error disappears without manual input
+          if (vscode.window.activeTextEditor) {
+            scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
+          }
+        }
+      },
+    ),
+    vscode.commands.registerCommand(
+      'atm.code-spell.addWordWorkspace',
+      async (word: string) => {
+        if (word) {
+          addWordToWorkspaceSettings(word);
+
+          vscode.window.showInformationMessage(
+            `✅ "${word}" added to Workspace Settings.`,
+          );
+
           if (vscode.window.activeTextEditor) {
             scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
           }
@@ -71,11 +89,11 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
   );
 
   console.log(
-    '📝 [ATM] Code-Spell (Corrector Ultra Rapido) Activado Corectamente',
+    '📝 [ATM] Code-Spell (Ultra Fast Checker) Activated Successfully',
   );
 }
 
 export function deactivateCodeSpell() {
   spellDiagnostics.clear();
-  console.log('📝 [ATM] Code-Spell Desactivado');
+  console.log('📝 [ATM] Code-Spell Deactivated');
 }

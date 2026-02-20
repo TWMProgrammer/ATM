@@ -18,13 +18,13 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
       const wordRange = diag.range;
       const word = document.getText(wordRange);
 
-      // Generate up to 5 suggestions max
-      const suggestions = getSuggestions(word, 5);
+      // Generate up to 3 suggestions max
+      const suggestions = getSuggestions(word, 3);
 
       for (const sugg of suggestions) {
         // Generate action: Change to "suggestion"
         const action = new vscode.CodeAction(
-          `Sustituir con "${sugg}"`,
+          `Replace with "${sugg}"`,
           vscode.CodeActionKind.QuickFix,
         );
         action.edit = new vscode.WorkspaceEdit();
@@ -34,17 +34,29 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
         actions.push(action);
       }
 
-      // Action: Add to Document/Dictionary
-      const ignoreAction = new vscode.CodeAction(
-        `Agregar "${word}" al Diccionario ATM`,
+      // Action: Add to Workspace Settings
+      const workspaceAction = new vscode.CodeAction(
+        `Add: "${word}" to workspace settings`,
         vscode.CodeActionKind.QuickFix,
       );
-      ignoreAction.command = {
-        command: 'atm.code-spell.addWord',
-        title: 'Add Word',
+      workspaceAction.command = {
+        command: 'atm.code-spell.addWordWorkspace',
+        title: 'Add Word Workspace',
         arguments: [word],
       };
-      actions.push(ignoreAction);
+
+      // Action: Add to User Settings
+      const userAction = new vscode.CodeAction(
+        `Add: "${word}" to user settings`,
+        vscode.CodeActionKind.QuickFix,
+      );
+      userAction.command = {
+        command: 'atm.code-spell.addWordUser',
+        title: 'Add Word User',
+        arguments: [word],
+      };
+
+      actions.push(workspaceAction, userAction);
     }
 
     return actions;

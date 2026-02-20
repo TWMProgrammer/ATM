@@ -1,5 +1,5 @@
 import { englishWords } from '../data/en-dict';
-import type * as vscode from 'vscode';
+import * as vscode from 'vscode';
 
 // Main dictionary cache. Set offers O(1) complexity for fast lookup.
 const dict = new Set<string>();
@@ -172,25 +172,29 @@ export function initDictionary(context: vscode.ExtensionContext) {
     dict.add(ext);
   }
 
-  // 3. User custom words (Persistence)
-  const customWords: string[] =
+  // 3. User custom words (Persistence and Settings)
+  const legacyWords: string[] =
     context.globalState.get('atm.code-spell.customWords') || [];
-  for (const w of customWords) {
+
+  const config = vscode.workspace.getConfiguration('atm.codeSpell');
+  const userWords = config.inspect<string[]>('customWords')?.globalValue || [];
+  const workspaceWords =
+    config.inspect<string[]>('customWords')?.workspaceValue || [];
+
+  // Combine all customized vocab source arrays into memory cache
+  for (const w of [...legacyWords, ...userWords, ...workspaceWords]) {
     dict.add(w.toLowerCase());
   }
 
   console.log(
-    `[Code-Spell] Diccionario Cargado! Total Palabras en memoria: ${dict.size}`,
+    `[Code-Spell] Dictionary Loaded! Total Words in memory: ${dict.size}`,
   );
 }
 
 /**
- * Adds a new word to the dictionary in memory and persists it.
+ * Adds a new word to the user's global settings.json
  */
-export function addWordToDictionary(
-  word: string,
-  context: vscode.ExtensionContext,
-) {
+export function addWordToUserSettings(word: string) {
   const lower = word.toLowerCase();
 
   // Add to RAM memory
@@ -198,11 +202,35 @@ export function addWordToDictionary(
   fastCache.add(lower);
 
   // Save to persistence
-  const customWords: string[] =
-    context.globalState.get('atm.code-spell.customWords') || [];
-  if (!customWords.includes(lower)) {
-    customWords.push(lower);
-    context.globalState.update('atm.code-spell.customWords', customWords);
+  const config = vscode.workspace.getConfiguration('atm.codeSpell');
+  const userWords = config.inspect<string[]>('customWords')?.globalValue || [];
+  if (!userWords.includes(lower)) {
+    userWords.push(lower);
+    config.update('customWords', userWords, vscode.ConfigurationTarget.Global);
+  }
+}
+
+/**
+ * Adds a new word to the workspace's local .vscode/settings.json
+ */
+export function addWordToWorkspaceSettings(word: string) {
+  const lower = word.toLowerCase();
+
+  // Add to RAM memory
+  dict.add(lower);
+  fastCache.add(lower);
+
+  // Save to persistence
+  const config = vscode.workspace.getConfiguration('atm.codeSpell');
+  const workspaceWords =
+    config.inspect<string[]>('customWords')?.workspaceValue || [];
+  if (!workspaceWords.includes(lower)) {
+    workspaceWords.push(lower);
+    config.update(
+      'customWords',
+      workspaceWords,
+      vscode.ConfigurationTarget.Workspace,
+    );
   }
 }
 

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { checkText } from '../core/engine';
+import { spellDecorationType } from '../ui/styles';
 
 export const spellDiagnostics =
   vscode.languages.createDiagnosticCollection('code-spell');
@@ -75,17 +76,21 @@ function performCheck(doc: vscode.TextDocument) {
   // Engine call
   const issues = checkText(text);
 
+  const ranges: vscode.Range[] = [];
+
   const diagnostics: vscode.Diagnostic[] = issues.map((issue) => {
     // vscode.TextDocument helps transform Offsets to Line/Column Ranges
     const start = doc.positionAt(issue.offset);
     const end = doc.positionAt(issue.offset + issue.length);
     const range = new vscode.Range(start, end);
 
+    ranges.push(range);
+
     // Information severity instead of Error to avoid alerting the Problems Tab unnecessarily
     const diag = new vscode.Diagnostic(
       range,
-      `Desconocido: "${issue.word}" (ATM Code Spell)`,
-      vscode.DiagnosticSeverity.Information,
+      `Unknown word: "${issue.word}" (ATM Code Spell)`,
+      vscode.DiagnosticSeverity.Hint,
     );
 
     diag.source = 'ATM code-spell';
@@ -93,4 +98,12 @@ function performCheck(doc: vscode.TextDocument) {
   });
 
   spellDiagnostics.set(doc.uri, diagnostics);
+
+  // Apply our custom UI styles over the words directly
+  // Handles multiple split-screen editors showing the same document
+  vscode.window.visibleTextEditors
+    .filter((e) => e.document.uri.toString() === doc.uri.toString())
+    .forEach((editor) => {
+      editor.setDecorations(spellDecorationType, ranges);
+    });
 }
