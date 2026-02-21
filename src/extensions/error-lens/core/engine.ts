@@ -40,7 +40,13 @@ export function updateDecorationsForEditor(
     const existing = diagnosticsByLine.get(line);
 
     // Solo permitimos decorar si es el más grave (Error gana sobre Warning)
+    // EMPATE DE GRAVEDAD: Si hay dos Errores (TypeScript VS ESLint), nos quedamos con el mensaje más detallado (largo).
     if (!existing || diagnostic.severity < existing.severity) {
+      diagnosticsByLine.set(line, diagnostic);
+    } else if (
+      diagnostic.severity === existing.severity &&
+      diagnostic.message.length > existing.message.length
+    ) {
       diagnosticsByLine.set(line, diagnostic);
     }
   }
@@ -54,7 +60,13 @@ export function updateDecorationsForEditor(
 
     // Mensaje limpio. .trim() para quitar cualquier espacio inicial o final fantasma.
     // ESTO ELIMINA EL BUG del recuadro opaco apareciendo primero sin texto.
-    const message = diagnostic.message.replace(/\r?\n/g, ' ').trim();
+    let message = diagnostic.message.replace(/\r?\n/g, ' ').trim();
+
+    // PERFORMANCE & ESTÉTICA: Cortar los testamentos kilométricos de TypeScript
+    // que destruyen el margen visual a un máximo cómodo (~100 caracteres)
+    if (message.length > 100) {
+      message = message.substring(0, 111) + '...';
+    }
 
     // Evitamos renderizar burbujas falsas / vacías
     if (!message) {
