@@ -7,17 +7,15 @@ function _shouldExclude(scheme: string): boolean {
 
 /**
  * Optimizaciones aplicadas:
- * 1. Uso de Map para O(1) en búsqueda y asignación, más amigable con memoria que objects iterables viejos.
- * 2. Filtrado en la misma pasada para sólo guardar la severidad máxima por línea (ej: Error gana a Warning).
- * 3. Se adjunta puramente al final de la línea mediante calculo de text.length (sin modificar isWholeLine completo).
+ * 1. Uso de Map para O(1).
+ * 2. Filtrado para obviar Hint/Info y guardar solo el error más grave (Error gana a Warning).
+ * 3. Textos sin renderizado fantasma (margin usado en vez de blank spaces).
  */
 export function updateDecorationsForEditor(
   editor: vscode.TextEditor,
   styles: {
     error: vscode.TextEditorDecorationType;
     warning: vscode.TextEditorDecorationType;
-    info: vscode.TextEditorDecorationType;
-    hint: vscode.TextEditorDecorationType;
   },
 ): void {
   const document = editor.document;
@@ -29,16 +27,19 @@ export function updateDecorationsForEditor(
 
   const errorOptions: vscode.DecorationOptions[] = [];
   const warningOptions: vscode.DecorationOptions[] = [];
-  const infoOptions: vscode.DecorationOptions[] = [];
-  const hintOptions: vscode.DecorationOptions[] = [];
 
-  // Almacenar solo el peor (menor número en severidad) diagnóstico por línea.
   const diagnosticsByLine = new Map<number, vscode.Diagnostic>();
 
   for (const diagnostic of diagnostics) {
+    // Rendimiento extremo: Cortar y abandonar todo lo que sea Info(2) o Hint(3)
+    if (diagnostic.severity > vscode.DiagnosticSeverity.Warning) {
+      continue;
+    }
+
     const line = diagnostic.range.start.line;
     const existing = diagnosticsByLine.get(line);
-    // En VSCode, Error=0, Warning=1, Info=2, Hint=3
+
+    // Solo permitimos decorar si es el más grave (Error gana sobre Warning)
     if (!existing || diagnostic.severity < existing.severity) {
       diagnosticsByLine.set(line, diagnostic);
     }
@@ -47,13 +48,18 @@ export function updateDecorationsForEditor(
   for (const [line, diagnostic] of diagnosticsByLine) {
     const text = document.lineAt(line).text;
 
-    // Ignorar si la linea esta sola o el documento esta cerrado,
-    // pero siempre renderizamos al final de la cadena de texto real.
+    // Final de la cadena real para ubicar la decoración
     const endPos = new vscode.Position(line, text.length);
     const range = new vscode.Range(endPos, endPos);
 
-    // Mensaje limpio en una linea. Un espacio de separación extra visual.
-    const message = `  ${diagnostic.message.replace(/\r?\n/g, ' ')}`;
+    // Mensaje limpio. .trim() para quitar cualquier espacio inicial o final fantasma.
+    // ESTO ELIMINA EL BUG del recuadro opaco apareciendo primero sin texto.
+    const message = diagnostic.message.replace(/\r?\n/g, ' ').trim();
+
+    // Evitamos renderizar burbujas falsas / vacías
+    if (!message) {
+      continue;
+    }
 
     const decorationOptions: vscode.DecorationOptions = {
       range,
@@ -64,24 +70,13 @@ export function updateDecorationsForEditor(
       },
     };
 
-    switch (diagnostic.severity) {
-      case vscode.DiagnosticSeverity.Error:
-        errorOptions.push(decorationOptions);
-        break;
-      case vscode.DiagnosticSeverity.Warning:
-        warningOptions.push(decorationOptions);
-        break;
-      case vscode.DiagnosticSeverity.Information:
-        infoOptions.push(decorationOptions);
-        break;
-      case vscode.DiagnosticSeverity.Hint:
-        hintOptions.push(decorationOptions);
-        break;
+    if (diagnostic.severity === vscode.DiagnosticSeverity.Error) {
+      errorOptions.push(decorationOptions);
+    } else if (diagnostic.severity === vscode.DiagnosticSeverity.Warning) {
+      warningOptions.push(decorationOptions);
     }
   }
 
   editor.setDecorations(styles.error, errorOptions);
   editor.setDecorations(styles.warning, warningOptions);
-  editor.setDecorations(styles.info, infoOptions);
-  editor.setDecorations(styles.hint, hintOptions);
 }
