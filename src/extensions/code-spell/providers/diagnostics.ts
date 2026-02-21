@@ -77,12 +77,31 @@ function performCheck(doc: vscode.TextDocument) {
   const issues = checkText(text);
 
   const ranges: vscode.Range[] = [];
+  const diagnostics: vscode.Diagnostic[] = [];
 
-  const diagnostics: vscode.Diagnostic[] = issues.map((issue) => {
+  // 1. Obtener problemas críticos actuales (TS, ESLint, etc.) para priorizarlos
+  const existingDiagnostics = vscode.languages
+    .getDiagnostics(doc.uri)
+    .filter(
+      (d) =>
+        d.source !== 'ATM code-spell' &&
+        d.severity <= vscode.DiagnosticSeverity.Warning,
+    );
+
+  issues.forEach((issue) => {
     // vscode.TextDocument helps transform Offsets to Line/Column Ranges
     const start = doc.positionAt(issue.offset);
     const end = doc.positionAt(issue.offset + issue.length);
     const range = new vscode.Range(start, end);
+
+    // 2. Si el error ortográfico choca con un error de código crítico, lo ignoramos para darle prioridad visual (ej. Error Lens)
+    const isOverlapping = existingDiagnostics.some((d) =>
+      d.range.intersection(range),
+    );
+
+    if (isOverlapping) {
+      return; // Skip this issue
+    }
 
     ranges.push(range);
 
@@ -94,7 +113,7 @@ function performCheck(doc: vscode.TextDocument) {
     );
 
     diag.source = 'ATM code-spell';
-    return diag;
+    diagnostics.push(diag);
   });
 
   spellDiagnostics.set(doc.uri, diagnostics);
