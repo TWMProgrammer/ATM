@@ -111,6 +111,14 @@
           "type": "string",
           "default": "en_US-hfc_female-medium",
           "description": "Voice model for ATM Voice TTS. Use Select Voice or Download Voice to change."
+        },
+        "atm.codeSpell.customWords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Array of custom words added to the ATM Code-Spell dictionary."
         }
       }
     },
