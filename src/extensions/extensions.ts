@@ -4,6 +4,7 @@ import { activateVoiceTts } from './voice-tts';
 import { activateCodeSpell } from './code-spell';
 import { activateErrorLens } from './error-lens';
 import { activateColorBox } from './color-box';
+import { activateCommentsCode } from './comments-code';
 
 /**
  * Register all sub-extensions here.
@@ -17,4 +18,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateCodeSpell(context);
   activateErrorLens(context);
   activateColorBox(context);
+  activateCommentsCode(context);
 }
