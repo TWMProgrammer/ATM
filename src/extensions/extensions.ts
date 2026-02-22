@@ -2,6 +2,8 @@ import type * as vscode from 'vscode';
 import { activateImagePreview } from './image-preview';
 import { activateVoiceTts } from './voice-tts';
 import { activateCodeSpell } from './code-spell';
+import { activateErrorLens } from './error-lens';
+import { activateColorBox } from './color-box';
 
 /**
  * Register all sub-extensions here.
@@ -13,4 +15,6 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
     console.error('[voice-tts] Activation error:', error);
   });
   activateCodeSpell(context);
+  activateErrorLens(context);
+  activateColorBox(context);
 }
