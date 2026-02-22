@@ -6,11 +6,12 @@ let controller: CommentsCodeController | undefined;
 export function activateCommentsCode(context: vscode.ExtensionContext) {
   controller = new CommentsCodeController();
 
-  // Escuchar cambios de documento para actualizar las decoraciones con debouncing
+  // R1: Partial cache invalidation + debounced decoration update
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
       const activeEditor = vscode.window.activeTextEditor;
       if (activeEditor && event.document === activeEditor.document) {
+        controller?.handleContentChanges(event.contentChanges);
         controller?.triggerUpdateDecorations(event.document);
       }
     }),

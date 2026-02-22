@@ -35,10 +35,13 @@ export class CommentsCodeController {
   // P2: per-line cache
   private lineCache = new Map<number, LineCacheEntry>();
   private cachedDocVersion = -1;
+  private cachedDocUri = ''; // R5: track active document URI
 
   // P3: compiled tag index
   private lineTagRegex: RegExp | null = null;
+  private wordTagRegex: RegExp | null = null; // R2: compiled word tag regex
   private tagByText = new Map<string, CommentTag>();
+  private wordTags: CommentTag[] = []; // R4: pre-filtered word tags
 
   constructor() {
     this.decorator = new Decorator();
@@ -61,6 +64,18 @@ export class CommentsCodeController {
     this.lineTagRegex =
       lineTexts.length > 0
         ? new RegExp(`^(?:${lineTexts.map(escapeRegex).join('|')})`)
+        : null;
+
+    // R4: Pre-filter word tags into separate array
+    this.wordTags = tags.filter((t) => t.type === 'word');
+
+    // R2: Compiled word tag regex for single-pass scanning
+    const wordTexts = this.wordTags
+      .map((t) => t.text)
+      .sort((a, b) => b.length - a.length);
+    this.wordTagRegex =
+      wordTexts.length > 0
+        ? new RegExp(wordTexts.map(escapeRegex).join('|'), 'g')
         : null;
   }
 
@@ -94,6 +109,30 @@ export class CommentsCodeController {
     this.scrollTimeout = setTimeout(() => this.updateDecorations(document), 50);
   }
 
+  // R1: Partial cache invalidation — only invalidate from the earliest changed line
+  public handleContentChanges(
+    changes: readonly vscode.TextDocumentContentChangeEvent[],
+  ) {
+    if (changes.length === 0) {
+      return;
+    }
+
+    let earliestLine = Infinity;
+    for (const change of changes) {
+      earliestLine = Math.min(earliestLine, change.range.start.line);
+    }
+
+    const toDelete: number[] = [];
+    for (const lineNum of this.lineCache.keys()) {
+      if (lineNum >= earliestLine) {
+        toDelete.push(lineNum);
+      }
+    }
+    for (const lineNum of toDelete) {
+      this.lineCache.delete(lineNum);
+    }
+  }
+
   // ─── Main update ─────────────────────────────────────────────────────────
 
   private updateDecorations(document: vscode.TextDocument) {
@@ -107,11 +146,14 @@ export class CommentsCodeController {
       return;
     }
 
-    // P2: Invalidate cache when document changes
-    if (document.version !== this.cachedDocVersion) {
+    // R5: Clear cache when switching documents
+    const docUri = document.uri.toString();
+    if (docUri !== this.cachedDocUri) {
       this.lineCache.clear();
-      this.cachedDocVersion = document.version;
+      this.cachedDocUri = docUri;
     }
+    // R1: Version tracked for reference (partial invalidation handled by handleContentChanges)
+    this.cachedDocVersion = document.version;
 
     const tags = defaultTags;
     const rangesToDecorate = new Map<string, vscode.DecorationOptions[]>();
@@ -316,7 +358,7 @@ export class CommentsCodeController {
     return inBlock;
   }
 
-  // ─── Word tag scanner ────────────────────────────────────────────────────
+  // ─── R2: Word tag scanner (compiled regex, single-pass) ─────────────────
 
   private findWordTags(
     lineIndex: number,
@@ -324,37 +366,31 @@ export class CommentsCodeController {
     content: string,
     lineRanges: Map<string, vscode.DecorationOptions[]>,
   ) {
-    for (const [, tag] of this.tagByText) {
-      if (tag.type !== 'word') {
+    if (!this.wordTagRegex) {
+      return;
+    }
+
+    this.wordTagRegex.lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = this.wordTagRegex.exec(content)) !== null) {
+      const matchIdx = match.index;
+      const matchText = match[0];
+
+      // Word boundary check
+      const before = matchIdx > 0 ? content[matchIdx - 1] : ' ';
+      const after = content[matchIdx + matchText.length] ?? ' ';
+      if (/[\w]/.test(before) || /[\w]/.test(after)) {
         continue;
       }
-      let searchFrom = 0;
-      while (searchFrom < content.length) {
-        const matchIdx = content.indexOf(tag.text, searchFrom);
-        if (matchIdx === -1) {
-          break;
-        }
-        const before = matchIdx > 0 ? content[matchIdx - 1] : ' ';
-        const after = content[matchIdx + tag.text.length] ?? ' ';
-        const wordBoundary = !/[\w]/.test(before) && !/[\w]/.test(after);
 
-        if (wordBoundary) {
-          const absIdx = offset + matchIdx;
-          const alreadyAdded = lineRanges
-            .get(tag.text)
-            ?.some((r) => r.range.start.character === absIdx);
-
-          if (!alreadyAdded) {
-            lineRanges.get(tag.text)?.push({
-              range: new vscode.Range(
-                new vscode.Position(lineIndex, absIdx),
-                new vscode.Position(lineIndex, absIdx + tag.text.length),
-              ),
-            });
-          }
-        }
-        searchFrom = matchIdx + tag.text.length;
-      }
+      const absIdx = offset + matchIdx;
+      lineRanges.get(matchText)?.push({
+        range: new vscode.Range(
+          new vscode.Position(lineIndex, absIdx),
+          new vscode.Position(lineIndex, absIdx + matchText.length),
+        ),
+      });
     }
   }
 
