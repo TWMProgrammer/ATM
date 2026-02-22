@@ -65,7 +65,9 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
     ColorBoxProvider.HEX_REGEX.lastIndex = 0;
     let match;
     while ((match = ColorBoxProvider.HEX_REGEX.exec(text)) !== null) {
-      if (isIgnored(match.index, match[0].length)) continue;
+      if (isIgnored(match.index, match[0].length)) {
+        continue;
+      }
       const parsed = this.parseHex(match[0]);
       if (parsed) {
         const range = new vscode.Range(
@@ -79,7 +81,9 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
     // 3. Parse Flutter colors (0xAARRGGBB)
     ColorBoxProvider.FLUTTER_REGEX.lastIndex = 0;
     while ((match = ColorBoxProvider.FLUTTER_REGEX.exec(text)) !== null) {
-      if (isIgnored(match.index, match[0].length)) continue;
+      if (isIgnored(match.index, match[0].length)) {
+        continue;
+      }
       const parsed = this.parseFlutter(match[1]); // match[1] is the hex without 0x
       if (parsed) {
         const range = new vscode.Range(
@@ -93,7 +97,9 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
     // 4. Parse RGB(A) colors
     ColorBoxProvider.RGB_REGEX.lastIndex = 0;
     while ((match = ColorBoxProvider.RGB_REGEX.exec(text)) !== null) {
-      if (isIgnored(match.index, match[0].length)) continue;
+      if (isIgnored(match.index, match[0].length)) {
+        continue;
+      }
       const r = parseInt(match[1], 10);
       const g = parseInt(match[2], 10);
       const b = parseInt(match[3], 10);
@@ -186,7 +192,9 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
 
   private parseFlutter(hexCode: string): vscode.Color | null {
     // Flutter is AARRGGBB
-    if (hexCode.length !== 8) return null;
+    if (hexCode.length !== 8) {
+      return null;
+    }
     const a = parseInt(hexCode.substring(0, 2), 16) / 255;
     const r = parseInt(hexCode.substring(2, 4), 16) / 255;
     const g = parseInt(hexCode.substring(4, 6), 16) / 255;
