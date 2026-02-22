@@ -5,20 +5,21 @@ export interface CommentTag {
   backgroundColor?: string;
   strikethrough?: boolean;
   fontWeight?: string; // bold?
+  fontStyle?: string; // italic?
 }
 
 export const defaultTags: CommentTag[] = [
   // Colorful Comments (paint the whole line from the tag onwards)
-  { text: '!', type: 'line', color: '#FF3333' }, // Alert / Error      → Red
-  { text: '?', type: 'line', color: '#3B9EFF' }, // Question           → Blue
-  { text: '*', type: 'line', color: '#23D18B' }, // Highlight          → Green
-  { text: '^', type: 'line', color: '#FFD602' }, // Warning            → Yellow
-  { text: '#', type: 'line', color: '#FF922B' }, // Section / Header   → Orange
-  { text: '$', type: 'line', color: '#20C5C5' }, // Resource / Value   → Cyan
-  { text: '%', type: 'line', color: '#F4A261' }, // Ratio / Percent    → Amber
-  { text: '@', type: 'line', color: '#A8FF3E' }, // Reference / Tag    → Lime
-  { text: '&', type: 'line', color: '#FF4ECD' }, // Important          → Pink
-  { text: '~', type: 'line', color: '#B267E6' }, // Deprecated         → Purple
+  { text: '!', type: 'line', color: '#FF3333', fontStyle: 'italic' }, // Alert / Error      → Red
+  { text: '?', type: 'line', color: '#3297fbff', fontStyle: 'italic' }, // Question           → Blue
+  { text: '*', type: 'line', color: '#ab23d1ff', fontStyle: 'italic' }, // Highlight          → Green
+  { text: '^', type: 'line', color: '#FFD602', fontStyle: 'italic' }, // Warning            → Yellow
+  { text: '#', type: 'line', color: '#FF922B', fontStyle: 'italic' }, // Section / Header   → Orange
+  { text: '$', type: 'line', color: '#18cbe7ff', fontStyle: 'italic' }, // Resource / Value   → Cyan
+  { text: '%', type: 'line', color: '#F4A261', fontStyle: 'italic' }, // Ratio / Percent    → Amber
+  { text: '>', type: 'line', color: '#01b887ff', fontStyle: 'italic' }, // Reference / Tag    → Sky Blue
+  { text: '&', type: 'line', color: '#FF4ECD', fontStyle: 'italic' }, // Important          → Pink
+  { text: '~', type: 'line', color: '#aef958ff', fontStyle: 'italic' }, // Deprecated         → Purple
   { text: '////', type: 'line', color: '#5A5A5A', strikethrough: true }, // Removed → Grey
 
   // Keyword badges (only the keyword itself is painted)

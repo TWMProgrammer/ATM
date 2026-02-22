@@ -28,6 +28,10 @@ export class Decorator {
         options.fontWeight = tag.fontWeight;
       }
 
+      if (tag.fontStyle) {
+        options.fontStyle = tag.fontStyle;
+      }
+
       // Add overview ruler markers (colored dots on the scrollbar)
       if (tag.type === 'word' && tag.backgroundColor) {
         options.overviewRulerLane = vscode.OverviewRulerLane.Right;
