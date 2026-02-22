@@ -8,32 +8,46 @@ export interface CommentTag {
 }
 
 export const defaultTags: CommentTag[] = [
-  // Colorful Comments (Afectan a toda la línea a partir del tag)
-  { text: '!', type: 'line', color: '#FF2D00' }, // Alert / Error
-  { text: '?', type: 'line', color: '#3498DB' }, // Question / Detail
-  { text: '*', type: 'line', color: '#98C379' }, // Highlight
-  { text: '////', type: 'line', color: '#474747', strikethrough: true }, // Striked
+  // Colorful Comments (paint the whole line from the tag onwards)
+  { text: '!', type: 'line', color: '#FF3333' }, // Alert / Error      → Red
+  { text: '?', type: 'line', color: '#3B9EFF' }, // Question           → Blue
+  { text: '*', type: 'line', color: '#23D18B' }, // Highlight          → Green
+  { text: '^', type: 'line', color: '#FFD602' }, // Warning            → Yellow
+  { text: '#', type: 'line', color: '#FF922B' }, // Section / Header   → Orange
+  { text: '$', type: 'line', color: '#20C5C5' }, // Resource / Value   → Cyan
+  { text: '%', type: 'line', color: '#F4A261' }, // Ratio / Percent    → Amber
+  { text: '@', type: 'line', color: '#A8FF3E' }, // Reference / Tag    → Lime
+  { text: '&', type: 'line', color: '#FF4ECD' }, // Important          → Pink
+  { text: '~', type: 'line', color: '#B267E6' }, // Deprecated         → Purple
+  { text: '////', type: 'line', color: '#5A5A5A', strikethrough: true }, // Removed → Grey
 
-  // Todo Highlight (only the keyword itself is painted)
+  // Keyword badges (only the keyword itself is painted)
   {
     text: 'TODO:',
     type: 'word',
-    color: '#ffffff',
-    backgroundColor: '#ffbd2a',
+    color: '#1a1a1a',
+    backgroundColor: '#FFD602',
     fontWeight: 'bold',
   },
   {
     text: 'FIXME:',
     type: 'word',
     color: '#ffffff',
-    backgroundColor: '#f06292',
+    backgroundColor: '#FF3333',
     fontWeight: 'bold',
   },
   {
     text: 'NOTE:',
     type: 'word',
     color: '#ffffff',
-    backgroundColor: '#4caf50',
+    backgroundColor: '#23D18B',
+    fontWeight: 'bold',
+  },
+  {
+    text: 'MARK:',
+    type: 'word',
+    color: '#ffffff',
+    backgroundColor: '#5A6A85',
     fontWeight: 'bold',
   },
 ];
