@@ -28,10 +28,13 @@ export class Decorator {
         options.fontWeight = tag.fontWeight;
       }
 
-      // Add overview ruler decoration for keywords
+      // Add overview ruler markers (colored dots on the scrollbar)
       if (tag.type === 'word' && tag.backgroundColor) {
         options.overviewRulerLane = vscode.OverviewRulerLane.Right;
         options.overviewRulerColor = tag.backgroundColor;
+      } else if (tag.type === 'line' && tag.color) {
+        options.overviewRulerLane = vscode.OverviewRulerLane.Right;
+        options.overviewRulerColor = tag.color;
       }
 
       const decoration = vscode.window.createTextEditorDecorationType(options);
