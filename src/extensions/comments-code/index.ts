@@ -25,13 +25,13 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
     }),
   );
 
-  // Escuchar scroll (vital porque el parser usa visibleRanges)
+  // Listen for scroll changes — separate 50ms debounce to avoid excessive repaints
   context.subscriptions.push(
     vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
       if (
         event.textEditor.document === vscode.window.activeTextEditor?.document
       ) {
-        controller?.triggerUpdateDecorations(event.textEditor.document, true);
+        controller?.triggerScrollUpdate(event.textEditor.document);
       }
     }),
   );

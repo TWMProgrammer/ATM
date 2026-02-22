@@ -33,7 +33,7 @@ export const defaultTags: CommentTag[] = [
     text: 'FIXME:',
     type: 'word',
     color: '#ffffff',
-    backgroundColor: '#FF3333',
+    backgroundColor: '#ff3366ff',
     fontWeight: 'bold',
   },
   {
