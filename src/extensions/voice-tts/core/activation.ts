@@ -49,7 +49,7 @@ async function ensureVoiceForPlayback(
     return true;
   }
 
-  vscode.window.showInformationMessage('No voice installed - Download 📥 one.');
+  vscode.window.showInformationMessage('No voice installed 📥 - Download one.');
 
   await showVoiceSelector(context);
   return false;
