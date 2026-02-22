@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { defaultTags, CommentTag } from './config';
+import { defaultTags, CommentTag } from '../ui/styles';
 import { Decorator } from '../ui/decorator';
 import { getLanguageConfig } from './languages';
 
@@ -48,7 +48,7 @@ export class CommentsCodeController {
     const rangesToDecorate = new Map<string, vscode.DecorationOptions[]>();
     tags.forEach((t) => rangesToDecorate.set(t.text, []));
 
-    // Solo procesar las lineas visibles (para MAXIMO rendimiento)
+    // Solo procesar las líneas visibles (para máximo rendimiento)
     const visibleRanges = activeEditor.visibleRanges;
 
     // Buffer extra de líneas hacia arriba y abajo para que el scroll suave no pierda los colores
@@ -108,24 +108,45 @@ export class CommentsCodeController {
           }
         }
 
-        // TODO: Agregar soporte si el color "word" (como TODO) no requiere de empezar con un comentario. O se quiere buscar en cualquier lugar.
-        // todo-highlight originalmente busca el Regex en TODOS lados de la linea:
-        for (const tag of tags) {
-          if (tag.type === 'word') {
-            let matchIdx = text.indexOf(tag.text); // simplificado, para regex sería con exec
-            if (matchIdx !== -1) {
-              // validamos que sea "Word" puro y no parte de otra palabra (opcional)
-              const endIdx = matchIdx + tag.text.length;
-              const startPos = new vscode.Position(i, matchIdx);
-              const endPos = new vscode.Position(i, endIdx);
-              // Lo agregamos (evitamos duplicar si ya estaba antes anotado arriba)
-              const exists = rangesToDecorate
-                .get(tag.text)
-                ?.some((r) => r.range.start.character === startPos.character);
-              if (!exists) {
-                rangesToDecorate
-                  .get(tag.text)
-                  ?.push({ range: new vscode.Range(startPos, endPos) });
+        // Search for 'word' tags (TODO, FIXME, NOTE) but ONLY inside detected comment regions.
+        // This avoids false positives in string literals or variable names.
+        const commentStart = slIdx !== -1 ? slIdx : -1;
+        if (commentStart !== -1) {
+          const commentText = text.substring(commentStart);
+          for (const tag of tags) {
+            if (tag.type === 'word') {
+              let searchFrom = 0;
+              while (searchFrom < commentText.length) {
+                const matchIdx = commentText.indexOf(tag.text, searchFrom);
+                if (matchIdx === -1) {
+                  break;
+                }
+
+                // Word boundary check: char before and after must not be alphanumeric or '_'
+                const before = matchIdx > 0 ? commentText[matchIdx - 1] : ' ';
+                const after = commentText[matchIdx + tag.text.length] ?? ' ';
+                const isWordBoundary =
+                  !/[\w]/.test(before) && !/[\w]/.test(after);
+
+                if (isWordBoundary) {
+                  const absIdx = commentStart + matchIdx;
+                  const startPos = new vscode.Position(i, absIdx);
+                  const endPos = new vscode.Position(
+                    i,
+                    absIdx + tag.text.length,
+                  );
+                  const exists = rangesToDecorate
+                    .get(tag.text)
+                    ?.some(
+                      (r) => r.range.start.character === startPos.character,
+                    );
+                  if (!exists) {
+                    rangesToDecorate
+                      .get(tag.text)
+                      ?.push({ range: new vscode.Range(startPos, endPos) });
+                  }
+                }
+                searchFrom = matchIdx + tag.text.length;
               }
             }
           }
@@ -147,6 +168,8 @@ export class CommentsCodeController {
   public dispose() {
     if (this.timeout) {
       clearTimeout(this.timeout);
+      this.timeout = undefined;
     }
+    this.decorator.dispose();
   }
 }

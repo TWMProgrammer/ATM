@@ -51,6 +51,7 @@ export function getLanguageConfig(
       return { singleLine: '--' };
 
     case 'json':
+      return undefined; // Standard JSON does not support comments
     case 'jsonc':
       return { singleLine: '//', blockStart: '/*', blockEnd: '*/' };
 

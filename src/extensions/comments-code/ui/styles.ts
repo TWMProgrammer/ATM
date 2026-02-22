@@ -14,7 +14,7 @@ export const defaultTags: CommentTag[] = [
   { text: '*', type: 'line', color: '#98C379' }, // Highlight
   { text: '////', type: 'line', color: '#474747', strikethrough: true }, // Striked
 
-  // Todo Highlight (Afectan solo a la palabra)
+  // Todo Highlight (only the keyword itself is painted)
   {
     text: 'TODO:',
     type: 'word',
@@ -23,21 +23,7 @@ export const defaultTags: CommentTag[] = [
     fontWeight: 'bold',
   },
   {
-    text: 'TODO',
-    type: 'word',
-    color: '#ffffff',
-    backgroundColor: '#ffbd2a',
-    fontWeight: 'bold',
-  }, // sin dos puntos también
-  {
     text: 'FIXME:',
-    type: 'word',
-    color: '#ffffff',
-    backgroundColor: '#f06292',
-    fontWeight: 'bold',
-  },
-  {
-    text: 'FIXME',
     type: 'word',
     color: '#ffffff',
     backgroundColor: '#f06292',

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CommentTag } from '../core/config';
+import { CommentTag } from './styles';
 
 export class Decorator {
   private decorationTypes = new Map<string, vscode.TextEditorDecorationType>();
