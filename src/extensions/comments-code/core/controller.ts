@@ -309,7 +309,7 @@ export class CommentsCodeController {
         if (lineMatch) {
           const tag = this.tagByText.get(lineMatch[0]);
           if (tag?.type === 'line') {
-            const startChar = slIdx + langConfig.singleLine.length + trimOffset;
+            const startChar = slIdx;
             lineRanges.get(tag.text)?.push({
               range: new vscode.Range(
                 new vscode.Position(lineIndex, startChar),
@@ -340,11 +340,11 @@ export class CommentsCodeController {
       if (lineMatch) {
         const tag = this.tagByText.get(lineMatch[0]);
         if (tag?.type === 'line') {
-          const startChar = region.contentStart + trimOffset;
+          const startChar = region.spanStart;
           lineRanges.get(tag.text)?.push({
             range: new vscode.Range(
               new vscode.Position(lineIndex, startChar),
-              new vscode.Position(lineIndex, region.contentEnd),
+              new vscode.Position(lineIndex, region.spanEnd),
             ),
           });
           continue;
