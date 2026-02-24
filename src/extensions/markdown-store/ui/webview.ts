@@ -183,6 +183,16 @@ export class TranslatorWebviewPanel {
         <div class="sk-line" style="width:75%"></div>
         <div class="sk-box" style="height:100px"></div>
         <div class="sk-line" style="width:60%"></div>
+        <div class="sk-line" style="width:88%"></div>
+        <div class="sk-line" style="width:70%"></div>
+        <div class="sk-title" style="width:35%;margin-top:28px"></div>
+        <div class="sk-line" style="width:78%"></div>
+        <div class="sk-line" style="width:90%"></div>
+        <div class="sk-line" style="width:50%"></div>
+        <div class="sk-box" style="height:120px"></div>
+        <div class="sk-line" style="width:82%"></div>
+        <div class="sk-line" style="width:68%"></div>
+        <div class="sk-line" style="width:74%"></div>
       </div>`;
 
     const cspSource = this._panel.webview.cspSource;
@@ -210,7 +220,7 @@ export class TranslatorWebviewPanel {
     }
 
     /* ── Skeleton loading ──────────────────────────────────── */
-    .skeleton { animation: fadeIn .4s ease-in; }
+    .skeleton { animation: fadeIn .4s ease-in; min-height: calc(100vh - 88px); }
 
     .sk-title {
       height: 30px; width: 40%;
