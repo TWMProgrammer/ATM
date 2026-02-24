@@ -4,8 +4,8 @@ import { showLanguageQuickPick } from './ui/quickPick';
 import { TranslatorWebviewPanel } from './ui/webview';
 import type { TranslationTarget } from './ui/webview';
 
-export function activateMarkdownSee(context: vscode.ExtensionContext) {
-  const translateCmd = vscode.commands.registerCommand('atm.markdown-see.translateExtension', async (arg?: any) => {
+export function activateMarkdownStore(context: vscode.ExtensionContext) {
+  const translateCmd = vscode.commands.registerCommand('atm.markdown-store.translateExtension', async (arg?: any) => {
     let targetText = '';
     let detectedExt: vscode.Extension<any> | undefined;
 
@@ -126,6 +126,6 @@ function detectExtensionFromActiveTab(): vscode.Extension<any> | undefined {
 /**
  * Clean up the webview panel when the extension is deactivated.
  */
-export function deactivateMarkdownSee(): void {
+export function deactivateMarkdownStore(): void {
   TranslatorWebviewPanel.currentPanel?.dispose();
 }

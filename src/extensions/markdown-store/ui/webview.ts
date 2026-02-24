@@ -76,7 +76,7 @@ export class TranslatorWebviewPanel {
     }
 
     const panel = vscode.window.createWebviewPanel(
-      'markdownSeeWebview',
+      'markdownStoreWebview',
       title,
       vscode.ViewColumn.Beside,
       {
