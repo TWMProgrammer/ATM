@@ -2,17 +2,18 @@ import * as vscode from 'vscode';
 import { translateText } from './core/translator';
 import { showLanguageQuickPick } from './ui/quickPick';
 import { TranslatorWebviewPanel } from './ui/webview';
+import type { TranslationTarget } from './ui/webview';
 
 export function activateMarkdownSee(context: vscode.ExtensionContext) {
   const translateCmd = vscode.commands.registerCommand('atm.markdown-see.translateExtension', async (arg?: any) => {
     let targetText = '';
-    let targetExtensionUri: vscode.Uri | undefined;
+    let detectedExt: vscode.Extension<any> | undefined;
 
     if (arg && arg.id) {
       // Invoked from the extension context menu (right-click) — ID is provided
       const ext = vscode.extensions.getExtension(arg.id);
       if (ext) {
-        targetExtensionUri = ext.extensionUri;
+        detectedExt = ext;
         targetText = await readExtensionReadme(ext);
         if (!targetText) { return; }
       } else {
@@ -23,7 +24,7 @@ export function activateMarkdownSee(context: vscode.ExtensionContext) {
       // Invoked from the title-bar globe icon — try to detect the extension automatically
       const detected = detectExtensionFromActiveTab();
       if (detected) {
-        targetExtensionUri = detected.extensionUri;
+        detectedExt = detected;
         targetText = await readExtensionReadme(detected);
         if (!targetText) { return; }
       } else {
@@ -46,8 +47,16 @@ export function activateMarkdownSee(context: vscode.ExtensionContext) {
     const lang = await showLanguageQuickPick();
     if (!lang) { return; }
 
+    // Build translation target info for the webview
+    const target: TranslationTarget = {
+      extensionUri: detectedExt?.extensionUri,
+      displayName: detectedExt?.packageJSON?.displayName,
+      iconRelativePath: detectedExt?.packageJSON?.icon,
+      languageLabel: lang.label,
+    };
+
     // Open webview with loading skeleton
-    const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, targetExtensionUri);
+    const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
     panel.setSkeleton();
 
     // Translate and render

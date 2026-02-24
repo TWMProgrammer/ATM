@@ -1,6 +1,21 @@
 import * as vscode from 'vscode';
 import MarkdownIt from 'markdown-it';
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface TranslationTarget {
+  extensionUri?: vscode.Uri;
+  displayName?: string;
+  iconRelativePath?: string;
+  languageLabel?: string; // e.g. "🇪🇸 Español"
+}
+
+// ---------------------------------------------------------------------------
+// Panel
+// ---------------------------------------------------------------------------
+
 export class TranslatorWebviewPanel {
   public static currentPanel: TranslatorWebviewPanel | undefined;
 
@@ -27,7 +42,7 @@ export class TranslatorWebviewPanel {
    */
   public static createOrShow(
     extensionUri: vscode.Uri,
-    targetExtensionUri?: vscode.Uri
+    target?: TranslationTarget
   ): TranslatorWebviewPanel {
     // Dispose the previous panel to refresh localResourceRoots
     if (TranslatorWebviewPanel.currentPanel) {
@@ -36,14 +51,25 @@ export class TranslatorWebviewPanel {
 
     const column = vscode.window.activeTextEditor?.viewColumn;
 
+    // --- Tab title ---
+    let title = 'Translated Extension';
+    if (target?.displayName && target?.languageLabel) {
+      const shortName = target.displayName.split(/\s+/)[0];
+      title = `${shortName} · ${target.languageLabel}`;
+    } else if (target?.displayName) {
+      const shortName = target.displayName.split(/\s+/)[0];
+      title = `${shortName} · Translated`;
+    }
+
+    // --- Resource roots ---
     const resourceRoots: vscode.Uri[] = [vscode.Uri.joinPath(extensionUri, 'assets')];
-    if (targetExtensionUri) {
-      resourceRoots.push(targetExtensionUri);
+    if (target?.extensionUri) {
+      resourceRoots.push(target.extensionUri);
     }
 
     const panel = vscode.window.createWebviewPanel(
       'markdownSeeWebview',
-      'Translated Extension',
+      title,
       column || vscode.ViewColumn.One,
       {
         enableScripts: true,
@@ -52,7 +78,12 @@ export class TranslatorWebviewPanel {
       }
     );
 
-    TranslatorWebviewPanel.currentPanel = new TranslatorWebviewPanel(panel, targetExtensionUri);
+    // --- Tab icon (extension icon) ---
+    if (target?.extensionUri && target?.iconRelativePath) {
+      panel.iconPath = vscode.Uri.joinPath(target.extensionUri, target.iconRelativePath);
+    }
+
+    TranslatorWebviewPanel.currentPanel = new TranslatorWebviewPanel(panel, target?.extensionUri);
     return TranslatorWebviewPanel.currentPanel;
   }
 
