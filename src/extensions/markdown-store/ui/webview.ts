@@ -337,9 +337,11 @@ export class TranslatorWebviewPanel {
       margin: 24px 0;
     }
 
-    /* ── Badges (inline images in paragraphs, like shields.io) */
+    /* ── Badges & inline icons (shields.io, favicons in lists, etc.) */
     p > a > img,
-    p > img {
+    p > img,
+    li > img,
+    li > a > img {
       display: inline-block;
       vertical-align: middle;
       border-radius: 3px;
