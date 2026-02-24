@@ -5,7 +5,7 @@ import { activateCodeSpell } from './code-spell';
 import { activateErrorLens } from './error-lens';
 import { activateColorBox } from './color-box';
 import { activateCommentsCode } from './comments-code';
-import { activateMarkdownSee } from './markdown-see';
+import { activateMarkdownSee } from './markdown-store';
 
 /**
  * Register all sub-extensions here.
