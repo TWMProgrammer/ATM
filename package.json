@@ -126,6 +126,10 @@
       {
         "command": "atm.voiceTts.copyAndRead",
         "title": "ATM Voice TTS: Copy & Read"
+      },
+      {
+        "command": "commentsCode.listAnnotations",
+        "title": "ATM: List TODO / FIXME Annotations"
       }
     ],
     "keybindings": [

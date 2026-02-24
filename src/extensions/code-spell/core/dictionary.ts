@@ -9,7 +9,17 @@ const fastCache = new Set<string>();
 
 // Technical parameters usually ignored by standard dictionaries
 const programmingKeywords = [
+  // my words
+  'todo',
+  'fixme',
+
+  // --- JavaScript / TypeScript ---
   'function',
+  'warning',
+  'info',
+  'note',
+  'hack',
+  'tip',
   'const',
   'let',
   'var',
