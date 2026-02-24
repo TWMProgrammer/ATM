@@ -5,6 +5,7 @@ import { activateCodeSpell } from './code-spell';
 import { activateErrorLens } from './error-lens';
 import { activateColorBox } from './color-box';
 import { activateCommentsCode } from './comments-code';
+import { activateMarkdownSee } from './markdown-see';
 
 /**
  * Register all sub-extensions here.
@@ -19,4 +20,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateErrorLens(context);
   activateColorBox(context);
   activateCommentsCode(context);
+  activateMarkdownSee(context);
 }
