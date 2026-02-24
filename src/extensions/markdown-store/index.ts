@@ -62,8 +62,13 @@ export function activateMarkdownStore(context: vscode.ExtensionContext) {
     // Translate and render
     try {
       const translated = await translateText(targetText, lang.code);
+
+      // If the user closed the panel while translating, discard the result
+      if (panel.isDisposed) { return; }
+
       panel.setTranslatedMarkdown(translated);
     } catch (e: any) {
+      if (panel.isDisposed) { return; }
       vscode.window.showErrorMessage('Translation failed: ' + e.message);
       panel.setError('Translation failed. Please try again.');
     }

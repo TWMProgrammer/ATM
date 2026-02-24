@@ -23,6 +23,7 @@ export class TranslatorWebviewPanel {
   private readonly _md: MarkdownIt;
   private readonly _targetExtensionUri: vscode.Uri | undefined;
   private _disposables: vscode.Disposable[] = [];
+  private _isDisposed = false;
 
   // -----------------------------------------------------------------------
   // Constructor / Factory
@@ -113,17 +114,24 @@ export class TranslatorWebviewPanel {
 
   /** Show a simple error message inside the webview. */
   public setError(message: string): void {
+    const safe = escapeHtml(message);
     this._panel.webview.html = `
       <!DOCTYPE html>
       <html lang="en">
       <body style="font-family:var(--vscode-font-family);padding:24px;color:var(--vscode-editor-foreground);background:var(--vscode-editor-background);">
         <h2>⚠️ Error</h2>
-        <p style="color:var(--vscode-errorForeground);">${message}</p>
+        <p style="color:var(--vscode-errorForeground);">${safe}</p>
       </body>
       </html>`;
   }
 
+  /** Whether this panel has been disposed (closed). */
+  public get isDisposed(): boolean {
+    return this._isDisposed;
+  }
+
   public dispose(): void {
+    this._isDisposed = true;
     TranslatorWebviewPanel.currentPanel = undefined;
     this._panel.dispose();
     while (this._disposables.length) {
@@ -177,12 +185,15 @@ export class TranslatorWebviewPanel {
         <div class="sk-line" style="width:60%"></div>
       </div>`;
 
+    const cspSource = this._panel.webview.cspSource;
+
     return /* html */ `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; style-src 'unsafe-inline';">
   <title>Translated Extension</title>
   <style>
     /* ── Base ───────────────────────────────────────────────── */
@@ -341,4 +352,18 @@ export class TranslatorWebviewPanel {
 </body>
 </html>`;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Escape HTML special characters to prevent XSS injection. */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
