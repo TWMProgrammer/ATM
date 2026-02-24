@@ -53,7 +53,17 @@ export class TranslatorWebviewPanel {
     let title = 'Translated Extension';
     if (target?.displayName && target?.languageLabel) {
       const shortName = target.displayName.split(/\s+/)[0];
-      title = `${shortName} · ${target.languageLabel}`;
+      
+      // Move flag to the end: "🇪🇸 Español" -> "Español 🇪🇸"
+      let formattedLang = target.languageLabel;
+      const spaceIndex = formattedLang.indexOf(' ');
+      if (spaceIndex !== -1) {
+        const flag = formattedLang.slice(0, spaceIndex);
+        const name = formattedLang.slice(spaceIndex + 1);
+        formattedLang = `${name} ${flag}`;
+      }
+
+      title = `${shortName} · ${formattedLang}`;
     } else if (target?.displayName) {
       const shortName = target.displayName.split(/\s+/)[0];
       title = `${shortName} · Translated`;
