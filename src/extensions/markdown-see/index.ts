@@ -113,3 +113,10 @@ function detectExtensionFromActiveTab(): vscode.Extension<any> | undefined {
     (e) => e.packageJSON?.displayName?.toLowerCase() === lower
   );
 }
+
+/**
+ * Clean up the webview panel when the extension is deactivated.
+ */
+export function deactivateMarkdownSee(): void {
+  TranslatorWebviewPanel.currentPanel?.dispose();
+}

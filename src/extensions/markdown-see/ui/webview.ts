@@ -106,7 +106,7 @@ export class TranslatorWebviewPanel {
     const baseUri = this._targetExtensionUri;
 
     return html.replace(
-      /<img\s+([^>]*?)src="([^"]+)"([^>]*?)>/gi,
+      /<img\s+([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi,
       (match, before, src, after) => {
         // Keep absolute URLs and data URIs as-is
         if (/^(https?:\/\/|data:|vscode-)/i.test(src)) { return match; }
