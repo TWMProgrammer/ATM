@@ -133,7 +133,7 @@
       },
       {
         "command": "atm.markdown-see.translateExtension",
-        "title": "ATM: Translate Extension README",
+        "title": "ATM: Translate",
         "icon": "$(globe)"
       }
     ],
