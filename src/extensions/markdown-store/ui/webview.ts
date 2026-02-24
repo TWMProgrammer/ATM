@@ -49,8 +49,6 @@ export class TranslatorWebviewPanel {
       TranslatorWebviewPanel.currentPanel.dispose();
     }
 
-    const column = vscode.window.activeTextEditor?.viewColumn;
-
     // --- Tab title ---
     let title = 'Translated Extension';
     if (target?.displayName && target?.languageLabel) {
@@ -70,7 +68,7 @@ export class TranslatorWebviewPanel {
     const panel = vscode.window.createWebviewPanel(
       'markdownSeeWebview',
       title,
-      column || vscode.ViewColumn.One,
+      vscode.ViewColumn.Beside,
       {
         enableScripts: true,
         retainContextWhenHidden: true,
