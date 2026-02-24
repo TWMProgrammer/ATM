@@ -140,7 +140,13 @@
     "keybindings": [
       {
         "command": "atm.voiceTts.copyAndRead",
-        "key": "shift+alt+v"
+        "key": "shift+space"
+      },
+      {
+        "command": "atm.markdown-see.translateExtension",
+        "key": "ctrl+shift+space",
+        "mac": "cmd+shift+space",
+        "when": "activeEditor == 'workbench.editor.extension'"
       }
     ],
     "menus": {
