@@ -4,73 +4,55 @@ import { showLanguageQuickPick } from './ui/quickPick';
 import { TranslatorWebviewPanel } from './ui/webview';
 
 export function activateMarkdownSee(context: vscode.ExtensionContext) {
-  // Command to trigger the translation
   const translateCmd = vscode.commands.registerCommand('atm.markdown-see.translateExtension', async (arg?: any) => {
-    // 1. Get the target text
-    let targetText = "";
+    let targetText = '';
+    let targetExtensionUri: vscode.Uri | undefined;
 
-    // Check if invoked from Extension Context Menu (Option C)
     if (arg && arg.id) {
-        // It provides the extension identifier, e.g., 'bastndev.lynx-theme'
-        const extension = vscode.extensions.getExtension(arg.id);
-        if (extension) {
-            try {
-                const readmeUri = vscode.Uri.joinPath(extension.extensionUri, 'README.md');
-                const readmeData = await vscode.workspace.fs.readFile(readmeUri);
-                targetText = Buffer.from(readmeData).toString('utf8');
-            } catch (e) {
-                try {
-                    // Try lowercase if uppercase fails
-                    const readmeUri = vscode.Uri.joinPath(extension.extensionUri, 'readme.md');
-                    const readmeData = await vscode.workspace.fs.readFile(readmeUri);
-                    targetText = Buffer.from(readmeData).toString('utf8');
-                } catch (e2) {
-                    vscode.window.showErrorMessage(`No se pudo encontrar el README en la extensión: \${arg.id}`);
-                    return;
-                }
-            }
-        } else {
-            vscode.window.showInformationMessage(`Para traducir \${arg.id}, primero debes tener la extensión instalada.`);
-            return;
-        }
+      // Invoked from the extension context menu (right-click) — ID is provided
+      const ext = vscode.extensions.getExtension(arg.id);
+      if (ext) {
+        targetExtensionUri = ext.extensionUri;
+        targetText = await readExtensionReadme(ext);
+        if (!targetText) { return; }
+      } else {
+        vscode.window.showInformationMessage(`To translate "${arg.id}", the extension must be installed first.`);
+        return;
+      }
     } else {
-        // Default behavior: try to get text from active text editor first
+      // Invoked from the title-bar globe icon — try to detect the extension automatically
+      const detected = detectExtensionFromActiveTab();
+      if (detected) {
+        targetExtensionUri = detected.extensionUri;
+        targetText = await readExtensionReadme(detected);
+        if (!targetText) { return; }
+      } else {
+        // Fallback: use the active text editor content
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-          targetText = editor.document.getText(editor.selection);
-          if (!targetText) {
-            targetText = editor.document.getText();
-          }
-        }
-
-        // If we are in the extension webview, activeTextEditor is undefined.
-        // Let's forcibly trigger a copy command to get whatever the user has highlighted.
-        if (!targetText) {
-            await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
-            // Small delay to ensure clipboard is populated
-            await new Promise(resolve => setTimeout(resolve, 100));
-            targetText = await vscode.env.clipboard.readText();
+          targetText = editor.document.getText(editor.selection) || editor.document.getText();
         }
 
         if (!targetText) {
-            vscode.window.showInformationMessage('No hay texto seleccionado, asegúrate de presionar Ctrl+C o click derecho -> Copiar antes de traducir.');
-            return;
+          vscode.window.showInformationMessage(
+            'Could not detect the extension. Right-click on an extension and select "Translate Extension README".'
+          );
+          return;
         }
+      }
     }
 
-    // 2. Select language
+    // Select target language
     const lang = await showLanguageQuickPick();
     if (!lang) { return; }
 
-    // 3. Open Webview with Skeleton
-    const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri);
+    // Open webview with loading skeleton
+    const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, targetExtensionUri);
     panel.setSkeleton();
 
-    // 4. Translate text
+    // Translate and render
     try {
       const translated = await translateText(targetText, lang.code);
-      
-      // 5. Render translated text
       panel.setTranslatedMarkdown(translated);
     } catch (e: any) {
       vscode.window.showErrorMessage('Translation failed: ' + e.message);
@@ -79,4 +61,55 @@ export function activateMarkdownSee(context: vscode.ExtensionContext) {
   });
 
   context.subscriptions.push(translateCmd);
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Try multiple casing variants of README.md to find the file.
+ */
+async function readExtensionReadme(ext: vscode.Extension<any>): Promise<string> {
+  const candidates = ['README.md', 'readme.md', 'Readme.md', 'ReadMe.md'];
+
+  for (const name of candidates) {
+    try {
+      const uri = vscode.Uri.joinPath(ext.extensionUri, name);
+      const data = await vscode.workspace.fs.readFile(uri);
+      return Buffer.from(data).toString('utf8');
+    } catch { /* try next candidate */ }
+  }
+
+  vscode.window.showErrorMessage('Could not find a README file in this extension.');
+  return '';
+}
+
+/**
+ * Detect which extension the user is currently viewing by matching the
+ * active tab label ("Extension: <DisplayName>") against all installed
+ * extensions.
+ */
+function detectExtensionFromActiveTab(): vscode.Extension<any> | undefined {
+  const activeTab = vscode.window.tabGroups?.activeTabGroup?.activeTab;
+  if (!activeTab) { return undefined; }
+
+  const label = activeTab.label;
+
+  // VS Code extension pages have tabs labelled "Extension: Display Name"
+  if (!label.startsWith('Extension:')) { return undefined; }
+
+  const displayName = label.substring('Extension:'.length).trim();
+
+  // Exact match first
+  const exact = vscode.extensions.all.find(
+    (e) => e.packageJSON?.displayName === displayName
+  );
+  if (exact) { return exact; }
+
+  // Case-insensitive fallback
+  const lower = displayName.toLowerCase();
+  return vscode.extensions.all.find(
+    (e) => e.packageJSON?.displayName?.toLowerCase() === lower
+  );
 }
