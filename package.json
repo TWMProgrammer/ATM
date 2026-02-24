@@ -135,12 +135,21 @@
         "command": "atm.markdown-see.translateExtension",
         "title": "ATM: Translate",
         "icon": "$(globe)"
+      },
+      {
+        "command": "atm.voiceTts.selectVoice",
+        "title": "ATM Voice TTS: Select Voice",
+        "icon": "$(globe)"
       }
     ],
     "keybindings": [
       {
         "command": "atm.voiceTts.copyAndRead",
         "key": "shift+space"
+      },
+      {
+        "command": "atm.voiceTts.selectVoice",
+        "key": "shift+alt+space"
       },
       {
         "command": "atm.markdown-see.translateExtension",
