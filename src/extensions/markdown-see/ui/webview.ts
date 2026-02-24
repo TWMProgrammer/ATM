@@ -47,6 +47,7 @@ export class TranslatorWebviewPanel {
       column || vscode.ViewColumn.One,
       {
         enableScripts: true,
+        retainContextWhenHidden: true,
         localResourceRoots: resourceRoots,
       }
     );

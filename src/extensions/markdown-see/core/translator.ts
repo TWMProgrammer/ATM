@@ -8,17 +8,41 @@ import { translate } from '@vitalets/google-translate-api';
 const MAX_CHUNK_SIZE = 4500;
 
 /**
- * Patterns that must NOT be translated (order matters — larger first).
+ * Patterns that must NOT be translated (order matters — most specific first).
  * Each match is replaced with a placeholder before translation and
  * restored afterwards.
  */
 const PROTECTED_PATTERNS: RegExp[] = [
-  /```[\s\S]*?```/g,            // Fenced code blocks
-  /`[^`\n]+`/g,                 // Inline code
-  /!\[[^\]]*\]\([^)]+\)/g,      // Markdown images  ![alt](url)
-  /\[[^\]]*\]\([^)]+\)/g,       // Markdown links   [text](url)
-  /<[^>]+>/g,                    // HTML tags
-  /https?:\/\/[^\s)>\]]+/g,     // Raw URLs
+  // ── Block-level ──────────────────────────────────────────
+  /```[\s\S]*?```/g,                             // Fenced code blocks (```sh, ```py, etc.)
+
+  // ── Inline code ──────────────────────────────────────────
+  /`[^`\n]+`/g,                                  // Inline code spans
+
+  // ── Markdown: nested badges (must come before images/links) ──
+  /\[!\[[^\]]*\]\([^)]+\)\]\([^)]+\)/g,          // [![alt](img-url)](link-url)
+
+  // ── Markdown: images & links ─────────────────────────────
+  /!\[[^\]]*\]\([^)]+\)/g,                       // ![alt](url)
+  /\[[^\]]*\]\([^)]+\)/g,                        // [text](url)
+
+  // ── HTML ─────────────────────────────────────────────────
+  /<[^>]+>/g,                                    // HTML/XML tags
+
+  // ── CLI / package-manager commands ───────────────────────
+  /(?:npm|yarn|pnpm|bun|npx|pip|pip3|cargo|gem|composer|brew|apt|apt-get|dnf|pacman|choco|winget|go|deno)\s+(?:install|add|i|run|exec|create|init|update|upgrade|remove|uninstall|get|build|test|start|dev|publish|global)\b[^\n]*/gi,
+
+  // ── VS Code extension install ────────────────────────────
+  /ext\s+install\s+[\w.-]+/gi,
+
+  // ── Raw URLs ─────────────────────────────────────────────
+  /https?:\/\/[^\s)>\]]+/g,
+
+  // ── Email addresses ──────────────────────────────────────
+  /[\w.-]+@[\w.-]+\.\w{2,}/g,
+
+  // ── File & directory paths ───────────────────────────────
+  /(?:\.{1,2}\/|~\/)[^\s)>\]"']+/g,             // ./path, ../path, ~/path
 ];
 
 // ---------------------------------------------------------------------------
@@ -27,13 +51,13 @@ const PROTECTED_PATTERNS: RegExp[] = [
 
 /**
  * Translate a (potentially large) Markdown text while preserving URLs,
- * images, code blocks, and other non-translatable patterns.
+ * images, code blocks, commands, and other non-translatable patterns.
  */
 export async function translateText(
   text: string,
   targetLanguageCode: string
 ): Promise<string> {
-  // 1. Protect URLs, images, code blocks, etc.
+  // 1. Protect non-translatable content with placeholders
   const { text: safeText, placeholders } = protectPatterns(text);
 
   // 2. Split into chunks to stay under the character limit
@@ -53,11 +77,14 @@ export async function translateText(
 }
 
 // ---------------------------------------------------------------------------
-// Placeholder protection
+// Placeholder system
+// ---------------------------------------------------------------------------
+// Uses {{0}}, {{1}}, ... format — template-style double braces that
+// Google Translate reliably preserves across all languages.
 // ---------------------------------------------------------------------------
 
 interface Placeholder {
-  id: string;
+  tag: string;
   original: string;
 }
 
@@ -73,9 +100,10 @@ function protectPatterns(
 
   for (const pattern of PROTECTED_PATTERNS) {
     result = result.replace(pattern, (match) => {
-      const id = `%%P${counter++}%%`;
-      placeholders.push({ id, original: match });
-      return id;
+      const tag = `{{${counter}}}`;
+      placeholders.push({ tag, original: match });
+      counter++;
+      return tag;
     });
   }
 
@@ -84,8 +112,10 @@ function protectPatterns(
 
 /**
  * Restore placeholders back to their originals.
- * Handles the case where Google Translate may add extra spaces
- * around the placeholder markers (e.g. "%%P0%%" → "%% P0 %%").
+ * Handles the edge-case where Google Translate may:
+ *  - add spaces:          {{0}} → {{ 0 }}
+ *  - use full-width chars: {{0}} → ｛｛0｝｝
+ *  - separate braces:     {{0}} → { {0} }
  */
 function restorePlaceholders(
   text: string,
@@ -93,16 +123,26 @@ function restorePlaceholders(
 ): string {
   let result = text;
 
-  for (const { id, original } of placeholders) {
-    // Try exact match first (fast path)
-    if (result.includes(id)) {
-      result = result.split(id).join(original);
-    } else {
-      // Flexible match: allow optional spaces Google Translate may insert
-      const num = id.replace(/%%P(\d+)%%/, '$1');
-      const flexible = new RegExp(`%%\\s*P\\s*${num}\\s*%%`, 'g');
-      result = result.replace(flexible, original);
+  for (const { tag, original } of placeholders) {
+    const num = tag.match(/\d+/)![0];
+
+    // Fast path: exact match
+    if (result.includes(tag)) {
+      result = result.split(tag).join(original);
+      continue;
     }
+
+    // Flexible match: handle spacing and full-width variants
+    const flex = new RegExp(
+      // Normal braces with optional spaces
+      `\\{\\{\\s*${num}\\s*\\}\\}` +
+      // Full-width braces ｛｝
+      `|\\uff5b\\uff5b\\s*${num}\\s*\\uff5d\\uff5d` +
+      // Mixed: { { 0 } }
+      `|\\{\\s*\\{\\s*${num}\\s*\\}\\s*\\}`,
+      'g'
+    );
+    result = result.replace(flex, original);
   }
 
   return result;
