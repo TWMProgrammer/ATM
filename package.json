@@ -58,6 +58,10 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "markdown.markdownItPlugins": true,
+    "markdown.previewStyles": [
+      "./src/extensions/markdown-code/ui/checkboxes.css"
+    ],
     "configuration": {
       "type": "object",
       "title": "ATM – Image Preview",
