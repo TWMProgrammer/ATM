@@ -52,6 +52,7 @@ async function init() {
             
             // Setup interactive wrapper
             const parent = mermaidContainer.parentNode;
+
             if (parent) {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'mermaid-wrapper';

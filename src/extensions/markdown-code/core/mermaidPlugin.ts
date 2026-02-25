@@ -28,7 +28,7 @@ export function mermaidPlugin(md: MarkdownIt) {
         // If it's a mermaid block, render our special container instead of syntax highlighted code.
         if (info === 'mermaid') {
             const code = token.content;
-            return `<div class="mermaid" style="all: unset;">${preProcess(code)}</div>`;
+            return `<div class="mermaid" style="display: none;">${preProcess(code)}</div>`;
         }
 
         // For all other languages, fallback to default behavior
