@@ -148,18 +148,20 @@ function detectExtensionFromActiveTab(): vscode.Extension<any> | undefined {
   if (!label.startsWith('Extension:')) { return undefined; }
 
   const displayName = label.substring('Extension:'.length).trim();
-
-  // Exact match first
-  const exact = vscode.extensions.all.find(
-    (e) => e.packageJSON?.displayName === displayName
-  );
-  if (exact) { return exact; }
-
-  // Case-insensitive fallback
   const lower = displayName.toLowerCase();
-  return vscode.extensions.all.find(
-    (e) => e.packageJSON?.displayName?.toLowerCase() === lower
-  );
+
+  // Single-pass: exact match returns immediately, case-insensitive kept as fallback
+  let fallback: vscode.Extension<any> | undefined;
+
+  for (const ext of vscode.extensions.all) {
+    const name = ext.packageJSON?.displayName;
+    if (!name) { continue; }
+
+    if (name === displayName) { return ext; }
+    if (!fallback && name.toLowerCase() === lower) { fallback = ext; }
+  }
+
+  return fallback;
 }
 
 /**
