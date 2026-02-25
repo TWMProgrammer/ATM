@@ -4,6 +4,16 @@ import { showLanguageQuickPick } from './ui/quickPick';
 import { TranslatorWebviewPanel } from './ui/webview';
 import type { TranslationTarget } from './ui/webview';
 
+// ---------------------------------------------------------------------------
+// In-memory translation cache (lives only while VS Code is open)
+// Key: "textLength:langCode"  —  Value: translated text
+// ---------------------------------------------------------------------------
+const translationCache = new Map<string, string>();
+
+function cacheKey(text: string, langCode: string): string {
+  return `${text.length}:${langCode}`;
+}
+
 export function activateMarkdownStore(context: vscode.ExtensionContext) {
   const translateCmd = vscode.commands.registerCommand('atm.markdown-store.translateExtension', async (arg?: any) => {
     let targetText = '';
@@ -57,25 +67,49 @@ export function activateMarkdownStore(context: vscode.ExtensionContext) {
 
     // Open webview with loading skeleton
     const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
-    panel.setSkeleton();
 
-    // Translate and render
-    try {
-      const translated = await translateText(targetText, lang.code);
-
-      // If the user closed the panel while translating, discard the result
-      if (panel.isDisposed) { return; }
-
-      panel.setTranslatedMarkdown(translated);
-    } catch (e: any) {
-      if (panel.isDisposed) { return; }
-      vscode.window.showErrorMessage('Translation failed: ' + e.message);
-      panel.setError('Translation failed. Please try again.');
-    }
+    // Translate and render (with cache)
+    await translateAndRender(panel, targetText, lang.code);
   });
 
   context.subscriptions.push(translateCmd);
 }
+
+// ---------------------------------------------------------------------------
+// Translate + render helper (uses cache)
+// ---------------------------------------------------------------------------
+
+async function translateAndRender(
+  panel: TranslatorWebviewPanel,
+  text: string,
+  langCode: string
+): Promise<void> {
+  const key = cacheKey(text, langCode);
+
+  // Check cache first — instant render
+  const cached = translationCache.get(key);
+  if (cached) {
+    panel.setTranslatedMarkdown(cached);
+    return;
+  }
+
+  // Not cached — show skeleton and translate
+  panel.setSkeleton();
+
+  try {
+    const translated = await translateText(text, langCode);
+
+    if (panel.isDisposed) { return; }
+
+    translationCache.set(key, translated);
+    panel.setTranslatedMarkdown(translated);
+  } catch (e: any) {
+    if (panel.isDisposed) { return; }
+    vscode.window.showErrorMessage('Translation failed: ' + e.message);
+    panel.setError('Translation failed. Please try again.');
+  }
+}
+
 
 // ---------------------------------------------------------------------------
 // Helpers

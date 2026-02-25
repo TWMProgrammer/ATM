@@ -203,7 +203,7 @@ export class TranslatorWebviewPanel {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; style-src 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
   <title>Translated Extension</title>
   <style>
     /* ── Base ───────────────────────────────────────────────── */
@@ -357,10 +357,53 @@ export class TranslatorWebviewPanel {
       border-radius: 3px;
       margin: 2px 4px 2px 0;
     }
+
+    /* ── Scroll-to-top button ─────────────────────────────── */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.15));
+      background: var(--vscode-editor-background);
+      color: var(--vscode-editor-foreground);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s, transform .2s;
+      z-index: 100;
+    }
+    .scroll-top-btn.visible {
+      opacity: .6;
+      pointer-events: auto;
+    }
+    .scroll-top-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
-  ${isLoading ? skeleton : `<div class="content">${content}</div>`}
+  ${isLoading ? skeleton : `<div class="content">${content}</div>
+  <button class="scroll-top-btn" id="scrollTopBtn" title="Scroll to top"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.5l-5 5 .7.7L8 5.9l4.3 4.3.7-.7z"/></svg></button>
+  <script>
+    (function() {
+      var btn = document.getElementById('scrollTopBtn');
+      btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      window.addEventListener('scroll', function() {
+        var scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        btn.classList.toggle('visible', scrollPercent > 0.2);
+      });
+    })();
+  </script>`}
 </body>
 </html>`;
   }
