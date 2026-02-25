@@ -368,7 +368,7 @@ export class TranslatorWebviewPanel {
       border-radius: 50%;
       border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.15));
       background: var(--vscode-editor-background);
-      color: var(--vscode-editor-foreground);
+      color: var(--vscode-textLink-foreground);
       font-size: 18px;
       cursor: pointer;
       display: flex;
