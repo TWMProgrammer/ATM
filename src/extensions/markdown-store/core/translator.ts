@@ -7,6 +7,9 @@ import { translate } from '@vitalets/google-translate-api';
 /** Google Translate has a ~5000 char limit per request; stay safely under. */
 const MAX_CHUNK_SIZE = 4500;
 
+/** Max concurrent translation requests to avoid rate-limiting. */
+const BATCH_SIZE = 3;
+
 /**
  * Patterns that must NOT be translated (order matters — most specific first).
  * Each match is replaced with a placeholder before translation and
@@ -63,12 +66,15 @@ export async function translateText(
   // 2. Split into chunks to stay under the character limit
   const chunks = splitIntoChunks(safeText);
 
-  // 3. Translate each chunk sequentially
+  // 3. Translate chunks in parallel batches
   const translated: string[] = [];
 
-  for (const chunk of chunks) {
-    const result = await translate(chunk, { to: targetLanguageCode });
-    translated.push(result.text);
+  for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+    const batch = chunks.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(
+      batch.map((chunk) => translate(chunk, { to: targetLanguageCode }))
+    );
+    translated.push(...results.map((r) => r.text));
   }
 
   // 4. Re-join and restore protected content
@@ -128,7 +134,7 @@ function restorePlaceholders(
 
     // Fast path: exact match
     if (result.includes(tag)) {
-      result = result.split(tag).join(original);
+      result = result.replaceAll(tag, original);
       continue;
     }
 

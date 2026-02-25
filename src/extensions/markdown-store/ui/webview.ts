@@ -19,8 +19,9 @@ export interface TranslationTarget {
 export class TranslatorWebviewPanel {
   public static currentPanel: TranslatorWebviewPanel | undefined;
 
+  private static readonly _md = new MarkdownIt({ html: true, linkify: true, typographer: true });
+
   private readonly _panel: vscode.WebviewPanel;
-  private readonly _md: MarkdownIt;
   private readonly _targetExtensionUri: vscode.Uri | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _isDisposed = false;
@@ -32,7 +33,6 @@ export class TranslatorWebviewPanel {
   private constructor(panel: vscode.WebviewPanel, targetExtensionUri: vscode.Uri | undefined) {
     this._panel = panel;
     this._targetExtensionUri = targetExtensionUri;
-    this._md = new MarkdownIt({ html: true, linkify: true, typographer: true });
 
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
   }
@@ -82,7 +82,7 @@ export class TranslatorWebviewPanel {
       vscode.ViewColumn.Beside,
       {
         enableScripts: true,
-        retainContextWhenHidden: true,
+        retainContextWhenHidden: false,
         localResourceRoots: resourceRoots,
       }
     );
@@ -107,7 +107,7 @@ export class TranslatorWebviewPanel {
 
   /** Render the translated markdown (with resolved images). */
   public setTranslatedMarkdown(markdown: string): void {
-    let html = this._md.render(markdown);
+    let html = TranslatorWebviewPanel._md.render(markdown);
     html = this._resolveImagePaths(html);
     this._panel.webview.html = this._buildHtml(false, html);
   }
