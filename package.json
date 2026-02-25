@@ -60,7 +60,7 @@
   "contributes": {
     "markdown.markdownItPlugins": true,
     "markdown.previewStyles": [
-      "./src/extensions/markdown-code/ui/checkboxes.css"
+      "./src/extensions/markdown-text/ui/checkboxes.css"
     ],
     "markdown.previewScripts": [
       "./dist/mermaidPreview.js"

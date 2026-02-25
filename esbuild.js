@@ -42,7 +42,7 @@ async function main() {
 
 	const browserCtx = await esbuild.context({
 		entryPoints: [
-			'src/extensions/markdown-code/ui/mermaidPreview.ts'
+			'src/extensions/markdown-text/ui/mermaidPreview.ts'
 		],
 		bundle: true,
 		format: 'iife',
