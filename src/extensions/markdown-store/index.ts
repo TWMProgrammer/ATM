@@ -4,8 +4,18 @@ import { showLanguageQuickPick } from './ui/quickPick';
 import { TranslatorWebviewPanel } from './ui/webview';
 import type { TranslationTarget } from './ui/webview';
 
-export function activateMarkdownSee(context: vscode.ExtensionContext) {
-  const translateCmd = vscode.commands.registerCommand('atm.markdown-see.translateExtension', async (arg?: any) => {
+// ---------------------------------------------------------------------------
+// In-memory translation cache (lives only while VS Code is open)
+// Key: "textLength:langCode"  —  Value: translated text
+// ---------------------------------------------------------------------------
+const translationCache = new Map<string, string>();
+
+function cacheKey(text: string, langCode: string): string {
+  return `${text.length}:${langCode}`;
+}
+
+export function activateMarkdownStore(context: vscode.ExtensionContext) {
+  const translateCmd = vscode.commands.registerCommand('atm.markdown-store.translateExtension', async (arg?: any) => {
     let targetText = '';
     let detectedExt: vscode.Extension<any> | undefined;
 
@@ -57,20 +67,49 @@ export function activateMarkdownSee(context: vscode.ExtensionContext) {
 
     // Open webview with loading skeleton
     const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
-    panel.setSkeleton();
 
-    // Translate and render
-    try {
-      const translated = await translateText(targetText, lang.code);
-      panel.setTranslatedMarkdown(translated);
-    } catch (e: any) {
-      vscode.window.showErrorMessage('Translation failed: ' + e.message);
-      panel.setError('Translation failed. Please try again.');
-    }
+    // Translate and render (with cache)
+    await translateAndRender(panel, targetText, lang.code);
   });
 
   context.subscriptions.push(translateCmd);
 }
+
+// ---------------------------------------------------------------------------
+// Translate + render helper (uses cache)
+// ---------------------------------------------------------------------------
+
+async function translateAndRender(
+  panel: TranslatorWebviewPanel,
+  text: string,
+  langCode: string
+): Promise<void> {
+  const key = cacheKey(text, langCode);
+
+  // Check cache first — instant render
+  const cached = translationCache.get(key);
+  if (cached) {
+    panel.setTranslatedMarkdown(cached);
+    return;
+  }
+
+  // Not cached — show skeleton and translate
+  panel.setSkeleton();
+
+  try {
+    const translated = await translateText(text, langCode);
+
+    if (panel.isDisposed) { return; }
+
+    translationCache.set(key, translated);
+    panel.setTranslatedMarkdown(translated);
+  } catch (e: any) {
+    if (panel.isDisposed) { return; }
+    vscode.window.showErrorMessage('Translation failed: ' + e.message);
+    panel.setError('Translation failed. Please try again.');
+  }
+}
+
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -109,23 +148,25 @@ function detectExtensionFromActiveTab(): vscode.Extension<any> | undefined {
   if (!label.startsWith('Extension:')) { return undefined; }
 
   const displayName = label.substring('Extension:'.length).trim();
-
-  // Exact match first
-  const exact = vscode.extensions.all.find(
-    (e) => e.packageJSON?.displayName === displayName
-  );
-  if (exact) { return exact; }
-
-  // Case-insensitive fallback
   const lower = displayName.toLowerCase();
-  return vscode.extensions.all.find(
-    (e) => e.packageJSON?.displayName?.toLowerCase() === lower
-  );
+
+  // Single-pass: exact match returns immediately, case-insensitive kept as fallback
+  let fallback: vscode.Extension<any> | undefined;
+
+  for (const ext of vscode.extensions.all) {
+    const name = ext.packageJSON?.displayName;
+    if (!name) { continue; }
+
+    if (name === displayName) { return ext; }
+    if (!fallback && name.toLowerCase() === lower) { fallback = ext; }
+  }
+
+  return fallback;
 }
 
 /**
  * Clean up the webview panel when the extension is deactivated.
  */
-export function deactivateMarkdownSee(): void {
+export function deactivateMarkdownStore(): void {
   TranslatorWebviewPanel.currentPanel?.dispose();
 }

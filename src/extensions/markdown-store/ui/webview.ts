@@ -19,10 +19,12 @@ export interface TranslationTarget {
 export class TranslatorWebviewPanel {
   public static currentPanel: TranslatorWebviewPanel | undefined;
 
+  private static readonly _md = new MarkdownIt({ html: true, linkify: true, typographer: true });
+
   private readonly _panel: vscode.WebviewPanel;
-  private readonly _md: MarkdownIt;
   private readonly _targetExtensionUri: vscode.Uri | undefined;
   private _disposables: vscode.Disposable[] = [];
+  private _isDisposed = false;
 
   // -----------------------------------------------------------------------
   // Constructor / Factory
@@ -31,7 +33,6 @@ export class TranslatorWebviewPanel {
   private constructor(panel: vscode.WebviewPanel, targetExtensionUri: vscode.Uri | undefined) {
     this._panel = panel;
     this._targetExtensionUri = targetExtensionUri;
-    this._md = new MarkdownIt({ html: true, linkify: true, typographer: true });
 
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
   }
@@ -49,13 +50,21 @@ export class TranslatorWebviewPanel {
       TranslatorWebviewPanel.currentPanel.dispose();
     }
 
-    const column = vscode.window.activeTextEditor?.viewColumn;
-
     // --- Tab title ---
     let title = 'Translated Extension';
     if (target?.displayName && target?.languageLabel) {
       const shortName = target.displayName.split(/\s+/)[0];
-      title = `${shortName} · ${target.languageLabel}`;
+      
+      // Move flag to the end: "🇪🇸 Español" -> "Español 🇪🇸"
+      let formattedLang = target.languageLabel;
+      const spaceIndex = formattedLang.indexOf(' ');
+      if (spaceIndex !== -1) {
+        const flag = formattedLang.slice(0, spaceIndex);
+        const name = formattedLang.slice(spaceIndex + 1);
+        formattedLang = `${name} ${flag}`;
+      }
+
+      title = `${shortName} · ${formattedLang}`;
     } else if (target?.displayName) {
       const shortName = target.displayName.split(/\s+/)[0];
       title = `${shortName} · Translated`;
@@ -68,12 +77,12 @@ export class TranslatorWebviewPanel {
     }
 
     const panel = vscode.window.createWebviewPanel(
-      'markdownSeeWebview',
+      'markdownStoreWebview',
       title,
-      column || vscode.ViewColumn.One,
+      vscode.ViewColumn.Beside,
       {
         enableScripts: true,
-        retainContextWhenHidden: true,
+        retainContextWhenHidden: false,
         localResourceRoots: resourceRoots,
       }
     );
@@ -98,24 +107,31 @@ export class TranslatorWebviewPanel {
 
   /** Render the translated markdown (with resolved images). */
   public setTranslatedMarkdown(markdown: string): void {
-    let html = this._md.render(markdown);
+    let html = TranslatorWebviewPanel._md.render(markdown);
     html = this._resolveImagePaths(html);
     this._panel.webview.html = this._buildHtml(false, html);
   }
 
   /** Show a simple error message inside the webview. */
   public setError(message: string): void {
+    const safe = escapeHtml(message);
     this._panel.webview.html = `
       <!DOCTYPE html>
       <html lang="en">
       <body style="font-family:var(--vscode-font-family);padding:24px;color:var(--vscode-editor-foreground);background:var(--vscode-editor-background);">
         <h2>⚠️ Error</h2>
-        <p style="color:var(--vscode-errorForeground);">${message}</p>
+        <p style="color:var(--vscode-errorForeground);">${safe}</p>
       </body>
       </html>`;
   }
 
+  /** Whether this panel has been disposed (closed). */
+  public get isDisposed(): boolean {
+    return this._isDisposed;
+  }
+
   public dispose(): void {
+    this._isDisposed = true;
     TranslatorWebviewPanel.currentPanel = undefined;
     this._panel.dispose();
     while (this._disposables.length) {
@@ -167,7 +183,19 @@ export class TranslatorWebviewPanel {
         <div class="sk-line" style="width:75%"></div>
         <div class="sk-box" style="height:100px"></div>
         <div class="sk-line" style="width:60%"></div>
+        <div class="sk-line" style="width:88%"></div>
+        <div class="sk-line" style="width:70%"></div>
+        <div class="sk-title" style="width:35%;margin-top:28px"></div>
+        <div class="sk-line" style="width:78%"></div>
+        <div class="sk-line" style="width:90%"></div>
+        <div class="sk-line" style="width:50%"></div>
+        <div class="sk-box" style="height:120px"></div>
+        <div class="sk-line" style="width:82%"></div>
+        <div class="sk-line" style="width:68%"></div>
+        <div class="sk-line" style="width:74%"></div>
       </div>`;
+
+    const cspSource = this._panel.webview.cspSource;
 
     return /* html */ `
 <!DOCTYPE html>
@@ -175,6 +203,7 @@ export class TranslatorWebviewPanel {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
   <title>Translated Extension</title>
   <style>
     /* ── Base ───────────────────────────────────────────────── */
@@ -191,7 +220,7 @@ export class TranslatorWebviewPanel {
     }
 
     /* ── Skeleton loading ──────────────────────────────────── */
-    .skeleton { animation: fadeIn .4s ease-in; }
+    .skeleton { animation: fadeIn .4s ease-in; min-height: calc(100vh - 88px); }
 
     .sk-title {
       height: 30px; width: 40%;
@@ -318,19 +347,78 @@ export class TranslatorWebviewPanel {
       margin: 24px 0;
     }
 
-    /* ── Badges (inline images in paragraphs, like shields.io) */
+    /* ── Badges & inline icons (shields.io, favicons in lists, etc.) */
     p > a > img,
-    p > img {
+    p > img,
+    li > img,
+    li > a > img {
       display: inline-block;
       vertical-align: middle;
       border-radius: 3px;
       margin: 2px 4px 2px 0;
     }
+
+    /* ── Scroll-to-top button ─────────────────────────────── */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.15));
+      background: var(--vscode-editor-background);
+      color: var(--vscode-textLink-foreground);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s, transform .2s;
+      z-index: 100;
+    }
+    .scroll-top-btn.visible {
+      opacity: .6;
+      pointer-events: auto;
+    }
+    .scroll-top-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
-  ${isLoading ? skeleton : `<div class="content">${content}</div>`}
+  ${isLoading ? skeleton : `<div class="content">${content}</div>
+  <button class="scroll-top-btn" id="scrollTopBtn" title="Scroll to top"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.5l-5 5 .7.7L8 5.9l4.3 4.3.7-.7z"/></svg></button>
+  <script>
+    (function() {
+      var btn = document.getElementById('scrollTopBtn');
+      btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      window.addEventListener('scroll', function() {
+        var scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        btn.classList.toggle('visible', scrollPercent > 0.2);
+      });
+    })();
+  </script>`}
 </body>
 </html>`;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Escape HTML special characters to prevent XSS injection. */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

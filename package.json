@@ -132,28 +132,43 @@
         "title": "ATM: List TODO / FIXME Annotations"
       },
       {
-        "command": "atm.markdown-see.translateExtension",
-        "title": "ATM: Translate Extension README",
+        "command": "atm.markdown-store.translateExtension",
+        "title": "ATM: Translate",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "atm.voiceTts.selectVoice",
+        "title": "ATM Voice TTS: Select Voice",
         "icon": "$(globe)"
       }
     ],
     "keybindings": [
       {
         "command": "atm.voiceTts.copyAndRead",
-        "key": "shift+alt+v"
+        "key": "shift+space"
+      },
+      {
+        "command": "atm.voiceTts.selectVoice",
+        "key": "shift+alt+space"
+      },
+      {
+        "command": "atm.markdown-store.translateExtension",
+        "key": "ctrl+shift+space",
+        "mac": "cmd+shift+space",
+        "when": "activeEditor == 'workbench.editor.extension'"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "atm.markdown-see.translateExtension",
+          "command": "atm.markdown-store.translateExtension",
           "group": "navigation",
           "when": "activeEditor == 'workbench.editor.extension'"
         }
       ],
       "extension/context": [
         {
-          "command": "atm.markdown-see.translateExtension",
+          "command": "atm.markdown-store.translateExtension",
           "group": "1_modification"
         }
       ]
