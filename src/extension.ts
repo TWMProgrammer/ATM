@@ -5,6 +5,7 @@ import { deactivateVoiceTts } from './extensions/voice-tts';
 import { deactivateCommentsCode } from './extensions/comments-code';
 import { deactivateMarkdownStore } from './extensions/markdown-store';
 import { taskListPlugin } from './extensions/markdown-code/core/taskListPlugin';
+import { mermaidPlugin } from './extensions/markdown-code/core/mermaidPlugin';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
   return {
     extendMarkdownIt(md: MarkdownIt) {
       md.use(taskListPlugin);
+      md.use(mermaidPlugin);
       return md;
     },
   };

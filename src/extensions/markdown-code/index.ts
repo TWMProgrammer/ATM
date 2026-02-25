@@ -1,4 +1,5 @@
 import { taskListPlugin } from './core/taskListPlugin';
+import { mermaidPlugin } from './core/mermaidPlugin';
 import type MarkdownIt from 'markdown-it';
 
 /**
@@ -15,6 +16,7 @@ export function activate() {
   return {
     extendMarkdownIt(md: MarkdownIt) {
       md.use(taskListPlugin);
+      md.use(mermaidPlugin);
       return md;
     },
   };
