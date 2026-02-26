@@ -58,6 +58,77 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "mdx",
+        "aliases": [
+          "MDX"
+        ],
+        "extensions": [
+          ".mdx"
+        ],
+        "configuration": "./src/extensions/markdown-mdx/language-configuration.json",
+        "icon": {
+          "dark": "./src/extensions/markdown-mdx/assets/file-icon.svg",
+          "light": "./src/extensions/markdown-mdx/assets/file-icon.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mdx",
+        "scopeName": "source.mdx",
+        "path": "./src/extensions/markdown-mdx/syntaxes/source.mdx.tmLanguage",
+        "embeddedLanguages": {
+          "meta.embedded.c": "c",
+          "meta.embedded.cpp": "cpp",
+          "meta.embedded.cs": "csharp",
+          "meta.embedded.css": "css",
+          "meta.embedded.diff": "diff",
+          "meta.embedded.go": "go",
+          "meta.embedded.graphql": "graphql",
+          "meta.embedded.html": "html",
+          "meta.embedded.ini": "ini",
+          "meta.embedded.java": "java",
+          "meta.embedded.js": "javascriptreact",
+          "meta.embedded.json": "json",
+          "meta.embedded.kotlin": "kotlin",
+          "meta.embedded.less": "less",
+          "meta.embedded.lua": "lua",
+          "meta.embedded.makefile": "makefile",
+          "meta.embedded.md": "markdown",
+          "meta.embedded.mdx": "mdx",
+          "meta.embedded.objc": "objective-c",
+          "meta.embedded.perl": "perl",
+          "meta.embedded.php": "php",
+          "meta.embedded.python": "python",
+          "meta.embedded.r": "r",
+          "meta.embedded.ruby": "ruby",
+          "meta.embedded.rust": "rust",
+          "meta.embedded.scss": "scss",
+          "meta.embedded.shell": "shellscript",
+          "meta.embedded.sql": "sql",
+          "meta.embedded.svg": "xml",
+          "meta.embedded.swift": "swift",
+          "meta.embedded.toml": "toml",
+          "meta.embedded.ts": "typescriptreact",
+          "meta.embedded.tsx": "typescriptreact",
+          "meta.embedded.vbnet": "vb",
+          "meta.embedded.xml": "xml",
+          "meta.embedded.yaml": "yaml"
+        }
+      },
+      {
+        "scopeName": "source.markdown.mdx.codeblock",
+        "path": "./src/extensions/markdown-mdx/syntaxes/mdx.markdown.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.mdx": "mdx"
+        }
+      }
+    ],
     "markdown.markdownItPlugins": true,
     "markdown.previewStyles": [
       "./src/extensions/markdown-text/ui/checkboxes.css"
