@@ -60,5 +60,21 @@
       "$0"
     ],
     "description": "Insert a GitHub-style alert / callout"
+  },
+
+  "MD Gallery Showcase (All)": {
+    "prefix": "all",
+    "body": [
+      "<details>",
+      "  <summary align=\"center\"><strong>(Click) ${1:Main Title}</strong></summary>",
+      "",
+      "  <br/>",
+      "",
+      "  <p align=\"center\">${2:Hello, text here.}</p>",
+      "",
+      "</details>",
+      "$0"
+    ],
+    "description": "Insert a concise centered <details> block"
   }
 }
