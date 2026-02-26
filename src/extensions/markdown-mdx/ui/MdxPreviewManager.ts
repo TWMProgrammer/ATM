@@ -140,6 +140,26 @@ export class MdxPreviewManager {
       font-family: monospace;
       white-space: pre-wrap;
     }
+    
+    /* GFM Tables support */
+    table {
+      border-collapse: collapse;
+      margin: 1em 0;
+      width: 100%;
+      overflow: auto;
+    }
+    table th, table td {
+      border: 1px solid var(--vscode-textBlockQuote-border);
+      padding: 0.5em 1em;
+      text-align: left;
+    }
+    table th {
+      background-color: var(--vscode-textBlockQuote-background);
+      font-weight: bold;
+    }
+    table tr:nth-child(2n) {
+      background-color: var(--vscode-editor-inactiveSelectionBackground);
+    }
   </style>
 </head>
 <body>
