@@ -6,8 +6,8 @@ const watch = process.argv.includes('--watch');
 /**
  * @type {import('esbuild').Plugin}
  */
-const esbuildProblemMatcherPlugin = {
-	name: 'esbuild-problem-matcher',
+const extensionEsbuildProblemMatcherPlugin = {
+	name: 'extension-esbuild-problem-matcher',
 
 	setup(build) {
 		build.onStart(() => {
@@ -23,8 +23,25 @@ const esbuildProblemMatcherPlugin = {
 	},
 };
 
+const browserEsbuildProblemMatcherPlugin = {
+	name: 'browser-esbuild-problem-matcher',
+
+	setup(build) {
+		build.onStart(() => {
+			console.log('[browser-watch] build started');
+		});
+		build.onEnd((result) => {
+			result.errors.forEach(({ text, location }) => {
+				console.error(`✘ [ERROR] ${text}`);
+				console.error(`    ${location.file}:${location.line}:${location.column}:`);
+			});
+			console.log('[browser-watch] build finished');
+		});
+	},
+};
+
 async function main() {
-	const ctx = await esbuild.context({
+	const extensionCtx = await esbuild.context({
 		entryPoints: [
 			'src/extension.ts'
 		],
@@ -37,16 +54,33 @@ async function main() {
 		outfile: 'dist/extension.js',
 		external: ['vscode'],
 		logLevel: 'silent',
-		plugins: [
-			/* add to the end of plugins array */
-			esbuildProblemMatcherPlugin,
-		],
+		plugins: [extensionEsbuildProblemMatcherPlugin],
 	});
+
+	const browserCtx = await esbuild.context({
+		entryPoints: [
+			'src/extensions/markdown-text/ui/mermaidPreview.ts'
+		],
+		bundle: true,
+		format: 'iife',
+		minify: production,
+		sourcemap: !production,
+		sourcesContent: false,
+		platform: 'browser',
+		target: ['es2020'],
+		outfile: 'dist/mermaidPreview.js',
+		logLevel: 'silent',
+		plugins: [browserEsbuildProblemMatcherPlugin],
+	});
+
 	if (watch) {
-		await ctx.watch();
+		await extensionCtx.watch();
+		await browserCtx.watch();
 	} else {
-		await ctx.rebuild();
-		await ctx.dispose();
+		await extensionCtx.rebuild();
+		await extensionCtx.dispose();
+		await browserCtx.rebuild();
+		await browserCtx.dispose();
 	}
 }
 

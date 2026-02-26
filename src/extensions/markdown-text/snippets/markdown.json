@@ -1,0 +1,80 @@
+{
+  "HTML Img Tag": {
+    "prefix": "img",
+    "body": [
+      "<img src=\"$1\" alt=\"${2:Image}\" width=\"${3:100%}\"/>$0"
+    ],
+    "description": "Insert <img /> tag for Markdown"
+  },
+
+
+  "MD Empty Table": {
+    "prefix": "t-1",
+    "body": [
+      "| ${1:Header 1} | ${2:Header 2} | ${3:Header 3} |",
+      "| --------- | --------- | --------- |",
+      "| ${4:Cell}      | ${5:Cell}      | ${6:Cell}      |",
+      "| ${7:Cell}      | ${8:Cell}      | ${9:Cell}      |"
+    ],
+    "description": "Insert an empty Markdown table"
+  },
+
+  "MD Details Block": {
+    "prefix": "details",
+    "body": [
+      "<details>",
+      "<summary>${1:Click to expand}</summary>",
+      "",
+      "${2:Your hidden content goes here...}",
+      "",
+      "</details>",
+      "$0"
+    ],
+    "description": "Insert a collapsible <details> block"
+  },
+
+  "HTML Kbd Tag": {
+    "prefix": "kbd",
+    "body": [
+      "<kbd>${1:Key}</kbd>$0"
+    ],
+    "description": "Insert a <kbd> tag for keys"
+  },
+
+  "HTML Align Block": {
+    "prefix": "align",
+    "body": [
+      "<div align=\"${1|center,right,justify|}\">",
+      "  ${2:Your text here...}",
+      "</div>",
+      "$0"
+    ],
+    "description": "Insert an aligned <div> block"
+  },
+  
+  "MD Callout / Alert": {
+    "prefix": ["alert", "note"],
+    "body": [
+      "> [!${1|NOTE,TIP,IMPORTANT,WARNING,CAUTION|}]",
+      "> ${2:Your alert message...}",
+      "$0"
+    ],
+    "description": "Insert a GitHub-style alert / callout"
+  },
+
+  "MD Gallery Showcase (All)": {
+    "prefix": "all",
+    "body": [
+      "<details>",
+      "  <summary align=\"center\"><strong>(Click) ${1:Main Title}</strong></summary>",
+      "",
+      "  <br/>",
+      "",
+      "  <p align=\"center\">${2:Hello, text here.}</p>",
+      "",
+      "</details>",
+      "$0"
+    ],
+    "description": "Insert a concise centered <details> block"
+  }
+}

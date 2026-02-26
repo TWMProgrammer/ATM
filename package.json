@@ -58,6 +58,19 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "markdown.markdownItPlugins": true,
+    "markdown.previewStyles": [
+      "./src/extensions/markdown-text/ui/checkboxes.css"
+    ],
+    "markdown.previewScripts": [
+      "./dist/mermaidPreview.js"
+    ],
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./src/extensions/markdown-text/snippets/markdown.json"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "ATM – Image Preview",
@@ -201,11 +214,11 @@
     "esbuild": "^0.25.0",
     "eslint": "^9.21.0",
     "npm-run-all": "^4.1.5",
-    "typescript": "^5.7.3"
-  },
-  "dependencies": {
+    "type-fest": "^5.4.4",
+    "typescript": "^5.7.3",
     "@vitalets/google-translate-api": "^9.2.1",
     "image-size": "^2.0.2",
-    "markdown-it": "^14.1.1"
+    "markdown-it": "^14.1.1",
+    "mermaid": "^11.12.3"
   }
 }
