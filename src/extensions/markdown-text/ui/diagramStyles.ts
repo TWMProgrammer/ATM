@@ -98,4 +98,36 @@ export const diagramStyles = `
     opacity: 1;
     transition-delay: 0.3s;
 }
+
+/* Copy Code Button Styles */
+pre {
+    position: relative !important;
+}
+
+.copy-code-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--vscode-editor-background, #1e1e1e);
+    color: var(--vscode-editor-foreground, #cccccc);
+    border: 1px solid var(--vscode-widget-border, #454545);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-family: var(--vscode-editor-font-family, monospace);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    z-index: 10;
+}
+
+pre:hover .copy-code-btn,
+pre:focus-within .copy-code-btn {
+    opacity: 1;
+}
+
+.copy-code-btn:hover {
+    background: var(--vscode-button-secondaryHoverBackground, #5a5d5e);
+    color: var(--vscode-button-secondaryForeground, #ffffff);
+}
 `;

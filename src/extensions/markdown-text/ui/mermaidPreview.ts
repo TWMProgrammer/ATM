@@ -22,6 +22,9 @@ async function init() {
         document.head.appendChild(styleEl);
     }
 
+    // Call setupCopyButtons so it can process code blocks
+    setupCopyButtons();
+
     const mermaid = await getMermaid();
     const config = {
         startOnLoad: false,
@@ -166,6 +169,66 @@ function setupInteractions(wrapper: HTMLElement, content: HTMLElement, controls:
         scale = newScale;
         applyTransform();
     }, { passive: false });
+}
+
+/**
+ * Setup copy buttons for all markdown code blocks.
+ */
+function setupCopyButtons() {
+    const pres = document.querySelectorAll('pre');
+    
+    pres.forEach(pre => {
+        // Skip if button already exists or it's not a code block
+        if (pre.querySelector('.copy-code-btn') || !pre.querySelector('code')) {
+            return;
+        }
+
+        const button = document.createElement('button');
+        button.className = 'copy-code-btn';
+        button.innerText = 'copy';
+        button.title = 'Copy code';
+        
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const codeEl = pre.querySelector('code');
+            if (codeEl) {
+                try {
+                    await navigator.clipboard.writeText(codeEl.innerText);
+                    button.innerText = 'copied!';
+                    setTimeout(() => {
+                        button.innerText = 'copy';
+                    }, 2000);
+                } catch (err) {
+                    // Fallback just in case clipboard API fails
+                    try {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = codeEl.innerText;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+
+                        button.innerText = 'copied!';
+                        setTimeout(() => {
+                            button.innerText = 'copy';
+                        }, 2000);
+                    } catch (fallbackErr) {
+                        console.error('Failed to copy text', fallbackErr);
+                        button.innerText = 'error';
+                        setTimeout(() => {
+                            button.innerText = 'copy';
+                        }, 2000);
+                    }
+                }
+            }
+        });
+
+        pre.appendChild(button);
+    });
 }
 
 // Hook into VS Code Markdown preview updates
