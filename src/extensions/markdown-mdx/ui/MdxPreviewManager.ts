@@ -27,6 +27,7 @@ export class MdxPreviewManager {
 
     if (this.panel) {
       this.panel.reveal(vscode.ViewColumn.Beside);
+      this.updatePreview(editor.document.getText());
     } else {
       this.panel = vscode.window.createWebviewPanel(
         'mdxPreview',
@@ -39,8 +40,29 @@ export class MdxPreviewManager {
         }
       );
 
+      this.panel.iconPath = vscode.Uri.joinPath(
+        this.extensionUri,
+        'src',
+        'extensions',
+        'markdown-mdx',
+        'assets',
+        'file-icon.svg'
+      );
+
       this.panel.onDidDispose(() => {
         this.dispose();
+      }, null, this.disposables);
+
+      this.panel.webview.onDidReceiveMessage((message) => {
+        if (message.command === 'ready') {
+          // Send initial preview once webview scripts (React) have loaded
+          if (this.currentDocumentUri) {
+            const doc = vscode.workspace.textDocuments.find(d => d.uri.toString() === this.currentDocumentUri?.toString());
+            if (doc) {
+              this.updatePreview(doc.getText());
+            }
+          }
+        }
       }, null, this.disposables);
 
       // Listen to text changes to live-update the preview
@@ -57,9 +79,10 @@ export class MdxPreviewManager {
           this.queueUpdate(e.document.getText());
         }
       }, null, this.disposables);
-    }
 
-    this.updatePreview(editor.document.getText());
+      // Setup static container
+      this.setupWebviewHtml();
+    }
   }
 
   private queueUpdate(text: string) {
@@ -71,32 +94,18 @@ export class MdxPreviewManager {
     }, this.updateDebounceMs);
   }
 
-  private async updatePreview(mdxContent: string) {
-    if (!this.panel) { return; }
-
-    try {
-      // 1. Compile MDX to JS Function Body
-      const jsCode = await MdxCompiler.compileToJS(mdxContent);
-      
-      // 2. Wrap the HTML including React + ReactDOM and our customized JS evaluator
-      const html = this.getHtmlForWebview(jsCode);
-      this.panel.webview.html = html;
-    } catch (err: any) {
-      this.panel.webview.html = this.getErrorHtml(err.message || String(err));
+  private setupWebviewHtml() {
+    if (!this.panel) {
+        return;
     }
-  }
-
-  private getHtmlForWebview(jsFunctionBody: string): string {
-    return `<!DOCTYPE html>
+    this.panel.webview.html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MDX Preview</title>
-  <!-- Load React from CDN (fast cache, lightweight payload) -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  
   <style>
     body {
       padding: 20px;
@@ -105,8 +114,6 @@ export class MdxPreviewManager {
       background-color: var(--vscode-editor-background);
       line-height: 1.6;
     }
-    
-    /* Some basic styling for MDX output matching VSCode Markdown */
     h1, h2, h3, h4, h5, h6 {
       border-bottom: 1px solid var(--vscode-widget-border);
       padding-bottom: 0.3em;
@@ -134,14 +141,12 @@ export class MdxPreviewManager {
     a:hover {
       color: var(--vscode-textLink-activeForeground);
     }
-    
     #error-overlay {
       color: var(--vscode-errorForeground);
       font-family: monospace;
       white-space: pre-wrap;
+      display: none;
     }
-    
-    /* GFM Tables support */
     table {
       border-collapse: collapse;
       margin: 1em 0;
@@ -163,88 +168,90 @@ export class MdxPreviewManager {
   </style>
 </head>
 <body>
-  <div id="root"></div>
   <div id="error-overlay"></div>
-
+  <div id="root"></div>
   <script>
     (function() {
+      const vscode = acquireVsCodeApi();
       const rootEl = document.getElementById('root');
       const errEl = document.getElementById('error-overlay');
+      const reactRoot = ReactDOM.createRoot(rootEl);
       
-      try {
-        // Our customized JSX runtime provider simulating react/jsx-runtime
-        function jsx(type, props, key) {
-          const { children, ...rest } = props || {};
-          if (key !== undefined) {
-            rest.key = key;
-          }
-          if (children !== undefined && children !== null) {
-            return React.createElement(type, rest, children);
-          }
-          return React.createElement(type, rest);
-        }
-
-        function jsxs(type, props, key) {
-          const { children, ...rest } = props || {};
-          if (key !== undefined) {
-            rest.key = key;
-          }
-          if (Array.isArray(children)) {
-            return React.createElement(type, rest, ...children);
-          }
+      function jsx(type, props, key) {
+        const { children, ...rest } = props || {};
+        if (key !== undefined) { rest.key = key; }
+        if (children !== undefined && children !== null) {
           return React.createElement(type, rest, children);
         }
-
-        const jsxCodeString = ${JSON.stringify(jsFunctionBody).replace(/</g, '\\u003c')};
-        const runTarget = new Function(jsxCodeString);
-
-        const modArgs = {
-          Fragment: React.Fragment,
-          jsx: jsx,
-          jsxs: jsxs
-        };
-
-        const executeMdx = runTarget(modArgs);
-        
-        // Render the default export Component
-        const MDXContent = executeMdx.default;
-        
-        if (typeof MDXContent === 'function') {
-           const root = ReactDOM.createRoot(rootEl);
-           root.render(React.createElement(MDXContent, {}));
-        } else {
-           throw new Error("No default export found from MDX evaluation.");
-        }
-      } catch (err) {
-        errEl.innerText = err.stack || err.toString();
-        console.error(err);
+        return React.createElement(type, rest);
       }
+
+      function jsxs(type, props, key) {
+        const { children, ...rest } = props || {};
+        if (key !== undefined) { rest.key = key; }
+        if (Array.isArray(children)) {
+          return React.createElement(type, rest, ...children);
+        }
+        return React.createElement(type, rest, children);
+      }
+
+      window.addEventListener('message', event => {
+        const message = event.data;
+        if (message.command === 'update') {
+          try {
+            errEl.style.display = 'none';
+            rootEl.style.display = 'block';
+
+            const runTarget = new Function(message.code);
+            const modArgs = { Fragment: React.Fragment, jsx, jsxs };
+            const executeMdx = runTarget(modArgs);
+            const MDXContent = executeMdx.default;
+            
+            if (typeof MDXContent === 'function') {
+               reactRoot.render(React.createElement(MDXContent, {}));
+            } else {
+               throw new Error("No default export found from MDX evaluation.");
+            }
+          } catch (err) {
+            rootEl.style.display = 'none';
+            errEl.style.display = 'block';
+            errEl.innerText = err.stack || err.toString();
+          }
+        } else if (message.command === 'error') {
+            rootEl.style.display = 'none';
+            errEl.style.display = 'block';
+            errEl.innerText = message.text;
+        }
+      });
+      
+      // Let the extension know the webview is ready to receive messages
+      vscode.postMessage({ command: 'ready' });
     })();
   </script>
 </body>
 </html>`;
   }
 
-  private getErrorHtml(errorMsg: string): string {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <style>
-    body {
-      font-family: monospace;
-      padding: 20px;
-      color: var(--vscode-errorForeground);
+  private previewVersion = 0;
+
+  private async updatePreview(mdxContent: string) {
+    if (!this.panel) {
+        return;
     }
-    pre {
-      white-space: pre-wrap;
+    
+    const version = ++this.previewVersion;
+    
+    try {
+      const jsCode = await MdxCompiler.compileToJS(mdxContent);
+      // Discard if a newer update was queued while we were compiling
+      if (version === this.previewVersion) {
+        this.panel.webview.postMessage({ command: 'update', code: jsCode });
+      }
+    } catch (err: any) {
+      if (version === this.previewVersion) {
+        this.panel.webview.postMessage({ command: 'error', text: err.message || String(err) });
+      }
     }
-  </style>
-</head>
-<body>
-  <h3>MDX Compilation Error</h3>
-  <pre>${errorMsg}</pre>
-</body>
-</html>`;
   }
 
   public dispose() {

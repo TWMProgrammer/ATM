@@ -244,8 +244,8 @@
       },
       {
         "command": "atm.mdx.preview",
-        "key": "ctrl+alt+m",
-        "mac": "cmd+alt+m",
+        "key": "shift+alt+m",
+        "mac": "shift+alt+m",
         "when": "editorLangId == mdx || editorLangId == markdown"
       }
     ],
