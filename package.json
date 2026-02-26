@@ -65,6 +65,12 @@
     "markdown.previewScripts": [
       "./dist/mermaidPreview.js"
     ],
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./src/extensions/markdown-text/snippets/markdown.json"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "ATM – Image Preview",

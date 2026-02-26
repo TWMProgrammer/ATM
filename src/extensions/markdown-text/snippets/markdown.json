@@ -1,0 +1,21 @@
+{
+  "HTML Img Tag": {
+    "prefix": "img",
+    "body": [
+      "<img src=\"$1\" alt=\"${2:Image}\" width=\"${3:100%}\"/>$0"
+    ],
+    "description": "Insert <img /> tag for Markdown"
+  },
+
+
+  "MD Empty Table": {
+    "prefix": "t-1",
+    "body": [
+      "| ${1:Header 1} | ${2:Header 2} | ${3:Header 3} |",
+      "| --------- | --------- | --------- |",
+      "| ${4:Cell}      | ${5:Cell}      | ${6:Cell}      |",
+      "| ${7:Cell}      | ${8:Cell}      | ${9:Cell}      |"
+    ],
+    "description": "Insert an empty Markdown table"
+  }
+}
