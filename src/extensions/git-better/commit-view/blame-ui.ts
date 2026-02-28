@@ -22,9 +22,17 @@ export class LineBlameDecorator implements vscode.Disposable {
     constructor(private gitService: GitService) {
         const debouncedUpdate = debounce(this.updateDecoration.bind(this), 120);
 
+        const onSelectionChange = (e: vscode.TextEditorSelectionChangeEvent) => {
+            if (this.activeEditor && e.textEditor === this.activeEditor) {
+                // Instantly clear the old blame decoration to avoid a 120ms "flicker" of old data
+                this.activeEditor.setDecorations(this.decorationType, []);
+            }
+            debouncedUpdate();
+        };
+
         this.disposables.push(
             vscode.window.onDidChangeActiveTextEditor(this.onActiveEditorChanged.bind(this)),
-            vscode.window.onDidChangeTextEditorSelection(debouncedUpdate),
+            vscode.window.onDidChangeTextEditorSelection(onSelectionChange),
             { dispose: debouncedUpdate.cancel },
         );
 
@@ -71,6 +79,13 @@ export class LineBlameDecorator implements vscode.Disposable {
         const version = ++this.updateVersion;
         const activeLine = editor.selection.active.line;
         const filePath = editor.document.uri.fsPath;
+
+        // Skip rendering blame on visually empty lines to avoid awkward/misplaced hovers
+        const lineText = editor.document.lineAt(activeLine).text;
+        if (lineText.trim().length === 0) {
+            editor.setDecorations(this.decorationType, []);
+            return;
+        }
 
         try {
             const blameInfo = this.gitService.getBlameLineInfo(filePath, activeLine + 1);
