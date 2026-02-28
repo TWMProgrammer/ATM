@@ -98,25 +98,24 @@ export class LineBlameDecorator implements vscode.Disposable {
                 return;
             }
 
-            const isUncommitted =
-                commitInfo.hash === '0000000000000000000000000000000000000000';
+            if (commitInfo.hash === '0000000000000000000000000000000000000000') {
+                editor.setDecorations(this.decorationType, []);
+                return;
+            }
+
             const summaryText =
                 commitInfo.summary.length > 50
                     ? commitInfo.summary.substring(0, 47) + '...'
                     : commitInfo.summary;
-            const text = isUncommitted
-                ? `  ✏️  Uncommitted changes`
-                : `  ${timeAgo(commitInfo.date)}  •  ${summaryText}`;
+            const text = `  ${timeAgo(commitInfo.date)}  •  ${summaryText}`;
 
-            const color = isUncommitted
-                ? '#1DB954'
-                : new vscode.ThemeColor('editorCodeLens.foreground');
-            const border = isUncommitted ? 'solid 1px #1DB95420' : 'none';
+            const color = new vscode.ThemeColor('editorCodeLens.foreground');
+            const border = 'none';
 
             let mdBase = this.hoverCache.get(commitInfo.hash);
 
             if (!mdBase) {
-                mdBase = await this.buildHoverMarkdown(commitInfo, filePath, isUncommitted);
+                mdBase = await this.buildHoverMarkdown(commitInfo, filePath);
                 this.hoverCache.set(commitInfo.hash, mdBase);
             }
 
@@ -129,7 +128,7 @@ export class LineBlameDecorator implements vscode.Disposable {
             finalMd.supportHtml = true;
 
             // Append line diff dynamically since diffs are per-line, not per-commit
-            if (!isUncommitted && blameInfo) {
+            if (blameInfo) {
                 const diff = await this.gitService.getLineDiff(
                     filePath,
                     commitInfo.hash,
@@ -177,50 +176,41 @@ export class LineBlameDecorator implements vscode.Disposable {
     /** Builds the hover markdown for a given commit. */
     private async buildHoverMarkdown(
         commitInfo: { hash: string; authorName: string; authorEmail: string; date: Date; summary: string },
-        filePath: string,
-        isUncommitted: boolean
+        filePath: string
     ): Promise<vscode.MarkdownString> {
         const md = new vscode.MarkdownString('', true);
         md.isTrusted = true;
         md.supportHtml = true;
 
-        if (isUncommitted) {
-            md.appendMarkdown(`**You** &nbsp;$(history) _just now_\n\n`);
-            md.appendMarkdown(`---\n\n`);
-            md.appendMarkdown(
-                `<img src="${getGravatarUrl('uncommitted@local', 28)}" width="24" height="24" style="background-color:transparent;border:0;border-radius:50%;" /> &nbsp;$(edit) &nbsp;<span style="color:#cecece;">Uncommitted changes</span>\n\n`
-            );
-        } else {
-            const avatarUrl = getGravatarUrl(commitInfo.authorEmail, 48);
-            const dateStr = formatDate(commitInfo.date);
-            const relativeStr = timeAgo(commitInfo.date);
-            const escapeMd = (t: string) =>
-                t.replace(/([\\\`*_{}[\]()#+\-.!|])/g, '\\$1');
+        const avatarUrl = getGravatarUrl(commitInfo.authorEmail, 48);
+        const dateStr = formatDate(commitInfo.date);
+        const relativeStr = timeAgo(commitInfo.date);
+        const escapeMd = (t: string) =>
+            t.replace(/([\\\`*_{}[\]()#+\-.!|])/g, '\\$1');
 
-            md.appendMarkdown(
-                `**${escapeMd(commitInfo.authorName)}** &nbsp;$(history) _${relativeStr}_ &nbsp;•&nbsp; _${dateStr}_\n\n`
-            );
-            md.appendMarkdown(`---\n\n`);
-            md.appendMarkdown(
-                `<img src="${avatarUrl}" width="28" height="28" style="background-color:transparent;border:0;border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;<span style="color:#cecece;">${escapeMd(commitInfo.summary)}</span>\n\n`
-            );
-            md.appendMarkdown(`---\n\n`);
+        md.appendMarkdown(
+            `**${escapeMd(commitInfo.authorName)}** &nbsp;$(history) _${relativeStr}_ &nbsp;•&nbsp; _${dateStr}_\n\n`
+        );
+        md.appendMarkdown(`---\n\n`);
+        md.appendMarkdown(
+            `<img src="${avatarUrl}" width="28" height="28" style="background-color:transparent;border:0;border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;<span style="color:#cecece;">${escapeMd(commitInfo.summary)}</span>\n\n`
+        );
+        md.appendMarkdown(`---\n\n`);
 
-            const previousHash = await this.gitService.getPreviousCommitHash(
-                filePath,
-                commitInfo.hash
-            );
-            const shortHash = commitInfo.hash.substring(0, 7);
-            const copyBtn = `[${shortHash} $(copy)](command:git-better.copyHash?%22${commitInfo.hash}%22 "Copy Commit Hash")`;
+        const previousHash = await this.gitService.getPreviousCommitHash(
+            filePath,
+            commitInfo.hash
+        );
+        const shortHash = commitInfo.hash.substring(0, 7);
+        const copyBtn = `[${shortHash} $(copy)](command:git-better.copyHash?%22${commitInfo.hash}%22 "Copy Commit Hash")`;
 
-            let changesStr = `**Changes** &nbsp;&nbsp;$(git-commit) ${copyBtn}`;
-            if (previousHash) {
-                changesStr += ` &nbsp;$(arrow-swap)&nbsp; \`${previousHash.substring(0, 7)}\``;
-            }
-            changesStr += ` &nbsp;|&nbsp; $(github) [Open on GitHub](command:git-better.openGitHub?%22${commitInfo.hash}%22 "Open on GitHub")`;
-
-            md.appendMarkdown(changesStr);
+        let changesStr = `**Changes** &nbsp;&nbsp;$(git-commit) ${copyBtn}`;
+        if (previousHash) {
+            changesStr += ` &nbsp;$(arrow-swap)&nbsp; \`${previousHash.substring(0, 7)}\``;
         }
+        changesStr += ` &nbsp;|&nbsp; $(github) [Open on GitHub](command:git-better.openGitHub?%22${commitInfo.hash}%22 "Open on GitHub")`;
+
+        md.appendMarkdown(changesStr);
 
         return md;
     }
