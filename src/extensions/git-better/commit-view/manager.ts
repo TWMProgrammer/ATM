@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GitService } from './git-service';
-import { LineBlameDecorator, LineBlameHoverProvider } from './blame-ui';
+import { LineBlameDecorator } from './blame-ui';
 import { debounce } from './utils';
 
 export class GitBetterManager {
@@ -10,7 +10,6 @@ export class GitBetterManager {
 
     constructor(context: vscode.ExtensionContext) {
         this.disposables.push(
-            vscode.languages.registerHoverProvider({ scheme: 'file' }, new LineBlameHoverProvider(this.gitService)),
             // Re-fetch async when document changes, without clearing cache immediately
             vscode.workspace.onDidChangeTextDocument(debounce((event: vscode.TextDocumentChangeEvent) => {
                 if (event.document.uri.scheme === 'file') {

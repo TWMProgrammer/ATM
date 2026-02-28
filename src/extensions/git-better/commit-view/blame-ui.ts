@@ -36,7 +36,7 @@ export class LineBlameDecorator {
     this.updateDecoration();
   }
 
-  public updateDecoration() {
+  public async updateDecoration() {
     const editor = this.activeEditor;
     if (!editor || editor.document.uri.scheme !== 'file') { return; }
 
@@ -55,9 +55,35 @@ export class LineBlameDecorator {
     const suffix = isUncommitted ? 'Uncommitted changes' : `${commitInfo.hash.substring(0, 7)}  •  ${commitInfo.summary.length > 50 ? commitInfo.summary.substring(0, 47) + '...' : commitInfo.summary}`;
     const text = isUncommitted ? `  ✏️  ${suffix}` : `  ${author}, ${timeAgo(commitInfo.date)}  •  ${suffix}`;
 
+    const md = new vscode.MarkdownString('', true);
+    md.isTrusted = true;
+    md.supportHtml = true;
+
+    if (isUncommitted) {
+      md.appendMarkdown(`<img src="${getGravatarUrl('uncommitted@local', 48)}" width="20" height="20" style="border-radius:50%;" />  &nbsp;**You** &nbsp;$(clock) _just now_\n\n$(edit) &nbsp;_Uncommitted changes_\n`);
+    } else {
+      const avatarUrl = getGravatarUrl(commitInfo.authorEmail, 48);
+      const dateStr = formatDate(commitInfo.date);
+      const relativeStr = timeAgo(commitInfo.date);
+      const escapeMd = (t: string) => t.replace(/([\\`*_{}[\]()#+\-.!|])/g, '\\$1');
+
+      md.appendMarkdown(`**${escapeMd(commitInfo.authorName)}** &nbsp;$(clock) ${relativeStr} _(${dateStr})_\n\n`);
+      md.appendMarkdown(`<img src="${avatarUrl}" width="40" height="40" style="border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;🔧 <span style="color:#999;">${escapeMd(commitInfo.summary)}</span>\n\n`);
+      md.appendMarkdown(`---\n\n`);
+
+      const previousHash = await this.gitService.getPreviousCommitHash(filePath, commitInfo.hash);
+      const footerParts = [`$(git-commit) \`${commitInfo.hash.substring(0, 7)}\``];
+      if (previousHash) { footerParts.push(`$(arrow-left) \`${previousHash.substring(0, 7)}\``); }
+      md.appendMarkdown(`Changes &nbsp;${footerParts.join(' &nbsp;$(arrow-swap) &nbsp;')}`);
+    }
+
+    // Since we awaited previousHash, ensure cursor hasn't moved.
+    if (editor.selection.active.line !== activeLine) { return; }
+
     const lineEnd = editor.document.lineAt(activeLine).range.end;
     editor.setDecorations(this.decorationType, [{
       range: new vscode.Range(lineEnd, lineEnd),
+      hoverMessage: md,
       renderOptions: { after: { contentText: text } },
     }]);
   }
@@ -66,50 +92,5 @@ export class LineBlameDecorator {
     this.activeEditor?.setDecorations(this.decorationType, []);
     this.decorationType.dispose();
     this.disposables.forEach(d => d.dispose());
-  }
-}
-
-export class LineBlameHoverProvider implements vscode.HoverProvider {
-  constructor(private gitService: GitService) {}
-
-  public async provideHover(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.Hover | null> {
-    if (document.uri.scheme !== 'file' || document.isUntitled) { return null; }
-
-    const filePath = document.uri.fsPath;
-    const line = position.line + 1;
-    
-    // Ensure we have blame info (in case hovered before changed)
-    if (!this.gitService.hasFileBlame(filePath)) {
-        await this.gitService.blameFile(filePath);
-    }
-
-    const blameInfo = this.gitService.getBlameLineInfo(filePath, line);
-    const commit = blameInfo ? this.gitService.getCommitInfo(blameInfo.commitHash) : null;
-    if (!blameInfo || !commit) { return null; }
-
-    const md = new vscode.MarkdownString('', true);
-    md.isTrusted = true;
-    md.supportHtml = true;
-
-    if (commit.hash === '0000000000000000000000000000000000000000') {
-      md.appendMarkdown(`<img src="${getGravatarUrl('uncommitted@local', 48)}" width="20" height="20" style="border-radius:50%;" />  &nbsp;**You** &nbsp;$(clock) _just now_\n\n$(edit) &nbsp;_Uncommitted changes_\n`);
-      return new vscode.Hover(md);
-    }
-
-    const previousHash = await this.gitService.getPreviousCommitHash(filePath, commit.hash);
-    const avatarUrl = getGravatarUrl(commit.authorEmail, 48);
-    const dateStr = formatDate(commit.date);
-    const relativeStr = timeAgo(commit.date);
-    const escapeMd = (t: string) => t.replace(/([\\`*_{}[\]()#+\-.!|])/g, '\\$1');
-
-    md.appendMarkdown(`**${escapeMd(commit.authorName)}** &nbsp;$(clock) ${relativeStr} _(${dateStr})_\n\n`);
-    md.appendMarkdown(`<img src="${avatarUrl}" width="40" height="40" style="border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;🔧 <span style="color:#999;">${escapeMd(commit.summary)}</span>\n\n`);
-    md.appendMarkdown(`---\n\n`);
-
-    const footerParts = [`$(git-commit) \`${commit.hash.substring(0, 7)}\``];
-    if (previousHash) { footerParts.push(`$(arrow-left) \`${previousHash.substring(0, 7)}\``); }
-    md.appendMarkdown(`Changes &nbsp;${footerParts.join(' &nbsp;$(arrow-swap) &nbsp;')}`);
-
-    return new vscode.Hover(md);
   }
 }
