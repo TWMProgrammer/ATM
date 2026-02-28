@@ -7,6 +7,7 @@ import { activateColorBox } from './color-box';
 import { activateCommentsCode } from './comments-code';
 import { activateMarkdownStore } from './markdown-store';
 import { activateMdxPreview } from './markdown-mdx';
+import { activateGitBetter } from './git-better';
 
 /**
  * Register all sub-extensions here.
@@ -23,4 +24,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateCommentsCode(context);
   activateMarkdownStore(context);
   activateMdxPreview(context);
+  activateGitBetter(context);
 }
