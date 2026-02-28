@@ -179,4 +179,22 @@ export class GitService {
         if (previous === null && current === null) { return null; }
         return { previous, current };
     }
+
+    public async getCommitUrl(filepath: string, commitHash: string): Promise<string | null> {
+        try {
+            const cwd = path.dirname(filepath);
+            const { stdout } = await execAsync('git config --get remote.origin.url', { cwd });
+            let url = stdout.trim();
+            if (!url) { return null; }
+            
+            url = url.replace(/\.git$/, '');
+            if (url.startsWith('git@')) {
+                url = url.replace(':', '/').replace('git@', 'https://');
+            }
+            
+            return `${url}/commit/${commitHash}`;
+        } catch {
+            return null;
+        }
+    }
 }
