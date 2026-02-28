@@ -225,6 +225,18 @@
         "command": "atm.mdx.preview",
         "title": "ATM: Open MDX Preview",
         "icon": "$(open-preview)"
+      },
+      {
+        "command": "git-better.copyHash",
+        "title": "ATM Git: Copy Commit Hash"
+      },
+      {
+        "command": "git-better.openGitHub",
+        "title": "ATM Git: Open Commit on GitHub"
+      },
+      {
+        "command": "git-better.toggleBlame",
+        "title": "ATM Git: Toggle Inline Blame"
       }
     ],
     "keybindings": [
