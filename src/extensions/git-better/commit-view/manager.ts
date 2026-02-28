@@ -24,6 +24,7 @@ export class GitBetterManager implements vscode.Disposable {
                         `$(check) Commit ${hash.substring(0, 7)} copied!`,
                         3000
                     );
+                    this.blameDecorator.setCopiedHash(hash);
                 }
             }),
 

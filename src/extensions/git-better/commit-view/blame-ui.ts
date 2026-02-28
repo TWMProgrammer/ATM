@@ -19,6 +19,26 @@ export class LineBlameDecorator implements vscode.Disposable {
     private enabled = true;
     private updateVersion = 0; // Monotonic counter for stale-check
 
+    private copiedHash: string | null = null;
+    private copyClearTimeout: NodeJS.Timeout | undefined;
+
+    public setCopiedHash(hash: string) {
+        this.copiedHash = hash;
+        this.hoverCache.delete(hash);
+        this.updateDecoration();
+
+        if (this.copyClearTimeout) {
+            clearTimeout(this.copyClearTimeout);
+        }
+        this.copyClearTimeout = setTimeout(() => {
+            if (this.copiedHash === hash) {
+                this.copiedHash = null;
+                this.hoverCache.delete(hash);
+                this.updateDecoration();
+            }
+        }, 2000);
+    }
+
     constructor(private gitService: GitService) {
         const debouncedUpdate = debounce(this.updateDecoration.bind(this), 120);
 
@@ -202,13 +222,18 @@ export class LineBlameDecorator implements vscode.Disposable {
             commitInfo.hash
         );
         const shortHash = commitInfo.hash.substring(0, 7);
-        const copyBtn = `[${shortHash} $(copy)](command:git-better.copyHash?%22${commitInfo.hash}%22 "Copy Commit Hash")`;
+        
+        const isCopied = this.copiedHash === commitInfo.hash;
+        const copyIcon = isCopied ? '$(check)' : '$(copy)';
+        const copyText = isCopied ? 'Copied!' : 'Copy Commit Hash';
+        const copyBtn = `[${shortHash} ${copyIcon}](command:git-better.copyHash?%22${commitInfo.hash}%22 "${copyText}")`;
 
-        let changesStr = `**Changes** &nbsp;&nbsp;$(git-commit) ${copyBtn}`;
+        let changesStr = `**Changes** &nbsp;&nbsp;$(git-commit) \`${shortHash}\``;
         if (previousHash) {
             changesStr += ` &nbsp;$(arrow-swap)&nbsp; \`${previousHash.substring(0, 7)}\``;
         }
         changesStr += ` &nbsp;|&nbsp; $(github) [Open on GitHub](command:git-better.openGitHub?%22${commitInfo.hash}%22 "Open on GitHub")`;
+        changesStr += ` &nbsp;|&nbsp; ${copyBtn}`;
 
         md.appendMarkdown(changesStr);
 
