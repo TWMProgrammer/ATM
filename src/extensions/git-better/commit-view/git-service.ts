@@ -10,6 +10,7 @@ export interface GitCommitInfo {
     authorEmail: string;
     date: Date;
     summary: string;
+    parentHash?: string | null;
 }
 
 export interface BlameLineInfo {
@@ -124,11 +125,22 @@ export class GitService {
 
     public async getPreviousCommitHash(filepath: string, commitHash: string): Promise<string | null> {
         if (commitHash === '0000000000000000000000000000000000000000') { return null; }
+        
+        const cachedCommit = this.commitCache.get(commitHash);
+        if (cachedCommit && cachedCommit.parentHash !== undefined) {
+            return cachedCommit.parentHash;
+        }
+
         try {
             const cwd = path.dirname(filepath);
             const { stdout } = await execAsync(`git rev-parse ${commitHash}~1`, { cwd });
-            return stdout.trim() || null;
+            const parentHash = stdout.trim() || null;
+            if (cachedCommit) {
+                cachedCommit.parentHash = parentHash;
+            }
+            return parentHash;
         } catch {
+            if (cachedCommit) { cachedCommit.parentHash = null; }
             return null;
         }
     }

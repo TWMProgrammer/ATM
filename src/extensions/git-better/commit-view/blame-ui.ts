@@ -5,15 +5,14 @@ import { timeAgo, formatDate, getGravatarUrl, debounce } from './utils';
 export class LineBlameDecorator {
   private decorationType = vscode.window.createTextEditorDecorationType({
     after: {
-      color: new vscode.ThemeColor('editorCodeLens.foreground'),
-      fontStyle: 'italic',
       margin: '0 0 0 3em',
-      textDecoration: ';opacity:0.6;font-size:0.9em',
+      textDecoration: ';opacity:0.55;font-size:0.9em;',
     },
     isWholeLine: false,
   });
   private activeEditor: vscode.TextEditor | undefined;
   private disposables: vscode.Disposable[] = [];
+  private hoverCache = new Map<string, vscode.MarkdownString>();
 
   constructor(private gitService: GitService) {
     this.disposables.push(
@@ -55,26 +54,34 @@ export class LineBlameDecorator {
     const suffix = isUncommitted ? 'Uncommitted changes' : `${commitInfo.hash.substring(0, 7)}  •  ${commitInfo.summary.length > 50 ? commitInfo.summary.substring(0, 47) + '...' : commitInfo.summary}`;
     const text = isUncommitted ? `  ✏️  ${suffix}` : `  ${author}, ${timeAgo(commitInfo.date)}  •  ${suffix}`;
 
-    const md = new vscode.MarkdownString('', true);
-    md.isTrusted = true;
-    md.supportHtml = true;
+    const color = isUncommitted ? '#1DB954' : new vscode.ThemeColor('editorCodeLens.foreground');
+    const border = isUncommitted ? 'solid 1px #1DB95420' : 'none';
 
-    if (isUncommitted) {
-      md.appendMarkdown(`<img src="${getGravatarUrl('uncommitted@local', 48)}" width="20" height="20" style="border-radius:50%;" />  &nbsp;**You** &nbsp;$(clock) _just now_\n\n$(edit) &nbsp;_Uncommitted changes_\n`);
-    } else {
-      const avatarUrl = getGravatarUrl(commitInfo.authorEmail, 48);
-      const dateStr = formatDate(commitInfo.date);
-      const relativeStr = timeAgo(commitInfo.date);
-      const escapeMd = (t: string) => t.replace(/([\\`*_{}[\]()#+\-.!|])/g, '\\$1');
+    let md = this.hoverCache.get(commitInfo.hash);
 
-      md.appendMarkdown(`**${escapeMd(commitInfo.authorName)}** &nbsp;$(clock) ${relativeStr} _(${dateStr})_\n\n`);
-      md.appendMarkdown(`<img src="${avatarUrl}" width="40" height="40" style="border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;🔧 <span style="color:#999;">${escapeMd(commitInfo.summary)}</span>\n\n`);
-      md.appendMarkdown(`---\n\n`);
+    if (!md) {
+      md = new vscode.MarkdownString('', true);
+      md.isTrusted = true;
+      md.supportHtml = true;
 
-      const previousHash = await this.gitService.getPreviousCommitHash(filePath, commitInfo.hash);
-      const footerParts = [`$(git-commit) \`${commitInfo.hash.substring(0, 7)}\``];
-      if (previousHash) { footerParts.push(`$(arrow-left) \`${previousHash.substring(0, 7)}\``); }
-      md.appendMarkdown(`Changes &nbsp;${footerParts.join(' &nbsp;$(arrow-swap) &nbsp;')}`);
+      if (isUncommitted) {
+        md.appendMarkdown(`<img src="${getGravatarUrl('uncommitted@local', 48)}" width="20" height="20" style="border-radius:50%;" />  &nbsp;**You** &nbsp;$(clock) _just now_\n\n$(edit) &nbsp;_Uncommitted changes_\n`);
+      } else {
+        const avatarUrl = getGravatarUrl(commitInfo.authorEmail, 48);
+        const dateStr = formatDate(commitInfo.date);
+        const relativeStr = timeAgo(commitInfo.date);
+        const escapeMd = (t: string) => t.replace(/([\\`*_{}[\]()#+\-.!|])/g, '\\$1');
+
+        md.appendMarkdown(`**${escapeMd(commitInfo.authorName)}** &nbsp;$(clock) ${relativeStr} _(${dateStr})_\n\n`);
+        md.appendMarkdown(`<img src="${avatarUrl}" width="40" height="40" style="border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;🔧 <span style="color:#999;">${escapeMd(commitInfo.summary)}</span>\n\n`);
+        md.appendMarkdown(`---\n\n`);
+
+        const previousHash = await this.gitService.getPreviousCommitHash(filePath, commitInfo.hash);
+        const footerParts = [`$(git-commit) \`${commitInfo.hash.substring(0, 7)}\``];
+        if (previousHash) { footerParts.push(`$(arrow-left) \`${previousHash.substring(0, 7)}\``); }
+        md.appendMarkdown(`Changes &nbsp;${footerParts.join(' &nbsp;$(arrow-swap) &nbsp;')}`);
+      }
+      this.hoverCache.set(commitInfo.hash, md);
     }
 
     // Since we awaited previousHash, ensure cursor hasn't moved.
@@ -84,7 +91,13 @@ export class LineBlameDecorator {
     editor.setDecorations(this.decorationType, [{
       range: new vscode.Range(lineEnd, lineEnd),
       hoverMessage: md,
-      renderOptions: { after: { contentText: text } },
+      renderOptions: { 
+        after: { 
+            contentText: text,
+            color: color,
+            border: border
+        } 
+      },
     }]);
   }
 
