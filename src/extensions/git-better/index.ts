@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { GitBetterManager } from './gitManager';
+import { GitBetterManager } from './commit-view/manager';
 
 let manager: GitBetterManager | undefined;
 
