@@ -50,9 +50,8 @@ export class LineBlameDecorator {
     }
 
     const isUncommitted = commitInfo.hash === '0000000000000000000000000000000000000000';
-    const author = isUncommitted || commitInfo.authorName === 'Not Committed Yet' ? 'You' : commitInfo.authorName;
-    const suffix = isUncommitted ? 'Uncommitted changes' : `${commitInfo.hash.substring(0, 7)}  •  ${commitInfo.summary.length > 50 ? commitInfo.summary.substring(0, 47) + '...' : commitInfo.summary}`;
-    const text = isUncommitted ? `  ✏️  ${suffix}` : `  ${author}, ${timeAgo(commitInfo.date)}  •  ${suffix}`;
+    const summaryText = commitInfo.summary.length > 50 ? commitInfo.summary.substring(0, 47) + '...' : commitInfo.summary;
+    const text = isUncommitted ? `  ✏️  Uncommitted changes` : `  ${timeAgo(commitInfo.date)}  •  ${summaryText}`;
 
     const color = isUncommitted ? '#1DB954' : new vscode.ThemeColor('editorCodeLens.foreground');
     const border = isUncommitted ? 'solid 1px #1DB95420' : 'none';
