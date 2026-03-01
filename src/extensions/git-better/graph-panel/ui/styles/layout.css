@@ -70,7 +70,39 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     justify-content: space-between;
     padding: 0 16px;
     flex-shrink: 0;
-    gap: 16px;
+    gap: 5px; /* Separación de 5px antes del buscador como solicitado */
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    flex: 1; /* Permite que tome el espacio disponible hacia la izquierda */
+    min-width: 0; /* Necesario para que el texto interior se pueda truncar con ellipsis */
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1; /* Equilibra la cabecera para centrar visualmente el buscador */
+    justify-content: flex-end;
+}
+
+button.repo-btn {
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    max-width: 100%;
+    justify-content: flex-start;
+}
+button.repo-btn:hover {
+    background-color: var(--bg-hover);
+}
+.repo-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Minimap / Sparkline Container */
@@ -146,11 +178,13 @@ button.icon-btn:hover, button.sidebar-tab:hover {
 
 /* Buscador */
 .toolbar-center {
-    flex-grow: 1;
+    flex-grow: 1; /* Toma el espacio central */
+    flex-shrink: 0; /* Evita que el buscador se aplaste de más por el texto largo */
     display: flex;
     align-items: center;
     gap: 12px;
-    max-width: 600px;
+    width: 600px; /* Ancho deseado en vez de max-width para que sea el principal */
+    max-width: 50vw; /* Asegurar que no se rompa en pantallas enanas */
 }
 .search-box {
     background-color: var(--bg-base);
