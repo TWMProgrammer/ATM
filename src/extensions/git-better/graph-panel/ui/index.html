@@ -6,8 +6,12 @@
     <title>Git Better - Graph Panel</title>
     <!-- Incluir Codicons nativos de VS Code -->
     <link href="https://unpkg.com/@vscode/codicons/dist/codicon.css" rel="stylesheet">
+    
+    <!-- Estilos de la Interfaz (Split modules) -->
+    <link href="./styles/theme.css" rel="stylesheet">
+    <link href="./styles/layout.css" rel="stylesheet">
 </head>
-<body class="theme-dark">
+<body>
     <!-- 1. Top Configuration Bar (Repos, Branches, Search) -->
     <header class="top-toolbar">
         <div class="toolbar-left">
@@ -92,7 +96,7 @@
                     </div>
                     <!-- The SVG overlay will be absolute, these are placeholders -->
                     <div class="col" style="width: 15%; align-items: center; justify-content: center;">
-                        <span style="color: var(--accent-orange);">●</span>
+                        <span style="color: var(--accent-brand);">●</span>
                     </div>
                     <div class="col msg-col" style="width: 45%">feat: update keybindings for MDX preview and enhance live preview functionality</div>
                     <div class="col" style="width: 10%">You</div>

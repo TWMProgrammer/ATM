@@ -24,7 +24,7 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
     private _getHtmlForWebview(webview: vscode.Webview) {
         const uiPath = vscode.Uri.joinPath(this._extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui');
         const htmlPath = vscode.Uri.joinPath(uiPath, 'index.html').fsPath;
-        const cssUri = webview.asWebviewUri(vscode.Uri.joinPath(uiPath, 'index.css'));
+        const uiUri = webview.asWebviewUri(uiPath);
         const assetsUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'assets'));
 
         let htmlContent = '';
@@ -39,9 +39,8 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
         // Replace relative asset paths with correct webview URIs
         htmlContent = htmlContent.replace(/\.\.\/assets\//g, `${assetsUri}/`);
 
-        // Inject the CSS linking directly into the <head>
-        const cssLink = `\n    <link href="${cssUri}" rel="stylesheet">`;
-        htmlContent = htmlContent.replace('</head>', `${cssLink}\n</head>`);
+        // Replace styles paths with correct webview URIs dynamically
+        htmlContent = htmlContent.replace(/href="\.\/styles\/(.+?\.css)"/g, `href="${uiUri}/styles/$1"`);
         
         // Setup Content Security Policy
         const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} https: data:; style-src ${webview.cspSource} 'unsafe-inline' https:; script-src 'nonce-${nonce}'; font-src ${webview.cspSource} https: data:;">`;

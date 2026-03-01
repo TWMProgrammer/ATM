@@ -1,0 +1,36 @@
+/* =========================================================
+   1. CSS VARIABLES (PALETA Y TOKENS)
+   ========================================================= */
+:root {
+    /* === NATIVE VS CODE THEME INTEGRATION === */
+    /* Fondos conectados 100% al tema actual del usuario (Light, Dark, High Contrast) */
+    --bg-base: var(--vscode-editor-background);
+    --bg-toolbar: var(--vscode-sideBar-background);
+    --bg-panel: var(--vscode-sideBar-background);
+    --bg-hover: var(--vscode-list-hoverBackground);
+    --bg-active: var(--vscode-list-activeSelectionBackground);
+    
+    /* Textos (Se auto acomodan si el tema es claro u oscuro) */
+    --text-primary: var(--vscode-editor-foreground);
+    --text-secondary: var(--vscode-descriptionForeground);
+    --text-muted: var(--vscode-disabledForeground);
+
+    /* Bordes y Separadores nativos */
+    --border-color: var(--vscode-panel-border, var(--vscode-focusBorder, #3e4451));
+    --border-light: var(--vscode-editorGroup-border, rgba(255, 255, 255, 0.05));
+
+    /* Colores Acento Premium (Conectados a la decoración de Git de VS Code para que cuadren perfecto con el tema) */
+    --accent-blue: var(--vscode-textLink-foreground, #61afef);
+    --accent-green: var(--vscode-gitDecoration-addedResourceForeground, #98c379);
+    --accent-brand: var(--vscode-terminal-ansiBrightGreen, #23d18b);
+    --accent-purple: var(--vscode-symbolIcon-keywordForeground, #c678dd);
+    --accent-red: var(--vscode-gitDecoration-deletedResourceForeground, #e06c75);
+    --accent-cyan: var(--vscode-gitDecoration-untrackedResourceForeground, #56b6c2);
+
+    /* Medidas (Layout Tokens para CSS Grid/Flexbox) */
+    --toolbar-height: 48px;
+    --minimap-height: 32px;
+    --sidebar-width: 48px;
+    --inspect-panel-width: 380px; 
+    --row-height: 28px;
+}
