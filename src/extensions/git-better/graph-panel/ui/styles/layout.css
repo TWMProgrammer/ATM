@@ -41,6 +41,14 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     background-color: var(--bg-hover);
 }
 
+/* Expand Button Toggle */
+#expand-btn .codicon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#expand-btn.expanded .codicon {
+    transform: rotate(180deg);
+}
+
 /* Sistema de Máscaras para Iconos de Alto Rendimiento (Adapta colores nativamente) */
 .icon-mask {
     background-color: currentColor; 

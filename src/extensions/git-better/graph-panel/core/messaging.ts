@@ -1,0 +1,31 @@
+import * as vscode from 'vscode';
+
+/**
+ * Routes and handles all messages received from the graph-panel webview.
+ * Each message `type` maps to a handler method.
+ */
+export class Messaging {
+
+    /** Bind this handler to a webview instance. */
+    public attach(webview: vscode.Webview): vscode.Disposable {
+        return webview.onDidReceiveMessage((msg) => this.route(msg));
+    }
+
+    // ── Router ──────────────────────────────────────────
+
+    private route(message: { type: string; [key: string]: unknown }) {
+        switch (message.type) {
+            case 'toggleExpand':
+                this.handleToggleExpand();
+                break;
+            // Add future message types here
+        }
+    }
+
+    // ── Handlers ────────────────────────────────────────
+
+    /** Maximize or restore the VS Code bottom panel. */
+    private handleToggleExpand() {
+        vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+    }
+}

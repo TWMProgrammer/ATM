@@ -29,7 +29,7 @@
         </div>
         
         <div class="toolbar-right" style="display: flex; gap: 8px;">
-            <button class="icon-btn" title="Expand">
+            <button id="expand-btn" class="icon-btn" title="Expand">
                 <i class="codicon codicon-chevron-up" style="font-size: 14px;"></i>
             </button>
         </div>
@@ -179,5 +179,25 @@
         </aside>
 
     </main>
+
+    <script nonce="{{NONCE}}">
+        (function () {
+            const vscode = acquireVsCodeApi();
+            const expandBtn = document.getElementById('expand-btn');
+            let isExpanded = false;
+
+            expandBtn.addEventListener('click', () => {
+                isExpanded = !isExpanded;
+                expandBtn.classList.toggle('expanded', isExpanded);
+                expandBtn.title = isExpanded ? 'Collapse' : 'Expand';
+
+                // Send message to VS Code extension host to toggle panel size
+                vscode.postMessage({
+                    type: 'toggleExpand',
+                    expanded: isExpanded
+                });
+            });
+        })();
+    </script>
 </body>
 </html>
