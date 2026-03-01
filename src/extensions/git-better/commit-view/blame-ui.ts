@@ -82,7 +82,7 @@ export class LineBlameDecorator implements vscode.Disposable {
         if (!editor || editor.document.uri.scheme !== 'file') { return; }
 
         // Asynchronously update blame when editor changes, doesn't block UI
-        this.gitService.blameFile(editor.document.uri.fsPath).then(() => {
+        this.gitService.blameFile(editor.document.uri.fsPath, editor.document.getText()).then(() => {
             if (this.activeEditor === editor) {
                 this.updateDecoration();
             }
@@ -118,8 +118,27 @@ export class LineBlameDecorator implements vscode.Disposable {
                 return;
             }
 
+            const lineEnd = editor.document.lineAt(activeLine).range.end;
+
+            // Handle uncommitted changes edge case gracefully with a custom UI
             if (commitInfo.hash === '0000000000000000000000000000000000000000') {
-                editor.setDecorations(this.decorationType, []);
+                const text = `\u00A0\u00A0You\u00A0\u00A0•\u00A0\u00A0Uncommitted changes`;
+                const md = new vscode.MarkdownString('**You** &nbsp;$(edit) _Uncommitted changes_', true);
+                md.supportHtml = true;
+                
+                editor.setDecorations(this.decorationType, [
+                    {
+                        range: new vscode.Range(lineEnd, lineEnd),
+                        hoverMessage: md,
+                        renderOptions: {
+                            after: {
+                                contentText: text,
+                                color: new vscode.ThemeColor('editorCodeLens.foreground'),
+                                border: 'none',
+                            },
+                        },
+                    },
+                ]);
                 return;
             }
 
@@ -127,10 +146,7 @@ export class LineBlameDecorator implements vscode.Disposable {
                 commitInfo.summary.length > 50
                     ? commitInfo.summary.substring(0, 47) + '...'
                     : commitInfo.summary;
-            const text = `  ${timeAgo(commitInfo.date)}  •  ${summaryText}`;
-
-            const color = new vscode.ThemeColor('editorCodeLens.foreground');
-            const border = 'none';
+            const text = `\u00A0\u00A0${timeAgo(commitInfo.date)}\u00A0\u00A0•\u00A0\u00A0${summaryText}`;
 
             let mdBase = this.hoverCache.get(commitInfo.hash);
 
@@ -159,21 +175,24 @@ export class LineBlameDecorator implements vscode.Disposable {
                 if (this.updateVersion !== version) { return; }
 
                 if (diff && (diff.previous !== null || diff.current !== null)) {
-                    finalMd.appendMarkdown(`\n\n\`\`\`diff\n`);
+                    // Use standard markdown codeblock properly for better syntax highlighting
+                    let diffText = '';
                     if (diff.previous !== null) {
-                        finalMd.appendMarkdown(`- ${diff.previous}\n`);
+                        diffText += `- ${diff.previous}\n`;
                     }
                     if (diff.current !== null) {
-                        finalMd.appendMarkdown(`+ ${diff.current}\n`);
+                        diffText += `+ ${diff.current}\n`;
                     }
-                    finalMd.appendMarkdown(`\`\`\`\n`);
+                    if (diffText.length > 0) {
+                        finalMd.appendMarkdown(`\n\n`);
+                        finalMd.appendCodeblock(diffText.trimEnd(), 'diff');
+                    }
                 }
             }
 
             // Final stale check
             if (this.updateVersion !== version) { return; }
 
-            const lineEnd = editor.document.lineAt(activeLine).range.end;
             editor.setDecorations(this.decorationType, [
                 {
                     range: new vscode.Range(lineEnd, lineEnd),
@@ -181,14 +200,15 @@ export class LineBlameDecorator implements vscode.Disposable {
                     renderOptions: {
                         after: {
                             contentText: text,
-                            color: color,
-                            border: border,
+                            color: new vscode.ThemeColor('editorCodeLens.foreground'),
+                            border: 'none',
                         },
                     },
                 },
             ]);
         } catch (error) {
             console.error('[git-better] Failed to update blame decoration:', error);
+            // Ensure no lingering decorations on error
             editor.setDecorations(this.decorationType, []);
         }
     }
@@ -202,18 +222,20 @@ export class LineBlameDecorator implements vscode.Disposable {
         md.isTrusted = true;
         md.supportHtml = true;
 
-        const avatarUrl = getGravatarUrl(commitInfo.authorEmail, 48);
+        const avatarUrl = getGravatarUrl(commitInfo.authorEmail, 24);
         const dateStr = formatDate(commitInfo.date);
         const relativeStr = timeAgo(commitInfo.date);
-        const escapeMd = (t: string) =>
-            t.replace(/([\\\`*_{}[\]()#+\-.!|])/g, '\\$1');
+        
+        // Escape standard markdown characters but preserve intentional formatting
+        const escapeMd = (t: string) => t.replace(/([\\\`*_{}[\]()#+\-.!|])/g, '\\$1');
 
+        // Better Visual Hierarchy
         md.appendMarkdown(
             `**${escapeMd(commitInfo.authorName)}** &nbsp;$(history) _${relativeStr}_ &nbsp;•&nbsp; _${dateStr}_\n\n`
         );
         md.appendMarkdown(`---\n\n`);
         md.appendMarkdown(
-            `<img src="${avatarUrl}" width="28" height="28" style="background-color:transparent;border:0;border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;<span style="color:#cecece;">${escapeMd(commitInfo.summary)}</span>\n\n`
+            `<img src="${avatarUrl}" width="20" height="20" style="vertical-align:middle;border-radius:50%;" /> &nbsp;$(git-commit) &nbsp;<span style="color:var(--vscode-descriptionForeground);">${escapeMd(commitInfo.summary)}</span>\n\n`
         );
         md.appendMarkdown(`---\n\n`);
 

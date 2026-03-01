@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { spawn, exec } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
 import { LRUCache } from './utils';
@@ -47,12 +47,10 @@ export class GitService {
         return this.fileBlameCache.has(filepath);
     }
 
-    /** Invalidate blame cache for a specific file (e.g. on save). */
     public invalidateFile(filepath: string): void {
         this.fileBlameCache.delete(filepath);
     }
 
-    /** Clear all caches (e.g. on repository change). */
     public clearAll(): void {
         this.fileBlameCache.clear();
         this.commitCache.clear();
@@ -60,60 +58,96 @@ export class GitService {
         this.pendingRequests.clear();
     }
 
-    public async blameFile(filepath: string): Promise<void> {
-        if (this.pendingRequests.has(filepath)) {
+    public async blameFile(filepath: string, documentContent?: string): Promise<void> {
+        if (this.pendingRequests.has(filepath) && !documentContent) {
             return this.pendingRequests.get(filepath)!;
         }
 
-        const request = this._executeBlame(filepath).finally(() => {
-            this.pendingRequests.delete(filepath);
+        const request = this._executeBlame(filepath, documentContent).finally(() => {
+            if (this.pendingRequests.get(filepath) === request) {
+                this.pendingRequests.delete(filepath);
+            }
         });
 
         this.pendingRequests.set(filepath, request);
         return request;
     }
 
-    private async _executeBlame(filepath: string): Promise<void> {
-        try {
+    private _executeBlame(filepath: string, documentContent?: string): Promise<void> {
+        return new Promise((resolve) => {
             const cwd = path.dirname(filepath);
             const filename = path.basename(filepath);
-            const { stdout } = await execAsync(
-                `git blame --line-porcelain -- "${filename}"`,
-                { cwd, maxBuffer: 10 * 1024 * 1024 }
-            );
-            this.parseBlamePorcelain(filepath, stdout);
-        } catch (error) {
-            console.error(`Git blame failed for file ${filepath}:`, error);
-        }
+            const args = ['blame', '--line-porcelain'];
+            
+            if (documentContent !== undefined) {
+                args.push('--contents', '-');
+            }
+            args.push('--', filename);
+
+            const child = spawn('git', args, { cwd });
+            let stdout = '';
+            let stderr = '';
+
+            child.stdout.on('data', (data) => stdout += data.toString());
+            child.stderr.on('data', (data) => stderr += data.toString());
+
+            child.on('close', (code) => {
+                if (code !== 0) {
+                    console.error(`Git blame failed for file ${filepath}:`, stderr);
+                } else {
+                    this.parseBlamePorcelain(filepath, stdout);
+                }
+                resolve();
+            });
+
+            child.on('error', (err) => {
+                console.error(`Git blame error for file ${filepath}:`, err);
+                resolve();
+            });
+
+            if (documentContent !== undefined) {
+                child.stdin.write(documentContent);
+                child.stdin.end();
+            }
+        });
     }
 
     private parseBlamePorcelain(filepath: string, gitOutput: string) {
-        const lines = gitOutput.split('\n');
+        const fileCache = new Map<number, BlameLineInfo>();
         let currentCommitHash = '';
         let currentCommitInfo: Partial<GitCommitInfo> = {};
-        const fileCache = new Map<number, BlameLineInfo>();
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const matchHeader = line.match(/^([a-f0-9]{40})\s+(\d+)\s+(\d+)/);
+        let lineStart = 0;
+        let lineEnd = gitOutput.indexOf('\n');
 
-            if (matchHeader) {
-                currentCommitHash = matchHeader[1];
-                const finalLine = parseInt(matchHeader[3], 10);
+        while(lineEnd !== -1) {
+            const line = gitOutput.substring(lineStart, lineEnd);
+            lineStart = lineEnd + 1;
+            lineEnd = gitOutput.indexOf('\n', lineStart);
+
+            if (!line) { continue; }
+
+            if (/^[a-f0-9]{40} \d+ \d+/.test(line)) {
+                const parts = line.split(' ');
+                currentCommitHash = parts[0];
+                const originalLine = parseInt(parts[1], 10);
+                const finalLine = parseInt(parts[2], 10);
 
                 fileCache.set(finalLine, {
                     commitHash: currentCommitHash,
-                    originalLine: parseInt(matchHeader[2], 10),
-                    finalLine: finalLine,
+                    originalLine,
+                    finalLine,
                 });
 
                 if (!this.commitCache.has(currentCommitHash)) {
                     currentCommitInfo = { hash: currentCommitHash };
+                } else {
+                    currentCommitInfo = {}; // Already cached
                 }
                 continue;
             }
 
-            if (currentCommitHash && !this.commitCache.has(currentCommitHash)) {
+            if (currentCommitHash && currentCommitInfo.hash === currentCommitHash) {
                 if (line.startsWith('author ')) {
                     currentCommitInfo.authorName = line.substring(7);
                 } else if (line.startsWith('author-mail ')) {
@@ -122,9 +156,8 @@ export class GitService {
                     currentCommitInfo.date = new Date(parseInt(line.substring(12), 10) * 1000);
                 } else if (line.startsWith('summary ')) {
                     currentCommitInfo.summary = line.substring(8);
-
+                    
                     if (
-                        currentCommitInfo.hash &&
                         currentCommitInfo.authorName &&
                         currentCommitInfo.authorEmail &&
                         currentCommitInfo.date &&
@@ -207,10 +240,12 @@ export class GitService {
         let current: string | null = null;
 
         for (const line of lines) {
-            const hunkMatch = line.match(/^@@\s+-\d+(?:,\d+)?\s+\+(\d+)(?:,\d+)?\s+@@/);
-            if (hunkMatch) {
-                inDiff = true;
-                currentNewLine = parseInt(hunkMatch[1], 10);
+            if (line.startsWith('@@ ')) {
+                const hunkMatch = line.match(/^@@\s+-\d+(?:,\d+)?\s+\+(\d+)(?:,\d+)?\s+@@/);
+                if (hunkMatch) {
+                    inDiff = true;
+                    currentNewLine = parseInt(hunkMatch[1], 10);
+                }
                 continue;
             }
 
@@ -225,7 +260,7 @@ export class GitService {
                     current = line.substring(1);
                 }
                 currentNewLine++;
-            } else {
+            } else if (line.startsWith(' ')) {
                 currentNewLine++;
             }
 

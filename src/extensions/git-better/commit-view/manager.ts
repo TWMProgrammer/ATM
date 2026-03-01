@@ -9,11 +9,13 @@ export class GitBetterManager implements vscode.Disposable {
     private disposables: vscode.Disposable[] = [];
 
     constructor(context: vscode.ExtensionContext) {
-        const debouncedReFetch = debounce((uri: vscode.Uri) => {
-            this.gitService.blameFile(uri.fsPath).then(() => {
+        // Debounce fetching to avoid spawning too many git processes on rapid typing
+        const debouncedReFetch = debounce((document: vscode.TextDocument) => {
+            this.gitService.invalidateFile(document.uri.fsPath);
+            this.gitService.blameFile(document.uri.fsPath, document.getText()).then(() => {
                 this.blameDecorator.updateDecoration();
             });
-        }, 1000);
+        }, 500);
 
         this.disposables.push(
             // --- Commands ---
@@ -35,7 +37,7 @@ export class GitBetterManager implements vscode.Disposable {
                 const url = await this.gitService.getCommitUrl(filePath, hash);
 
                 if (url) {
-                    vscode.env.openExternal(vscode.Uri.parse(url));
+                    await vscode.env.openExternal(vscode.Uri.parse(url));
                 } else {
                     vscode.window.showErrorMessage(
                         'Could not determine GitHub URL for this repository.'
@@ -55,17 +57,22 @@ export class GitBetterManager implements vscode.Disposable {
 
             // Re-fetch blame after document content changes (typing)
             vscode.workspace.onDidChangeTextDocument((event) => {
-                if (event.document.uri.scheme === 'file' && event.contentChanges.length > 0) {
-                    debouncedReFetch(event.document.uri);
+                const activeEditor = vscode.window.activeTextEditor;
+                // Only process if it's the active document and there are actual changes
+                if (activeEditor && event.document === activeEditor.document && event.contentChanges.length > 0) {
+                    if (event.document.uri.scheme === 'file') {
+                        debouncedReFetch(event.document);
+                    }
                 }
             }),
 
-            // Invalidate cache & re-blame on save (the persisted content may differ)
+            // Invalidate cache & re-blame on save (the persisted content may differ slightly)
             vscode.workspace.onDidSaveTextDocument((document) => {
-                if (document.uri.scheme === 'file') {
+                const activeEditor = vscode.window.activeTextEditor;
+                if (document.uri.scheme === 'file' && activeEditor && document === activeEditor.document) {
                     this.gitService.invalidateFile(document.uri.fsPath);
                     this.blameDecorator.invalidateHoverCache();
-                    this.gitService.blameFile(document.uri.fsPath).then(() => {
+                    this.gitService.blameFile(document.uri.fsPath, document.getText()).then(() => {
                         this.blameDecorator.updateDecoration();
                     });
                 }
