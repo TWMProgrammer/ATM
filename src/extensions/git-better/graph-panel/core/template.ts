@@ -18,19 +18,27 @@ function generateNonce(length = 32): string {
 /**
  * Builds the final HTML for the graph-panel webview.
  *
- * Reads the raw template from disk and applies all transformations:
- * asset URIs, style URIs, workspace name, nonce, and CSP injection.
+ * Performance optimizations:
+ *  1. Caches the raw HTML template after first read (avoids repeated disk I/O)
+ *  2. Pre-computes static URI paths once per webview
+ *  3. Uses a single-pass replacement for all placeholders
  */
 export class TemplateBuilder {
+
+    /** Cached raw HTML from disk — read once, reused on every resolve. */
+    private templateCache: string | null = null;
 
     constructor(private readonly extensionUri: vscode.Uri) { }
 
     /** Returns ready-to-render HTML for the given webview. */
     public build(webview: vscode.Webview): string {
+        const template = this.getTemplate();
+        if (!template) { return this.errorPage(); }
+
+        // Pre-compute all dynamic values once
         const uiPath = vscode.Uri.joinPath(
             this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui',
         );
-        const htmlPath = vscode.Uri.joinPath(uiPath, 'index.html').fsPath;
         const uiUri = webview.asWebviewUri(uiPath);
         const assetsUri = webview.asWebviewUri(
             vscode.Uri.joinPath(
@@ -38,46 +46,10 @@ export class TemplateBuilder {
             ),
         );
 
-        let html = this.readTemplate(htmlPath);
-        if (!html) { return this.errorPage(); }
-
         const nonce = generateNonce();
+        const workspaceName = vscode.workspace.name || 'Unknown Repository';
 
-        html = this.replaceAssetPaths(html, assetsUri);
-        html = this.replaceStylePaths(html, uiUri);
-        html = this.injectWorkspaceName(html);
-        html = this.injectNonce(html, nonce);
-        html = this.injectCsp(html, webview, nonce);
-
-        return html;
-    }
-
-    // ── Private Helpers ─────────────────────────────────
-
-    private readTemplate(path: string): string | null {
-        try { return fs.readFileSync(path, 'utf8'); }
-        catch { return null; }
-    }
-
-    private replaceAssetPaths(html: string, assetsUri: vscode.Uri): string {
-        return html.replace(/\.\.\/assets\//g, `${assetsUri}/`);
-    }
-
-    private replaceStylePaths(html: string, uiUri: vscode.Uri): string {
-        return html.replace(/href="\.\/styles\/(.+?\.css)"/g, `href="${uiUri}/styles/$1"`);
-    }
-
-    private injectWorkspaceName(html: string): string {
-        const name = vscode.workspace.name || 'Unknown Repository';
-        return html.replace(/<span class="repo-name">.*?<\/span>/, `<span class="repo-name">${name}</span>`);
-    }
-
-    /** Replace every {{NONCE}} placeholder with the real nonce value. */
-    private injectNonce(html: string, nonce: string): string {
-        return html.replace(/\{\{NONCE\}\}/g, nonce);
-    }
-
-    private injectCsp(html: string, webview: vscode.Webview, nonce: string): string {
+        // CSP meta tag
         const csp = [
             `default-src 'none'`,
             `img-src ${webview.cspSource} https: data:`,
@@ -85,9 +57,44 @@ export class TemplateBuilder {
             `script-src 'nonce-${nonce}'`,
             `font-src ${webview.cspSource} https: data:`,
         ].join('; ');
+        const cspMeta = `<meta http-equiv="Content-Security-Policy" content="${csp}">`;
 
-        const meta = `<meta http-equiv="Content-Security-Policy" content="${csp}">`;
-        return html.replace('<head>', `<head>\n    ${meta}`);
+        // Single-pass replacement using a lookup map — no chained pattern matching
+        const replacements: Record<string, string> = {
+            '{{NONCE}}': nonce,
+            '{{CSP}}': cspMeta,
+            '{{ASSETS_URI}}': assetsUri.toString(),
+            '{{UI_URI}}': uiUri.toString(),
+            '{{WORKSPACE_NAME}}': workspaceName,
+        };
+
+        const pattern = /\{\{(?:NONCE|CSP|ASSETS_URI|UI_URI|WORKSPACE_NAME)\}\}/g;
+        return template.replace(pattern, (match) => replacements[match]);
+    }
+
+    /** Invalidate the cache if the HTML file is changed during development. */
+    public invalidateCache() {
+        this.templateCache = null;
+    }
+
+    // ── Private Helpers ─────────────────────────────────
+
+    /** Reads and caches the raw HTML template from disk. */
+    private getTemplate(): string | null {
+        if (this.templateCache !== null) {
+            return this.templateCache;
+        }
+
+        const htmlPath = vscode.Uri.joinPath(
+            this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui', 'index.html',
+        ).fsPath;
+
+        try {
+            this.templateCache = fs.readFileSync(htmlPath, 'utf8');
+            return this.templateCache;
+        } catch {
+            return null;
+        }
     }
 
     private errorPage(): string {
