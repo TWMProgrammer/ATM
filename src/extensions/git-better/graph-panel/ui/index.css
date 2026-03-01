@@ -1,0 +1,31 @@
+/* Estilos base del panel */
+body {
+    background-color: transparent;
+    color: var(--vscode-editor-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-editor-font-size);
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+h1 {
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    color: var(--vscode-editor-foreground);
+}
+
+p {
+    color: var(--vscode-descriptionForeground);
+}

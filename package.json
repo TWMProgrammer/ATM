@@ -280,6 +280,25 @@
           "group": "1_modification"
         }
       ]
+    },
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "gitlab-panel",
+          "title": "GitLab",
+          "icon": "$(git-merge)"
+        }
+      ]
+    },
+    "views": {
+      "gitlab-panel": [
+        {
+          "type": "webview",
+          "id": "gitlab.graphView",
+          "name": "Graph",
+          "icon": "$(git-merge)"
+        }
+      ]
     }
   },
   "scripts": {
