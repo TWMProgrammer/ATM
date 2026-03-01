@@ -77,6 +77,21 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     background-color: var(--bg-hover);
 }
 
+/* Sistema de Máscaras para Iconos de Alto Rendimiento (Adapta colores de Tema Dark/Light nativamente) */
+.icon-mask {
+    background-color: currentColor; /* Toma el color de la fuente padre automáticamente */
+    display: inline-block;
+    width: var(--icon-size, 16px);
+    height: var(--icon-size, 16px);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    vertical-align: middle;
+}
+
 /* =========================================================
    3. ESTRUCTURA GLOBAL (SKELETON GRIDS)
    ========================================================= */
