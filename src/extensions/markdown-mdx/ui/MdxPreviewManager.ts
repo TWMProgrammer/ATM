@@ -1,0 +1,269 @@
+import * as vscode from 'vscode';
+import * as path from 'path';
+import { MdxCompiler } from '../core/MdxCompiler';
+
+export class MdxPreviewManager {
+  private panel: vscode.WebviewPanel | undefined;
+  private disposables: vscode.Disposable[] = [];
+  private currentDocumentUri: vscode.Uri | undefined;
+  private readonly updateDebounceMs = 300;
+  private updateTimeout: NodeJS.Timeout | undefined;
+
+  constructor(private readonly extensionUri: vscode.Uri) {}
+
+  public showPreview() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showErrorMessage('No active MDX document to preview.');
+      return;
+    }
+
+    if (!['mdx', 'markdown'].includes(editor.document.languageId)) {
+      vscode.window.showErrorMessage('Active document is not an MDX or Markdown file.');
+      return;
+    }
+
+    this.currentDocumentUri = editor.document.uri;
+
+    if (this.panel) {
+      this.panel.reveal(vscode.ViewColumn.Beside);
+      this.updatePreview(editor.document.getText());
+    } else {
+      this.panel = vscode.window.createWebviewPanel(
+        'mdxPreview',
+        'MDX Preview',
+        vscode.ViewColumn.Beside,
+        {
+          enableScripts: true,
+          retainContextWhenHidden: true,
+          localResourceRoots: [this.extensionUri]
+        }
+      );
+
+      this.panel.iconPath = vscode.Uri.joinPath(
+        this.extensionUri,
+        'src',
+        'extensions',
+        'markdown-mdx',
+        'assets',
+        'file-icon.svg'
+      );
+
+      this.panel.onDidDispose(() => {
+        this.dispose();
+      }, null, this.disposables);
+
+      this.panel.webview.onDidReceiveMessage((message) => {
+        if (message.command === 'ready') {
+          // Send initial preview once webview scripts (React) have loaded
+          if (this.currentDocumentUri) {
+            const doc = vscode.workspace.textDocuments.find(d => d.uri.toString() === this.currentDocumentUri?.toString());
+            if (doc) {
+              this.updatePreview(doc.getText());
+            }
+          }
+        }
+      }, null, this.disposables);
+
+      // Listen to text changes to live-update the preview
+      vscode.workspace.onDidChangeTextDocument((e) => {
+        if (e.document.uri.toString() === this.currentDocumentUri?.toString()) {
+          this.queueUpdate(e.document.getText());
+        }
+      }, null, this.disposables);
+      
+      // Listen to active editor changes to switch preview document
+      vscode.window.onDidChangeActiveTextEditor((e) => {
+        if (e && ['mdx', 'markdown'].includes(e.document.languageId)) {
+          this.currentDocumentUri = e.document.uri;
+          this.queueUpdate(e.document.getText());
+        }
+      }, null, this.disposables);
+
+      // Setup static container
+      this.setupWebviewHtml();
+    }
+  }
+
+  private queueUpdate(text: string) {
+    if (this.updateTimeout) {
+      clearTimeout(this.updateTimeout);
+    }
+    this.updateTimeout = setTimeout(() => {
+      this.updatePreview(text);
+    }, this.updateDebounceMs);
+  }
+
+  private setupWebviewHtml() {
+    if (!this.panel) {
+        return;
+    }
+    this.panel.webview.html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDX Preview</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <style>
+    body {
+      padding: 20px;
+      font-family: var(--vscode-font-family);
+      color: var(--vscode-editor-foreground);
+      background-color: var(--vscode-editor-background);
+      line-height: 1.6;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      border-bottom: 1px solid var(--vscode-widget-border);
+      padding-bottom: 0.3em;
+    }
+    code {
+      font-family: var(--vscode-editor-font-family);
+      background-color: var(--vscode-textCodeBlock-background);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+    }
+    pre code {
+      display: block;
+      padding: 1em;
+      overflow-x: auto;
+    }
+    blockquote {
+      border-left: 4px solid var(--vscode-textBlockQuote-border);
+      padding: 0 1em;
+      color: var(--vscode-textBlockQuote-foreground);
+      margin: 0;
+    }
+    a {
+      color: var(--vscode-textLink-foreground);
+    }
+    a:hover {
+      color: var(--vscode-textLink-activeForeground);
+    }
+    #error-overlay {
+      color: var(--vscode-errorForeground);
+      font-family: monospace;
+      white-space: pre-wrap;
+      display: none;
+    }
+    table {
+      border-collapse: collapse;
+      margin: 1em 0;
+      width: 100%;
+      overflow: auto;
+    }
+    table th, table td {
+      border: 1px solid var(--vscode-textBlockQuote-border);
+      padding: 0.5em 1em;
+      text-align: left;
+    }
+    table th {
+      background-color: var(--vscode-textBlockQuote-background);
+      font-weight: bold;
+    }
+    table tr:nth-child(2n) {
+      background-color: var(--vscode-editor-inactiveSelectionBackground);
+    }
+  </style>
+</head>
+<body>
+  <div id="error-overlay"></div>
+  <div id="root"></div>
+  <script>
+    (function() {
+      const vscode = acquireVsCodeApi();
+      const rootEl = document.getElementById('root');
+      const errEl = document.getElementById('error-overlay');
+      const reactRoot = ReactDOM.createRoot(rootEl);
+      
+      function jsx(type, props, key) {
+        const { children, ...rest } = props || {};
+        if (key !== undefined) { rest.key = key; }
+        if (children !== undefined && children !== null) {
+          return React.createElement(type, rest, children);
+        }
+        return React.createElement(type, rest);
+      }
+
+      function jsxs(type, props, key) {
+        const { children, ...rest } = props || {};
+        if (key !== undefined) { rest.key = key; }
+        if (Array.isArray(children)) {
+          return React.createElement(type, rest, ...children);
+        }
+        return React.createElement(type, rest, children);
+      }
+
+      window.addEventListener('message', event => {
+        const message = event.data;
+        if (message.command === 'update') {
+          try {
+            errEl.style.display = 'none';
+            rootEl.style.display = 'block';
+
+            const runTarget = new Function(message.code);
+            const modArgs = { Fragment: React.Fragment, jsx, jsxs };
+            const executeMdx = runTarget(modArgs);
+            const MDXContent = executeMdx.default;
+            
+            if (typeof MDXContent === 'function') {
+               reactRoot.render(React.createElement(MDXContent, {}));
+            } else {
+               throw new Error("No default export found from MDX evaluation.");
+            }
+          } catch (err) {
+            rootEl.style.display = 'none';
+            errEl.style.display = 'block';
+            errEl.innerText = err.stack || err.toString();
+          }
+        } else if (message.command === 'error') {
+            rootEl.style.display = 'none';
+            errEl.style.display = 'block';
+            errEl.innerText = message.text;
+        }
+      });
+      
+      // Let the extension know the webview is ready to receive messages
+      vscode.postMessage({ command: 'ready' });
+    })();
+  </script>
+</body>
+</html>`;
+  }
+
+  private previewVersion = 0;
+
+  private async updatePreview(mdxContent: string) {
+    if (!this.panel) {
+        return;
+    }
+    
+    const version = ++this.previewVersion;
+    
+    try {
+      const jsCode = await MdxCompiler.compileToJS(mdxContent);
+      // Discard if a newer update was queued while we were compiling
+      if (version === this.previewVersion) {
+        this.panel.webview.postMessage({ command: 'update', code: jsCode });
+      }
+    } catch (err: any) {
+      if (version === this.previewVersion) {
+        this.panel.webview.postMessage({ command: 'error', text: err.message || String(err) });
+      }
+    }
+  }
+
+  public dispose() {
+    if (this.panel) {
+      this.panel.dispose();
+      this.panel = undefined;
+    }
+    this.disposables.forEach(d => d.dispose());
+    this.disposables = [];
+    if (this.updateTimeout) {
+      clearTimeout(this.updateTimeout);
+    }
+    this.currentDocumentUri = undefined;
+  }
+}

@@ -58,6 +58,73 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "mdx",
+        "aliases": [
+          "MDX"
+        ],
+        "extensions": [
+          ".mdx"
+        ],
+        "configuration": "./src/extensions/markdown-mdx/language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mdx",
+        "scopeName": "source.mdx",
+        "path": "./src/extensions/markdown-mdx/syntaxes/source.mdx.tmLanguage",
+        "embeddedLanguages": {
+          "meta.embedded.c": "c",
+          "meta.embedded.cpp": "cpp",
+          "meta.embedded.cs": "csharp",
+          "meta.embedded.css": "css",
+          "meta.embedded.diff": "diff",
+          "meta.embedded.go": "go",
+          "meta.embedded.graphql": "graphql",
+          "meta.embedded.html": "html",
+          "meta.embedded.ini": "ini",
+          "meta.embedded.java": "java",
+          "meta.embedded.js": "javascriptreact",
+          "meta.embedded.json": "json",
+          "meta.embedded.kotlin": "kotlin",
+          "meta.embedded.less": "less",
+          "meta.embedded.lua": "lua",
+          "meta.embedded.makefile": "makefile",
+          "meta.embedded.md": "markdown",
+          "meta.embedded.mdx": "mdx",
+          "meta.embedded.objc": "objective-c",
+          "meta.embedded.perl": "perl",
+          "meta.embedded.php": "php",
+          "meta.embedded.python": "python",
+          "meta.embedded.r": "r",
+          "meta.embedded.ruby": "ruby",
+          "meta.embedded.rust": "rust",
+          "meta.embedded.scss": "scss",
+          "meta.embedded.shell": "shellscript",
+          "meta.embedded.sql": "sql",
+          "meta.embedded.svg": "xml",
+          "meta.embedded.swift": "swift",
+          "meta.embedded.toml": "toml",
+          "meta.embedded.ts": "typescriptreact",
+          "meta.embedded.tsx": "typescriptreact",
+          "meta.embedded.vbnet": "vb",
+          "meta.embedded.xml": "xml",
+          "meta.embedded.yaml": "yaml"
+        }
+      },
+      {
+        "scopeName": "source.markdown.mdx.codeblock",
+        "path": "./src/extensions/markdown-mdx/syntaxes/mdx.markdown.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.mdx": "mdx"
+        }
+      }
+    ],
     "markdown.markdownItPlugins": true,
     "markdown.previewStyles": [
       "./src/extensions/markdown-text/ui/checkboxes.css"
@@ -153,6 +220,23 @@
         "command": "atm.voiceTts.selectVoice",
         "title": "ATM Voice TTS: Select Voice",
         "icon": "$(globe)"
+      },
+      {
+        "command": "atm.mdx.preview",
+        "title": "ATM: Open MDX Preview",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "git-better.copyHash",
+        "title": "ATM Git: Copy Commit Hash"
+      },
+      {
+        "command": "git-better.openGitHub",
+        "title": "ATM Git: Open Commit on GitHub"
+      },
+      {
+        "command": "git-better.toggleBlame",
+        "title": "ATM Git: Toggle Inline Blame"
       }
     ],
     "keybindings": [
@@ -169,6 +253,12 @@
         "key": "ctrl+shift+space",
         "mac": "cmd+shift+space",
         "when": "activeEditor == 'workbench.editor.extension'"
+      },
+      {
+        "command": "atm.mdx.preview",
+        "key": "shift+alt+m",
+        "mac": "shift+alt+m",
+        "when": "editorLangId == mdx || editorLangId == markdown"
       }
     ],
     "menus": {
@@ -177,6 +267,11 @@
           "command": "atm.markdown-store.translateExtension",
           "group": "navigation",
           "when": "activeEditor == 'workbench.editor.extension'"
+        },
+        {
+          "command": "atm.mdx.preview",
+          "group": "navigation",
+          "when": "editorLangId == mdx || editorLangId == markdown"
         }
       ],
       "extension/context": [
@@ -206,19 +301,25 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/node-fetch": "^2.6.13",
+    "@types/react": "^19.2.14",
     "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
+    "@vitalets/google-translate-api": "^9.2.1",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "esbuild": "^0.25.0",
     "eslint": "^9.21.0",
-    "npm-run-all": "^4.1.5",
-    "type-fest": "^5.4.4",
-    "typescript": "^5.7.3",
-    "@vitalets/google-translate-api": "^9.2.1",
     "image-size": "^2.0.2",
     "markdown-it": "^14.1.1",
-    "mermaid": "^11.12.3"
+    "mermaid": "^11.12.3",
+    "npm-run-all": "^4.1.5",
+    "type-fest": "^5.4.4",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1"
   }
 }
