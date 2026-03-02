@@ -97,10 +97,10 @@
             <div class="table-body">
                 <!-- Virtual scroll rows will be injected here. For now, multiple static mocks -->
                 <div class="table-row active">
-                    <div class="col" style="width: 15%">
+                    <div class="col" style="width: 15%; min-width: 100px; overflow: visible; display: flex; align-items: center;">
                         <div class="avatar-small">M</div>
-                        <i class="codicon codicon-vm" style="font-size: 14px; margin-right: 6px; color: white;"></i>
-                        <span style="color: white; font-weight: 500; overflow: visible;">dev</span>
+                        <div class="icon-mask" style="--icon-size: 14px; margin-right: 6px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/vm.svg'); mask-image: url('{{ASSETS_URI}}/icons/vm.svg'); background-color: white; flex-shrink: 0;"></div>
+                        <span style="color: white; font-weight: 500; white-space: nowrap;">dev</span>
                     </div>
                     <!-- The SVG overlay will be absolute, these are placeholders -->
                     <div class="col" style="width: 10%; align-items: center; justify-content: center;">
@@ -140,7 +140,7 @@
                 </div>
                 <!-- El botón ahora está aquí, donde estaba la X -->
                 <button id="inspect-toggle" class="icon-btn inspect-toggle-btn" title="Collapse panel">
-                    <i class="codicon codicon-chevron-right" style="font-size: 16px;"></i>
+                    <div class="icon-mask toggle-icon" style="--icon-size: 16px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/chevron-right.svg'); mask-image: url('{{ASSETS_URI}}/icons/chevron-right.svg');"></div>
                 </button>
             </header>
             
@@ -229,11 +229,13 @@
                 inspectPanel.classList.toggle('collapsed', isPanelCollapsed);
                 inspectToggle.title = isPanelCollapsed ? 'Expand panel' : 'Collapse panel';
 
-                // Swap chevron icon direction
-                const icon = inspectToggle.querySelector('.codicon');
+                // Swap local SVG icon via mask-image
+                const icon = inspectToggle.querySelector('.toggle-icon');
                 if (icon) {
-                    icon.classList.toggle('codicon-chevron-right', !isPanelCollapsed);
-                    icon.classList.toggle('codicon-chevron-left', isPanelCollapsed);
+                    const iconName = isPanelCollapsed ? 'chevron-left.svg' : 'chevron-right.svg';
+                    const newUrl = `url('{{ASSETS_URI}}/icons/${iconName}')`;
+                    icon.style.webkitMaskImage = newUrl;
+                    icon.style.maskImage = newUrl;
                 }
             };
 
