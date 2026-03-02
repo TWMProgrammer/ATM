@@ -201,19 +201,14 @@ button.repo-btn:hover {
     flex-direction: column;
     overflow: hidden;
     position: relative;
-    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: width;
+    z-index: 10;
 }
 
 /* Collapsed state — shrinks to just enough space for the button */
 .inspect-panel.collapsed {
     width: 36px;
-    cursor: pointer;
-    background-color: var(--bg-toolbar); /* Fondo un poco diferente para indicar interactividad */
-}
-
-.inspect-panel.collapsed:hover {
-    background-color: rgba(128, 128, 128, 0.1); /* Gris muy transparente */
 }
 
 /* Header adjustments for the toggle button */
@@ -225,34 +220,34 @@ button.repo-btn:hover {
     align-items: center;
     justify-content: space-between;
     text-transform: uppercase;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     color: var(--accent-blue);
     flex-shrink: 0;
-    overflow: hidden;
     white-space: nowrap;
-    transition: padding 0.3s ease, height 0.3s ease, border-bottom 0.3s ease;
 }
 
 /* Cuando está colapsado, el header toma toda la altura para centrar el icono verticalmente */
 .inspect-panel.collapsed .inspect-header {
-    padding: 0;
     height: 100%;
-    justify-content: center;
     border-bottom: none;
-    background: transparent;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Empieza arriba */
 }
 
 .inspect-title { 
     display: flex; 
     align-items: center; 
     gap: 8px;
-    transition: opacity 0.2s ease, display 0.2s allow-discrete;
+    transition: opacity 0.2s;
 }
 
 .inspect-panel.collapsed .inspect-title {
     opacity: 0;
-    display: none; 
+    pointer-events: none;
 }
 
 /* Toggle button — now in the top right corner like the X */
@@ -262,12 +257,18 @@ button.repo-btn:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
+    border-radius: 6px;
     color: var(--text-secondary);
-    transition: color 0.2s ease, background-color 0.2s ease, transform 0.3s ease;
+    border: 1px solid var(--border-color); /* Borde sutil a juego con el panel */
+    transition: background-color 0.2s, transform 0.2s, color 0.2s;
     flex-shrink: 0;
     z-index: 10;
     cursor: pointer;
+}
+
+.inspect-toggle-btn .icon-mask {
+    /* Quitamos cualquier vertical-align que estorbe el flex de arriba */
+    vertical-align: unset; 
 }
 
 .inspect-toggle-btn:hover {

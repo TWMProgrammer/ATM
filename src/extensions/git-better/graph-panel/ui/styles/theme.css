@@ -15,19 +15,20 @@
     --text-secondary: var(--vscode-descriptionForeground);
     --text-muted: var(--vscode-disabledForeground);
 
-    /* Bordes y Separadores nativos */
-    --border-color: var(--vscode-panel-border, var(--vscode-focusBorder, #3e4451));
-    --border-light: var(--vscode-editorGroup-border, rgba(255, 255, 255, 0.05));
+    /* Bordes y Separadores nativos optimizados con opacidad reducida */
+    --border-color: color-mix(in srgb, var(--vscode-editorGroup-border, var(--vscode-panel-border, #3e4451)), transparent 50%);
+    --border-light: rgba(255, 255, 255, 0.03);
 
-    /* Colores Acento Premium (Conectados a la decoración de Git de VS Code para que cuadren perfecto con el tema) */
+    /* Colores Acento Premium (Consistentes con VS Code) */
     --accent-blue: var(--vscode-textLink-foreground, #61afef);
     --accent-green: var(--vscode-gitDecoration-addedResourceForeground, #98c379);
     --accent-brand: var(--vscode-terminal-ansiBrightGreen, #23d18b);
     --accent-purple: var(--vscode-symbolIcon-keywordForeground, #c678dd);
     --accent-red: var(--vscode-gitDecoration-deletedResourceForeground, #e06c75);
+    --accent-orange: var(--vscode-gitDecoration-modifiedResourceForeground, #d19a66);
     --accent-cyan: var(--vscode-gitDecoration-untrackedResourceForeground, #56b6c2);
 
-    /* Medidas (Layout Tokens para CSS Grid/Flexbox) */
+    /* Medidas */
     --toolbar-height: 48px;
     --minimap-height: 32px;
     --sidebar-width: 48px;
