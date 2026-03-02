@@ -99,16 +99,20 @@ button.icon-btn:hover, button.sidebar-tab:hover {
 
 button.repo-btn {
     height: 30px;
-    padding: 0 8px;
+    padding: 0 12px;
     border-radius: 6px;
     transition: background-color 0.2s ease;
     max-width: 100%;
     justify-content: flex-start;
+    border: 1px solid var(--border-color); /* Un borde sutil para que parezca un selector */
 }
 button.repo-btn:hover {
     background-color: var(--bg-hover);
 }
 .repo-name {
+    color: var(--accent-brand); /* Ahora se adapta al color de acento del tema (azul en el tuyo) */
+    font-weight: 600;
+    font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -209,6 +213,12 @@ button.repo-btn:hover {
 /* Collapsed state — shrinks to just enough space for the button */
 .inspect-panel.collapsed {
     width: 36px;
+    cursor: pointer;
+    background-color: var(--bg-toolbar); /* Fondo un poco diferente para indicar interactividad */
+}
+
+.inspect-panel.collapsed:hover {
+    background-color: rgba(128, 128, 128, 0.1); /* Gris muy transparente en toda la franja vertical */
 }
 
 /* Header adjustments for the toggle button */
@@ -231,11 +241,16 @@ button.repo-btn:hover {
 .inspect-panel.collapsed .inspect-header {
     height: 100%;
     border-bottom: none;
-    padding: 20px 0;
+    padding: 10px 0; /* Padding sutil arriba para no tocar el borde superior */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Empieza arriba */
+    justify-content: center; /* Centrado vertical absoluto */
+}
+
+/* Aplicamos el desplazamiento de 10px hacia abajo solo en el contenedor del botón */
+.inspect-panel.collapsed .inspect-toggle-btn {
+    transform: translateY(10px);
 }
 
 .inspect-title { 
@@ -259,7 +274,7 @@ button.repo-btn:hover {
     justify-content: center;
     border-radius: 6px;
     color: var(--text-secondary);
-    border: 1px solid var(--border-color); /* Borde sutil a juego con el panel */
+    border: none; /* Borde eliminado como solicitado */
     transition: background-color 0.2s, transform 0.2s, color 0.2s;
     flex-shrink: 0;
     z-index: 10;
@@ -273,7 +288,10 @@ button.repo-btn:hover {
 
 .inspect-toggle-btn:hover {
     color: var(--text-primary);
-    background-color: rgba(128, 128, 128, 0.15); /* Gris traslúcido sutil */
+}
+
+.inspect-panel.collapsed .inspect-toggle-btn {
+    pointer-events: none; /* Dejamos que el panel completo maneje el click cuando está colapsado */
 }
 
 /* Body wrapper — content slides/fades */
