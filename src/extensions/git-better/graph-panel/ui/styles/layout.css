@@ -206,7 +206,7 @@ button.repo-btn:hover {
     transition: border-color 0.2s;
 }
 .search-box:focus-within {
-    border-color: var(--accent-blue);
+    border-color: var(--vscode-focusBorder, var(--accent-blue));
 }
 .search-box input {
     background: transparent;
@@ -216,6 +216,28 @@ button.repo-btn:hover {
     width: 100%;
     margin-left: 8px;
     font-size: 13px;
+    flex-grow: 1;
+}
+
+#search-clear {
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: opacity 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#search-clear.visible {
+    opacity: 0.9;
+    pointer-events: auto;
+}
+#search-clear:hover {
+    color: var(--text-primary);
+    opacity: 1;
 }
 
 /* Modificado para que VS Code maneje los placeholder text de forma nativa */

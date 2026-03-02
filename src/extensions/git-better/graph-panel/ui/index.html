@@ -24,9 +24,11 @@
         <div class="toolbar-center">
             <div class="search-box">
                 <i class="codicon codicon-search" style="font-size: 14px; color: var(--text-secondary);"></i>
-                <input type="text" placeholder="Search commits using natural language...">
+                <input type="text" placeholder="Search commits...">
+                <div id="search-clear" title="Clear search">
+                    <i class="codicon codicon-close" style="font-size: 12px;"></i>
+                </div>
             </div>
-            <span class="search-results-text" style="color: var(--text-muted); font-size: 11px;">No results</span>
         </div>
         
         <div class="toolbar-right" style="display: flex; gap: 8px;">
@@ -180,6 +182,9 @@
         </aside>
 
     </main>
+
+    <!-- Logic Components -->
+    <script src="{{SCRIPTS_URI}}/search.js" nonce="{{NONCE}}"></script>
 
     <script nonce="{{NONCE}}">
         (function () {

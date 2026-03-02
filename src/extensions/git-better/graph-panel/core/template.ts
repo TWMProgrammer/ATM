@@ -65,10 +65,11 @@ export class TemplateBuilder {
             '{{CSP}}': cspMeta,
             '{{ASSETS_URI}}': assetsUri.toString(),
             '{{UI_URI}}': uiUri.toString(),
+            '{{SCRIPTS_URI}}': webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'dist')).toString(),
             '{{WORKSPACE_NAME}}': workspaceName,
         };
 
-        const pattern = /\{\{(?:NONCE|CSP|ASSETS_URI|UI_URI|WORKSPACE_NAME)\}\}/g;
+        const pattern = /\{\{(?:NONCE|CSP|ASSETS_URI|UI_URI|SCRIPTS_URI|WORKSPACE_NAME)\}\}/g;
         return template.replace(pattern, (match) => replacements[match]);
     }
 

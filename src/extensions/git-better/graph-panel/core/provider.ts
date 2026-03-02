@@ -31,6 +31,8 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
         };
 
         webviewView.webview.html = this.template.build(webviewView.webview);
-        this.messaging.attach(webviewView.webview);
+
+        const msgDisposable = this.messaging.attach(webviewView.webview);
+        webviewView.onDidDispose(() => msgDisposable.dispose());
     }
 }
