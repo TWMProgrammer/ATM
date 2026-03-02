@@ -11,6 +11,17 @@
     <!-- UI Styles -->
     <link href="{{UI_URI}}/styles/theme.css" rel="stylesheet">
     <link href="{{UI_URI}}/styles/layout.css" rel="stylesheet">
+
+    <!-- Anti-White-Flash Critical CSS -->
+    <style>
+        body {
+            background-color: var(--vscode-editor-background, #1e1e1e);
+            color: var(--vscode-editor-foreground, #cccccc);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
     <!-- 1. Top Configuration Bar (Repos, Branches, Search) -->
@@ -55,18 +66,22 @@
         
         <!-- A. Left Sidebar (Icons Panel) -->
         <aside class="sidebar-left">
-            <button class="sidebar-tab active" title="Commit Graph">
-                <div class="icon-mask" style="--icon-size: 16px; opacity: 0.9; -webkit-mask-image: url('{{ASSETS_URI}}/icons/graph.svg'); mask-image: url('{{ASSETS_URI}}/icons/graph.svg');"></div>
-            </button>
-            <button class="sidebar-tab" title="Commits">
-                <div class="icon-mask" style="--icon-size: 16px; opacity: 0.7; -webkit-mask-image: url('{{ASSETS_URI}}/icons/commits-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/commits-view.svg');"></div>
-            </button>
-            <button class="sidebar-tab" title="History">
-                <div class="icon-mask" style="--icon-size: 16px; opacity: 0.7; -webkit-mask-image: url('{{ASSETS_URI}}/icons/history-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/history-view.svg');"></div>
-            </button>
-            <button class="sidebar-tab" title="Stashes">
-                <div class="icon-mask" style="--icon-size: 16px; opacity: 0.7; -webkit-mask-image: url('{{ASSETS_URI}}/icons/stashes-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/stashes-view.svg');"></div>
-            </button>
+            <div class="sidebar-info-item" title="Commit Graph">
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/graph.svg'); mask-image: url('{{ASSETS_URI}}/icons/graph.svg');"></div>
+                <span class="info-badge">0</span>
+            </div>
+            <div class="sidebar-info-item" title="Commits">
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/commits-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/commits-view.svg');"></div>
+                <span class="info-badge">0</span>
+            </div>
+            <div class="sidebar-info-item" title="History">
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/history-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/history-view.svg');"></div>
+                <span class="info-badge">0</span>
+            </div>
+            <div class="sidebar-info-item" title="Stashes">
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/stashes-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/stashes-view.svg');"></div>
+                <span class="info-badge">0</span>
+            </div>
         </aside>
 
         <!-- B. Central Graph Table Area -->

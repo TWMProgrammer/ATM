@@ -138,7 +138,7 @@ button.repo-btn:hover {
    4. PANELES DEL WORKSPACE
    ========================================================= */
 
-/* A. Sidebar (Gutter izquierdo) */
+/* A. Sidebar (Gutter izquierdo) — Puramente Informativa */
 .sidebar-left {
     width: var(--sidebar-width);
     background-color: var(--bg-toolbar);
@@ -146,17 +146,38 @@ button.repo-btn:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 10px;
-    gap: 8px;
+    padding-top: 24px;
+    gap: 32px; /* Espaciado premium aumentado */
     flex-shrink: 0;
 }
 
-/* Estado activo del panel izquierdo */
-.sidebar-tab.active {
-    border-left: 2px solid var(--accent-blue);
-    color: var(--accent-blue);
-    border-radius: 0 6px 6px 0;
+.sidebar-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
     width: 100%;
+    user-select: none;    /* No se puede seleccionar el texto */
+    cursor: default;      /* Evita que el mouse cambie al "palo" (I-beam) */
+}
+
+.sidebar-info-item .icon-mask {
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar-info-item:hover .icon-mask {
+    opacity: 1;
+}
+
+.info-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-family: var(--vscode-editor-font-family, 'Consolas', monospace);
+    line-height: 1;
 }
 
 /* B. Contenedor de la Tabla Principal */
