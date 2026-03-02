@@ -27,6 +27,7 @@
     <header class="top-toolbar">
         <div class="toolbar-left">
             <button class="repo-btn" title="Repository">
+                <div class="icon-mask" style="--icon-size: 14px; margin-right: 6px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/repo.svg'); mask-image: url('{{ASSETS_URI}}/icons/repo.svg');"></div>
                 <span class="repo-name">{{WORKSPACE_NAME}}</span>
             </button>
         </div>
@@ -66,19 +67,19 @@
         <!-- A. Left Sidebar (Icons Panel) -->
         <aside class="sidebar-left">
             <div class="sidebar-info-item" title="Commit Graph">
-                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/graph.svg'); mask-image: url('{{ASSETS_URI}}/icons/graph.svg');"></div>
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/git-graph.svg'); mask-image: url('{{ASSETS_URI}}/icons/git-graph.svg');"></div>
                 <span class="info-badge">0</span>
             </div>
             <div class="sidebar-info-item" title="Commits">
-                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/commits-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/commits-view.svg');"></div>
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/git-commits.svg'); mask-image: url('{{ASSETS_URI}}/icons/git-commits.svg');"></div>
                 <span class="info-badge">0</span>
             </div>
             <div class="sidebar-info-item" title="History">
-                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/history-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/history-view.svg');"></div>
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/git-history.svg'); mask-image: url('{{ASSETS_URI}}/icons/git-history.svg');"></div>
                 <span class="info-badge">0</span>
             </div>
             <div class="sidebar-info-item" title="Stashes">
-                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/stashes-view.svg'); mask-image: url('{{ASSETS_URI}}/icons/stashes-view.svg');"></div>
+                <div class="icon-mask" style="--icon-size: 18px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/git-stashes.svg'); mask-image: url('{{ASSETS_URI}}/icons/git-stashes.svg');"></div>
                 <span class="info-badge">0</span>
             </div>
         </aside>
@@ -98,7 +99,7 @@
                 <div class="table-row active">
                     <div class="col" style="width: 15%; min-width: 100px; overflow: visible; display: flex; align-items: center;">
                         <div class="avatar-small">M</div>
-                        <div class="icon-mask" style="--icon-size: 14px; margin-right: 6px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/vm.svg'); mask-image: url('{{ASSETS_URI}}/icons/vm.svg'); background-color: white; flex-shrink: 0;"></div>
+                        <div class="icon-mask" style="--icon-size: 14px; margin-right: 6px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/monitor.svg'); mask-image: url('{{ASSETS_URI}}/icons/monitor.svg'); background-color: white; flex-shrink: 0;"></div>
                         <span style="color: white; font-weight: 500; white-space: nowrap;">dev</span>
                     </div>
                     <!-- The SVG overlay will be absolute, these are placeholders -->
@@ -108,7 +109,7 @@
                     <div class="col msg-col" style="width: 45%">feat: update keybindings for MDX preview and enhance live preview functionality</div>
                     <div class="col" style="width: 10%">You</div>
                     <div class="col" style="width: 10%">
-                        <div class="icon-mask" style="--icon-size: 12px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/commit-horizontal.svg'); mask-image: url('{{ASSETS_URI}}/icons/commit-horizontal.svg');"></div>
+                        <div class="icon-mask" style="--icon-size: 12px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/changes.svg'); mask-image: url('{{ASSETS_URI}}/icons/changes.svg');"></div>
                         2
                     </div>
                     <div class="col" style="width: 10%; color: var(--text-muted);">yesterday</div>
@@ -122,7 +123,7 @@
                     <div class="col" style="width: 45%; color: var(--text-primary); font-family: inherit;">feat: add support for remark-frontmatter</div>
                     <div class="col" style="width: 10%">You</div>
                     <div class="col" style="width: 10%">
-                        <div class="icon-mask" style="--icon-size: 12px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/commit-horizontal.svg'); mask-image: url('{{ASSETS_URI}}/icons/commit-horizontal.svg');"></div>
+                        <div class="icon-mask" style="--icon-size: 12px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/changes.svg'); mask-image: url('{{ASSETS_URI}}/icons/changes.svg');"></div>
                         4
                     </div>
                     <div class="col" style="width: 10%; color: var(--text-muted);">yesterday</div>
@@ -134,12 +135,12 @@
         <aside id="inspect-panel" class="inspect-panel">
             <header class="inspect-header">
                 <div class="inspect-title">
-                    <div class="icon-mask" style="--icon-size: 16px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/gitlens-inspect.svg'); mask-image: url('{{ASSETS_URI}}/icons/gitlens-inspect.svg');"></div>
+                    <div class="icon-mask" style="--icon-size: 16px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/inspect.svg'); mask-image: url('{{ASSETS_URI}}/icons/inspect.svg');"></div>
                     <span>COMMIT GRAPH INSPECT: <strong>abe57c9</strong></span>
                 </div>
                 <!-- El botón ahora está aquí, donde estaba la X -->
                 <button id="inspect-toggle" class="icon-btn inspect-toggle-btn" title="Collapse panel">
-                    <div class="icon-mask toggle-icon" style="--icon-size: 16px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/chevron-right.svg'); mask-image: url('{{ASSETS_URI}}/icons/chevron-right.svg');"></div>
+                    <div class="icon-mask toggle-icon" style="--icon-size: 16px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/arrow-right.svg'); mask-image: url('{{ASSETS_URI}}/icons/arrow-right.svg');"></div>
                 </button>
             </header>
             
@@ -231,7 +232,7 @@
                 // Swap local SVG icon via mask-image
                 const icon = inspectToggle.querySelector('.toggle-icon');
                 if (icon) {
-                    const iconName = isPanelCollapsed ? 'chevron-left.svg' : 'chevron-right.svg';
+                    const iconName = isPanelCollapsed ? 'arrow-left.svg' : 'arrow-right.svg';
                     const newUrl = `url('{{ASSETS_URI}}/icons/${iconName}')`;
                     icon.style.webkitMaskImage = newUrl;
                     icon.style.maskImage = newUrl;
