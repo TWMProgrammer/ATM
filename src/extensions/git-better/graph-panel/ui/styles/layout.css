@@ -169,7 +169,7 @@ button.repo-btn:hover {
     overflow: hidden; 
 }
 
-/* C. Inspect Panel (Panel Fijo a la Derecha) */
+/* C. Inspect Panel (Panel Fijo a la Derecha) — Collapsible */
 .inspect-panel {
     width: var(--inspect-panel-width);
     background-color: var(--bg-panel);
@@ -177,7 +177,96 @@ button.repo-btn:hover {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width;
+}
+
+/* Collapsed state — shrinks to just enough space for the button */
+.inspect-panel.collapsed {
+    width: 36px;
+    cursor: pointer;
+    background-color: var(--bg-toolbar); /* Fondo un poco diferente para indicar interactividad */
+}
+
+.inspect-panel.collapsed:hover {
+    background-color: rgba(128, 128, 128, 0.1); /* Gris muy transparente */
+}
+
+/* Header adjustments for the toggle button */
+.inspect-header {
+    padding: 0 8px 0 16px;
+    height: 40px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    flex-shrink: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: padding 0.3s ease, height 0.3s ease, border-bottom 0.3s ease;
+}
+
+/* Cuando está colapsado, el header toma toda la altura para centrar el icono verticalmente */
+.inspect-panel.collapsed .inspect-header {
+    padding: 0;
+    height: 100%;
+    justify-content: center;
+    border-bottom: none;
+    background: transparent;
+}
+
+.inspect-title { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    transition: opacity 0.2s ease, display 0.2s allow-discrete;
+}
+
+.inspect-panel.collapsed .inspect-title {
+    opacity: 0;
+    display: none; 
+}
+
+/* Toggle button — now in the top right corner like the X */
+.inspect-toggle-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.3s ease;
+    flex-shrink: 0;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.inspect-toggle-btn:hover {
+    color: var(--text-primary);
+    background-color: rgba(128, 128, 128, 0.15); /* Gris traslúcido sutil */
+}
+
+/* Body wrapper — content slides/fades */
+.inspect-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+
+.inspect-panel.collapsed .inspect-body {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* =========================================================
@@ -276,7 +365,7 @@ button.repo-btn:hover {
     font-family: var(--vscode-editor-font-family, 'Consolas', 'Courier New', monospace);
 }
 .table-row:hover { 
-    background-color: var(--bg-hover); 
+    background-color: rgba(128, 128, 128, 0.07); /* Hover de fila muy fino */
 }
 .table-row.active { 
     background-color: var(--bg-active); 
