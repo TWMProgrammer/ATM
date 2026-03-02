@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Git Better - Graph Panel</title>
     {{CSP}}
-    <!-- Incluir Codicons desde el CDN (Nativo en editor, Webviews usan link) -->
-    <link href="https://unpkg.com/@vscode/codicons/dist/codicon.css" rel="stylesheet">
+
     
     <!-- UI Styles -->
     <link href="{{UI_URI}}/styles/theme.css" rel="stylesheet">
@@ -34,17 +33,17 @@
         
         <div class="toolbar-center">
             <div class="search-box">
-                <i class="codicon codicon-search" style="font-size: 14px; color: var(--text-secondary);"></i>
+                <div class="icon-mask" style="--icon-size: 14px; background-color: var(--text-secondary); -webkit-mask-image: url('{{ASSETS_URI}}/icons/search.svg'); mask-image: url('{{ASSETS_URI}}/icons/search.svg');"></div>
                 <input type="text" placeholder="Search commits...">
                 <div id="search-clear" title="Clear search">
-                    <i class="codicon codicon-close" style="font-size: 12px;"></i>
+                    <div class="icon-mask" style="--icon-size: 12px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/close.svg'); mask-image: url('{{ASSETS_URI}}/icons/close.svg');"></div>
                 </div>
             </div>
         </div>
         
         <div class="toolbar-right" style="display: flex; gap: 8px;">
             <button id="expand-btn" class="icon-btn" title="Expand">
-                <i class="codicon codicon-chevron-up" style="font-size: 14px;"></i>
+                <div class="icon-mask" style="--icon-size: 14px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/chevron-up.svg'); mask-image: url('{{ASSETS_URI}}/icons/chevron-up.svg');"></div>
             </button>
         </div>
     </header>
@@ -152,7 +151,7 @@
                             <span class="author-name" style="font-weight: 500;">You</span>
                             <div style="display: flex; gap: 6px;">
                                 <button class="btn-explain" title="Explain with AI">
-                                    <i class="codicon codicon-sparkle" style="font-size: 12px; margin-right: 4px; color: var(--accent-purple);"></i>
+                                    <div class="icon-mask" style="--icon-size: 12px; margin-right: 4px; background-color: var(--accent-purple); -webkit-mask-image: url('{{ASSETS_URI}}/icons/sparkle.svg'); mask-image: url('{{ASSETS_URI}}/icons/sparkle.svg');"></div>
                                     Explain
                                 </button>
                             </div>
@@ -162,7 +161,7 @@
                     <div class="commit-message-box">
                         <h4 class="commit-title">feat: update keybindings for MDX preview and enhance live preview functionality</h4>
                         <span class="commit-date" style="display: flex; align-items: center; gap: 4px;">
-                            <i class="codicon codicon-history" style="font-size: 10px; opacity: 0.6;"></i>
+                            <div class="icon-mask" style="--icon-size: 10px; opacity: 0.6; -webkit-mask-image: url('{{ASSETS_URI}}/icons/history.svg'); mask-image: url('{{ASSETS_URI}}/icons/history.svg');"></div>
                             yesterday
                         </span>
                     </div>
@@ -170,7 +169,7 @@
                     <div class="files-changed-section">
                         <div class="files-header">
                             <span style="display: flex; align-items: center; gap: 6px;">
-                                <i class="codicon codicon-list-flat" style="font-size: 12px;"></i>
+                                <div class="icon-mask" style="--icon-size: 12px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/list-flat.svg'); mask-image: url('{{ASSETS_URI}}/icons/list-flat.svg');"></div>
                                 2 FILES CHANGED
                             </span>
                             <span class="diff-stats">
@@ -184,14 +183,14 @@
                                     <span style="color: var(--accent-blue); font-weight: bold;">M</span>
                                     <span>MdxPreviewManager.ts</span>
                                 </div>
-                                <i class="codicon codicon-eye" style="font-size: 14px; opacity: 0.7; cursor: pointer;"></i>
+                                <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; cursor: pointer; -webkit-mask-image: url('{{ASSETS_URI}}/icons/eye.svg'); mask-image: url('{{ASSETS_URI}}/icons/eye.svg');"></div>
                             </li>
                             <li>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="color: var(--accent-blue); font-weight: bold;">M</span>
                                     <span>package.json</span>
                                 </div>
-                                <i class="codicon codicon-eye" style="font-size: 14px; opacity: 0.7; cursor: pointer;"></i>
+                                <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; cursor: pointer; -webkit-mask-image: url('{{ASSETS_URI}}/icons/eye.svg'); mask-image: url('{{ASSETS_URI}}/icons/eye.svg');"></div>
                             </li>
                         </ul>
                     </div>
