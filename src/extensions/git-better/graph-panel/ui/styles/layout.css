@@ -42,14 +42,14 @@ button.icon-btn:hover, button.sidebar-tab:hover {
 }
 
 /* Expand Button Toggle */
-#expand-btn .codicon {
+#expand-btn .icon-mask {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-#expand-btn.expanded .codicon {
+#expand-btn.expanded .icon-mask {
     transform: rotate(180deg);
 }
 
-/* Sistema de Máscaras para Iconos de Alto Rendimiento (Adapta colores nativamente) */
+/* Sistema de Máscaras para Iconos de Alto Rendimiento */
 .icon-mask {
     background-color: currentColor; 
     display: inline-block;
@@ -62,6 +62,7 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     mask-position: center;
     mask-size: contain;
     vertical-align: middle;
+    flex-shrink: 0;
 }
 
 /* =========================================================

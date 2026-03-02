@@ -25,29 +25,41 @@ function generateNonce(length = 32): string {
  */
 export class TemplateBuilder {
 
-    /** Cached raw HTML from disk — read once, reused on every resolve. */
-    private templateCache: string | null = null;
+    /** Cached raw HTML from disk — read once per file, reused. */
+    private templateCache = new Map<string, string>();
 
     constructor(private readonly extensionUri: vscode.Uri) { }
 
     /** Returns ready-to-render HTML for the given webview. */
     public build(webview: vscode.Webview): string {
-        const template = this.getTemplate();
+        const template = this.getTemplate('index.html');
         if (!template) { return this.errorPage(); }
 
-        // Pre-compute all dynamic values once
-        const uiPath = vscode.Uri.joinPath(
-            this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui',
-        );
-        const uiUri = webview.asWebviewUri(uiPath);
-        const assetsUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(
-                this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'assets',
-            ),
-        );
+        // Load sub-components
+        const toolbarHtml = this.getTemplate('templates/toolbar.html') || '';
+        const sidebarHtml = this.getTemplate('templates/sidebar.html') || '';
+        const inspectHtml = this.getTemplate('templates/inspect.html') || '';
+        const tableHtml = this.getTemplate('templates/table.html') || '';
 
+        // Assemble the complete HTML first
+        let fullHtml = template
+            .replace('{{TOOLBAR_COMPONENT}}', toolbarHtml)
+            .replace('{{SIDEBAR_COMPONENT}}', sidebarHtml)
+            .replace('{{INSPECT_COMPONENT}}', inspectHtml)
+            .replace('{{TABLE_COMPONENT}}', tableHtml);
+
+        // Pre-compute dynamic values
         const nonce = generateNonce();
         const workspaceName = vscode.workspace.name || 'Unknown Repository';
+        const assetsUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'assets')
+        ).toString();
+        const uiUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui')
+        ).toString();
+        const scriptsUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.extensionUri, 'dist')
+        ).toString();
 
         // CSP meta tag
         const csp = [
@@ -56,43 +68,46 @@ export class TemplateBuilder {
             `style-src ${webview.cspSource} 'unsafe-inline' https:`,
             `script-src 'nonce-${nonce}'`,
             `font-src ${webview.cspSource} https: data:`,
+            `connect-src https:`,
         ].join('; ');
-        const cspMeta = `<meta http-equiv="Content-Security-Policy" content="${csp}">`;
 
-        // Single-pass replacement using a lookup map — no chained pattern matching
+        // Universal replacements map
         const replacements: Record<string, string> = {
-            '{{NONCE}}': nonce,
-            '{{CSP}}': cspMeta,
-            '{{ASSETS_URI}}': assetsUri.toString(),
-            '{{UI_URI}}': uiUri.toString(),
-            '{{SCRIPTS_URI}}': webview.asWebviewUri(vscode.Uri.joinPath(this.extensionUri, 'dist')).toString(),
-            '{{WORKSPACE_NAME}}': workspaceName,
+            'CSP': `<meta http-equiv="Content-Security-Policy" content="${csp}">`,
+            'NONCE': nonce,
+            'ASSETS_URI': assetsUri,
+            'UI_URI': uiUri,
+            'SCRIPTS_URI': scriptsUri,
+            'WORKSPACE_NAME': workspaceName
         };
 
-        const pattern = /\{\{(?:NONCE|CSP|ASSETS_URI|UI_URI|SCRIPTS_URI|WORKSPACE_NAME)\}\}/g;
-        return template.replace(pattern, (match) => replacements[match]);
+        // Replace all {{KEY}} tags in the assembled HTML
+        return fullHtml.replace(/\{\{([A-Z0-9_]+)\}\}/g, (match, key) => {
+            return replacements[key] || match;
+        });
     }
 
     /** Invalidate the cache if the HTML file is changed during development. */
     public invalidateCache() {
-        this.templateCache = null;
+        this.templateCache.clear();
     }
 
     // ── Private Helpers ─────────────────────────────────
 
     /** Reads and caches the raw HTML template from disk. */
-    private getTemplate(): string | null {
-        if (this.templateCache !== null) {
-            return this.templateCache;
+    private getTemplate(fileName: string): string | null {
+        if (this.templateCache.has(fileName)) {
+            return this.templateCache.get(fileName)!;
         }
 
         const htmlPath = vscode.Uri.joinPath(
-            this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui', 'index.html',
+            this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui', fileName,
         ).fsPath;
 
         try {
-            this.templateCache = fs.readFileSync(htmlPath, 'utf8');
-            return this.templateCache;
+            const content = fs.readFileSync(htmlPath, 'utf8');
+            this.templateCache.set(fileName, content);
+            return content;
         } catch {
             return null;
         }

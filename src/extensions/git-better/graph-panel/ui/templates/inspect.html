@@ -1,0 +1,65 @@
+<aside id="inspect-panel" class="inspect-panel">
+    <header class="inspect-header">
+        <div class="inspect-title">
+            <div class="icon-mask" style="--icon-size: 16px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/inspect.svg'); mask-image: url('{{ASSETS_URI}}/icons/inspect.svg');"></div>
+            <span>COMMIT GRAPH INSPECT: <strong>abe57c9</strong></span>
+        </div>
+        <button id="inspect-toggle" class="icon-btn inspect-toggle-btn" title="Collapse panel">
+            <div class="icon-mask toggle-icon" style="--icon-size: 16px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/arrow-right.svg'); mask-image: url('{{ASSETS_URI}}/icons/arrow-right.svg');"></div>
+        </button>
+    </header>
+    
+    <div class="inspect-body">
+        <div class="inspect-content">
+            <div class="commit-header">
+                <div class="avatar-mock">Y</div>
+                <div class="author-info">
+                    <span class="author-name" style="font-weight: 500;">You</span>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn-explain" title="Explain with AI">
+                            <div class="icon-mask" style="--icon-size: 12px; margin-right: 4px; background-color: var(--accent-purple); -webkit-mask-image: url('{{ASSETS_URI}}/icons/sparkle.svg'); mask-image: url('{{ASSETS_URI}}/icons/sparkle.svg');"></div>
+                            Explain
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="commit-message-box">
+                <h4 class="commit-title">feat: update keybindings for MDX preview and enhance live preview functionality</h4>
+                <span class="commit-date" style="display: flex; align-items: center; gap: 4px;">
+                    <div class="icon-mask" style="--icon-size: 10px; opacity: 0.6; -webkit-mask-image: url('{{ASSETS_URI}}/icons/history.svg'); mask-image: url('{{ASSETS_URI}}/icons/history.svg');"></div>
+                    yesterday
+                </span>
+            </div>
+            
+            <div class="files-changed-section">
+                <div class="files-header">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                        <div class="icon-mask" style="--icon-size: 12px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/list-flat.svg'); mask-image: url('{{ASSETS_URI}}/icons/list-flat.svg');"></div>
+                        2 FILES CHANGED
+                    </span>
+                    <span class="diff-stats">
+                        <span class="add">+0</span>
+                        <span class="del">-2</span>
+                    </span>
+                </div>
+                <ul class="file-list">
+                    <li>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent-blue); font-weight: bold;">M</span>
+                            <span>MdxPreviewManager.ts</span>
+                        </div>
+                        <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; cursor: pointer; -webkit-mask-image: url('{{ASSETS_URI}}/icons/eye.svg'); mask-image: url('{{ASSETS_URI}}/icons/eye.svg');"></div>
+                    </li>
+                    <li>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--accent-blue); font-weight: bold;">M</span>
+                            <span>package.json</span>
+                        </div>
+                        <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; cursor: pointer; -webkit-mask-image: url('{{ASSETS_URI}}/icons/eye.svg'); mask-image: url('{{ASSETS_URI}}/icons/eye.svg');"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</aside>
