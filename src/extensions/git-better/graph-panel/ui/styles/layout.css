@@ -489,10 +489,21 @@ button.repo-btn:hover {
 .file-list {
     list-style: none;
 }
-.file-list li {
+/* Small Avatar Square for Merge Info */
+.avatar-small {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px; /* Cuadrado con puntas redondeadas */
+    background-color: var(--accent-brand);
+    color: white; /* Texto blanco como pediste */
     display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border-light);
-    color: var(--text-primary);
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    margin-right: 8px;
+    flex-shrink: 0;
 }
+
+
+

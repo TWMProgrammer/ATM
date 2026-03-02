@@ -87,8 +87,8 @@
         <!-- B. Central Graph Table Area -->
         <section class="graph-table-container">
             <div class="table-header">
-                <div class="col" style="width: 10%">BRANCH / TAG</div>
-                <div class="col" style="width: 15%">GRAPH</div>
+                <div class="col" style="width: 15%">BRANCH / TAG</div>
+                <div class="col" style="width: 10%">GRAPH</div>
                 <div class="col" style="width: 45%">COMMIT MESSAGE</div>
                 <div class="col" style="width: 10%">AUTHOR</div>
                 <div class="col" style="width: 10%">CHANGES</div>
@@ -97,12 +97,13 @@
             <div class="table-body">
                 <!-- Virtual scroll rows will be injected here. For now, multiple static mocks -->
                 <div class="table-row active">
-                    <div class="col" style="width: 10%">
-                        <div class="icon-mask" style="--icon-size: 12px; margin-right: 8px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/worktree.svg'); mask-image: url('{{ASSETS_URI}}/icons/worktree.svg'); opacity: 0.8;"></div>
-                        <span style="color: var(--accent-blue);">dev</span>
+                    <div class="col" style="width: 15%">
+                        <div class="avatar-small">M</div>
+                        <i class="codicon codicon-vm" style="font-size: 14px; margin-right: 6px; color: white;"></i>
+                        <span style="color: white; font-weight: 500; overflow: visible;">dev</span>
                     </div>
                     <!-- The SVG overlay will be absolute, these are placeholders -->
-                    <div class="col" style="width: 15%; align-items: center; justify-content: center;">
+                    <div class="col" style="width: 10%; align-items: center; justify-content: center;">
                         <span style="color: var(--accent-brand);">●</span>
                     </div>
                     <div class="col msg-col" style="width: 45%">feat: update keybindings for MDX preview and enhance live preview functionality</div>
