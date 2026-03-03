@@ -258,6 +258,16 @@ button.repo-btn:hover {
     align-items: center; 
     gap: 8px;
     transition: opacity 0.2s;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.inspect-title:hover {
+    color: var(--accent-blue);
+}
+
+#inspect-commit-hash {
+    text-transform: lowercase;
 }
 
 .inspect-panel.collapsed .inspect-title {
