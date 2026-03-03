@@ -18,6 +18,9 @@ export class Messaging {
             case 'toggleExpand':
                 this.handleToggleExpand();
                 break;
+            case 'explainCommit':
+                this.handleExplainCommit(message as any);
+                break;
             // Add future message types here
         }
     }
@@ -27,5 +30,14 @@ export class Messaging {
     /** Maximize or restore the VS Code bottom panel. */
     private handleToggleExpand() {
         vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
+    }
+
+    /** Trigger the AI Explain feature for a specific commit. */
+    private handleExplainCommit(message: { hash: string }) {
+        if (!message.hash) {
+            return;
+        }
+        vscode.window.showInformationMessage(`AI Explain requested for commit: ${message.hash}`);
+        // TODO: Bridge this to the Actual AI Provider logic
     }
 }
