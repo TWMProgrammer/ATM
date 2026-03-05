@@ -181,11 +181,11 @@ export class InspectManager {
 
             return `
                 <li>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="color: ${statusColor}; font-weight: bold;">${file.status}</span>
-                        <span>${file.name}</span>
+                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; padding-right: 12px;">
+                        <span style="color: ${statusColor}; font-weight: bold; flex-shrink: 0;">${file.status}</span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left;">&lrm;${file.name}&lrm;</span>
                     </div>
-                    <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; -webkit-mask-image: url('${assetsUri}/icons/eye.svg'); mask-image: url('${assetsUri}/icons/eye.svg');"></div>
+                    <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; flex-shrink: 0; -webkit-mask-image: url('${assetsUri}/icons/eye.svg'); mask-image: url('${assetsUri}/icons/eye.svg');"></div>
                 </li>
             `;
         }).join('');
