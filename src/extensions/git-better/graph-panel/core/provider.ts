@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { TemplateBuilder } from './template';
 import { Messaging } from './messaging';
+import { GraphGitService } from './git-service';
 
 /**
  * WebviewViewProvider for the Git Graph Panel.
@@ -33,6 +34,25 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this.template.build(webviewView.webview);
 
         const msgDisposable = this.messaging.attach(webviewView.webview);
-        webviewView.onDidDispose(() => msgDisposable.dispose());
+        const readyDisposable = webviewView.webview.onDidReceiveMessage((msg) => {
+            if (msg.type === 'ready') {
+                this.sendInitialData(webviewView.webview);
+            }
+        });
+
+        webviewView.onDidDispose(() => {
+            msgDisposable.dispose();
+            readyDisposable.dispose();
+        });
+    }
+
+    private async sendInitialData(webview: vscode.Webview) {
+        const latestCommit = await GraphGitService.getLatestCommit();
+        if (latestCommit) {
+            webview.postMessage({
+                type: 'renderCommit',
+                data: latestCommit
+            });
+        }
     }
 }

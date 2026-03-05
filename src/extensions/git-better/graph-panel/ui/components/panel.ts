@@ -7,8 +7,8 @@ export class PanelManager {
     private isExpanded = false;
 
     constructor() {
-        // @ts-ignore - acquireVsCodeApi is available in the webview
-        this.vscode = acquireVsCodeApi();
+        // @ts-ignore - window.vscodeApi is injected in index.html
+        this.vscode = (window as any).vscodeApi;
         this.init();
     }
 

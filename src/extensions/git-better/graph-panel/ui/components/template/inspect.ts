@@ -25,8 +25,8 @@ export class InspectManager {
     private currentHash: string | null = null;
 
     constructor() {
-        // @ts-ignore - acquireVsCodeApi is available in the webview
-        this.vscode = acquireVsCodeApi();
+        // @ts-ignore - window.vscodeApi is injected in index.html
+        this.vscode = (window as any).vscodeApi;
         this.init();
     }
 
@@ -55,6 +55,9 @@ export class InspectManager {
                 }
             });
         }
+
+        // 3. Request initial data when UI is ready
+        this.vscode.postMessage({ type: 'ready' });
     }
 
     /**
@@ -80,11 +83,12 @@ export class InspectManager {
     }
 
     /**
-     * Helper cleanly updates text content if element exists.
+     * Helper cleanly updates text content and removes skeleton classes if element exists.
      */
     private setTextInfo(id: string, text: string) {
         const el = document.getElementById(id);
         if (el) {
+            el.classList.remove('skeleton-box');
             el.textContent = text;
         }
     }

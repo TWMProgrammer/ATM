@@ -61,7 +61,8 @@ async function main() {
 		entryPoints: [
 			'src/extensions/markdown-text/ui/mermaidPreview.ts',
 			'src/extensions/git-better/graph-panel/ui/components/search.ts',
-			'src/extensions/git-better/graph-panel/ui/components/panel.ts'
+			'src/extensions/git-better/graph-panel/ui/components/panel.ts',
+			'src/extensions/git-better/graph-panel/ui/components/template/inspect.ts'
 		],
 		bundle: true,
 		format: 'iife',
