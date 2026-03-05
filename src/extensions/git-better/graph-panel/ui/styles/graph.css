@@ -41,6 +41,7 @@
     stroke-width: 1.5px; 
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
+    transform-box: fill-box;
 }
 
 .sparkline-node:hover {
@@ -62,6 +63,8 @@
     opacity: 0.3;
     animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
     pointer-events: none;
+    transform-origin: center;
+    transform-box: fill-box;
 }
 
 .sparkline-pulse.pulse-delay {
