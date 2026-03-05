@@ -1,0 +1,24 @@
+/* =========================================================
+   GRAPH & MINIMAP STYLES
+   ========================================================= */
+
+/* Minimap / Sparkline Container */
+.minimap-container {
+    height: var(--minimap-height);
+    background-color: var(--bg-base);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Mock de la linea verde (Sparkline) */
+.sparkline-mock {
+    width: 100%;
+    height: 100%;
+}
+.sparkline-path { stroke: var(--accent-blue); stroke-width: 1.5px; }
+.sparkline-node { fill: var(--bg-base); stroke: var(--accent-blue); stroke-width: 2px; }

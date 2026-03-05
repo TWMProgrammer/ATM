@@ -40,13 +40,15 @@ export class TemplateBuilder {
         const sidebarHtml = this.getTemplate('templates/sidebar.html') || '';
         const inspectHtml = this.getTemplate('templates/inspect.html') || '';
         const tableHtml = this.getTemplate('templates/table.html') || '';
+        const graphHtml = this.getTemplate('templates/graph.html') || '';
 
         // Assemble the complete HTML first
         let fullHtml = template
             .replace('{{TOOLBAR_COMPONENT}}', toolbarHtml)
             .replace('{{SIDEBAR_COMPONENT}}', sidebarHtml)
             .replace('{{INSPECT_COMPONENT}}', inspectHtml)
-            .replace('{{TABLE_COMPONENT}}', tableHtml);
+            .replace('{{TABLE_COMPONENT}}', tableHtml)
+            .replace('{{GRAPH_COMPONENT}}', graphHtml);
 
         // Pre-compute dynamic values
         const nonce = generateNonce();

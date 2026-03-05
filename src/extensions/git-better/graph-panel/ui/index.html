@@ -9,6 +9,7 @@
     <!-- UI Styles -->
     <link href="{{UI_URI}}/styles/theme.css" rel="stylesheet">
     <link href="{{UI_URI}}/styles/layout.css" rel="stylesheet">
+    <link href="{{UI_URI}}/styles/graph.css" rel="stylesheet">
 
     <!-- Anti-White-Flash & FOUC Prevention Critical CSS -->
     <style>
@@ -51,16 +52,7 @@
     {{TOOLBAR_COMPONENT}}
 
     <!-- 2. Minimap / Sparkline Area -->
-    <section class="minimap-container">
-        <div class="sparkline-mock">
-            <!-- Mock graph line SVG representing commit activity -->
-            <svg viewBox="0 0 1000 32" preserveAspectRatio="none" style="width: 100%; height: 100%;">
-                <path d="M0,16 L50,16 L65,5 L80,27 L95,16 L1000,16" fill="none" class="sparkline-path" />
-                <circle cx="65" cy="5" r="2.5" class="sparkline-node" />
-                <circle cx="80" cy="27" r="2.5" class="sparkline-node" />
-            </svg>
-        </div>
-    </section>
+    {{GRAPH_COMPONENT}}
 
     <!-- 3. Main Workspace Setup (Split View) -->
     <main class="workspace">
@@ -87,5 +79,6 @@
     <script src="{{SCRIPTS_URI}}/search.js" nonce="{{NONCE}}"></script>
     <script src="{{SCRIPTS_URI}}/panel.js" nonce="{{NONCE}}"></script>
     <script src="{{SCRIPTS_URI}}/inspect.js" nonce="{{NONCE}}"></script>
+    <script src="{{SCRIPTS_URI}}/graph.js" nonce="{{NONCE}}"></script>
 </body>
 </html>
