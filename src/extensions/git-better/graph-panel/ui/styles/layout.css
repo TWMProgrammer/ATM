@@ -411,6 +411,11 @@ button.repo-btn:hover {
     display: flex;
     align-items: center;
 }
+.graph-col {
+    position: relative;
+    /* Cleaned up the flex for the actual SVG/Canvas that will go in the absolute layer, 
+       this cell is just a placeholder to push text to the right now */
+}
 .msg-col { 
     color: var(--accent-brand); 
     font-family: inherit;

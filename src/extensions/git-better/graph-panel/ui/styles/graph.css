@@ -4,7 +4,7 @@
 
 /* Minimap / Sparkline Container */
 .minimap-container {
-    height: var(--minimap-height);
+    height: var(--minimap-height, 32px);
     background-color: var(--bg-base);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
@@ -15,10 +15,63 @@
     overflow: hidden;
 }
 
-/* Mock de la linea verde (Sparkline) */
-.sparkline-mock {
+/* Base Graphic Container */
+.sparkline-container {
     width: 100%;
     height: 100%;
+    cursor: crosshair; /* To hint at future drag/inspection interaction */
 }
-.sparkline-path { stroke: var(--accent-blue); stroke-width: 1.5px; }
-.sparkline-node { fill: var(--bg-base); stroke: var(--accent-blue); stroke-width: 2px; }
+
+/* Lines and Area rendering */
+.sparkline-area {
+    pointer-events: none;
+}
+
+.sparkline-path { 
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: url(#glow); /* Adds a subtle neon glow */
+}
+
+/* Individual Nodes */
+.sparkline-node { 
+    fill: var(--bg-base); 
+    stroke: var(--accent-blue); 
+    stroke-width: 1.5px; 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+.sparkline-node:hover {
+    fill: var(--accent-blue);
+    stroke-width: 0px;
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+.sparkline-node.active {
+    fill: var(--accent-blue);
+    stroke: var(--text-primary);
+    stroke-width: 1.5px;
+}
+
+/* Hardware-Accelerated Animations */
+.sparkline-pulse {
+    fill: var(--accent-blue);
+    opacity: 0.3;
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    pointer-events: none;
+}
+
+.sparkline-pulse.pulse-delay {
+    animation-delay: 1s;
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
