@@ -48,13 +48,34 @@ export class InspectManager {
 
         // 2. Bind the UI actions to VS Code commands
         const btnCopy = document.getElementById('btn-copy');
-        if (btnCopy) {
+        const btnCopyText = document.getElementById('btn-copy-text');
+        const btnCopyIcon = document.getElementById('btn-copy-icon');
+
+        if (btnCopy && btnCopyText && btnCopyIcon) {
             btnCopy.addEventListener('click', () => {
                 if (this.currentHash) {
                     this.vscode.postMessage({ 
                         type: 'copyCommit', 
                         hash: this.currentHash 
                     });
+
+                    // Visual Feedback
+                    const originalText = btnCopyText.textContent;
+                    const originalColor = btnCopyIcon.style.backgroundColor;
+
+                    btnCopyText.textContent = 'Copied!';
+                    btnCopyText.style.color = 'var(--vscode-charts-green, #4caf50)';
+                    btnCopyIcon.style.backgroundColor = 'var(--vscode-charts-green, #4caf50)';
+                    btnCopy.style.borderColor = 'var(--vscode-charts-green, #4caf50)';
+                    
+                    setTimeout(() => {
+                        if (btnCopyText.textContent === 'Copied!') {
+                            btnCopyText.textContent = originalText;
+                            btnCopyText.style.color = '';
+                            btnCopyIcon.style.backgroundColor = originalColor;
+                            btnCopy.style.borderColor = '';
+                        }
+                    }, 2000);
                 }
             });
         }
