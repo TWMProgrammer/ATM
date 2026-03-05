@@ -59,7 +59,10 @@ async function main() {
 
 	const browserCtx = await esbuild.context({
 		entryPoints: [
-			'src/extensions/markdown-text/ui/mermaidPreview.ts'
+			'src/extensions/markdown-text/ui/mermaidPreview.ts',
+			'src/extensions/git-better/graph-panel/ui/components/search.ts',
+			'src/extensions/git-better/graph-panel/ui/components/panel.ts',
+			'src/extensions/git-better/graph-panel/ui/components/template/inspect.ts'
 		],
 		bundle: true,
 		format: 'iife',
@@ -68,7 +71,8 @@ async function main() {
 		sourcesContent: false,
 		platform: 'browser',
 		target: ['es2020'],
-		outfile: 'dist/mermaidPreview.js',
+		outdir: 'dist',
+		entryNames: '[name]',
 		logLevel: 'silent',
 		plugins: [browserEsbuildProblemMatcherPlugin],
 	});

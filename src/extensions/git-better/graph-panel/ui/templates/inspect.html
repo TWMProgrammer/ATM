@@ -1,0 +1,52 @@
+<aside id="inspect-panel" class="inspect-panel">
+    <header class="inspect-header">
+        <div class="inspect-title" style="cursor: pointer;" title="Open commit on GitHub">
+            <div class="icon-mask" style="--icon-size: 16px; margin-right: 4px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/github.svg'); mask-image: url('{{ASSETS_URI}}/icons/github.svg');"></div>
+            <span>OPEN ON GITHUB: <span id="inspect-commit-hash" class="skeleton-box"></span></span>
+        </div>
+        <button id="inspect-toggle" class="icon-btn inspect-toggle-btn" title="Collapse panel">
+            <div class="icon-mask toggle-icon" style="--icon-size: 16px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/arrow-right.svg'); mask-image: url('{{ASSETS_URI}}/icons/arrow-right.svg');"></div>
+        </button>
+    </header>
+    
+    <div class="inspect-body">
+        <div class="inspect-content">
+            <div class="commit-header">
+                <div id="inspect-author-avatar" class="avatar-mock skeleton-box circle"></div>
+                <div class="author-info">
+                    <span id="inspect-author-name" class="author-name skeleton-box" style="cursor: default;"></span>
+                    <div style="display: flex; gap: 6px;">
+                        <button id="btn-copy" class="btn-copy" title="Copy Full Commit Hash">
+                            <span id="btn-copy-icon" class="icon-mask" style="--icon-size: 12px; margin-right: 4px; background-color: var(--text-primary); -webkit-mask-image: url('{{ASSETS_URI}}/icons/copy.svg'); mask-image: url('{{ASSETS_URI}}/icons/copy.svg');"></span>
+                            <span id="btn-copy-text">Copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="commit-message-box">
+                <h4 id="inspect-commit-title" class="commit-title skeleton-box"></h4>
+                <div class="commit-date">
+                    <div class="icon-mask" style="--icon-size: 10px; opacity: 0.6; -webkit-mask-image: url('{{ASSETS_URI}}/icons/history.svg'); mask-image: url('{{ASSETS_URI}}/icons/history.svg');"></div>
+                    <span id="inspect-commit-date" class="skeleton-box"></span>
+                </div>
+            </div>
+            
+            <div class="files-changed-section">
+                <div class="files-header">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                        <div class="icon-mask" style="--icon-size: 12px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/list-flat.svg'); mask-image: url('{{ASSETS_URI}}/icons/list-flat.svg');"></div>
+                        <span id="inspect-files-count-text" class="skeleton-box"></span>
+                    </span>
+                    <span class="diff-stats">
+                        <span id="inspect-stats-add" class="add skeleton-box"></span>
+                        <span id="inspect-stats-del" class="del skeleton-box"></span>
+                    </span>
+                </div>
+                <ul id="inspect-file-list" class="file-list">
+                    <!-- Files will be dynamically injected here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</aside>

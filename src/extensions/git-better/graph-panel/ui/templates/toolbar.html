@@ -1,0 +1,23 @@
+<header class="top-toolbar">
+    <div class="toolbar-left">
+        <button class="repo-btn" title="Repository">
+            <span class="repo-name">{{WORKSPACE_NAME}}</span>
+        </button>
+    </div>
+    
+    <div class="toolbar-center">
+        <div class="search-box">
+            <div class="icon-mask" style="--icon-size: 14px; background-color: var(--text-secondary); -webkit-mask-image: url('{{ASSETS_URI}}/icons/search.svg'); mask-image: url('{{ASSETS_URI}}/icons/search.svg');"></div>
+            <input type="text" placeholder="Search commits...">
+            <div id="search-clear" title="Clear search">
+                <div class="icon-mask" style="--icon-size: 12px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/close.svg'); mask-image: url('{{ASSETS_URI}}/icons/close.svg');"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toolbar-right" style="display: flex; gap: 8px;">
+        <button id="expand-btn" class="icon-btn" title="Expand">
+            <div class="icon-mask" style="--icon-size: 14px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/chevron-up.svg'); mask-image: url('{{ASSETS_URI}}/icons/chevron-up.svg');"></div>
+        </button>
+    </div>
+</header>
