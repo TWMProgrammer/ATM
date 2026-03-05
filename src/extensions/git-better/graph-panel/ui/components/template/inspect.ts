@@ -8,6 +8,7 @@ export interface InspectCommitData {
     hash: string;
     authorName: string;
     authorAvatar: string;
+    authorAvatarUrl?: string | null;
     message: string;
     date: string;
     stats: {
@@ -83,9 +84,24 @@ export class InspectManager {
 
         this.setTextInfo('inspect-commit-hash', data.hash.substring(0, 7));
         this.setTextInfo('inspect-author-name', data.authorName);
-        this.setTextInfo('inspect-author-avatar', data.authorAvatar);
         this.setTextInfo('inspect-commit-title', data.message);
         this.setTextInfo('inspect-commit-date', data.date);
+        
+        // Handle Avatar logic separately
+        const avatarEl = document.getElementById('inspect-author-avatar');
+        if (avatarEl) {
+            avatarEl.classList.remove('skeleton-box');
+            if (data.authorAvatarUrl) {
+                avatarEl.innerHTML = `<img src="${data.authorAvatarUrl}" alt="${data.authorName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                avatarEl.style.backgroundColor = 'transparent';
+                avatarEl.style.color = 'transparent';
+            } else {
+                avatarEl.innerHTML = '';
+                avatarEl.textContent = data.authorAvatar;
+                avatarEl.style.backgroundColor = ''; // Restore to default CSS
+                avatarEl.style.color = '';
+            }
+        }
         
         // Correct formatting logic
         const fileCountText = data.files.length === 1 ? '1 FILE CHANGED' : `${data.files.length} FILES CHANGED`;

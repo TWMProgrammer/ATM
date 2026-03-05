@@ -3,6 +3,34 @@ import { promisify } from 'util';
 import * as vscode from 'vscode';
 
 const execAsync = promisify(exec);
+import * as https from 'https';
+
+function fetchGithubAvatar(owner: string, repo: string, hash: string): Promise<string | null> {
+    return new Promise((resolve) => {
+        const options = {
+            hostname: 'api.github.com',
+            path: `/repos/${owner}/${repo}/commits/${hash}`,
+            method: 'GET',
+            headers: { 'User-Agent': 'VSCode-Git-Better' }
+        };
+        https.get(options, (res) => {
+            if (res.statusCode !== 200) {
+                resolve(null);
+                return;
+            }
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    resolve(json?.author?.avatar_url || json?.committer?.avatar_url || null);
+                } catch {
+                    resolve(null);
+                }
+            });
+        }).on('error', () => resolve(null));
+    });
+}
 
 export class GraphGitService {
     /**
@@ -49,6 +77,7 @@ export class GraphGitService {
 
             // 4. Get remote origin URL
             let repoUrl = '';
+            let authorAvatarUrl = null;
             try {
                 const { stdout: remoteUrl } = await execAsync('git config --get remote.origin.url', { cwd });
                 let rawUrl = remoteUrl.trim();
@@ -59,6 +88,15 @@ export class GraphGitService {
                     rawUrl = rawUrl.slice(0, -4);
                 }
                 repoUrl = rawUrl;
+
+                if (repoUrl && repoUrl.includes('github.com')) {
+                    const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+                    if (match) {
+                        const owner = match[1];
+                        const repo = match[2];
+                        authorAvatarUrl = await fetchGithubAvatar(owner, repo, hash);
+                    }
+                }
             } catch (e) {
                 // Not a fatal error if there is no remote origin
             }
@@ -67,6 +105,7 @@ export class GraphGitService {
                 hash,
                 authorName,
                 authorAvatar: authorName.charAt(0).toUpperCase(), // fallback to initial
+                authorAvatarUrl,
                 message,
                 date,
                 stats: { added, deleted },

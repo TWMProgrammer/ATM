@@ -547,6 +547,10 @@ button.repo-btn:hover {
     user-select: none;
 }
 
+.skeleton-box.circle {
+    border-radius: 50% !important;
+}
+
 .skeleton-box::after {
     position: absolute;
     top: 0;
