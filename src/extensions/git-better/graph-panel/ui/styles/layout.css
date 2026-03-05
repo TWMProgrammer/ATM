@@ -513,6 +513,11 @@ button.repo-btn:hover {
     line-height: 1.4;
     margin-bottom: 8px;
     word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .commit-date {
     color: var(--text-muted);

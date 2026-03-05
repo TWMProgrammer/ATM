@@ -30,7 +30,7 @@
     --toolbar-height: 48px;
     --minimap-height: 32px;
     --sidebar-width: 48px;
-    --inspect-panel-width: 380px; /* Panel fijo que empuja a la izquierda */
+    --inspect-panel-width: 340px; /* Panel fijo que empuja a la izquierda */
     --row-height: 28px;
 }
 
@@ -406,6 +406,11 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     line-height: 1.4;
     margin-bottom: 8px;
     word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .commit-date {
     color: var(--text-muted);
