@@ -435,6 +435,7 @@ button.icon-btn:hover, button.sidebar-tab:hover {
 .file-list li {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 6px 0;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-primary);

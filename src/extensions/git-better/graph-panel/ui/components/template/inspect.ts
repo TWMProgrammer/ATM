@@ -185,7 +185,7 @@ export class InspectManager {
                         <span style="color: ${statusColor}; font-weight: bold;">${file.status}</span>
                         <span>${file.name}</span>
                     </div>
-                    <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; cursor: pointer; -webkit-mask-image: url('${assetsUri}/icons/eye.svg'); mask-image: url('${assetsUri}/icons/eye.svg');" title="View File"></div>
+                    <div class="icon-mask" style="--icon-size: 14px; opacity: 0.7; -webkit-mask-image: url('${assetsUri}/icons/eye.svg'); mask-image: url('${assetsUri}/icons/eye.svg');"></div>
                 </li>
             `;
         }).join('');

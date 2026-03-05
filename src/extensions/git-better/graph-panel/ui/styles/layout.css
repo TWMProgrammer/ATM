@@ -539,6 +539,14 @@ button.repo-btn:hover {
 .file-list {
     list-style: none;
 }
+.file-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+}
 /* Small Avatar Square for Merge Info */
 .avatar-small {
     width: 20px;
