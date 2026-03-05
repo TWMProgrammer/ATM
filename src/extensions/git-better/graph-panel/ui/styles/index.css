@@ -368,6 +368,9 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     justify-content: space-between;
     align-items: center;
 }
+.author-name {
+    font-weight: 500;
+}
 .btn-copy {
     background-color: transparent;
     border: 1px solid var(--border-color);
@@ -402,10 +405,16 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     font-size: 14px;
     line-height: 1.4;
     margin-bottom: 8px;
+    word-break: break-word;
 }
 .commit-date {
     color: var(--text-muted);
     font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 14px;
+    white-space: nowrap;
 }
 
 .files-header {
@@ -430,3 +439,11 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     border-bottom: 1px solid var(--border-light);
     color: var(--text-primary);
 }
+
+#inspect-commit-hash.skeleton-box { width: 56px; }
+#inspect-author-name.skeleton-box { width: 80px; }
+#inspect-commit-title.skeleton-box { width: 100%; height: 3em; }
+#inspect-commit-date.skeleton-box { width: 60px; }
+#inspect-files-count-text.skeleton-box { width: 100px; }
+#inspect-stats-add.skeleton-box { width: 20px; }
+#inspect-stats-del.skeleton-box { width: 20px; }
