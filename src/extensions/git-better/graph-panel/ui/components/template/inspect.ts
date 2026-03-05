@@ -62,18 +62,34 @@ export class InspectManager {
                     // Visual Feedback
                     const originalText = btnCopyText.textContent;
                     const originalColor = btnCopyIcon.style.backgroundColor;
+                    const originalMask = btnCopyIcon.style.maskImage || btnCopyIcon.style.webkitMaskImage;
+
+                    // @ts-ignore
+                    const assetsUri = window.ASSETS_URI || '';
 
                     btnCopyText.textContent = 'Copied!';
                     btnCopyText.style.color = 'var(--vscode-charts-green, #4caf50)';
                     btnCopyIcon.style.backgroundColor = 'var(--vscode-charts-green, #4caf50)';
+                    
+                    // Switch to checks icon
+                    btnCopyIcon.style.webkitMaskImage = `url('${assetsUri}/icons/checks.svg')`;
+                    btnCopyIcon.style.maskImage = `url('${assetsUri}/icons/checks.svg')`;
+                    
                     btnCopy.style.borderColor = 'var(--vscode-charts-green, #4caf50)';
+                    btnCopy.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
                     
                     setTimeout(() => {
                         if (btnCopyText.textContent === 'Copied!') {
                             btnCopyText.textContent = originalText;
                             btnCopyText.style.color = '';
                             btnCopyIcon.style.backgroundColor = originalColor;
+                            
+                            // Restore original icon
+                            btnCopyIcon.style.webkitMaskImage = originalMask;
+                            btnCopyIcon.style.maskImage = originalMask;
+                            
                             btnCopy.style.borderColor = '';
+                            btnCopy.style.backgroundColor = '';
                         }
                     }, 2000);
                 }

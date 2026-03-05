@@ -41,7 +41,6 @@ export class Messaging {
             return;
         }
         vscode.env.clipboard.writeText(message.hash);
-        vscode.window.showInformationMessage(`Copied commit hash: ${message.hash}`);
     }
 
     /** Open the provided GitHub URL in the default browser. */
