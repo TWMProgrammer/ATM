@@ -21,6 +21,9 @@ export class Messaging {
             case 'copyCommit':
                 this.handleCopyCommit(message as any);
                 break;
+            case 'openCommitOnGithub':
+                this.handleOpenGithub(message as any);
+                break;
             // Add future message types here
         }
     }
@@ -39,5 +42,14 @@ export class Messaging {
         }
         vscode.env.clipboard.writeText(message.hash);
         vscode.window.showInformationMessage(`Copied commit hash: ${message.hash}`);
+    }
+
+    /** Open the provided GitHub URL in the default browser. */
+    private handleOpenGithub(message: { url: string }) {
+        if (!message.url) {
+            vscode.window.showInformationMessage('No GitHub origin found for this repository.');
+            return;
+        }
+        vscode.env.openExternal(vscode.Uri.parse(message.url));
     }
 }

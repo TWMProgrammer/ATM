@@ -18,11 +18,13 @@ export interface InspectCommitData {
         status: string; // e.g., 'M', 'A', 'D'
         name: string;
     }>;
+    githubUrl: string | null;
 }
 
 export class InspectManager {
     private vscode: any;
     private currentHash: string | null = null;
+    private currentGithubUrl: string | null = null;
 
     constructor() {
         // @ts-ignore - window.vscodeApi is injected in index.html
@@ -56,6 +58,18 @@ export class InspectManager {
             });
         }
 
+        const btnGithub = document.querySelector('.inspect-title');
+        if (btnGithub) {
+            btnGithub.addEventListener('click', () => {
+                if (this.currentGithubUrl) {
+                    this.vscode.postMessage({
+                        type: 'openCommitOnGithub',
+                        url: this.currentGithubUrl
+                    });
+                }
+            });
+        }
+
         // 3. Request initial data when UI is ready
         this.vscode.postMessage({ type: 'ready' });
     }
@@ -65,6 +79,7 @@ export class InspectManager {
      */
     private updateInspectPanel(data: InspectCommitData) {
         this.currentHash = data.hash;
+        this.currentGithubUrl = data.githubUrl;
 
         this.setTextInfo('inspect-commit-hash', data.hash.substring(0, 7));
         this.setTextInfo('inspect-author-name', data.authorName);

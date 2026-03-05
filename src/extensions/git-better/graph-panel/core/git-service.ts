@@ -47,6 +47,22 @@ export class GraphGitService {
                 };
             });
 
+            // 4. Get remote origin URL
+            let repoUrl = '';
+            try {
+                const { stdout: remoteUrl } = await execAsync('git config --get remote.origin.url', { cwd });
+                let rawUrl = remoteUrl.trim();
+                if (rawUrl.startsWith('git@')) {
+                    rawUrl = rawUrl.replace(':', '/').replace('git@', 'https://');
+                }
+                if (rawUrl.endsWith('.git')) {
+                    rawUrl = rawUrl.slice(0, -4);
+                }
+                repoUrl = rawUrl;
+            } catch (e) {
+                // Not a fatal error if there is no remote origin
+            }
+
             return {
                 hash,
                 authorName,
@@ -54,7 +70,8 @@ export class GraphGitService {
                 message,
                 date,
                 stats: { added, deleted },
-                files
+                files,
+                githubUrl: repoUrl ? `${repoUrl}/commit/${hash}` : null
             };
         } catch (error) {
             console.error('Failed to get latest commit from git:', error);
