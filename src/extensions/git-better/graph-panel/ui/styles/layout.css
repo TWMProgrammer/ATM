@@ -475,7 +475,7 @@ button.repo-btn:hover {
     justify-content: space-between;
     align-items: center;
 }
-.btn-explain {
+.btn-copy {
     background-color: transparent;
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -483,7 +483,7 @@ button.repo-btn:hover {
     font-size: 12px;
     color: var(--text-primary);
 }
-.btn-explain:hover { background-color: var(--bg-hover); }
+.btn-copy:hover { background-color: var(--bg-hover); }
 
 .commit-message-box {
     background-color: var(--vscode-editor-inactiveSelectionBackground, rgba(35, 209, 139, 0.05)); /* Fondo semi-transparente del tema */

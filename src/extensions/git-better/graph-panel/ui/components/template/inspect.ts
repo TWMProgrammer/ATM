@@ -44,12 +44,12 @@ export class InspectManager {
         });
 
         // 2. Bind the UI actions to VS Code commands
-        const btnExplain = document.getElementById('btn-explain');
-        if (btnExplain) {
-            btnExplain.addEventListener('click', () => {
+        const btnCopy = document.getElementById('btn-copy');
+        if (btnCopy) {
+            btnCopy.addEventListener('click', () => {
                 if (this.currentHash) {
                     this.vscode.postMessage({ 
-                        type: 'explainCommit', 
+                        type: 'copyCommit', 
                         hash: this.currentHash 
                     });
                 }

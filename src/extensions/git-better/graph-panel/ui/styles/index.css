@@ -368,14 +368,14 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     justify-content: space-between;
     align-items: center;
 }
-.btn-explain {
+.btn-copy {
     background-color: transparent;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 4px 10px;
     font-size: 12px;
 }
-.btn-explain:hover { background-color: var(--bg-hover); }
+.btn-copy:hover { background-color: var(--bg-hover); }
 
 .commit-message-box {
     background-color: rgba(209, 154, 102, 0.05); /* Orange translucido */

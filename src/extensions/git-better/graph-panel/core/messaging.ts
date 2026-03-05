@@ -18,8 +18,8 @@ export class Messaging {
             case 'toggleExpand':
                 this.handleToggleExpand();
                 break;
-            case 'explainCommit':
-                this.handleExplainCommit(message as any);
+            case 'copyCommit':
+                this.handleCopyCommit(message as any);
                 break;
             // Add future message types here
         }
@@ -32,12 +32,12 @@ export class Messaging {
         vscode.commands.executeCommand('workbench.action.toggleMaximizedPanel');
     }
 
-    /** Trigger the AI Explain feature for a specific commit. */
-    private handleExplainCommit(message: { hash: string }) {
+    /** Copy the current commit hash to the clipboard. */
+    private handleCopyCommit(message: { hash: string }) {
         if (!message.hash) {
             return;
         }
-        vscode.window.showInformationMessage(`AI Explain requested for commit: ${message.hash}`);
-        // TODO: Bridge this to the Actual AI Provider logic
+        vscode.env.clipboard.writeText(message.hash);
+        vscode.window.showInformationMessage(`Copied commit hash: ${message.hash}`);
     }
 }
