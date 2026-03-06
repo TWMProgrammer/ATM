@@ -141,9 +141,16 @@ class GraphicsManager {
             // Append Hit target last so it sits on top
             svg.appendChild(hitTarget);
 
-            // Add Event Listeners for Tooltip
+            // Add Event Listeners for Interaction
             hitTarget.addEventListener('mouseenter', (e) => this.showTooltip(e, nodeData, i));
             hitTarget.addEventListener('mouseleave', () => this.hideTooltip(i));
+            
+            // Add click functionality to navigate/focus commit in the main table
+            hitTarget.addEventListener('click', () => {
+                if (this.vscode) {
+                    this.vscode.postMessage({ type: 'focusCommit', hash: nodeData.hash });
+                }
+            });
         });
     }
 
