@@ -1,0 +1,243 @@
+/* =========================================================
+   INSPECT — Right panel with commit details
+   ========================================================= */
+
+/* ── Panel Container ──────────────────────────────────── */
+.inspect-panel {
+    width: var(--inspect-panel-width);
+    background-color: var(--bg-panel);
+    border-left: 1px solid var(--border-color);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width;
+    z-index: 10;
+}
+
+/* ── Collapsed State ──────────────────────────────────── */
+.inspect-panel.collapsed {
+    width: 36px;
+    cursor: pointer;
+    background-color: var(--bg-toolbar);
+}
+
+.inspect-panel.collapsed:hover {
+    background-color: rgba(128, 128, 128, 0.1);
+}
+
+/* ── Header ───────────────────────────────────────────── */
+.inspect-header {
+    padding: 0 8px 0 16px;
+    height: 40px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.inspect-panel.collapsed .inspect-header {
+    height: 100%;
+    border-bottom: none;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Title ────────────────────────────────────────────── */
+.inspect-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.inspect-title:hover {
+    color: var(--accent-blue);
+}
+
+#inspect-commit-hash {
+    text-transform: lowercase;
+}
+
+.inspect-panel.collapsed .inspect-title {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Toggle Button ────────────────────────────────────── */
+.inspect-toggle-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    border: none;
+    transition: background-color 0.2s, transform 0.2s, color 0.2s;
+    flex-shrink: 0;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.inspect-toggle-btn .icon-mask {
+    vertical-align: unset;
+}
+
+.inspect-toggle-btn:hover {
+    color: var(--text-primary);
+}
+
+.inspect-panel.collapsed .inspect-toggle-btn {
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+/* ── Body ─────────────────────────────────────────────── */
+.inspect-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+
+.inspect-panel.collapsed .inspect-body {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.inspect-content {
+    padding: 16px;
+}
+
+/* ── Commit Header ────────────────────────────────────── */
+.commit-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.avatar-mock {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--accent-brand);
+    color: var(--bg-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.author-info {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.author-name {
+    font-weight: 500;
+}
+
+/* ── Copy Button ──────────────────────────────────────── */
+.btn-copy {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text-primary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-copy:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--text-muted);
+}
+
+.btn-copy:active {
+    transform: scale(0.96);
+}
+
+/* ── Commit Message ───────────────────────────────────── */
+.commit-message-box {
+    background-color: var(--vscode-editor-inactiveSelectionBackground, rgba(35, 209, 139, 0.05));
+    border: 1px dashed var(--accent-brand);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.commit-title {
+    color: var(--accent-brand);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.commit-date {
+    color: var(--text-muted);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 14px;
+    white-space: nowrap;
+}
+
+/* ── Files Changed ────────────────────────────────────── */
+.files-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.diff-stats { color: var(--text-muted); }
+.diff-stats span.add { color: var(--accent-green); }
+.diff-stats span.del { color: var(--accent-red); margin-left: 4px; }
+
+.file-list {
+    list-style: none;
+}
+
+.file-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+}

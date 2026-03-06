@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git Better - Graph Panel</title>
+    <title>Git Better - GitLab Panel</title>
     {{CSP}}
-    
-    <!-- UI Styles -->
-    <link href="{{UI_URI}}/styles/theme.css" rel="stylesheet">
-    <link href="{{UI_URI}}/styles/layout.css" rel="stylesheet">
-    <link href="{{UI_URI}}/styles/graph.css" rel="stylesheet">
+
+    <!-- Shared Styles -->
+    <link href="{{SHARED_URI}}/global.css" rel="stylesheet">
+    <link href="{{SHARED_URI}}/skeleton/inspect.css" rel="stylesheet">
+
+    <!-- Panel Styles -->
+    <link href="{{PANELS_URI}}/toolbar/toolbar.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/minimap/minimap.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/sidebar/sidebar.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/table/table.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/inspect/inspect.css" rel="stylesheet">
 
     <!-- Anti-White-Flash & FOUC Prevention Critical CSS -->
     <style>
@@ -31,19 +37,17 @@
             flex-direction: column;
             height: 100vh;
             width: 100vw;
-            /* Hide content for a split second until CSS is ready */
             opacity: 0;
             transition: opacity 0.1s ease-in;
         }
 
-        /* Essential Layout Skeleton (Applied before external CSS) */
+        /* Essential Layout Skeleton */
         .top-toolbar { height: var(--toolbar-height); background: var(--bg-toolbar); flex-shrink: 0; display: flex; }
         .workspace { display: flex; flex-grow: 1; overflow: hidden; }
         .sidebar-left { width: var(--sidebar-width); background: var(--bg-toolbar); flex-shrink: 0; }
         .graph-table-container { flex-grow: 1; background: var(--bg-base); }
         .inspect-panel { width: var(--inspect-panel-width); background: var(--vscode-sideBar-background); flex-shrink: 0; }
 
-        /* Show body once fonts/external CSS are likely being processed */
         body.ready { opacity: 1; }
     </style>
 </head>
@@ -52,11 +56,11 @@
     {{TOOLBAR_COMPONENT}}
 
     <!-- 2. Minimap / Sparkline Area -->
-    {{GRAPH_COMPONENT}}
+    {{MINIMAP_COMPONENT}}
 
     <!-- 3. Main Workspace Setup (Split View) -->
     <main class="workspace">
-        
+
         <!-- A. Left Sidebar (Icons Panel) -->
         {{SIDEBAR_COMPONENT}}
 
@@ -70,15 +74,12 @@
 
     <!-- Logic Components -->
     <script nonce="{{NONCE}}">
-        // Inject variables for JS components
         window.ASSETS_URI = '{{ASSETS_URI}}';
         window.vscodeApi = acquireVsCodeApi();
-        // Immediate show of body to trigger the opacity transition
         document.body.classList.add('ready');
     </script>
-    <script src="{{SCRIPTS_URI}}/search.js" nonce="{{NONCE}}"></script>
-    <script src="{{SCRIPTS_URI}}/panel.js" nonce="{{NONCE}}"></script>
+    <script src="{{SCRIPTS_URI}}/toolbar.js" nonce="{{NONCE}}"></script>
+    <script src="{{SCRIPTS_URI}}/table.js" nonce="{{NONCE}}"></script>
     <script src="{{SCRIPTS_URI}}/inspect.js" nonce="{{NONCE}}"></script>
-    <script src="{{SCRIPTS_URI}}/graph.js" nonce="{{NONCE}}"></script>
 </body>
 </html>

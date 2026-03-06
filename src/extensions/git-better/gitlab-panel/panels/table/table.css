@@ -1,0 +1,82 @@
+/* =========================================================
+   TABLE — Commits table + Graph tree overlay
+   ========================================================= */
+
+.graph-table-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-base);
+    min-width: 300px;
+    overflow: hidden;
+}
+
+/* ── Table Header ─────────────────────────────────────── */
+.table-header {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 8px;
+    color: var(--text-muted);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+}
+
+/* ── Table Body ───────────────────────────────────────── */
+.table-body {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.table-row {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+    height: var(--row-height);
+    align-items: center;
+    padding: 0 8px;
+    cursor: pointer;
+    font-family: var(--vscode-editor-font-family, 'Consolas', 'Courier New', monospace);
+}
+
+.table-row:hover {
+    background-color: rgba(128, 128, 128, 0.07);
+}
+
+.table-row.active {
+    background-color: var(--bg-active);
+}
+
+/* ── Columns ──────────────────────────────────────────── */
+.col {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+}
+
+.graph-col {
+    position: relative;
+}
+
+.msg-col {
+    color: var(--accent-brand);
+    font-family: inherit;
+    font-weight: 500;
+}
+
+/* ── Merge Avatar ─────────────────────────────────────── */
+.avatar-small {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background-color: var(--accent-brand);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    margin-right: 8px;
+    flex-shrink: 0;
+}

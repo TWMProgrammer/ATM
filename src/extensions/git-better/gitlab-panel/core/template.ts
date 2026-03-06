@@ -28,37 +28,53 @@ export class TemplateBuilder {
     /** Cached raw HTML from disk — read once per file, reused. */
     private templateCache = new Map<string, string>();
 
-    constructor(private readonly extensionUri: vscode.Uri) { }
+    /** Base path to the gitlab-panel directory. */
+    private readonly panelBase: string[];
+
+    constructor(private readonly extensionUri: vscode.Uri) {
+        this.panelBase = ['src', 'extensions', 'git-better', 'gitlab-panel'];
+    }
 
     /** Returns ready-to-render HTML for the given webview. */
     public build(webview: vscode.Webview): string {
         const template = this.getTemplate('index.html');
         if (!template) { return this.errorPage(); }
 
-        // Load sub-components
-        const toolbarHtml = this.getTemplate('templates/toolbar.html') || '';
-        const sidebarHtml = this.getTemplate('templates/sidebar.html') || '';
-        const inspectHtml = this.getTemplate('templates/inspect.html') || '';
-        const tableHtml = this.getTemplate('templates/table.html') || '';
-        const graphHtml = this.getTemplate('templates/graph.html') || '';
+        // Load sub-components from panels/
+        const toolbarHtml = this.getTemplate('panels/toolbar/toolbar.html') || '';
+        const minimapHtml = this.getTemplate('panels/minimap/minimap.html') || '';
+        const sidebarHtml = this.getTemplate('panels/sidebar/sidebar.html') || '';
+        const tableHtml = this.getTemplate('panels/table/table.html') || '';
+        const inspectHtml = this.getTemplate('panels/inspect/inspect.html') || '';
 
-        // Assemble the complete HTML first
+        // Assemble the complete HTML
         let fullHtml = template
             .replace('{{TOOLBAR_COMPONENT}}', toolbarHtml)
+            .replace('{{MINIMAP_COMPONENT}}', minimapHtml)
             .replace('{{SIDEBAR_COMPONENT}}', sidebarHtml)
-            .replace('{{INSPECT_COMPONENT}}', inspectHtml)
             .replace('{{TABLE_COMPONENT}}', tableHtml)
-            .replace('{{GRAPH_COMPONENT}}', graphHtml);
+            .replace('{{INSPECT_COMPONENT}}', inspectHtml);
 
         // Pre-compute dynamic values
         const nonce = generateNonce();
         const workspaceName = vscode.workspace.name || 'Unknown Repository';
+
+        // Assets are now at git-better/assets (shared with commit-view)
         const assetsUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'gitlab-panel', 'assets')
+            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'assets')
         ).toString();
-        const uiUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'gitlab-panel', 'ui')
+
+        // Shared styles at gitlab-panel/shared/
+        const sharedUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.extensionUri, ...this.panelBase, 'shared')
         ).toString();
+
+        // Panel styles at gitlab-panel/panels/
+        const panelsUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this.extensionUri, ...this.panelBase, 'panels')
+        ).toString();
+
+        // Compiled scripts at dist/
         const scriptsUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this.extensionUri, 'dist')
         ).toString();
@@ -78,7 +94,8 @@ export class TemplateBuilder {
             'CSP': `<meta http-equiv="Content-Security-Policy" content="${csp}">`,
             'NONCE': nonce,
             'ASSETS_URI': assetsUri,
-            'UI_URI': uiUri,
+            'SHARED_URI': sharedUri,
+            'PANELS_URI': panelsUri,
             'SCRIPTS_URI': scriptsUri,
             'WORKSPACE_NAME': workspaceName
         };
@@ -97,18 +114,18 @@ export class TemplateBuilder {
     // ── Private Helpers ─────────────────────────────────
 
     /** Reads and caches the raw HTML template from disk. */
-    private getTemplate(fileName: string): string | null {
-        if (this.templateCache.has(fileName)) {
-            return this.templateCache.get(fileName)!;
+    private getTemplate(relativePath: string): string | null {
+        if (this.templateCache.has(relativePath)) {
+            return this.templateCache.get(relativePath)!;
         }
 
         const htmlPath = vscode.Uri.joinPath(
-            this.extensionUri, 'src', 'extensions', 'git-better', 'gitlab-panel', 'ui', fileName,
+            this.extensionUri, ...this.panelBase, relativePath,
         ).fsPath;
 
         try {
             const content = fs.readFileSync(htmlPath, 'utf8');
-            this.templateCache.set(fileName, content);
+            this.templateCache.set(relativePath, content);
             return content;
         } catch {
             return null;
@@ -119,7 +136,7 @@ export class TemplateBuilder {
         return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"></head>
-<body><h1>Error loading Graph Panel HTML</h1></body>
+<body><h1>Error loading GitLab Panel HTML</h1></body>
 </html>`;
     }
 }
