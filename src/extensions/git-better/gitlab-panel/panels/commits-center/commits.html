@@ -131,6 +131,11 @@
             <div class="col col-date"><span class="skeleton-box" style="width: 50px; height: 12px;"></span></div>
         </div>
     </div>
+    <!-- No search results message (hidden by default) -->
+    <div id="no-results" class="no-results" style="display: none;">
+        <div class="icon-mask" style="--icon-size: 24px; background-color: var(--text-muted); -webkit-mask-image: url('{{ASSETS_URI}}/icons/search.svg'); mask-image: url('{{ASSETS_URI}}/icons/search.svg');"></div>
+        <span>No commits match your search</span>
+    </div>
     <!-- Canvas/SVG Graph Overlay layer -->
     <div id="tree-graph-overlay" style="position: absolute; top: var(--toolbar-height, 48px); left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;">
     </div>

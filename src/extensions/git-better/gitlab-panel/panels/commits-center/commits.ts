@@ -123,18 +123,21 @@ class CommitsManager {
 
         const query = this.currentSearchQuery.toLowerCase();
         const rows = this.tableBody.querySelectorAll('.table-row:not(.skeleton-row)');
+        const noResults = document.getElementById('no-results');
 
-        // If query is empty, show all rows
+        // If query is empty, show all rows and hide message
         if (!query) {
             rows.forEach(row => {
                 (row as HTMLElement).style.display = '';
             });
+            if (noResults) { noResults.style.display = 'none'; }
             requestAnimationFrame(() => this.drawTreeGraph());
             return;
         }
 
         // Detect if query looks like a commit hash (hex characters only, ≥7 length)
         const isHashSearch = /^[0-9a-f]{7,}$/i.test(query);
+        let visibleCount = 0;
 
         rows.forEach(row => {
             const el = row as HTMLElement;
@@ -144,6 +147,7 @@ class CommitsManager {
                 // Hash search: prefix match on the full hash
                 const match = hash.toLowerCase().startsWith(query);
                 el.style.display = match ? '' : 'none';
+                if (match) { visibleCount++; }
             } else {
                 // Text search: match against message, author, branch, date
                 const message = el.querySelector('.commit-msg-text')?.textContent?.toLowerCase() || '';
@@ -155,8 +159,14 @@ class CommitsManager {
                 const searchable = `${typeBadge} ${message} ${author} ${branch} ${date}`;
                 const match = searchable.includes(query);
                 el.style.display = match ? '' : 'none';
+                if (match) { visibleCount++; }
             }
         });
+
+        // Show/hide no-results message
+        if (noResults) {
+            noResults.style.display = visibleCount === 0 ? '' : 'none';
+        }
 
         // Redraw graph to account for hidden rows
         requestAnimationFrame(() => this.drawTreeGraph());
