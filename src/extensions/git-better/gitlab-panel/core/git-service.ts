@@ -131,7 +131,7 @@ export class GraphGitService {
         const cwd = workspaceFolders[0].uri.fsPath;
 
         try {
-            const { stdout } = await execAsync(`git log -${limit} --format="COMMIT|%H|%at" --shortstat`, { cwd });
+            const { stdout } = await execAsync(`git log -${limit} --format="COMMIT|%H|%at|%an|%ar" --shortstat`, { cwd });
             const timeline: any[] = [];
 
             const blocks = stdout.split('COMMIT|').filter(Boolean);
@@ -143,7 +143,7 @@ export class GraphGitService {
                     continue;
                 }
 
-                const [hash, timestampStr] = lines[0].split('|');
+                const [hash, timestampStr, author, date] = lines[0].split('|');
                 let linesChanged = 0;
 
                 if (lines.length > 1) {
@@ -160,6 +160,8 @@ export class GraphGitService {
                 timeline.push({
                     hash,
                     timestamp: parseInt(timestampStr, 10),
+                    author,
+                    date,
                     linesChanged,
                     isHead
                 });

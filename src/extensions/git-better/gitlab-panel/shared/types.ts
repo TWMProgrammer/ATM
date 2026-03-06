@@ -26,6 +26,8 @@ export interface InspectCommitData {
 export interface GraphicsCommitData {
     hash: string;
     timestamp: number;
+    author: string;
+    date: string;
     linesChanged: number; // For determining the height of the curve
     isHead: boolean;      // For drawing the active node/branch head differently
 }

@@ -42,4 +42,19 @@
             <circle cx="930" cy="6" r="3" class="sparkline-node active" />
         </svg>
     </div>
+
+    <!-- Custom Beautiful Tooltip -->
+    <div id="graphics-tooltip" class="graphics-tooltip">
+        <div class="tooltip-header">
+            <span class="tooltip-hash"></span>
+            <span class="tooltip-date"></span>
+        </div>
+        <div class="tooltip-body">
+            <span class="tooltip-author"></span>
+            <div class="tooltip-badge">
+                <div class="icon-mask" style="--icon-size: 10px; background-color: var(--accent-brand); -webkit-mask-image: url('{{ASSETS_URI}}/icons/changes.svg'); mask-image: url('{{ASSETS_URI}}/icons/changes.svg');"></div>
+                <span class="tooltip-changes"></span>
+            </div>
+        </div>
+    </div>
 </section>
