@@ -209,11 +209,28 @@ export class GraphGitService {
                 }
             };
 
-            // Use --format for clean output, no asterisks, no color codes
-            const branches = await countOutput("git branch --list --format='%(refname:short)'");
+            // Helper: run command and count non-empty, filtered lines
+            const countFiltered = async (cmd: string, exclude?: string): Promise<number> => {
+                try {
+                    const { stdout } = await execAsync(cmd, { cwd });
+                    const lines = stdout.trim().split('\n').filter(Boolean);
+                    return exclude ? lines.filter(l => !l.includes(exclude)).length : lines.length;
+                } catch {
+                    return 0;
+                }
+            };
+
+            // 1. Branches: remote only (matches GitHub/GitLab UI), exclude HEAD pointer
+            const branches = await countFiltered("git branch -r --format='%(refname:short)'", 'HEAD');
+
+            // 2. Commits: exact count on current branch
             const commits = await countValue('git rev-list --count HEAD');
-            const tags = await countOutput("git tag --list --format='%(refname:short)'");
-            const stashes = await countOutput('git stash list');
+
+            // 3. Tags: remote tags (matches GitHub/GitLab UI), counting refs/tags/ lines
+            const tags = await countFiltered('git ls-remote --tags origin', 'refs/tags/{}');
+
+            // 4. Stashes: local stash list (always accurate)
+            const stashes = await countFiltered('git stash list');
 
             return { branches, commits, tags, stashes };
         } catch (error) {
