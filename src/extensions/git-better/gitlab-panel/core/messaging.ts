@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 /**
- * Routes and handles all messages received from the graph-panel webview.
+ * Routes and handles all messages received from the gitlab-panel webview.
  * Each message `type` maps to a handler method.
  */
 export class Messaging {

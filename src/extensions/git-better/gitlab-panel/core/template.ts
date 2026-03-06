@@ -16,7 +16,7 @@ function generateNonce(length = 32): string {
 // ── HTML Template Builder ───────────────────────────────
 
 /**
- * Builds the final HTML for the graph-panel webview.
+ * Builds the final HTML for the gitlab-panel webview.
  *
  * Performance optimizations:
  *  1. Caches the raw HTML template after first read (avoids repeated disk I/O)
@@ -54,10 +54,10 @@ export class TemplateBuilder {
         const nonce = generateNonce();
         const workspaceName = vscode.workspace.name || 'Unknown Repository';
         const assetsUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'assets')
+            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'gitlab-panel', 'assets')
         ).toString();
         const uiUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui')
+            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'gitlab-panel', 'ui')
         ).toString();
         const scriptsUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this.extensionUri, 'dist')
@@ -103,7 +103,7 @@ export class TemplateBuilder {
         }
 
         const htmlPath = vscode.Uri.joinPath(
-            this.extensionUri, 'src', 'extensions', 'git-better', 'graph-panel', 'ui', fileName,
+            this.extensionUri, 'src', 'extensions', 'git-better', 'gitlab-panel', 'ui', fileName,
         ).fsPath;
 
         try {
