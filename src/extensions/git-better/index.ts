@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { GitBetterManager } from './commit-view/manager';
+import { GitBetterManager } from './mini-panel/manager';
 import { GraphPanelProvider } from './gitlab-panel/core/provider';
 
 let manager: GitBetterManager | undefined;

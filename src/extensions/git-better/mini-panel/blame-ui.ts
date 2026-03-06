@@ -105,7 +105,7 @@ export class LineBlameDecorator implements vscode.Disposable {
         const activeLine = editor.selection.active.line;
         const filePath = editor.document.uri.fsPath;
 
-        // Prioritize error-lens: do not show commit-view if there is an error or warning on the same line
+        // Prioritize error-lens: do not show mini-panel if there is an error or warning on the same line
         const diagnostics = vscode.languages.getDiagnostics(editor.document.uri);
         const hasErrorOrWarning = diagnostics.some(diag => 
             diag.range.start.line === activeLine &&

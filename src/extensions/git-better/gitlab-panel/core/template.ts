@@ -59,7 +59,7 @@ export class TemplateBuilder {
         const nonce = generateNonce();
         const workspaceName = vscode.workspace.name || 'Unknown Repository';
 
-        // Assets are now at git-better/assets (shared with commit-view)
+        // Assets are now at git-better/assets (shared with mini-panel)
         const assetsUri = webview.asWebviewUri(
             vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'assets')
         ).toString();
