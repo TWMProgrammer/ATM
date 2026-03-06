@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
+import * as crypto from 'crypto';
 
 const execAsync = promisify(exec);
 import * as https from 'https';
@@ -33,6 +34,14 @@ function fetchGithubAvatar(owner: string, repo: string, hash: string): Promise<s
 }
 
 export class GraphGitService {
+    private static getGravatarUrl(email: string): string {
+        if (!email) {
+            return '';
+        }
+        const hash = crypto.createHash('md5').update(email.trim().toLowerCase()).digest('hex');
+        return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=40`;
+    }
+
     /**
      * Extract the latest commit data in a format suitable for the Inspect panel
      */
@@ -235,6 +244,92 @@ export class GraphGitService {
             return { branches, commits, tags, stashes };
         } catch (error) {
             console.error('Failed to get global stats from git:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Fetch a page of commits for the commits table (paginated).
+     * @param skip  Number of commits to skip (for pagination)
+     * @param limit Number of commits to fetch per page
+     */
+    public static async getCommitPage(skip: number = 0, limit: number = 25): Promise<any[] | null> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            return null;
+        }
+
+        const cwd = workspaceFolders[0].uri.fsPath;
+
+        try {
+            // Get current branch name and HEAD hash for marking
+            const { stdout: headBranch } = await execAsync('git rev-parse --abbrev-ref HEAD', { cwd });
+            const currentBranch = headBranch.trim();
+
+            const { stdout: headHash } = await execAsync('git rev-parse HEAD', { cwd });
+            const headCommitHash = headHash.trim();
+
+            // Fetch commits with separator for reliable parsing
+            const sep = '---COMMIT_SEP---';
+            const format = `${sep}%H|%h|%an|%ae|%cn|%ce|%s|%ar|%D`;
+            const { stdout } = await execAsync(
+                `git log --all --skip=${skip} -${limit} --format="${format}" --shortstat`,
+                { cwd }
+            );
+
+            const commits: any[] = [];
+            const blocks = stdout.split(sep).filter(Boolean);
+
+            for (const block of blocks) {
+                const lines = block.trim().split('\n');
+                if (lines.length === 0) { continue; }
+
+                const [hash, hashShort, authorName, authorEmail, committerName, committerEmail, message, date, refs] = lines[0].split('|');
+
+                // Parse --shortstat line for files changed
+                let filesChanged = 0;
+                if (lines.length > 1) {
+                    const statLine = lines[lines.length - 1];
+                    const filesMatch = statLine.match(/(\d+) file/);
+                    if (filesMatch) {
+                        filesChanged = parseInt(filesMatch[1], 10);
+                    }
+                }
+
+                // Determine branch from refs (e.g. "HEAD -> main, origin/main")
+                let branch = '';
+                if (refs) {
+                    const refParts = refs.split(',').map(r => r.trim());
+                    for (const ref of refParts) {
+                        const cleaned = ref.replace('HEAD -> ', '').trim();
+                        if (cleaned && !cleaned.startsWith('origin/') && !cleaned.includes('tag:')) {
+                            branch = cleaned;
+                            break;
+                        }
+                    }
+                }
+
+                commits.push({
+                    hash,
+                    hashShort,
+                    authorName,
+                    authorEmail,
+                    authorAvatarUrl: GraphGitService.getGravatarUrl(authorEmail),
+                    committerName,
+                    committerEmail,
+                    committerAvatarUrl: GraphGitService.getGravatarUrl(committerEmail),
+                    authorInitial: authorName ? authorName.charAt(0).toUpperCase() : '?',
+                    message,
+                    date,
+                    filesChanged,
+                    branch,
+                    isHead: hash === headCommitHash,
+                });
+            }
+
+            return commits;
+        } catch (error) {
+            console.error('Failed to get commit page from git:', error);
             return null;
         }
     }

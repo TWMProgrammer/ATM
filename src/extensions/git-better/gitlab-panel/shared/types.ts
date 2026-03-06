@@ -39,3 +39,21 @@ export interface StatsData {
     tags: number;
     stashes: number;
 }
+
+/** Represents a single commit row in the commits table */
+export interface CommitRowData {
+    hash: string;
+    hashShort: string;
+    authorName: string;
+    authorEmail: string;
+    authorAvatarUrl?: string;
+    committerName: string;
+    committerEmail: string;
+    committerAvatarUrl?: string;
+    authorInitial: string;
+    message: string;
+    date: string;
+    filesChanged: number;
+    branch: string;     // branch name (only populated for HEAD of each branch)
+    isHead: boolean;    // is this the HEAD commit of the current branch?
+}
