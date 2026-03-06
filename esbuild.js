@@ -60,9 +60,10 @@ async function main() {
 	const browserCtx = await esbuild.context({
 		entryPoints: [
 			'src/extensions/markdown-text/ui/mermaidPreview.ts',
-			'src/extensions/git-better/graph-panel/ui/components/search.ts',
-			'src/extensions/git-better/graph-panel/ui/components/panel.ts',
-			'src/extensions/git-better/graph-panel/ui/components/template/inspect.ts'
+			'src/extensions/git-better/gitlab-panel/panels/header/header.ts',
+			'src/extensions/git-better/gitlab-panel/panels/graphics-top/graphics.ts',
+			'src/extensions/git-better/gitlab-panel/panels/commits-center/commits.ts',
+			'src/extensions/git-better/gitlab-panel/panels/inspect-right/inspect.ts'
 		],
 		bundle: true,
 		format: 'iife',

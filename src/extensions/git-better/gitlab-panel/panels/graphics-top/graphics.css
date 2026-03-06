@@ -1,0 +1,159 @@
+/* =========================================================
+   GRAPHICS — Sparkline / activity graph
+   ========================================================= */
+
+.graphics-container {
+    height: var(--graphics-height, 32px);
+    background-color: var(--bg-base);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    position: relative;
+    z-index: 50; /* Ensure it stays above the commits table */
+}
+
+.sparkline-container {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+/* ── Lines and Area ───────────────────────────────────── */
+.sparkline-area {
+    pointer-events: none;
+}
+
+.sparkline-path {
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: url(#glow);
+}
+
+/* ── Nodes ────────────────────────────────────────────── */
+.sparkline-node {
+    fill: var(--bg-base);
+    stroke: var(--accent-blue);
+    stroke-width: 1.5px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+    transform-box: fill-box;
+}
+
+.sparkline-node:hover {
+    fill: var(--accent-blue);
+    stroke-width: 0px;
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+.sparkline-node.active {
+    fill: var(--accent-blue);
+    stroke: var(--text-primary);
+    stroke-width: 1.5px;
+}
+
+/* ── Pulse Animation ──────────────────────────────────── */
+.sparkline-pulse {
+    fill: var(--accent-blue);
+    opacity: 0.3;
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    pointer-events: none;
+    transform-origin: center;
+    transform-box: fill-box;
+}
+
+.sparkline-pulse.pulse-delay {
+    animation-delay: 1s;
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* ── Custom Interactive Tooltip ───────────────────────── */
+.graphics-tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: color-mix(in srgb, var(--vscode-editorHoverWidget-background, var(--bg-toolbar)) 85%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--vscode-editorHoverWidget-border, var(--border-color));
+    border-radius: 6px;
+    padding: 8px 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    z-index: 100;
+    transition: opacity 0.15s ease, transform 0.1s ease-out;
+    transform: translate(-50%, 15px); /* default offset */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+    width: max-content;
+}
+
+.graphics-tooltip.show {
+    opacity: 1;
+}
+
+.tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.tooltip-hash {
+    color: var(--accent-blue);
+    font-family: var(--vscode-editor-font-family, 'Consolas', monospace);
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.tooltip-date {
+    color: var(--text-muted);
+    font-size: 10px;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.tooltip-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.tooltip-author {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.tooltip-badge {
+    display: flex;
+    align-items: center;
+    background: color-mix(in srgb, var(--accent-brand) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-brand) 30%, transparent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    gap: 4px;
+}
+
+.tooltip-changes {
+    color: var(--accent-brand);
+    font-weight: bold;
+    font-size: 10px;
+}

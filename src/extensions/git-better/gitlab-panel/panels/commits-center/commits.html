@@ -1,4 +1,4 @@
-<section class="graph-table-container">
+<section class="graph-table-container" style="position: relative;">
     <div class="table-header">
         <div class="col" style="width: 15%">BRANCH / TAG</div>
         <div class="col" style="width: 10%">GRAPH</div>
@@ -15,10 +15,8 @@
                 <div class="icon-mask" style="--icon-size: 14px; margin-right: 6px; -webkit-mask-image: url('{{ASSETS_URI}}/icons/monitor.svg'); mask-image: url('{{ASSETS_URI}}/icons/monitor.svg'); background-color: white; flex-shrink: 0;"></div>
                 <span style="color: white; font-weight: 500; white-space: nowrap;">dev</span>
             </div>
-            <!-- The SVG overlay will be absolute, these are placeholders -->
-            <div class="col" style="width: 10%; align-items: center; justify-content: center;">
-                <span style="color: var(--accent-brand);">●</span>
-            </div>
+            <!-- The tree graph layer will read this column's x,y to draw the nodes and paths -->
+            <div class="col graph-col node-placeholder" data-branch="0" data-color="var(--accent-brand)" style="width: 10%;"></div>
             <div class="col msg-col" style="width: 45%">feat: update keybindings for MDX preview and enhance live preview functionality</div>
             <div class="col" style="width: 10%">You</div>
             <div class="col" style="width: 10%">
@@ -30,9 +28,7 @@
 
         <div class="table-row">
             <div class="col" style="width: 10%"></div>
-            <div class="col" style="width: 15%; align-items: center; justify-content: center;">
-                <span style="color: var(--accent-blue);">●</span>
-            </div>
+            <div class="col graph-col node-placeholder" data-branch="1" data-color="var(--accent-blue)" style="width: 15%;"></div>
             <div class="col" style="width: 45%; color: var(--text-primary); font-family: inherit;">feat: add support for remark-frontmatter</div>
             <div class="col" style="width: 10%">You</div>
             <div class="col" style="width: 10%">
@@ -41,5 +37,9 @@
             </div>
             <div class="col" style="width: 10%; color: var(--text-muted);">yesterday</div>
         </div>
+    </div>
+    <!-- Canvas/SVG Graph Overlay layer -->
+    <div id="tree-graph-overlay" style="position: absolute; top: var(--toolbar-height, 48px); left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;">
+        <!-- Later the Tree Graph will be rendered here via TS -->
     </div>
 </section>

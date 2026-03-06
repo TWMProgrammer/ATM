@@ -1,28 +1,59 @@
 /**
- * Manages the Inspect Panel logic, handling incoming state updates and
- * communicating actions correctly to the main VS Code extension backend.
+ * Inspect Panel — Manages commit details display and panel collapse/expand.
+ * Combines InspectManager + PanelToggle logic.
  */
+import type { InspectCommitData } from '../../shared/types';
 
-// Define the shape of our commit data representing the selected state
-export interface InspectCommitData {
-    hash: string;
-    authorName: string;
-    authorAvatar: string;
-    authorAvatarUrl?: string | null;
-    message: string;
-    date: string;
-    stats: {
-        added: number;
-        deleted: number;
-    };
-    files: Array<{
-        status: string; // e.g., 'M', 'A', 'D'
-        name: string;
-    }>;
-    githubUrl: string | null;
+// ── Inspect Panel Toggle ─────────────────────────────────
+class InspectPanelToggle {
+    private isPanelCollapsed = false;
+
+    constructor() {
+        const inspectPanel = document.getElementById('inspect-panel');
+        const inspectToggle = document.getElementById('inspect-toggle');
+
+        if (inspectToggle && inspectPanel) {
+            inspectToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggle();
+            });
+
+            inspectPanel.addEventListener('click', () => {
+                if (this.isPanelCollapsed) {
+                    this.toggle();
+                }
+            });
+        }
+    }
+
+    private toggle() {
+        const inspectPanel = document.getElementById('inspect-panel');
+        const inspectToggle = document.getElementById('inspect-toggle');
+        const icon = inspectToggle?.querySelector('.toggle-icon') as HTMLElement;
+
+        this.isPanelCollapsed = !this.isPanelCollapsed;
+
+        if (inspectPanel) {
+            inspectPanel.classList.toggle('collapsed', this.isPanelCollapsed);
+        }
+
+        if (inspectToggle) {
+            inspectToggle.title = this.isPanelCollapsed ? 'Expand panel' : 'Collapse panel';
+        }
+
+        if (icon) {
+            const iconName = this.isPanelCollapsed ? 'arrow-left.svg' : 'arrow-right.svg';
+            // @ts-ignore - ASSETS_URI is injected by the template builder
+            const assetsUri = window.ASSETS_URI || '{{ASSETS_URI}}';
+            const newUrl = `url('${assetsUri}/icons/${iconName}')`;
+            icon.style.webkitMaskImage = newUrl;
+            icon.style.maskImage = newUrl;
+        }
+    }
 }
 
-export class InspectManager {
+// ── Inspect Manager ──────────────────────────────────────
+class InspectManager {
     private vscode: any;
     private currentHash: string | null = null;
     private currentGithubUrl: string | null = null;
@@ -34,7 +65,7 @@ export class InspectManager {
     }
 
     private init() {
-        // 1. Listen for messages from the extension Backend
+        // Listen for messages from the extension backend
         window.addEventListener('message', (event) => {
             const message = event.data;
             switch (message.type) {
@@ -46,7 +77,7 @@ export class InspectManager {
             }
         });
 
-        // 2. Bind the UI actions to VS Code commands
+        // Copy button
         const btnCopy = document.getElementById('btn-copy');
         const btnCopyText = document.getElementById('btn-copy-text');
         const btnCopyIcon = document.getElementById('btn-copy-icon');
@@ -54,12 +85,12 @@ export class InspectManager {
         if (btnCopy && btnCopyText && btnCopyIcon) {
             btnCopy.addEventListener('click', () => {
                 if (this.currentHash) {
-                    this.vscode.postMessage({ 
-                        type: 'copyCommit', 
-                        hash: this.currentHash 
+                    this.vscode.postMessage({
+                        type: 'copyCommit',
+                        hash: this.currentHash
                     });
 
-                    // Visual Feedback
+                    // Visual feedback
                     const originalText = btnCopyText.textContent;
                     const originalColor = btnCopyIcon.style.backgroundColor;
                     const originalMask = btnCopyIcon.style.maskImage || btnCopyIcon.style.webkitMaskImage;
@@ -70,24 +101,20 @@ export class InspectManager {
                     btnCopyText.textContent = 'Copied!';
                     btnCopyText.style.color = 'var(--vscode-charts-green, #4caf50)';
                     btnCopyIcon.style.backgroundColor = 'var(--vscode-charts-green, #4caf50)';
-                    
-                    // Switch to checks icon
+
                     btnCopyIcon.style.webkitMaskImage = `url('${assetsUri}/icons/checks.svg')`;
                     btnCopyIcon.style.maskImage = `url('${assetsUri}/icons/checks.svg')`;
-                    
+
                     btnCopy.style.borderColor = 'var(--vscode-charts-green, #4caf50)';
                     btnCopy.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
-                    
+
                     setTimeout(() => {
                         if (btnCopyText.textContent === 'Copied!') {
                             btnCopyText.textContent = originalText;
                             btnCopyText.style.color = '';
                             btnCopyIcon.style.backgroundColor = originalColor;
-                            
-                            // Restore original icon
                             btnCopyIcon.style.webkitMaskImage = originalMask;
                             btnCopyIcon.style.maskImage = originalMask;
-                            
                             btnCopy.style.borderColor = '';
                             btnCopy.style.backgroundColor = '';
                         }
@@ -96,6 +123,7 @@ export class InspectManager {
             });
         }
 
+        // GitHub link
         const btnGithub = document.querySelector('.inspect-title');
         if (btnGithub) {
             btnGithub.addEventListener('click', () => {
@@ -108,13 +136,10 @@ export class InspectManager {
             });
         }
 
-        // 3. Request initial data when UI is ready
+        // Request initial data
         this.vscode.postMessage({ type: 'ready' });
     }
 
-    /**
-     * Updates all dynamic text correctly without destroying the DOM structure.
-     */
     private updateInspectPanel(data: InspectCommitData) {
         this.currentHash = data.hash;
         this.currentGithubUrl = data.githubUrl;
@@ -123,8 +148,8 @@ export class InspectManager {
         this.setTextInfo('inspect-author-name', data.authorName);
         this.setTextInfo('inspect-commit-title', data.message);
         this.setTextInfo('inspect-commit-date', data.date);
-        
-        // Handle Avatar logic separately
+
+        // Avatar
         const avatarEl = document.getElementById('inspect-author-avatar');
         if (avatarEl) {
             avatarEl.classList.remove('skeleton-box');
@@ -135,24 +160,19 @@ export class InspectManager {
             } else {
                 avatarEl.innerHTML = '';
                 avatarEl.textContent = data.authorAvatar;
-                avatarEl.style.backgroundColor = ''; // Restore to default CSS
+                avatarEl.style.backgroundColor = '';
                 avatarEl.style.color = '';
             }
         }
-        
-        // Correct formatting logic
+
         const fileCountText = data.files.length === 1 ? '1 FILE CHANGED' : `${data.files.length} FILES CHANGED`;
         this.setTextInfo('inspect-files-count-text', fileCountText);
-        
         this.setTextInfo('inspect-stats-add', `+${data.stats.added}`);
         this.setTextInfo('inspect-stats-del', `-${data.stats.deleted}`);
 
         this.renderFileList(data.files);
     }
 
-    /**
-     * Helper cleanly updates text content and removes skeleton classes if element exists.
-     */
     private setTextInfo(id: string, text: string) {
         const el = document.getElementById(id);
         if (el) {
@@ -161,22 +181,16 @@ export class InspectManager {
         }
     }
 
-    /**
-     * Efficiently builds the file list HTML.
-     */
     private renderFileList(files: InspectCommitData['files']) {
         const listEl = document.getElementById('inspect-file-list');
-        if (!listEl) {
-            return;
-        }
+        if (!listEl) { return; }
 
         // @ts-ignore
         const assetsUri = window.ASSETS_URI || '';
 
         const html = files.map(file => {
-            // Give different colors depending on action status if desired.
-            const statusColor = file.status === 'D' ? 'var(--accent-red)' : 
-                                file.status === 'A' ? 'var(--accent-green)' : 
+            const statusColor = file.status === 'D' ? 'var(--accent-red)' :
+                                file.status === 'A' ? 'var(--accent-green)' :
                                 'var(--accent-blue)';
 
             return `
@@ -190,14 +204,17 @@ export class InspectManager {
             `;
         }).join('');
 
-        // Apply new elements using fast native parse
         listEl.innerHTML = html;
     }
 }
 
-// Initialize on load
+// ── Initialize ───────────────────────────────────────────
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new InspectManager());
+    document.addEventListener('DOMContentLoaded', () => {
+        new InspectPanelToggle();
+        new InspectManager();
+    });
 } else {
+    new InspectPanelToggle();
     new InspectManager();
 }

@@ -47,11 +47,21 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
     }
 
     private async sendInitialData(webview: vscode.Webview) {
+        // Send initial Inspect panel data
         const latestCommit = await GraphGitService.getLatestCommit();
         if (latestCommit) {
             webview.postMessage({
                 type: 'renderCommit',
                 data: latestCommit
+            });
+        }
+
+        // Send graphics timeline data
+        const timeline = await GraphGitService.getGraphicsTimeline(30);
+        if (timeline) {
+            webview.postMessage({
+                type: 'renderGraphics',
+                data: timeline
             });
         }
     }

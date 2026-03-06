@@ -1,0 +1,11 @@
+/* =========================================================
+   Skeleton loading states for the Inspect panel
+   ========================================================= */
+
+#inspect-commit-hash.skeleton-box { width: 56px; }
+#inspect-author-name.skeleton-box { width: 80px; }
+#inspect-commit-title.skeleton-box { width: 100%; height: 3em; }
+#inspect-commit-date.skeleton-box { width: 60px; }
+#inspect-files-count-text.skeleton-box { width: 100px; }
+#inspect-stats-add.skeleton-box { width: 20px; }
+#inspect-stats-del.skeleton-box { width: 20px; }

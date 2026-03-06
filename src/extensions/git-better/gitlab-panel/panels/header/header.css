@@ -1,0 +1,127 @@
+/* =========================================================
+   HEADER — Search bar, repo name, expand button
+   ========================================================= */
+
+.top-toolbar {
+    height: var(--toolbar-height);
+    background-color: var(--bg-toolbar);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    flex-shrink: 0;
+    gap: 5px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+button.repo-btn {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    max-width: 100%;
+    justify-content: flex-start;
+    border: 1px solid var(--border-color);
+}
+
+button.repo-btn:hover {
+    background-color: var(--bg-hover);
+}
+
+.repo-name {
+    color: var(--accent-brand);
+    font-weight: 600;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Search Box ───────────────────────────────────────── */
+.toolbar-center {
+    flex-grow: 1;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 600px;
+    max-width: 50vw;
+}
+
+.search-box {
+    background-color: var(--bg-base);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    height: 30px;
+    flex-grow: 1;
+    transition: border-color 0.2s;
+}
+
+.search-box:focus-within {
+    border-color: var(--vscode-focusBorder, var(--accent-blue));
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    outline: none;
+    width: 100%;
+    margin-left: 8px;
+    font-size: 13px;
+    flex-grow: 1;
+}
+
+.search-box input::placeholder {
+    color: var(--text-muted);
+}
+
+#search-clear {
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: opacity 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#search-clear.visible {
+    opacity: 0.9;
+    pointer-events: auto;
+}
+
+#search-clear:hover {
+    color: var(--text-primary);
+    opacity: 1;
+}
+
+/* ── Expand Button ────────────────────────────────────── */
+#expand-btn .icon-mask {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#expand-btn.expanded .icon-mask {
+    transform: rotate(180deg);
+}

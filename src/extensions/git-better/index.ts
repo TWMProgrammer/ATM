@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GitBetterManager } from './commit-view/manager';
-import { GraphPanelProvider } from './graph-panel/core/provider';
+import { GraphPanelProvider } from './gitlab-panel/core/provider';
 
 let manager: GitBetterManager | undefined;
 let providerDispose: vscode.Disposable | undefined;
