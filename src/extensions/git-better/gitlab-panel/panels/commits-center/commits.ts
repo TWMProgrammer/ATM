@@ -23,12 +23,12 @@ class CommitsManager {
     // Branch color mapping
     private branchColors: Record<string, string> = {};
     private colorPalette = [
-        'var(--accent-brand)',
-        'var(--accent-blue)',
-        'var(--accent-purple)',
-        'var(--accent-orange)',
-        'var(--accent-cyan)',
-        'var(--accent-red)',
+        '#23d18b', // vibrant green
+        '#3794ff', // vibrant blue
+        '#c678dd', // pink/purple
+        '#d19a66', // orange
+        '#56b6c2', // cyan
+        '#f14c4c', // red
     ];
     private colorIndex = 0;
 
@@ -210,14 +210,14 @@ class CommitsManager {
         row.setAttribute('data-hash', commit.hash);
 
         // Assign a color to this commit's branch
-        const color = this.getBranchColor(commit.branch || `lane-${index % 2}`);
+        const color = this.getBranchColor(commit.branch || 'default-lane');
 
         // 1. Branch column
         const branchCol = document.createElement('div');
         branchCol.className = 'col col-branch';
         if (commit.branch) {
             branchCol.innerHTML = `
-                <div class="branch-badge" style="background-color: ${color}1A; border: 1px solid ${color}33; color: ${color};">
+                <div class="branch-badge" style="background-color: color-mix(in srgb, ${color} 10%, transparent); border: 1px solid color-mix(in srgb, ${color} 20%, transparent); color: ${color};">
                     <svg class="branch-icon" viewBox="0 0 16 16" width="12" height="12" fill="currentColor" style="margin-right: 4px;">
                         <path d="M11.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm-2.25.75a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.378a2.25 2.25 0 1 1-1.5 0V5.378a2.25 2.25 0 1 1 1.5 0v1.122A2.5 2.5 0 0 1 7.5 4h2a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM3.5 3.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0Z"></path>
                     </svg>
@@ -394,7 +394,7 @@ class CommitsManager {
             path.setAttribute('stroke-width', '2');
             path.setAttribute('stroke-linecap', 'round');
             path.setAttribute('opacity', '0.75');
-            path.style.filter = `drop-shadow(0px 0px 3px ${curr.color}80)`;
+            path.style.filter = `drop-shadow(0px 0px 3px ${curr.color})`;
             svg.appendChild(path);
         }
 
@@ -423,6 +423,9 @@ class CommitsManager {
     // ── Helpers ───────────────────────────────────────────
 
     private getBranchColor(branch: string): string {
+        if (branch === 'default-lane') {
+            return 'var(--accent-blue)';
+        }
         if (!this.branchColors[branch]) {
             this.branchColors[branch] = this.colorPalette[this.colorIndex % this.colorPalette.length];
             this.colorIndex++;
