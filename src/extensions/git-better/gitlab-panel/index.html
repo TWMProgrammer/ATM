@@ -11,11 +11,11 @@
     <link href="{{SHARED_URI}}/skeleton/inspect.css" rel="stylesheet">
 
     <!-- Panel Styles -->
-    <link href="{{PANELS_URI}}/toolbar/toolbar.css" rel="stylesheet">
-    <link href="{{PANELS_URI}}/minimap/minimap.css" rel="stylesheet">
-    <link href="{{PANELS_URI}}/sidebar/sidebar.css" rel="stylesheet">
-    <link href="{{PANELS_URI}}/table/table.css" rel="stylesheet">
-    <link href="{{PANELS_URI}}/inspect/inspect.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/header/toolbar.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/graphics-top/minimap.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/buttons-left/sidebar.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/commits-center/table.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/inspect-right/inspect.css" rel="stylesheet">
 
     <!-- Anti-White-Flash & FOUC Prevention Critical CSS -->
     <style>
@@ -53,22 +53,22 @@
 </head>
 <body class="loading">
     <!-- 1. Top Configuration Bar (Repos, Branches, Search) -->
-    {{TOOLBAR_COMPONENT}}
+    {{HEADER_COMPONENT}}
 
     <!-- 2. Minimap / Sparkline Area -->
-    {{MINIMAP_COMPONENT}}
+    {{GRAPHICS_TOP_COMPONENT}}
 
     <!-- 3. Main Workspace Setup (Split View) -->
     <main class="workspace">
 
         <!-- A. Left Sidebar (Icons Panel) -->
-        {{SIDEBAR_COMPONENT}}
+        {{BUTTONS_LEFT_COMPONENT}}
 
         <!-- B. Central Graph Table Area -->
-        {{TABLE_COMPONENT}}
+        {{COMMITS_CENTER_COMPONENT}}
 
         <!-- C. Right Inspect Panel (Fixed, pushes graph left) -->
-        {{INSPECT_COMPONENT}}
+        {{INSPECT_RIGHT_COMPONENT}}
 
     </main>
 

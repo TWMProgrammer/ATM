@@ -41,19 +41,19 @@ export class TemplateBuilder {
         if (!template) { return this.errorPage(); }
 
         // Load sub-components from panels/
-        const toolbarHtml = this.getTemplate('panels/toolbar/toolbar.html') || '';
-        const minimapHtml = this.getTemplate('panels/minimap/minimap.html') || '';
-        const sidebarHtml = this.getTemplate('panels/sidebar/sidebar.html') || '';
-        const tableHtml = this.getTemplate('panels/table/table.html') || '';
-        const inspectHtml = this.getTemplate('panels/inspect/inspect.html') || '';
+        const headerHtml = this.getTemplate('panels/header/toolbar.html') || '';
+        const graphicsTopHtml = this.getTemplate('panels/graphics-top/minimap.html') || '';
+        const buttonsLeftHtml = this.getTemplate('panels/buttons-left/sidebar.html') || '';
+        const commitsCenterHtml = this.getTemplate('panels/commits-center/table.html') || '';
+        const inspectRightHtml = this.getTemplate('panels/inspect-right/inspect.html') || '';
 
         // Assemble the complete HTML
         let fullHtml = template
-            .replace('{{TOOLBAR_COMPONENT}}', toolbarHtml)
-            .replace('{{MINIMAP_COMPONENT}}', minimapHtml)
-            .replace('{{SIDEBAR_COMPONENT}}', sidebarHtml)
-            .replace('{{TABLE_COMPONENT}}', tableHtml)
-            .replace('{{INSPECT_COMPONENT}}', inspectHtml);
+            .replace('{{HEADER_COMPONENT}}', headerHtml)
+            .replace('{{GRAPHICS_TOP_COMPONENT}}', graphicsTopHtml)
+            .replace('{{BUTTONS_LEFT_COMPONENT}}', buttonsLeftHtml)
+            .replace('{{COMMITS_CENTER_COMPONENT}}', commitsCenterHtml)
+            .replace('{{INSPECT_RIGHT_COMPONENT}}', inspectRightHtml);
 
         // Pre-compute dynamic values
         const nonce = generateNonce();
