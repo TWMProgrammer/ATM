@@ -117,4 +117,60 @@ export class GraphGitService {
             return null;
         }
     }
+
+    /**
+     * Extracts a timeline of commits for the graphics sparkline panel.
+     * Returns an array mapping commit metrics oldest-to-newest.
+     */
+    public static async getGraphicsTimeline(limit: number = 30): Promise<any[] | null> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            return null;
+        }
+
+        const cwd = workspaceFolders[0].uri.fsPath;
+
+        try {
+            const { stdout } = await execAsync(`git log -${limit} --format="COMMIT|%H|%at" --shortstat`, { cwd });
+            const timeline: any[] = [];
+
+            const blocks = stdout.split('COMMIT|').filter(Boolean);
+            let isHead = true;
+
+            for (const block of blocks) {
+                const lines = block.trim().split('\n');
+                if (lines.length === 0) {
+                    continue;
+                }
+
+                const [hash, timestampStr] = lines[0].split('|');
+                let linesChanged = 0;
+
+                if (lines.length > 1) {
+                    const statLine = lines[lines.length - 1];
+                    const insertionsMatch = statLine.match(/(\d+) insertion/);
+                    const deletionsMatch = statLine.match(/(\d+) deletion/);
+
+                    const insertions = insertionsMatch ? parseInt(insertionsMatch[1], 10) : 0;
+                    const deletions = deletionsMatch ? parseInt(deletionsMatch[1], 10) : 0;
+
+                    linesChanged = insertions + deletions;
+                }
+
+                timeline.push({
+                    hash,
+                    timestamp: parseInt(timestampStr, 10),
+                    linesChanged,
+                    isHead
+                });
+                isHead = false;
+            }
+
+            // Reverse to display oldest first (left) to newest last (right)
+            return timeline.reverse();
+        } catch (error) {
+            console.error('Failed to get graphics timeline from git:', error);
+            return null;
+        }
+    }
 }

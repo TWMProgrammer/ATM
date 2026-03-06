@@ -21,3 +21,11 @@ export interface InspectCommitData {
     }>;
     githubUrl: string | null;
 }
+
+/** Represents a data point in the Graphics logic (Minimap/Sparkline). */
+export interface GraphicsCommitData {
+    hash: string;
+    timestamp: number;
+    linesChanged: number; // For determining the height of the curve
+    isHead: boolean;      // For drawing the active node/branch head differently
+}
