@@ -1,4 +1,4 @@
 /**
- * Sidebar panel logic — currently static icons.
+ * Buttons panel logic — currently static icons.
  * Future: interactive navigation between views.
  */

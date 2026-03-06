@@ -1,5 +1,5 @@
 /**
- * Toolbar logic — SearchBox + Expand button
+ * Header logic — SearchBox + Expand button
  */
 
 // ── SearchBox ────────────────────────────────────────────

@@ -11,10 +11,10 @@
     <link href="{{SHARED_URI}}/skeleton/inspect.css" rel="stylesheet">
 
     <!-- Panel Styles -->
-    <link href="{{PANELS_URI}}/header/toolbar.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/header/header.css" rel="stylesheet">
     <link href="{{PANELS_URI}}/graphics-top/graphics.css" rel="stylesheet">
-    <link href="{{PANELS_URI}}/buttons-left/sidebar.css" rel="stylesheet">
-    <link href="{{PANELS_URI}}/commits-center/table.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/buttons-left/buttons.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/commits-center/commits.css" rel="stylesheet">
     <link href="{{PANELS_URI}}/inspect-right/inspect.css" rel="stylesheet">
 
     <!-- Anti-White-Flash & FOUC Prevention Critical CSS -->
@@ -78,8 +78,8 @@
         window.vscodeApi = acquireVsCodeApi();
         document.body.classList.add('ready');
     </script>
-    <script src="{{SCRIPTS_URI}}/toolbar.js" nonce="{{NONCE}}"></script>
-    <script src="{{SCRIPTS_URI}}/table.js" nonce="{{NONCE}}"></script>
+    <script src="{{SCRIPTS_URI}}/header.js" nonce="{{NONCE}}"></script>
+    <script src="{{SCRIPTS_URI}}/commits.js" nonce="{{NONCE}}"></script>
     <script src="{{SCRIPTS_URI}}/inspect.js" nonce="{{NONCE}}"></script>
 </body>
 </html>

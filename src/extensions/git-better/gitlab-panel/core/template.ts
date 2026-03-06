@@ -41,10 +41,10 @@ export class TemplateBuilder {
         if (!template) { return this.errorPage(); }
 
         // Load sub-components from panels/
-        const headerHtml = this.getTemplate('panels/header/toolbar.html') || '';
+        const headerHtml = this.getTemplate('panels/header/header.html') || '';
         const graphicsTopHtml = this.getTemplate('panels/graphics-top/graphics.html') || '';
-        const buttonsLeftHtml = this.getTemplate('panels/buttons-left/sidebar.html') || '';
-        const commitsCenterHtml = this.getTemplate('panels/commits-center/table.html') || '';
+        const buttonsLeftHtml = this.getTemplate('panels/buttons-left/buttons.html') || '';
+        const commitsCenterHtml = this.getTemplate('panels/commits-center/commits.html') || '';
         const inspectRightHtml = this.getTemplate('panels/inspect-right/inspect.html') || '';
 
         // Assemble the complete HTML
