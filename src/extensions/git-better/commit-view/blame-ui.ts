@@ -53,6 +53,11 @@ export class LineBlameDecorator implements vscode.Disposable {
         this.disposables.push(
             vscode.window.onDidChangeActiveTextEditor(this.onActiveEditorChanged.bind(this)),
             vscode.window.onDidChangeTextEditorSelection(onSelectionChange),
+            vscode.languages.onDidChangeDiagnostics((e) => {
+                if (this.activeEditor && e.uris.some(uri => uri.toString() === this.activeEditor!.document.uri.toString())) {
+                    debouncedUpdate();
+                }
+            }),
             { dispose: debouncedUpdate.cancel },
         );
 
@@ -99,6 +104,18 @@ export class LineBlameDecorator implements vscode.Disposable {
         const version = ++this.updateVersion;
         const activeLine = editor.selection.active.line;
         const filePath = editor.document.uri.fsPath;
+
+        // Prioritize error-lens: do not show commit-view if there is an error or warning on the same line
+        const diagnostics = vscode.languages.getDiagnostics(editor.document.uri);
+        const hasErrorOrWarning = diagnostics.some(diag => 
+            diag.range.start.line === activeLine &&
+            (diag.severity === vscode.DiagnosticSeverity.Error || diag.severity === vscode.DiagnosticSeverity.Warning)
+        );
+
+        if (hasErrorOrWarning) {
+            editor.setDecorations(this.decorationType, []);
+            return;
+        }
 
         // Skip rendering blame on visually empty lines to avoid awkward/misplaced hovers
         const lineText = editor.document.lineAt(activeLine).text;
