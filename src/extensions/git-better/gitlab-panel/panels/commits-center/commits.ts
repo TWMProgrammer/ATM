@@ -17,6 +17,9 @@ class CommitsManager {
     private hasMore = true;
     private isLoading = false;
 
+    // Search state
+    private currentSearchQuery = '';
+
     // Branch color mapping
     private branchColors: Record<string, string> = {};
     private colorPalette = [
@@ -68,6 +71,12 @@ class CommitsManager {
         if (this.tableBody) {
             this.tableBody.addEventListener('scroll', () => this.onScroll());
         }
+
+        // Listen for search events from the header SearchBox
+        window.addEventListener('commitSearch', ((e: CustomEvent) => {
+            this.currentSearchQuery = e.detail.query || '';
+            this.filterRows();
+        }) as EventListener);
     }
 
     private onCommitsReceived(commits: CommitRowData[], skip: number, hasMore: boolean) {
@@ -96,11 +105,61 @@ class CommitsManager {
 
         // Redraw graph after rows are in DOM
         requestAnimationFrame(() => {
+            // Apply search filter if active
+            if (this.currentSearchQuery) {
+                this.filterRows();
+            }
             this.drawTreeGraph();
             if (!this.resizeObserver) {
                 this.setupResizeObserver();
             }
         });
+    }
+
+    // ── Search Filter ────────────────────────────────────
+
+    private filterRows() {
+        if (!this.tableBody) { return; }
+
+        const query = this.currentSearchQuery.toLowerCase();
+        const rows = this.tableBody.querySelectorAll('.table-row:not(.skeleton-row)');
+
+        // If query is empty, show all rows
+        if (!query) {
+            rows.forEach(row => {
+                (row as HTMLElement).style.display = '';
+            });
+            requestAnimationFrame(() => this.drawTreeGraph());
+            return;
+        }
+
+        // Detect if query looks like a commit hash (hex characters only, ≥7 length)
+        const isHashSearch = /^[0-9a-f]{7,}$/i.test(query);
+
+        rows.forEach(row => {
+            const el = row as HTMLElement;
+            const hash = el.getAttribute('data-hash') || '';
+
+            if (isHashSearch) {
+                // Hash search: prefix match on the full hash
+                const match = hash.toLowerCase().startsWith(query);
+                el.style.display = match ? '' : 'none';
+            } else {
+                // Text search: match against message, author, branch, date
+                const message = el.querySelector('.commit-msg-text')?.textContent?.toLowerCase() || '';
+                const typeBadge = el.querySelector('.commit-type-badge')?.textContent?.toLowerCase() || '';
+                const author = el.querySelector('.author-name-text')?.textContent?.toLowerCase() || '';
+                const branch = el.querySelector('.branch-name')?.textContent?.toLowerCase() || '';
+                const date = el.querySelector('.date-text')?.textContent?.toLowerCase() || '';
+
+                const searchable = `${typeBadge} ${message} ${author} ${branch} ${date}`;
+                const match = searchable.includes(query);
+                el.style.display = match ? '' : 'none';
+            }
+        });
+
+        // Redraw graph to account for hidden rows
+        requestAnimationFrame(() => this.drawTreeGraph());
     }
 
     // ── Conventional Commit Detection ────────────────────
@@ -291,6 +350,10 @@ class CommitsManager {
         const nodes: { x: number; y: number; color: string }[] = [];
 
         placeholders.forEach((el) => {
+            // Skip hidden rows (filtered out by search)
+            const row = el.closest('.table-row') as HTMLElement | null;
+            if (row && row.style.display === 'none') { return; }
+
             const rect = el.getBoundingClientRect();
             const x = (rect.left - overlayRect.left) + (rect.width / 2);
             const y = (rect.top - overlayRect.top) + (rect.height / 2);
