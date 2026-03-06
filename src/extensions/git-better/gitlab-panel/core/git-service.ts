@@ -175,4 +175,50 @@ export class GraphGitService {
             return null;
         }
     }
+
+    /**
+     * Extracts global metrics for the sidebar (branches, commits, tags, stashes)
+     */
+    public static async getGlobalStats(): Promise<any | null> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            return null;
+        }
+
+        const cwd = workspaceFolders[0].uri.fsPath;
+
+        try {
+            // Counts only non-empty lines from stdout (avoids wc -l noise)
+            const countOutput = async (cmd: string): Promise<number> => {
+                try {
+                    const { stdout } = await execAsync(cmd, { cwd });
+                    return stdout.trim().split('\n').filter(Boolean).length;
+                } catch {
+                    return 0;
+                }
+            };
+
+            // Counts a single numeric value from stdout (e.g. git rev-list --count)
+            const countValue = async (cmd: string): Promise<number> => {
+                try {
+                    const { stdout } = await execAsync(cmd, { cwd });
+                    const val = parseInt(stdout.trim(), 10);
+                    return isNaN(val) ? 0 : val;
+                } catch {
+                    return 0;
+                }
+            };
+
+            // Use --format for clean output, no asterisks, no color codes
+            const branches = await countOutput("git branch --list --format='%(refname:short)'");
+            const commits = await countValue('git rev-list --count HEAD');
+            const tags = await countOutput("git tag --list --format='%(refname:short)'");
+            const stashes = await countOutput('git stash list');
+
+            return { branches, commits, tags, stashes };
+        } catch (error) {
+            console.error('Failed to get global stats from git:', error);
+            return null;
+        }
+    }
 }

@@ -64,5 +64,14 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
                 data: timeline
             });
         }
+
+        // Send global stats (left sidebar)
+        const stats = await GraphGitService.getGlobalStats();
+        if (stats) {
+            webview.postMessage({
+                type: 'renderStats',
+                data: stats
+            });
+        }
     }
 }

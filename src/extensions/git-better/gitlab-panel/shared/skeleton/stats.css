@@ -1,0 +1,19 @@
+/* =========================================================
+   Skeleton loading states for the Stats panel (left sidebar)
+   ========================================================= */
+
+.stats-skeleton {
+    display: inline-block;
+    width: 16px;
+    height: 10px;
+    border-radius: 4px;
+    background-color: var(--vscode-editor-inactiveSelectionBackground, rgba(128, 128, 128, 0.2));
+    animation: stats-pulse 1.5s ease-in-out infinite;
+    margin-top: 2px;
+}
+
+@keyframes stats-pulse {
+    0% { opacity: 0.4; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0.4; transform: scale(0.95); }
+}

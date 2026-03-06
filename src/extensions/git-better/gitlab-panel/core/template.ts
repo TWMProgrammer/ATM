@@ -41,18 +41,18 @@ export class TemplateBuilder {
         if (!template) { return this.errorPage(); }
 
         // Load sub-components from panels/
-        const headerHtml = this.getTemplate('panels/header/header.html') || '';
-        const graphicsTopHtml = this.getTemplate('panels/graphics-top/graphics.html') || '';
-        const buttonsLeftHtml = this.getTemplate('panels/buttons-left/buttons.html') || '';
-        const commitsCenterHtml = this.getTemplate('panels/commits-center/commits.html') || '';
+        const htmlHeader = this.getTemplate('panels/header/header.html') || '';
+        const htmlGraphicsTop = this.getTemplate('panels/graphics-top/graphics.html') || '';
+        const htmlStatsLeft = this.getTemplate('panels/stats-left/stats.html') || '';
+        const htmlCommitsCenter = this.getTemplate('panels/commits-center/commits.html') || '';
         const inspectRightHtml = this.getTemplate('panels/inspect-right/inspect.html') || '';
 
         // Assemble the complete HTML
         let fullHtml = template
-            .replace('{{HEADER_COMPONENT}}', headerHtml)
-            .replace('{{GRAPHICS_TOP_COMPONENT}}', graphicsTopHtml)
-            .replace('{{BUTTONS_LEFT_COMPONENT}}', buttonsLeftHtml)
-            .replace('{{COMMITS_CENTER_COMPONENT}}', commitsCenterHtml)
+            .replace('{{HEADER_COMPONENT}}', htmlHeader)
+            .replace('{{GRAPHICS_TOP_COMPONENT}}', htmlGraphicsTop)
+            .replace('{{STATS_LEFT_COMPONENT}}', htmlStatsLeft)
+            .replace('{{COMMITS_CENTER_COMPONENT}}', htmlCommitsCenter)
             .replace('{{INSPECT_RIGHT_COMPONENT}}', inspectRightHtml);
 
         // Pre-compute dynamic values

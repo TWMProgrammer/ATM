@@ -62,6 +62,7 @@ async function main() {
 			'src/extensions/markdown-text/ui/mermaidPreview.ts',
 			'src/extensions/git-better/gitlab-panel/panels/header/header.ts',
 			'src/extensions/git-better/gitlab-panel/panels/graphics-top/graphics.ts',
+			'src/extensions/git-better/gitlab-panel/panels/stats-left/stats.ts',
 			'src/extensions/git-better/gitlab-panel/panels/commits-center/commits.ts',
 			'src/extensions/git-better/gitlab-panel/panels/inspect-right/inspect.ts'
 		],
