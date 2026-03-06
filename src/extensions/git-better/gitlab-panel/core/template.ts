@@ -42,7 +42,7 @@ export class TemplateBuilder {
 
         // Load sub-components from panels/
         const headerHtml = this.getTemplate('panels/header/toolbar.html') || '';
-        const graphicsTopHtml = this.getTemplate('panels/graphics-top/minimap.html') || '';
+        const graphicsTopHtml = this.getTemplate('panels/graphics-top/graphics.html') || '';
         const buttonsLeftHtml = this.getTemplate('panels/buttons-left/sidebar.html') || '';
         const commitsCenterHtml = this.getTemplate('panels/commits-center/table.html') || '';
         const inspectRightHtml = this.getTemplate('panels/inspect-right/inspect.html') || '';

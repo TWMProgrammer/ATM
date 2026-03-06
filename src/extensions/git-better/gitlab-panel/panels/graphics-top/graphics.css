@@ -1,9 +1,9 @@
 /* =========================================================
-   MINIMAP — Sparkline / activity graph
+   GRAPHICS — Sparkline / activity graph
    ========================================================= */
 
-.minimap-container {
-    height: var(--minimap-height, 32px);
+.graphics-container {
+    height: var(--graphics-height, 32px);
     background-color: var(--bg-base);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
