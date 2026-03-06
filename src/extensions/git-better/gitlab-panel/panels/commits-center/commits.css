@@ -94,6 +94,75 @@
 .msg-col {
     color: var(--accent-brand);
     font-weight: 500;
+    font-size: 11px;
+    gap: 6px;
+}
+
+.commit-msg-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Conventional Commit Type Badge ───────────────────── */
+.commit-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    font-family: var(--vscode-font-family, sans-serif);
+}
+
+.commit-type-badge.type-feat {
+    background-color: rgba(35, 209, 139, 0.12);
+    color: var(--accent-brand);
+    border: 1px solid rgba(35, 209, 139, 0.25);
+}
+
+.commit-type-badge.type-fix {
+    background-color: rgba(224, 108, 117, 0.12);
+    color: var(--accent-red);
+    border: 1px solid rgba(224, 108, 117, 0.25);
+}
+
+.commit-type-badge.type-chore {
+    background-color: rgba(209, 154, 102, 0.12);
+    color: var(--accent-orange);
+    border: 1px solid rgba(209, 154, 102, 0.25);
+}
+
+.commit-type-badge.type-docs {
+    background-color: rgba(97, 175, 239, 0.12);
+    color: var(--accent-blue);
+    border: 1px solid rgba(97, 175, 239, 0.25);
+}
+
+.commit-type-badge.type-style {
+    background-color: rgba(198, 120, 221, 0.12);
+    color: var(--accent-purple);
+    border: 1px solid rgba(198, 120, 221, 0.25);
+}
+
+.commit-type-badge.type-refactor {
+    background-color: rgba(86, 182, 194, 0.12);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(86, 182, 194, 0.25);
+}
+
+.commit-type-badge.type-add {
+    background-color: rgba(35, 209, 139, 0.12);
+    color: var(--accent-brand);
+    border: 1px solid rgba(35, 209, 139, 0.25);
+}
+
+.commit-type-badge.type-other {
+    background-color: rgba(128, 128, 128, 0.08);
+    color: var(--text-muted);
+    border: 1px solid rgba(128, 128, 128, 0.15);
 }
 
 /* ── Branch Badge ─────────────────────────────────────── */

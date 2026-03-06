@@ -29,6 +29,23 @@ class CommitsManager {
     ];
     private colorIndex = 0;
 
+    // Conventional commit types for badge detection
+    private static readonly COMMIT_TYPES: Record<string, { label: string; cssClass: string }> = {
+        'feat':     { label: 'feat',     cssClass: 'type-feat' },
+        'fix':      { label: 'fix',      cssClass: 'type-fix' },
+        'chore':    { label: 'chore',    cssClass: 'type-chore' },
+        'docs':     { label: 'docs',     cssClass: 'type-docs' },
+        'style':    { label: 'style',    cssClass: 'type-style' },
+        'refactor': { label: 'refactor', cssClass: 'type-refactor' },
+        'perf':     { label: 'perf',     cssClass: 'type-feat' },
+        'test':     { label: 'test',     cssClass: 'type-docs' },
+        'ci':       { label: 'ci',       cssClass: 'type-other' },
+        'build':    { label: 'build',    cssClass: 'type-other' },
+        'revert':   { label: 'revert',   cssClass: 'type-fix' },
+        'add':      { label: 'add',      cssClass: 'type-add' },
+        'new':      { label: 'new',      cssClass: 'type-add' },
+    };
+
     constructor() {
         // @ts-ignore
         this.vscode = (window as any).vscodeApi;
@@ -86,6 +103,38 @@ class CommitsManager {
         });
     }
 
+    // ── Conventional Commit Detection ────────────────────
+
+    private parseCommitType(message: string): { type: string; cssClass: string; cleanMessage: string } | null {
+        // Match patterns like "feat: ...", "fix(scope): ...", "Add ..."
+        const conventionalMatch = message.match(/^(\w+)(?:\([^)]*\))?[!]?:\s*(.*)/);
+        if (conventionalMatch) {
+            const rawType = conventionalMatch[1].toLowerCase();
+            const typeInfo = CommitsManager.COMMIT_TYPES[rawType];
+            if (typeInfo) {
+                return {
+                    type: typeInfo.label,
+                    cssClass: typeInfo.cssClass,
+                    cleanMessage: conventionalMatch[2]
+                };
+            }
+        }
+        // Also detect bracket prefixes like "[new]" or "[add]"
+        const bracketMatch = message.match(/^\[(\w+)\]\s*(.*)/);
+        if (bracketMatch) {
+            const rawType = bracketMatch[1].toLowerCase();
+            const typeInfo = CommitsManager.COMMIT_TYPES[rawType];
+            if (typeInfo) {
+                return {
+                    type: typeInfo.label,
+                    cssClass: typeInfo.cssClass,
+                    cleanMessage: bracketMatch[2]
+                };
+            }
+        }
+        return null;
+    }
+
     private createCommitRow(commit: CommitRowData, index: number): HTMLElement {
         const row = document.createElement('div');
         row.className = 'table-row' + (commit.isHead ? ' active' : '');
@@ -116,11 +165,17 @@ class CommitsManager {
         graphCol.setAttribute('data-color', color);
         row.appendChild(graphCol);
 
-        // 3. Message column
+        // 3. Message column — with conventional commit type badge
         const msgCol = document.createElement('div');
         msgCol.className = 'col col-message msg-col';
         msgCol.title = commit.message;
-        msgCol.innerHTML = `<span class="commit-msg-text" style="overflow: hidden; text-overflow: ellipsis;">${this.escapeHtml(commit.message)}</span>`;
+
+        const parsed = this.parseCommitType(commit.message);
+        if (parsed) {
+            msgCol.innerHTML = `<span class="commit-type-badge ${parsed.cssClass}">${parsed.type}</span><span class="commit-msg-text">${this.escapeHtml(parsed.cleanMessage)}</span>`;
+        } else {
+            msgCol.innerHTML = `<span class="commit-msg-text">${this.escapeHtml(commit.message)}</span>`;
+        }
         row.appendChild(msgCol);
 
         // 4. Author column
