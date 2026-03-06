@@ -220,17 +220,17 @@ export class GraphGitService {
                 }
             };
 
-            // 1. Branches: remote only (matches GitHub/GitLab UI), exclude HEAD pointer
-            const branches = await countFiltered("git branch -r --format='%(refname:short)'", 'HEAD');
-
-            // 2. Commits: exact count on current branch
-            const commits = await countValue('git rev-list --count HEAD');
-
-            // 3. Tags: remote tags (matches GitHub/GitLab UI), counting refs/tags/ lines
-            const tags = await countFiltered('git ls-remote --tags origin', 'refs/tags/{}');
-
-            // 4. Stashes: local stash list (always accurate)
-            const stashes = await countFiltered('git stash list');
+            // Run ALL commands in parallel for maximum speed
+            const [branches, commits, tags, stashes] = await Promise.all([
+                // 1. Branches: remote only (matches GitHub/GitLab UI), exclude HEAD pointer
+                countFiltered("git branch -r --format='%(refname:short)'", 'HEAD'),
+                // 2. Commits: exact count on current branch
+                countValue('git rev-list --count HEAD'),
+                // 3. Tags: local tags (instant, no network needed)
+                countFiltered("git tag --list --format='%(refname:short)'"),
+                // 4. Stashes: local stash list (always accurate)
+                countFiltered('git stash list'),
+            ]);
 
             return { branches, commits, tags, stashes };
         } catch (error) {
