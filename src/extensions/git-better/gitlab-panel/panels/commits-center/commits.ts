@@ -277,12 +277,15 @@ class CommitsManager {
 
         // Click to select commit and show in inspect panel
         row.addEventListener('click', () => {
+            // Skip if this commit is already selected
+            if (row.classList.contains('active')) { return; }
+
             // Remove active from all rows
             this.tableBody?.querySelectorAll('.table-row.active').forEach(r => r.classList.remove('active'));
             row.classList.add('active');
 
-            // Notify inspect panel to show loading state immediately
-            window.dispatchEvent(new CustomEvent('commitSelected'));
+            // Notify inspect panel to show loading state immediately (with hash for race-condition guard)
+            window.dispatchEvent(new CustomEvent('commitSelected', { detail: { hash: commit.hash } }));
 
             if (this.vscode) {
                 this.vscode.postMessage({ type: 'selectCommit', hash: commit.hash });
