@@ -1,4 +1,4 @@
-import { spawn, exec } from 'child_process';
+import { spawn, exec, ChildProcess } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
 import { LRUCache } from './utils';
@@ -34,6 +34,7 @@ export class GitService {
     private commitCache = new LRUCache<string, GitCommitInfo>(MAX_COMMIT_CACHE);
     private diffCache = new LRUCache<string, LineDiffInfo | null>(MAX_DIFF_CACHE);
     private pendingRequests = new Map<string, Promise<void>>();
+    private activeProcesses = new Map<string, ChildProcess>();
 
     public getBlameLineInfo(filepath: string, line: number): BlameLineInfo | undefined {
         return this.fileBlameCache.get(filepath)?.get(line);
@@ -56,11 +57,20 @@ export class GitService {
         this.commitCache.clear();
         this.diffCache.clear();
         this.pendingRequests.clear();
+        for (const child of this.activeProcesses.values()) {
+            child.kill();
+        }
+        this.activeProcesses.clear();
     }
 
     public async blameFile(filepath: string, documentContent?: string): Promise<void> {
         if (this.pendingRequests.has(filepath) && !documentContent) {
             return this.pendingRequests.get(filepath)!;
+        }
+
+        const existingProcess = this.activeProcesses.get(filepath);
+        if (existingProcess) {
+            existingProcess.kill();
         }
 
         const request = this._executeBlame(filepath, documentContent).finally(() => {
@@ -85,13 +95,26 @@ export class GitService {
             args.push('--', filename);
 
             const child = spawn('git', args, { cwd });
+            this.activeProcesses.set(filepath, child);
+
             let stdout = '';
             let stderr = '';
 
             child.stdout.on('data', (data) => stdout += data.toString());
             child.stderr.on('data', (data) => stderr += data.toString());
 
-            child.on('close', (code) => {
+            child.on('close', (code, signal) => {
+                const active = this.activeProcesses.get(filepath);
+                if (active === child) {
+                    this.activeProcesses.delete(filepath);
+                }
+
+                if (signal === 'SIGTERM') {
+                    // Process was killed, abort parsing
+                    resolve();
+                    return;
+                }
+
                 if (code !== 0) {
                     console.error(`Git blame failed for file ${filepath}:`, stderr);
                 } else {

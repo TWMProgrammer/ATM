@@ -9,13 +9,22 @@ export class GitBetterManager implements vscode.Disposable {
     private disposables: vscode.Disposable[] = [];
 
     constructor(context: vscode.ExtensionContext) {
-        // Debounce fetching to avoid spawning too many git processes on rapid typing
-        const debouncedReFetch = debounce((document: vscode.TextDocument) => {
-            this.gitService.invalidateFile(document.uri.fsPath);
-            this.gitService.blameFile(document.uri.fsPath, document.getText()).then(() => {
-                this.blameDecorator.updateDecoration();
-            });
-        }, 500);
+        // Map of debounced functions per file URI
+        const fileDebouncers = new Map<string, { cancel: () => void; (): void }>();
+
+        const getDebouncer = (document: vscode.TextDocument) => {
+            const key = document.uri.toString();
+            if (!fileDebouncers.has(key)) {
+                const requestDebounce = debounce(() => {
+                    this.gitService.invalidateFile(document.uri.fsPath);
+                    this.gitService.blameFile(document.uri.fsPath, document.getText()).then(() => {
+                        this.blameDecorator.updateDecoration();
+                    });
+                }, 500);
+                fileDebouncers.set(key, requestDebounce);
+            }
+            return fileDebouncers.get(key)!;
+        };
 
         this.disposables.push(
             // --- Commands ---
@@ -61,8 +70,21 @@ export class GitBetterManager implements vscode.Disposable {
                 // Only process if it's the active document and there are actual changes
                 if (activeEditor && event.document === activeEditor.document && event.contentChanges.length > 0) {
                     if (event.document.uri.scheme === 'file') {
-                        debouncedReFetch(event.document);
+                        getDebouncer(event.document)();
                     }
+                }
+            }),
+
+            // Clean up memory when file is closed
+            vscode.workspace.onDidCloseTextDocument((document) => {
+                if (document.uri.scheme === 'file') {
+                    const key = document.uri.toString();
+                    const debouncer = fileDebouncers.get(key);
+                    if (debouncer) {
+                        debouncer.cancel();
+                        fileDebouncers.delete(key);
+                    }
+                    this.gitService.invalidateFile(document.uri.fsPath);
                 }
             }),
 
@@ -78,8 +100,15 @@ export class GitBetterManager implements vscode.Disposable {
                 }
             }),
 
-            // Clean up debounce timer
-            { dispose: debouncedReFetch.cancel },
+            // Clean up all debounce timers on dispose
+            { 
+                dispose: () => {
+                    for (const d of fileDebouncers.values()) {
+                        d.cancel();
+                    }
+                    fileDebouncers.clear();
+                } 
+            },
         );
     }
 
