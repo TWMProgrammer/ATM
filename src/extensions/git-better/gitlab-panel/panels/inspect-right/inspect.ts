@@ -71,10 +71,16 @@ class InspectManager {
             switch (message.type) {
                 case 'renderCommit':
                     if (message.data) {
+                        this.setUpdating(false);
                         this.updateInspectPanel(message.data);
                     }
                     break;
             }
+        });
+
+        // Listen for commit selection from commits panel (show loading immediately)
+        window.addEventListener('commitSelected', () => {
+            this.setUpdating(true);
         });
 
         // Copy button
@@ -138,6 +144,13 @@ class InspectManager {
 
         // Request initial data
         this.vscode.postMessage({ type: 'ready' });
+    }
+
+    private setUpdating(isUpdating: boolean) {
+        const panel = document.getElementById('inspect-panel');
+        if (panel) {
+            panel.classList.toggle('updating', isUpdating);
+        }
     }
 
     private updateInspectPanel(data: InspectCommitData) {

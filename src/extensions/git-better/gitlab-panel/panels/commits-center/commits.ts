@@ -281,6 +281,9 @@ class CommitsManager {
             this.tableBody?.querySelectorAll('.table-row.active').forEach(r => r.classList.remove('active'));
             row.classList.add('active');
 
+            // Notify inspect panel to show loading state immediately
+            window.dispatchEvent(new CustomEvent('commitSelected'));
+
             if (this.vscode) {
                 this.vscode.postMessage({ type: 'selectCommit', hash: commit.hash });
             }
