@@ -12,7 +12,15 @@ export function activateGitBetter(context: vscode.ExtensionContext) {
     }
 
     const provider = new GraphPanelProvider(context.extensionUri);
-    providerDispose = vscode.window.registerWebviewViewProvider(GraphPanelProvider.viewType, provider);
+    providerDispose = vscode.window.registerWebviewViewProvider(
+        GraphPanelProvider.viewType,
+        provider,
+        {
+            webviewOptions: {
+                retainContextWhenHidden: true
+            }
+        }
+    );
     context.subscriptions.push(providerDispose);
 }
 
