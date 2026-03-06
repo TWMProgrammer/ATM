@@ -46,7 +46,7 @@
     padding: 0 8px;
     cursor: pointer;
     font-family: var(--vscode-editor-font-family, 'Consolas', 'Courier New', monospace);
-    transition: background-color 0.15s ease-out;
+    transition: background-color 0.15s ease-out, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .table-row::before {
@@ -63,6 +63,7 @@
 
 .table-row:hover {
     background-color: var(--bg-hover, rgba(128, 128, 128, 0.07));
+    transform: translateX(4px);
 }
 
 .table-row:hover::before {
