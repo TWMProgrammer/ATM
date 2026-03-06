@@ -147,6 +147,10 @@
     font-size: 14px;
 }
 
+.avatar-mock.skeleton-box {
+    background-color: var(--vscode-editor-inactiveSelectionBackground, rgba(128, 128, 128, 0.1));
+}
+
 .author-info {
     flex-grow: 1;
     display: flex;
@@ -240,4 +244,27 @@
     padding: 6px 0;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-primary);
+}
+
+/* ── Updating State (loading new commit) ──────────────── */
+.inspect-panel.updating .inspect-body {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.15s ease-out;
+}
+
+.inspect-panel.updating::after {
+    content: '';
+    position: absolute;
+    top: 40px; /* below header */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-brand), transparent);
+    animation: inspect-loading-bar 0.8s ease-in-out infinite;
+}
+
+@keyframes inspect-loading-bar {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }

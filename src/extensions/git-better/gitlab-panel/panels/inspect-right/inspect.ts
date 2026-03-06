@@ -57,6 +57,7 @@ class InspectManager {
     private vscode: any;
     private currentHash: string | null = null;
     private currentGithubUrl: string | null = null;
+    private pendingHash: string | null = null;
 
     constructor() {
         // @ts-ignore - window.vscodeApi is injected in index.html
@@ -71,10 +72,23 @@ class InspectManager {
             switch (message.type) {
                 case 'renderCommit':
                     if (message.data) {
+                        // Ignore stale responses if the user clicked another commit in the meantime
+                        if (this.pendingHash && this.pendingHash !== message.data.hash) { return; }
+
+                        this.setUpdating(false);
                         this.updateInspectPanel(message.data);
                     }
                     break;
             }
+        });
+
+        // Listen for commit selection from commits panel (show loading immediately)
+        window.addEventListener('commitSelected', (e: Event) => {
+            const customEvent = e as CustomEvent;
+            if (customEvent.detail && customEvent.detail.hash) {
+                this.pendingHash = customEvent.detail.hash;
+            }
+            this.setUpdating(true);
         });
 
         // Copy button
@@ -138,6 +152,13 @@ class InspectManager {
 
         // Request initial data
         this.vscode.postMessage({ type: 'ready' });
+    }
+
+    private setUpdating(isUpdating: boolean) {
+        const panel = document.getElementById('inspect-panel');
+        if (panel) {
+            panel.classList.toggle('updating', isUpdating);
+        }
     }
 
     private updateInspectPanel(data: InspectCommitData) {

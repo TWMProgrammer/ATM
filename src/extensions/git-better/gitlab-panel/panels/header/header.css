@@ -29,19 +29,16 @@
     justify-content: flex-end;
 }
 
-button.repo-btn {
+.repo-info {
     height: 30px;
     padding: 0 12px;
-    border-radius: 6px;
-    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
     max-width: 100%;
     justify-content: flex-start;
-    border: 1px solid var(--border-color);
+    cursor: default;
 }
 
-button.repo-btn:hover {
-    background-color: var(--bg-hover);
-}
 
 .repo-name {
     color: var(--accent-brand);

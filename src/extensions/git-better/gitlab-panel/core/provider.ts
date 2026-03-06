@@ -38,6 +38,12 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
             if (msg.type === 'ready') {
                 this.sendInitialData(webviewView.webview);
             }
+            if (msg.type === 'loadMoreCommits') {
+                this.sendCommitPage(webviewView.webview, msg.skip || 0, msg.limit || 25);
+            }
+            if (msg.type === 'selectCommit' && msg.hash) {
+                this.sendCommitDetail(webviewView.webview, msg.hash);
+            }
         });
 
         webviewView.onDidDispose(() => {
@@ -71,6 +77,29 @@ export class GraphPanelProvider implements vscode.WebviewViewProvider {
             webview.postMessage({
                 type: 'renderStats',
                 data: stats
+            });
+        }
+
+        // Send first page of commits
+        await this.sendCommitPage(webview, 0, 25);
+    }
+
+    private async sendCommitPage(webview: vscode.Webview, skip: number, limit: number) {
+        const commits = await GraphGitService.getCommitPage(skip, limit);
+        webview.postMessage({
+            type: 'renderCommits',
+            data: commits || [],
+            skip,
+            hasMore: (commits?.length || 0) === limit,
+        });
+    }
+
+    private async sendCommitDetail(webview: vscode.Webview, hash: string) {
+        const commitData = await GraphGitService.getCommitByHash(hash);
+        if (commitData) {
+            webview.postMessage({
+                type: 'renderCommit',
+                data: commitData
             });
         }
     }

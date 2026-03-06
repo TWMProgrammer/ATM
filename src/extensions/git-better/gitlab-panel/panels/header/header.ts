@@ -6,6 +6,7 @@
 class SearchBox {
     private input: HTMLInputElement | null;
     private clearBtn: HTMLElement | null;
+    private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     constructor() {
         this.input = document.querySelector('.search-box input');
@@ -23,6 +24,7 @@ class SearchBox {
 
         this.input.addEventListener('input', () => {
             this.updateClearButtonVisibility();
+            this.dispatchSearch();
         });
 
         this.clearBtn.addEventListener('click', (e) => {
@@ -31,8 +33,19 @@ class SearchBox {
                 this.input.value = '';
                 this.updateClearButtonVisibility();
                 this.input.focus();
+                this.dispatchSearch();
             }
         });
+    }
+
+    /** Debounced dispatch — fires a CustomEvent on window after 200ms of inactivity */
+    private dispatchSearch() {
+        if (this.debounceTimer) { clearTimeout(this.debounceTimer); }
+
+        this.debounceTimer = setTimeout(() => {
+            const query = this.input?.value.trim() || '';
+            window.dispatchEvent(new CustomEvent('commitSearch', { detail: { query } }));
+        }, 200);
     }
 
     private updateClearButtonVisibility() {
