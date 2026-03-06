@@ -147,6 +147,10 @@
     font-size: 14px;
 }
 
+.avatar-mock.skeleton-box {
+    background-color: var(--vscode-editor-inactiveSelectionBackground, rgba(128, 128, 128, 0.1));
+}
+
 .author-info {
     flex-grow: 1;
     display: flex;
