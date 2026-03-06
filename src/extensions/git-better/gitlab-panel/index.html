@@ -10,11 +10,12 @@
     <link href="{{SHARED_URI}}/global.css" rel="stylesheet">
     <link href="{{SHARED_URI}}/skeleton/inspect.css" rel="stylesheet">
     <link href="{{SHARED_URI}}/skeleton/graphics.css" rel="stylesheet">
+    <link href="{{SHARED_URI}}/skeleton/stats.css" rel="stylesheet">
 
     <!-- Panel Styles -->
     <link href="{{PANELS_URI}}/header/header.css" rel="stylesheet">
     <link href="{{PANELS_URI}}/graphics-top/graphics.css" rel="stylesheet">
-    <link href="{{PANELS_URI}}/buttons-left/buttons.css" rel="stylesheet">
+    <link href="{{PANELS_URI}}/stats-left/stats.css" rel="stylesheet">
     <link href="{{PANELS_URI}}/commits-center/commits.css" rel="stylesheet">
     <link href="{{PANELS_URI}}/inspect-right/inspect.css" rel="stylesheet">
 
@@ -63,7 +64,7 @@
     <main class="workspace">
 
         <!-- A. Left Sidebar (Icons Panel) -->
-        {{BUTTONS_LEFT_COMPONENT}}
+        {{STATS_LEFT_COMPONENT}}
 
         <!-- B. Central Graph Table Area -->
         {{COMMITS_CENTER_COMPONENT}}
@@ -81,6 +82,7 @@
     </script>
     <script src="{{SCRIPTS_URI}}/header.js" nonce="{{NONCE}}"></script>
     <script src="{{SCRIPTS_URI}}/graphics.js" nonce="{{NONCE}}"></script>
+    <script src="{{SCRIPTS_URI}}/stats.js" nonce="{{NONCE}}"></script>
     <script src="{{SCRIPTS_URI}}/commits.js" nonce="{{NONCE}}"></script>
     <script src="{{SCRIPTS_URI}}/inspect.js" nonce="{{NONCE}}"></script>
 </body>

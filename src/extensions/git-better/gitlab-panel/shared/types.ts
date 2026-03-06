@@ -31,3 +31,11 @@ export interface GraphicsCommitData {
     linesChanged: number; // For determining the height of the curve
     isHead: boolean;      // For drawing the active node/branch head differently
 }
+
+/** Represents the global metrics for the left sidebar */
+export interface StatsData {
+    branches: number;
+    commits: number;
+    tags: number;
+    stashes: number;
+}

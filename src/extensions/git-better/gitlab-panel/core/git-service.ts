@@ -175,4 +175,67 @@ export class GraphGitService {
             return null;
         }
     }
+
+    /**
+     * Extracts global metrics for the sidebar (branches, commits, tags, stashes)
+     */
+    public static async getGlobalStats(): Promise<any | null> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            return null;
+        }
+
+        const cwd = workspaceFolders[0].uri.fsPath;
+
+        try {
+            // Counts only non-empty lines from stdout (avoids wc -l noise)
+            const countOutput = async (cmd: string): Promise<number> => {
+                try {
+                    const { stdout } = await execAsync(cmd, { cwd });
+                    return stdout.trim().split('\n').filter(Boolean).length;
+                } catch {
+                    return 0;
+                }
+            };
+
+            // Counts a single numeric value from stdout (e.g. git rev-list --count)
+            const countValue = async (cmd: string): Promise<number> => {
+                try {
+                    const { stdout } = await execAsync(cmd, { cwd });
+                    const val = parseInt(stdout.trim(), 10);
+                    return isNaN(val) ? 0 : val;
+                } catch {
+                    return 0;
+                }
+            };
+
+            // Helper: run command and count non-empty, filtered lines
+            const countFiltered = async (cmd: string, exclude?: string): Promise<number> => {
+                try {
+                    const { stdout } = await execAsync(cmd, { cwd });
+                    const lines = stdout.trim().split('\n').filter(Boolean);
+                    return exclude ? lines.filter(l => !l.includes(exclude)).length : lines.length;
+                } catch {
+                    return 0;
+                }
+            };
+
+            // Run ALL commands in parallel for maximum speed
+            const [branches, commits, tags, stashes] = await Promise.all([
+                // 1. Branches: remote only (matches GitHub/GitLab UI), exclude HEAD pointer
+                countFiltered("git branch -r --format='%(refname:short)'", 'HEAD'),
+                // 2. Commits: exact count on current branch
+                countValue('git rev-list --count HEAD'),
+                // 3. Tags: local tags (instant, no network needed)
+                countFiltered("git tag --list --format='%(refname:short)'"),
+                // 4. Stashes: local stash list (always accurate)
+                countFiltered('git stash list'),
+            ]);
+
+            return { branches, commits, tags, stashes };
+        } catch (error) {
+            console.error('Failed to get global stats from git:', error);
+            return null;
+        }
+    }
 }

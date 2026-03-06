@@ -1,5 +1,5 @@
 /* =========================================================
-   BUTTONS — Left icon panel with info badges
+   STATS — Left sidebar metrics panel with info badges
    ========================================================= */
 
 .sidebar-left {
@@ -35,12 +35,19 @@
     opacity: 1;
 }
 
+/* Badge: fixed height to prevent layout shift on skeleton → number swap */
 .info-badge {
     font-size: 10px;
     font-weight: 600;
     color: var(--text-muted);
     font-family: var(--vscode-editor-font-family, 'Consolas', monospace);
     line-height: 1;
+    min-height: 10px;
+    min-width: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.25s ease;
 }
 
 /* Active tab state */
