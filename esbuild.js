@@ -64,7 +64,9 @@ async function main() {
 			'src/extensions/git-better/gitlab-panel/panels/graphics-top/graphics.ts',
 			'src/extensions/git-better/gitlab-panel/panels/stats-left/stats.ts',
 			'src/extensions/git-better/gitlab-panel/panels/commits-center/commits.ts',
-			'src/extensions/git-better/gitlab-panel/panels/inspect-right/inspect.ts'
+			'src/extensions/git-better/gitlab-panel/panels/inspect-right/inspect.ts',
+			'src/extensions/screenshot-code/ui/screenshotWebview.ts',
+			'src/extensions/screenshot-code/ui/screenshotWebview.css'
 		],
 		bundle: true,
 		format: 'iife',
