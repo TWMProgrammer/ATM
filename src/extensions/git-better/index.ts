@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { GitBetterManager } from './commit-view/manager';
+import { GitBetterManager } from './mini-panel/manager';
 import { GraphPanelProvider } from './gitlab-panel/core/provider';
 
 let manager: GitBetterManager | undefined;
@@ -12,7 +12,15 @@ export function activateGitBetter(context: vscode.ExtensionContext) {
     }
 
     const provider = new GraphPanelProvider(context.extensionUri);
-    providerDispose = vscode.window.registerWebviewViewProvider(GraphPanelProvider.viewType, provider);
+    providerDispose = vscode.window.registerWebviewViewProvider(
+        GraphPanelProvider.viewType,
+        provider,
+        {
+            webviewOptions: {
+                retainContextWhenHidden: true
+            }
+        }
+    );
     context.subscriptions.push(providerDispose);
 }
 

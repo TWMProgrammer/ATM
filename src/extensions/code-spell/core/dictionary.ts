@@ -12,6 +12,77 @@ const programmingKeywords = [
   // my words
   'todo',
   'fixme',
+  'android',
+  'ios',
+  'flutter',
+  'lint',
+  'haptics',
+  'lucide',
+  'typescript',
+  'dirname',
+  'subgraph',
+  'mermaid',
+  'variants',
+  'lr',
+  'ail',
+  'aig',
+  'vsce',
+  'readme',
+  'nvim',
+  'atm',
+  'ai',
+  'kiro',
+  'ghibli',
+  'favicon',
+  'splash',
+  'foreground',
+  'monochrome',
+  'dependencies',
+  'slug',
+  'woff',
+  'git',
+  'ass',
+  'gesture',
+  'handler',
+  'reanimated',
+  'worklets',
+
+  // --- Ecosistema CSS y Tooling Web ---
+  'tailwind',
+  'tailwindcss',
+  'postcss',
+  'sass',
+  'less',
+  'clsx',
+  'zod',
+  'prisma',
+  'trpc',
+  'axios',
+  'fetcher',
+
+  // --- Conceptos modernos y modifiers (React/TS/Tech) ---
+  'readonly',
+  'unwind',
+  'uniwind',
+  'ssr',
+  'ssg',
+  'csr',
+  'isr',
+  'seo',
+  'hydrate',
+  'hydration',
+  'prefetch',
+  'preload',
+  'memo',
+  'memoize',
+  'debounce',
+  'throttle',
+  'mount',
+  'unmount',
+  'render',
+  'revalidate',
+  'vdom',
+  'bundler',
 
   // --- JavaScript / TypeScript ---
   'function',
@@ -162,6 +233,32 @@ const programmingKeywords = [
   'vitest',
   'supabase',
   'firebase',
+  'astro',
+  'remix',
+  'gatsby',
+  'qwik',
+  'solid',
+  'preact',
+  'nest',
+  'nestjs',
+  'express',
+  'fastify',
+  'hono',
+  'elysia',
+  'deno',
+  'bun',
+  'ionic',
+  'capacitor',
+  'tauri',
+  'electron',
+  'graphql',
+  'apollo',
+  'relay',
+  'redux',
+  'zustand',
+  'mobx',
+  'pinia',
+  'rxjs',
 
   // --- Nombres de variables / carpetas comunes ---
   'config',
@@ -446,9 +543,21 @@ export function isWordValid(word: string): boolean {
   }
 
   // 2. Check main dictionary
-  const isValid = dict.has(lower);
+  let isValid = dict.has(lower);
 
-  // 3. Update local fast-cache
+  // 3. Fallback inteligente para plurales (terminados en 's' o 'es')
+  // No consume RAM adicional y se aprovecha de la velocidad de slice()
+  if (!isValid && lower.length > 3 && lower.endsWith('s')) {
+    if (lower.endsWith('es')) {
+      isValid = dict.has(lower.slice(0, -2)); // ej. "branches" -> "branch"
+    }
+    if (!isValid) {
+      isValid = dict.has(lower.slice(0, -1)); // ej. "defaults" -> "default", "typings" -> "typing"
+    }
+  }
+
+  // 4. Update local fast-cache
+  // ¡El fastCache guardará el plural completo ("typings") en memoria para que no se repita el slice() jamás!
   if (isValid) {
     fastCache.add(lower);
   }

@@ -41,6 +41,47 @@ export function scheduleDiagnosticsCheck(doc: vscode.TextDocument) {
     return;
   }
 
+  // 1. Rendimiento: Ignorar carpetas y archivos pesados autogenerados
+  const fsPath = doc.uri.fsPath.replace(/\\/g, '/'); // Normalizar barras para Windows/Linux
+  
+  // Archivos específicos que siempre bloquean el editor
+  const ignoredFiles = [
+    'package-lock.json',
+    'yarn.lock',
+    'pnpm-lock.yaml',
+    'bun.lock',
+    'bun.lockb',
+  ];
+
+  if (ignoredFiles.some((file) => fsPath.endsWith(`/${file}`))) {
+    return;
+  }
+
+  // Archivos minificados o SVG que no necesitan corrección
+  if (fsPath.endsWith('.min.js') || fsPath.endsWith('.min.css') || fsPath.endsWith('.svg')) {
+    return;
+  }
+
+  // Carpetas enteras bloqueadas (se buscan rodeadas de '/' para exactitud)
+  const ignoredFolders = [
+    '/.git/',
+    '/node_modules/',
+    '/dist/',
+    '/build/',
+    '/out/',
+    '/.next/',
+    '/.nuxt/',
+    '/.svelte-kit/',
+    '/.expo/',
+    '/coverage/',
+    '/temp/',
+    '/tmp/'
+  ];
+
+  if (ignoredFolders.some((folder) => fsPath.includes(folder))) {
+    return;
+  }
+
   const key = doc.uri.toString();
   if (debounceTimers.has(key)) {
     clearTimeout(debounceTimers.get(key)!);
