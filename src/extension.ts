@@ -4,6 +4,7 @@ import { activateExtensions } from './extensions/extensions';
 import { deactivateVoiceTts } from './extensions/voice-tts';
 import { deactivateCommentsCode } from './extensions/comments-code';
 import { deactivateMarkdownStore } from './extensions/markdown-store';
+import { deactivateColorDebugging } from './extensions/color-debugging';
 import { taskListPlugin } from './extensions/markdown-text/core/taskListPlugin';
 import { mermaidPlugin } from './extensions/markdown-text/core/mermaidPlugin';
 
@@ -27,8 +28,9 @@ export function activate(context: vscode.ExtensionContext) {
   };
 }
 
-export function deactivate(): void {
+export async function deactivate(): Promise<void> {
   deactivateVoiceTts();
   deactivateCommentsCode();
   deactivateMarkdownStore();
+  await deactivateColorDebugging();
 }
