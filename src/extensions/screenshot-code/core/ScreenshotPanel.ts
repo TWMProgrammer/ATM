@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as os from 'os';
 
 export class ScreenshotPanel {
   public static currentPanel: ScreenshotPanel | undefined;
@@ -9,8 +10,9 @@ export class ScreenshotPanel {
   private readonly _extensionUri: vscode.Uri;
   private _disposables: vscode.Disposable[] = [];
 
-  private _selectionTimeout: NodeJS.Timeout | null = null;
-  private _isActive = true;
+
+
+  /* ─── Factory ──────────────────────────── */
 
   public static createOrShow(context: vscode.ExtensionContext) {
     const column = vscode.window.activeTextEditor
@@ -25,19 +27,30 @@ export class ScreenshotPanel {
 
     const panel = vscode.window.createWebviewPanel(
       ScreenshotPanel.viewType,
-      'ATM Screenshot 📸',
+      'Screenshot 📸',
       { viewColumn: column, preserveFocus: true },
       {
         enableScripts: true,
         localResourceRoots: [
           vscode.Uri.joinPath(context.extensionUri, 'dist'),
-          vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', 'screenshot-code', 'assets')
-        ]
+          vscode.Uri.joinPath(
+            context.extensionUri,
+            'src',
+            'extensions',
+            'screenshot-code',
+            'assets'
+          ),
+        ],
       }
     );
 
-    ScreenshotPanel.currentPanel = new ScreenshotPanel(panel, context.extensionUri);
+    ScreenshotPanel.currentPanel = new ScreenshotPanel(
+      panel,
+      context.extensionUri
+    );
   }
+
+  /* ─── Constructor ──────────────────────── */
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
     this._panel = panel;
@@ -52,10 +65,12 @@ export class ScreenshotPanel {
       async (message) => {
         switch (message.command) {
           case 'saveImage':
-            await this.saveImage(message.data);
+            await this._saveImage(message.data);
             return;
           case 'error':
-            vscode.window.showErrorMessage(`Screenshot Code Error: ${message.text}`);
+            vscode.window.showErrorMessage(
+              `Screenshot Error: ${message.text}`
+            );
             return;
         }
       },
@@ -63,92 +78,96 @@ export class ScreenshotPanel {
       this._disposables
     );
 
-    // Debounce the selection changes to avoid lag
-    vscode.window.onDidChangeTextEditorSelection(
-      (e) => {
-        if (!this._isActive || !this._panel.visible) { return; }
 
-        if (this._selectionTimeout) {
-          clearTimeout(this._selectionTimeout);
-        }
+  }
 
-        this._selectionTimeout = setTimeout(() => {
-          if (this.hasOneSelection(e.selections)) {
-            this.updateCode();
-          }
-        }, 250);
-      },
-      null,
-      this._disposables
+  /* ─── Selection check ─────────────────── */
+
+  private _hasSelection(selections: readonly vscode.Selection[]): boolean {
+    return (
+      selections !== undefined &&
+      selections.length === 1 &&
+      !selections[0].isEmpty
     );
   }
 
-  private hasOneSelection(selections: readonly vscode.Selection[]): boolean {
-    return selections && selections.length === 1 && !selections[0].isEmpty;
-  }
+  /* ─── Push code to webview ─────────────── */
 
   public async updateCode() {
     const editor = vscode.window.activeTextEditor;
-    if (!editor || !this.hasOneSelection(editor.selections)) {
+    if (!editor || !this._hasSelection(editor.selections)) {
       return;
     }
 
     try {
-      // Force VS Code to copy format and syntax highlighting
-      await vscode.commands.executeCommand('editor.action.clipboardCopyWithSyntaxHighlightingAction');
-      
+      // Copy with syntax highlighting so the webview can paste coloured HTML
+      await vscode.commands.executeCommand(
+        'editor.action.clipboardCopyWithSyntaxHighlightingAction'
+      );
+
       const config = vscode.workspace.getConfiguration('editor');
-      const fontLigatures = config.get('fontLigatures', false);
-      const tabSize = editor.options.tabSize || 4;
+      const fontLigatures = config.get<boolean | string>(
+        'fontLigatures',
+        false
+      );
+      const tabSize = (editor.options.tabSize as number) || 4;
 
       const activeFileName = path.basename(editor.document.uri.fsPath);
-      const windowTitle = `${vscode.workspace.name || 'Workspace'} - ${activeFileName}`;
+      const workspaceName = vscode.workspace.name;
+      const windowTitle = workspaceName ? `${workspaceName} — ${activeFileName}` : activeFileName;
 
-      const selection = editor.selection;
-      const startLine = selection.start.line;
+      const startLine = editor.selection.start.line;
+      const plainText = editor.document.getText(editor.selection);
 
       this._panel.webview.postMessage({
         type: 'update',
         fontLigatures,
         tabSize,
         windowTitle,
-        startLine
+        startLine,
+        plainText,
       });
     } catch (error) {
-      console.error('Failed to update screenshot panel code', error);
+      console.error('[ScreenshotPanel] Failed to update code', error);
     }
   }
 
-  private async saveImage(dataBase64: string) {
+  /* ─── Save image to disk ───────────────── */
+
+  private async _saveImage(dataBase64: string) {
     try {
-      // It returns data:image/jpeg;base64,...
-      const base64Data = dataBase64.replace(/^data:image\/\w+;base64,/, "");
-      
+      const base64Data = dataBase64.replace(/^data:image\/\w+;base64,/, '');
+
+      // Detect format from the data URL
+      const formatMatch = dataBase64.match(/^data:image\/(\w+);/);
+      const format = formatMatch ? formatMatch[1] : 'png';
+
+      const extension = format === 'jpeg' ? 'jpg' : format;
+
       const uri = await vscode.window.showSaveDialog({
-        filters: { Images: ['jpg', 'png', 'webp'] },
-        defaultUri: vscode.Uri.file(path.join(require('os').homedir(), 'Desktop', 'code-screenshot.jpg'))
+        filters: { Images: [extension] },
+        defaultUri: vscode.Uri.file(
+          path.join(os.homedir(), 'Desktop', `code-screenshot.${extension}`)
+        ),
       });
 
       if (uri) {
         const buffer = Buffer.from(base64Data, 'base64');
         await vscode.workspace.fs.writeFile(uri, buffer);
-        vscode.window.showInformationMessage('Screenshot saved successfully! 📸');
+        vscode.window.showInformationMessage('Screenshot saved! 📸');
       }
     } catch (error) {
-      vscode.window.showErrorMessage('Failed to save the image.');
-      console.error(error);
+      vscode.window.showErrorMessage('Failed to save the screenshot.');
+      console.error('[ScreenshotPanel]', error);
     }
   }
 
+  /* ─── Dispose ──────────────────────────── */
+
   public dispose() {
-    this._isActive = false;
     ScreenshotPanel.currentPanel = undefined;
 
     this._panel.dispose();
-
-    if (this._selectionTimeout) {
-      clearTimeout(this._selectionTimeout);
-    }
 
     while (this._disposables.length) {
       const x = this._disposables.pop();
@@ -158,53 +177,94 @@ export class ScreenshotPanel {
     }
   }
 
+  /* ─── Update webview content ───────────── */
+
   private _update() {
     const webview = this._panel.webview;
-    this._panel.title = 'ATM Screenshot 📸';
+    this._panel.title = 'Screenshot 📸';
     webview.html = this._getHtmlForWebview(webview);
   }
 
+  /* ─── HTML generation ──────────────────── */
+
   private _getHtmlForWebview(webview: vscode.Webview) {
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'dist', 'screenshotWebview.js')
+      vscode.Uri.joinPath(this._extensionUri, 'dist', 'webview.js')
     );
     const cssUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'dist', 'screenshotWebview.css')
+      vscode.Uri.joinPath(this._extensionUri, 'dist', 'styles.css')
     );
 
     const downloadIconUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'src', 'extensions', 'screenshot-code', 'assets', 'download.svg')
+      vscode.Uri.joinPath(
+        this._extensionUri,
+        'src',
+        'extensions',
+        'screenshot-code',
+        'assets',
+        'download.svg'
+      )
     );
 
-    const cspSource = webview.cspSource;
+    const csp = webview.cspSource;
 
-    return `<!DOCTYPE html>
+    return /* html */ `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} data: blob:; style-src 'unsafe-inline' ${cspSource}; script-src 'unsafe-eval' ${cspSource};">
-    <title>ATM Screenshot 📸</title>
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+               img-src ${csp} data: blob:;
+               style-src 'unsafe-inline' ${csp};
+               script-src 'unsafe-eval' ${csp};
+               connect-src data: blob:;">
+    <title>Screenshot 📸</title>
     <link href="${cssUri}" rel="stylesheet">
 </head>
 <body>
     <div id="app">
+
+        <!-- ─── Toolbar ───────────────────── -->
         <div id="toolbar">
-            <button id="btn-save" title="Save Base Image (JPG)" class="action-btn">
+            <button id="btn-save" title="Save as PNG" class="action-btn primary">
                 <img src="${downloadIconUri}" alt="Save" />
+                Save
             </button>
-            <button id="btn-copy" title="Copy to Clipboard (PNG)" class="action-btn text-btn">
+            <button id="btn-copy" title="Copy to clipboard" class="action-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 Copy
             </button>
+
             <div class="divider"></div>
-            <label class="control-label">
-              Background
-              <input type="color" id="bg-color-picker" value="#9b51e0" />
-            </label>
+
+            <!-- Gradient presets -->
+            <div class="control-label">
+                BG
+                <div id="gradient-presets" class="gradient-presets"></div>
+                <input type="color" id="bg-color-picker" value="#667eea" title="Custom colour" />
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Padding -->
+            <div class="slider-group">
+                <span class="control-label">PAD</span>
+                <input type="range" id="padding-slider" min="0" max="96" value="48" />
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Toggles -->
+            <button id="btn-toggle-bg" class="toggle-btn" title="Transparent background">No BG</button>
+            <button id="btn-toggle-shadow" class="toggle-btn active" title="Toggle shadow">Shadow</button>
+            <button id="btn-toggle-chrome" class="toggle-btn active" title="Toggle window bar">Chrome</button>
+            <button id="btn-toggle-lines" class="toggle-btn active" title="Toggle line numbers">Lines</button>
         </div>
 
+        <!-- ─── Snippet Area ──────────────── -->
         <div id="snippet-scroll">
-            <div id="snippet-container" style="--container-bg: #9b51e0;">
+            <div id="snippet-container" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div id="window" class="glass-panel">
                     <div id="navbar">
                         <div id="window-controls">
@@ -221,7 +281,7 @@ export class ScreenshotPanel {
 
         <div id="flash-fx"></div>
     </div>
-    
+
     <script src="${scriptUri}"></script>
 </body>
 </html>`;

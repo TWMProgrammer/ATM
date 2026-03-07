@@ -1,0 +1,492 @@
+:root {
+  --container-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --box-shadow: rgba(0, 0, 0, 0.55) 0px 25px 50px -12px;
+  --container-padding: 3rem;
+  --window-border-radius: 12px;
+  --toolbar-bg: rgba(22, 22, 30, 0.85);
+  --toolbar-border: rgba(255, 255, 255, 0.06);
+  --btn-bg: rgba(255, 255, 255, 0.07);
+  --btn-bg-hover: rgba(255, 255, 255, 0.14);
+  --btn-border: rgba(255, 255, 255, 0.1);
+  --accent: #818cf8;
+  --accent-glow: rgba(129, 140, 248, 0.25);
+  --success: #34d399;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: rgba(255, 255, 255, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  color: var(--text-primary);
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════
+   APP LAYOUT
+   ═══════════════════════════════════ */
+
+#app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ═══════════════════════════════════
+   TOOLBAR
+   ═══════════════════════════════════ */
+
+#toolbar {
+  display: flex;
+  padding: 8px 16px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--toolbar-border);
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+/* Action buttons */
+.action-btn {
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s,
+    box-shadow 0.2s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.action-btn:hover {
+  background: var(--btn-bg-hover);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.action-btn:active {
+  transform: scale(0.96);
+}
+
+.action-btn.primary {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+.action-btn.primary:hover {
+  background: rgba(129, 140, 248, 0.25);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.action-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.action-btn img {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Copy success state */
+.action-btn.copied {
+  background: rgba(52, 211, 153, 0.15) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  color: var(--success) !important;
+}
+
+/* Divider */
+.divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════
+   CONTROL LABEL & INPUTS
+   ═══════════════════════════════════ */
+
+.control-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Gradient preset swatches */
+.gradient-presets {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.gradient-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.gradient-swatch:hover {
+  transform: scale(1.15);
+}
+
+.gradient-swatch.active {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+/* Custom color picker */
+#bg-color-picker {
+  cursor: pointer;
+  border: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  padding: 0;
+  background: none;
+  flex-shrink: 0;
+}
+
+#bg-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+#bg-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+/* Padding slider */
+.slider-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slider-group input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 64px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.slider-group input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.slider-group input[type='range']::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* Toggle button */
+.toggle-btn {
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.toggle-btn:hover {
+  background: var(--btn-bg-hover);
+}
+
+.toggle-btn.active {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.3);
+  color: var(--accent);
+}
+
+/* ═══════════════════════════════════
+   SNIPPET AREA
+   ═══════════════════════════════════ */
+
+#snippet-scroll {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 0;
+}
+
+#snippet-container {
+  padding: var(--container-padding);
+  background: var(--container-bg);
+  transition: background 0.4s ease, padding 0.3s ease;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+#snippet-container.no-bg {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* ═══════════════════════════════════
+   GLASS PANEL WINDOW
+   ═══════════════════════════════════ */
+
+.glass-panel {
+  background: rgba(13, 17, 23, 0.92);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--window-border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+}
+
+.glass-panel.no-shadow {
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════
+   NAV BAR (Window chrome)
+   ═══════════════════════════════════ */
+
+#navbar {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
+  min-height: 38px;
+}
+
+#navbar.hidden {
+  display: none;
+}
+
+#window-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.mac-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: opacity 0.2s;
+}
+
+.mac-dot.red {
+  background: #ff5f56;
+}
+.mac-dot.yellow {
+  background: #ffbd2e;
+}
+.mac-dot.green {
+  background: #27c93f;
+}
+
+#window-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #64748b;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono',
+    Consolas, monospace;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+/* ═══════════════════════════════════
+   CODE CONTENT
+   ═══════════════════════════════════ */
+
+#snippet-content {
+  padding: 18px 20px;
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono',
+    Consolas, monospace;
+  font-size: var(--vscode-editor-font-size, 14px);
+  line-height: 1.6;
+  white-space: pre;
+  min-height: 40px;
+}
+
+/* Empty state */
+#snippet-content:empty::after {
+  content: 'Select code in the editor to capture a screenshot';
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Line formatting from VS Code paste */
+.line {
+  display: flex;
+  align-items: baseline;
+  min-height: 1.6em;
+}
+
+.line-number {
+  color: rgba(255, 255, 255, 0.2);
+  text-align: right;
+  min-width: 2.5em;
+  padding-right: 1.5em;
+  user-select: none;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85em;
+}
+
+.line-code {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ═══════════════════════════════════
+   FLASH FX (camera effect)
+   ═══════════════════════════════════ */
+
+#flash-fx {
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: 9999;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════
+   TOAST NOTIFICATION
+   ═══════════════════════════════════ */
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(22, 22, 30, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 20px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.toast.success {
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.toast.success svg {
+  color: var(--success);
+}
+
+/* ═══════════════════════════════════
+   SCROLLBAR STYLING
+   ═══════════════════════════════════ */
+
+#snippet-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+#snippet-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#snippet-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+#snippet-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
