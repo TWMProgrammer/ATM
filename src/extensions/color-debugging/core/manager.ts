@@ -1,32 +1,6 @@
 import * as vscode from 'vscode';
 import { debugColors } from './colorList';
 
-let isUpdatingConfiguration = false;
-const configurationQueue: (() => Promise<void>)[] = [];
-
-async function processConfigurationQueue() {
-    if (isUpdatingConfiguration || configurationQueue.length === 0) {
-        return;
-    }
-    isUpdatingConfiguration = true;
-    while (configurationQueue.length > 0) {
-        const task = configurationQueue.shift();
-        if (task) {
-            try {
-                await task();
-            } catch (error) {
-                console.error("Color Debugging: Error updating configuration:", error);
-            }
-        }
-    }
-    isUpdatingConfiguration = false;
-}
-
-function queueConfigUpdate(task: () => Promise<void>) {
-    configurationQueue.push(task);
-    processConfigurationQueue();
-}
-
 const BACKGROUND_KEYS = [
     "activityBar.background",
     "statusBar.background",
@@ -68,10 +42,11 @@ function isOurColor(colorCustomizations: any): boolean {
     return debugColors.map(c => c.toLowerCase()).includes(currentColor.toLowerCase());
 }
 
-async function performColorCleanup(): Promise<void> {
+export async function clearWorkspaceColors(): Promise<void> {
     const config = vscode.workspace.getConfiguration('workbench');
     const colorCustomizations = config.get<any>('colorCustomizations', {});
 
+    // Only clean up if we actually applied our color
     if (!isOurColor(colorCustomizations)) {
         return;
     }
@@ -96,52 +71,28 @@ async function performColorCleanup(): Promise<void> {
     lastAppliedColor = null;
 }
 
-export async function clearWorkspaceColors() {
-    return new Promise<void>((resolve) => {
-        queueConfigUpdate(async () => {
-            await performColorCleanup();
-            resolve();
-        });
+export async function applyRandomColor(): Promise<void> {
+    // Pick a random color that is NOT the same as the last applied one
+    const availableColors = lastAppliedColor 
+        ? debugColors.filter(c => c !== lastAppliedColor)
+        : debugColors;
+        
+    const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
+    lastAppliedColor = randomColor;
+    
+    const config = vscode.workspace.getConfiguration('workbench');
+    const colorCustomizations = config.get<any>('colorCustomizations', {});
+
+    const newCustomizations = { ...colorCustomizations };
+    
+    const contrastColor = getContrastColor(randomColor);
+    
+    BACKGROUND_KEYS.forEach(key => {
+        newCustomizations[key] = randomColor;
     });
-}
-
-export async function clearWorkspaceColorsImmediate() {
-    await performColorCleanup();
-}
-
-export async function applyRandomColor() {
-    return new Promise<void>((resolve) => {
-        queueConfigUpdate(async () => {
-            // Pick a random color that is NOT the same as the last applied one
-            const availableColors = lastAppliedColor 
-                ? debugColors.filter(c => c !== lastAppliedColor)
-                : debugColors;
-                
-            const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
-            lastAppliedColor = randomColor;
-            
-            const config = vscode.workspace.getConfiguration('workbench');
-            const colorCustomizations = config.get<any>('colorCustomizations', {});
-
-            const newCustomizations = { ...colorCustomizations };
-            
-            const contrastColor = getContrastColor(randomColor);
-            
-            BACKGROUND_KEYS.forEach(key => {
-                newCustomizations[key] = randomColor;
-            });
-            FOREGROUND_KEYS.forEach(key => {
-                newCustomizations[key] = contrastColor;
-            });
-
-            await config.update('colorCustomizations', newCustomizations, vscode.ConfigurationTarget.Workspace);
-            resolve();
-        });
+    FOREGROUND_KEYS.forEach(key => {
+        newCustomizations[key] = contrastColor;
     });
-}
 
-export async function handleStartup(context: vscode.ExtensionContext) {
-    // ALWAYS clear on startup to prevent "flash" from previous crash/close.
-    // We removed the F5 automatic coloring so the user controls when to color.
-    await clearWorkspaceColors();
+    await config.update('colorCustomizations', newCustomizations, vscode.ConfigurationTarget.Workspace);
 }
