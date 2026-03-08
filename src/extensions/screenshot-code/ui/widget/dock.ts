@@ -87,6 +87,10 @@ export class DockWidget {
           ${iconNoBg}
           <span class="tooltip">Transparent BG</span>
         </button>
+        <button id="btn-toggle-lines" class="dock-item toggle-btn active">
+          ${iconLines}
+          <span class="tooltip">Line Numbers</span>
+        </button>
         <button id="btn-toggle-shadow" class="dock-item toggle-btn active">
           ${iconShadow}
           <span class="tooltip">Shadow</span>
@@ -94,10 +98,6 @@ export class DockWidget {
         <button id="btn-toggle-chrome" class="dock-item toggle-btn active">
           ${iconChrome}
           <span class="tooltip">Window Bar</span>
-        </button>
-        <button id="btn-toggle-lines" class="dock-item toggle-btn active">
-          ${iconLines}
-          <span class="tooltip">Line Numbers</span>
         </button>
 
         <div class="dock-separator"></div>
