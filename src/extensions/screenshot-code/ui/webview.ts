@@ -69,8 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Use a tiny delay to ensure the loading icon paints before heavy work starts
         await new Promise(r => setTimeout(r, 10));
 
-        flashAnimation();
-
         const scale = 2;
         const dataUrl = await htmlToImage.toPng(containerNode, {
           pixelRatio: scale,
@@ -272,18 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ═══════════════════════════════════════
      UTILITIES
      ═══════════════════════════════════════ */
-
-  function flashAnimation() {
-    const fx = $('#flash-fx');
-    if (fx) {
-      fx.style.display = 'block';
-      fx.style.opacity = '1';
-      requestAnimationFrame(() => {
-        setTimeout(() => { fx.style.opacity = '0'; }, 30);
-        setTimeout(() => { fx.style.display = 'none'; }, 450);
-      });
-    }
-  }
 
   function showToast(message: string, type: 'success' | 'info' = 'info') {
     // Remove existing toast

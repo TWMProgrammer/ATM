@@ -255,9 +255,8 @@ export class ScreenshotPanel {
             </div>
         </div>
 
-        <div id="flash-fx"></div>
     </div>
-
+ 
     <script src="${scriptUri}"></script>
 </body>
 </html>`;

@@ -200,21 +200,6 @@ body {
 }
 
 /* ═══════════════════════════════════
-   FLASH FX (camera effect)
-   ═══════════════════════════════════ */
-
-#flash-fx {
-  position: fixed;
-  inset: 0;
-  background: white;
-  z-index: 9999;
-  display: none;
-  opacity: 0;
-  transition: opacity 0.4s ease-out;
-  pointer-events: none;
-}
-
-/* ═══════════════════════════════════
    TOAST NOTIFICATION
    ═══════════════════════════════════ */
 
