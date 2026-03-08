@@ -151,12 +151,19 @@ export class ScreenshotPanel {
       const extension = format === 'jpeg' ? 'jpg' : format;
 
       const now = new Date();
-      const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}-${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
+      const YYYY = now.getFullYear();
+      const MM = (now.getMonth() + 1).toString().padStart(2, '0');
+      const DD = now.getDate().toString().padStart(2, '0');
+      const HH = now.getHours().toString().padStart(2, '0');
+      const mm = now.getMinutes().toString().padStart(2, '0');
+      const ss = now.getSeconds().toString().padStart(2, '0');
+      
+      const timestamp = `${YYYY}-${MM}-${DD}-${HH}${mm}${ss}`;
 
       const uri = await vscode.window.showSaveDialog({
         filters: { Images: [extension] },
         defaultUri: vscode.Uri.file(
-          path.join(os.homedir(), 'Downloads', `code-screenshot-${timestamp}.${extension}`)
+          path.join(os.homedir(), 'Downloads', `ATM-screenshot-${timestamp}.${extension}`)
         ),
       });
 
