@@ -240,7 +240,7 @@
       },
       {
         "command": "atm.screenshotCode",
-        "title": "ATM screenshot 📸"
+        "title": "ATM (📸) screenshot"
       }
     ],
     "keybindings": [

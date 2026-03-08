@@ -27,7 +27,7 @@ export class ScreenshotPanel {
 
     const panel = vscode.window.createWebviewPanel(
       ScreenshotPanel.viewType,
-      'Screenshot 📸',
+      'Screenshot',
       { viewColumn: column, preserveFocus: true },
       {
         enableScripts: true,
@@ -181,7 +181,7 @@ export class ScreenshotPanel {
 
   private _update() {
     const webview = this._panel.webview;
-    this._panel.title = 'Screenshot 📸';
+    this._panel.title = 'Screenshot';
     webview.html = this._getHtmlForWebview(webview);
   }
 
