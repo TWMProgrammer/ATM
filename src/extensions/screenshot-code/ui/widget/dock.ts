@@ -27,6 +27,7 @@ export interface DockConfig {
 export class DockWidget {
   private config: DockConfig;
   private currentPadding = 48;
+  private currentZoom = 1;
   private showLineNumbers = true;
   private showWindowChrome = true;
   private showShadow = true;
@@ -259,6 +260,7 @@ export class DockWidget {
       const btn = e.currentTarget as HTMLElement;
       await this.config.onCopy(btn);
     });
+
   }
 
   private togglePalette() {

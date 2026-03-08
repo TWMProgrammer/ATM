@@ -26,6 +26,7 @@ const $$ = (sel: string, ctx: Document | HTMLElement = document) =>
   Array.from(ctx.querySelectorAll<HTMLElement>(sel));
 
 import { DockWidget } from './widget/dock';
+import { ZoomWidget } from './widget/zoom';
 
 /* ═══════════════════════════════════════════════
    STATE
@@ -46,6 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const titleNode = $('#window-title')!;
   const navbarNode = $('#navbar')!;
 
+  // Initialize Zoom Widget
+  new ZoomWidget({
+    containerId: 'zoom-widget-container'
+  });
+
   // Initialize Dock Widget
   new DockWidget({
     containerId: 'dock-container',
@@ -64,13 +70,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isTakingSnapshot || !containerNode) { return; }
       const originalHTML = btn.innerHTML;
       
+      const zoomContainer = $('#zoom-container');
+      const prevTransform = zoomContainer?.style.transform;
+      const prevTransition = zoomContainer?.style.transition;
+
       try {
         isTakingSnapshot = true;
         btn.classList.add('loading');
         btn.innerHTML = svgLoading;
         
-        // Use a tiny delay to ensure the loading icon paints before heavy work starts
-        await new Promise(r => setTimeout(r, 10));
+        if (zoomContainer) {
+          zoomContainer.style.transition = 'none';
+          zoomContainer.style.transform = 'scale(1)';
+        }
+
+        // Use a tiny delay to ensure the loading icon paints and styles apply before heavy work starts
+        await new Promise(r => setTimeout(r, 50));
 
         const scale = 2;
         const dataUrl = await htmlToImage.toPng(containerNode, {
@@ -91,6 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerHTML = originalHTML;
         vscode.postMessage({ command: 'error', text: err.message });
       } finally {
+        if (zoomContainer) {
+          zoomContainer.style.transform = prevTransform || 'scale(1)';
+          setTimeout(() => { zoomContainer.style.transition = prevTransition || ''; }, 50);
+        }
         isTakingSnapshot = false;
       }
     },
@@ -98,6 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isTakingSnapshot || !containerNode) { return; }
 
       const originalHTML = btn.innerHTML;
+      const zoomContainer = $('#zoom-container');
+      const prevTransform = zoomContainer?.style.transform;
+      const prevTransition = zoomContainer?.style.transition;
+
       try {
         isTakingSnapshot = true;
         
@@ -105,8 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('loading');
         btn.innerHTML = svgLoading;
 
-        // Use a tiny delay to ensure the loading icon paints before heavy work starts
-        await new Promise(r => setTimeout(r, 10));
+        if (zoomContainer) {
+          zoomContainer.style.transition = 'none';
+          zoomContainer.style.transform = 'scale(1)';
+        }
+
+        // Use a tiny delay to ensure the loading icon paints and styles apply before heavy work starts
+        await new Promise(r => setTimeout(r, 50));
 
         const scale = 2;
         const dataUrl = await htmlToImage.toPng(containerNode, {
@@ -132,6 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerHTML = originalHTML;
         vscode.postMessage({ command: 'error', text: err.message });
       } finally {
+        if (zoomContainer) {
+          zoomContainer.style.transform = prevTransform || 'scale(1)';
+          setTimeout(() => { zoomContainer.style.transition = prevTransition || ''; }, 50);
+        }
         isTakingSnapshot = false;
       }
     }

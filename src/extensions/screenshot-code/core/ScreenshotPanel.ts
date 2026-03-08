@@ -125,6 +125,14 @@ export class ScreenshotPanel {
       const startLine = editor.selection.start.line;
       const plainText = editor.document.getText(editor.selection);
 
+      const lineCount = plainText.split(/\r\n|\r|\n/).length;
+      if (lineCount > 98) {
+        vscode.window.showWarningMessage(
+          `¡Atención! Has seleccionado ${lineCount} líneas. Por favor, selecciona un máximo de 98 líneas para garantizar una captura de alta calidad y evitar problemas de rendimiento.`
+        );
+        return;
+      }
+
       this._panel.webview.postMessage({
         type: 'update',
         fontLigatures,
@@ -247,20 +255,23 @@ export class ScreenshotPanel {
 
         <!-- ─── Bottom Dock ───────────────────── -->
         <div id="dock-container"></div>
+        <div id="zoom-widget-container"></div>
 
         <!-- ─── Snippet Area ──────────────── -->
         <div id="snippet-scroll">
-            <div id="snippet-container" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div id="window" class="glass-panel">
-                    <div id="navbar">
-                        <div id="window-controls">
-                            <div class="mac-dot red"></div>
-                            <div class="mac-dot yellow"></div>
-                            <div class="mac-dot green"></div>
+            <div id="zoom-container" style="display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
+                <div id="snippet-container" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div id="window" class="glass-panel">
+                        <div id="navbar">
+                            <div id="window-controls">
+                                <div class="mac-dot red"></div>
+                                <div class="mac-dot yellow"></div>
+                                <div class="mac-dot green"></div>
+                            </div>
+                            <div id="window-title">code.ts</div>
                         </div>
-                        <div id="window-title">code.ts</div>
+                        <div id="snippet-content"></div>
                     </div>
-                    <div id="snippet-content"></div>
                 </div>
             </div>
         </div>
