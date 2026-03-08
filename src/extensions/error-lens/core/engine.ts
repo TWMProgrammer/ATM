@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { shouldExcludeFromErrorLens } from './exclusions';
 
 // Filtro rápido para no aplicar en paneles output o git.
 function _shouldExclude(scheme: string): boolean {
@@ -20,6 +21,11 @@ export function updateDecorationsForEditor(
 ): void {
   const document = editor.document;
   if (!document || _shouldExclude(document.uri.scheme)) {
+    return;
+  }
+  
+  // Rendimiento: Salir inmediatamente si el archivo está en la lista de ignorados
+  if (shouldExcludeFromErrorLens(document.uri.fsPath)) {
     return;
   }
 
@@ -60,18 +66,23 @@ export function updateDecorationsForEditor(
 
     // Mensaje limpio. .trim() para quitar cualquier espacio inicial o final fantasma.
     // ESTO ELIMINA EL BUG del recuadro opaco apareciendo primero sin texto.
-    let message = diagnostic.message.replace(/\r?\n/g, ' ').trim();
+    let cleanMsg = diagnostic.message.replace(/\r?\n/g, ' ').trim();
 
     // PERFORMANCE & ESTÉTICA: Cortar los testamentos kilométricos de TypeScript
     // que destruyen el margen visual a un máximo cómodo (~100 caracteres)
-    if (message.length > 100) {
-      message = message.substring(0, 111) + '...';
+    if (cleanMsg.length > 100) {
+      cleanMsg = cleanMsg.substring(0, 111) + '...';
     }
 
     // Evitamos renderizar burbujas falsas / vacías
-    if (!message) {
+    if (!cleanMsg) {
       continue;
     }
+
+    // Insertar un icono semántico dependiendo de la gravedad
+    const icon =
+      diagnostic.severity === vscode.DiagnosticSeverity.Error ? '✖' : '⚠';
+    const message = `${icon}  ${cleanMsg}`;
 
     const decorationOptions: vscode.DecorationOptions = {
       range,

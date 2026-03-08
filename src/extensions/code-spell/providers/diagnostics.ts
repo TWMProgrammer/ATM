@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { checkText } from '../core/engine';
 import { spellDecorationType } from '../ui/styles';
+import { shouldIgnoreFile, SUPPORTED_LANGUAGES } from '../core/exclusions';
 
 export const spellDiagnostics =
   vscode.languages.createDiagnosticCollection('code-spell');
@@ -20,65 +21,13 @@ export function scheduleDiagnosticsCheck(doc: vscode.TextDocument) {
     return;
   }
 
-  // Only analyze source code or text files, ignore consoles or .git
-  const validModes = [
-    'typescript',
-    'javascript',
-    'javascriptreact',
-    'typescriptreact',
-    'html',
-    'css',
-    'json',
-    'plaintext',
-    'markdown',
-    'python',
-    'java',
-    'c',
-    'cpp',
-    'csharp',
-  ];
-  if (!validModes.includes(doc.languageId)) {
+  // Only analyze languages where spell-checking is useful
+  if (!SUPPORTED_LANGUAGES.has(doc.languageId)) {
     return;
   }
 
-  // 1. Rendimiento: Ignorar carpetas y archivos pesados autogenerados
-  const fsPath = doc.uri.fsPath.replace(/\\/g, '/'); // Normalizar barras para Windows/Linux
-  
-  // Archivos específicos que siempre bloquean el editor
-  const ignoredFiles = [
-    'package-lock.json',
-    'yarn.lock',
-    'pnpm-lock.yaml',
-    'bun.lock',
-    'bun.lockb',
-  ];
-
-  if (ignoredFiles.some((file) => fsPath.endsWith(`/${file}`))) {
-    return;
-  }
-
-  // Archivos minificados o SVG que no necesitan corrección
-  if (fsPath.endsWith('.min.js') || fsPath.endsWith('.min.css') || fsPath.endsWith('.svg')) {
-    return;
-  }
-
-  // Carpetas enteras bloqueadas (se buscan rodeadas de '/' para exactitud)
-  const ignoredFolders = [
-    '/.git/',
-    '/node_modules/',
-    '/dist/',
-    '/build/',
-    '/out/',
-    '/.next/',
-    '/.nuxt/',
-    '/.svelte-kit/',
-    '/.expo/',
-    '/coverage/',
-    '/temp/',
-    '/tmp/'
-  ];
-
-  if (ignoredFolders.some((folder) => fsPath.includes(folder))) {
+  // Skip files in ignored folders, lockfiles, minified, declarations, etc.
+  if (shouldIgnoreFile(doc.uri.fsPath)) {
     return;
   }
 

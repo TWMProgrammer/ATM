@@ -1,4 +1,89 @@
 import * as crypto from 'crypto';
+import * as path from 'path';
+
+// ── Exclusion filter for mini-panel ──────────────────────────────────────────
+// Files/folders where git blame is wasteful or meaningless.
+
+const IGNORED_FOLDERS = new Set([
+    'node_modules',
+    'dist',
+    'build',
+    '.next',
+    '.nuxt',
+    '.output',
+    '.svelte-kit',
+    '.angular',
+    '.vite',
+    '.turbo',
+    '.cache',
+    '.parcel-cache',
+    'coverage',
+    '__pycache__',
+    '.dart_tool',
+    '.flutter-plugins',
+    '.pub-cache',
+    '.gradle',
+    '.idea',
+    'vendor',
+]);
+
+const IGNORED_FILENAMES = new Set([
+    'package-lock.json',
+    'bun.lock',
+    'bun.lockb',
+    'yarn.lock',
+    'pnpm-lock.yaml',
+    'composer.lock',
+    'gemfile.lock',
+    'cargo.lock',
+    'poetry.lock',
+    'pipfile.lock',
+    'go.sum',
+    'pubspec.lock',
+    '.ds_store',
+    'thumbs.db',
+]);
+
+const IGNORED_EXTENSIONS = new Set([
+    // Minified / generated
+    '.map',
+    // Images
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.bmp', '.svg',
+    // Fonts
+    '.woff', '.woff2', '.ttf', '.eot', '.otf',
+    // Audio / Video
+    '.mp3', '.mp4', '.wav', '.ogg', '.webm',
+    // Archives
+    '.zip', '.tar', '.gz', '.rar', '.7z',
+    // Documents & binaries
+    '.pdf', '.exe', '.dll', '.so', '.dylib', '.wasm',
+]);
+
+/**
+ * Returns `true` if the file should be **excluded** from git blame processing.
+ * Checks folder segments, exact filename, extension, and `.min.*` patterns.
+ */
+export function shouldIgnoreFile(fsPath: string): boolean {
+    const segments = fsPath.split(path.sep);
+    // Check folder segments
+    for (const seg of segments) {
+        if (IGNORED_FOLDERS.has(seg)) { return true; }
+    }
+
+    const basename = path.basename(fsPath).toLowerCase();
+
+    // Exact filename match
+    if (IGNORED_FILENAMES.has(basename)) { return true; }
+
+    // .min.js / .min.css
+    if (basename.endsWith('.min.js') || basename.endsWith('.min.css')) { return true; }
+
+    // Extension match
+    const ext = path.extname(basename);
+    if (ext && IGNORED_EXTENSIONS.has(ext)) { return true; }
+
+    return false;
+}
 
 export function timeAgo(date: Date): string {
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
