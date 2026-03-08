@@ -2,17 +2,13 @@ import './dock.css';
 
 const GRADIENT_PRESETS = [
   { name: 'Indigo Night', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  { name: 'Ocean Breeze', value: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)' },
   { name: 'Sunset Blaze', value: 'linear-gradient(135deg, #f97316 0%, #ec4899 100%)' },
   { name: 'Emerald Glow', value: 'linear-gradient(135deg, #10b981 0%, #0891b2 100%)' },
   { name: 'Rose Gold', value: 'linear-gradient(135deg, #f43f5e 0%, #d946ef 100%)' },
-  { name: 'Midnight Blue', value: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)' },
   { name: 'Amber Flame', value: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)' },
-  { name: 'Slate Mono', value: 'linear-gradient(135deg, #334155 0%, #1e293b 100%)' },
-  { name: 'Cyber Punk', value: 'linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%)' },
-  { name: 'Aurora', value: 'linear-gradient(135deg, #00f5a0 0%, #00d9f5 100%)' },
-  { name: 'Warm Sunset', value: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
   { name: 'Deep Space', value: 'linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 50%, #2d2b55 100%)' },
+  { name: 'Aurora', value: 'linear-gradient(135deg, #00f5a0 0%, #00d9f5 100%)' },
+  { name: 'Cyber Punk', value: 'linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%)' },
 ];
 
 export interface DockConfig {
