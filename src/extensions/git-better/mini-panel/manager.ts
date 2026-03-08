@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { GitService } from './git-service';
 import { LineBlameDecorator } from './blame-ui';
-import { debounce } from './utils';
+import { debounce, shouldIgnoreFile } from './utils';
 
 export class GitBetterManager implements vscode.Disposable {
     private gitService = new GitService();
@@ -69,7 +69,7 @@ export class GitBetterManager implements vscode.Disposable {
                 const activeEditor = vscode.window.activeTextEditor;
                 // Only process if it's the active document and there are actual changes
                 if (activeEditor && event.document === activeEditor.document && event.contentChanges.length > 0) {
-                    if (event.document.uri.scheme === 'file') {
+                    if (event.document.uri.scheme === 'file' && !shouldIgnoreFile(event.document.uri.fsPath)) {
                         getDebouncer(event.document)();
                     }
                 }
@@ -91,7 +91,7 @@ export class GitBetterManager implements vscode.Disposable {
             // Invalidate cache & re-blame on save (the persisted content may differ slightly)
             vscode.workspace.onDidSaveTextDocument((document) => {
                 const activeEditor = vscode.window.activeTextEditor;
-                if (document.uri.scheme === 'file' && activeEditor && document === activeEditor.document) {
+                if (document.uri.scheme === 'file' && !shouldIgnoreFile(document.uri.fsPath) && activeEditor && document === activeEditor.document) {
                     this.gitService.invalidateFile(document.uri.fsPath);
                     this.blameDecorator.invalidateHoverCache();
                     this.gitService.blameFile(document.uri.fsPath, document.getText()).then(() => {

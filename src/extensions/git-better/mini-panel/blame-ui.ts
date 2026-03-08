@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GitService } from './git-service';
-import { timeAgo, formatDate, getGravatarUrl, debounce, LRUCache } from './utils';
+import { timeAgo, formatDate, getGravatarUrl, debounce, LRUCache, shouldIgnoreFile } from './utils';
 
 const MAX_HOVER_CACHE = 200;
 
@@ -85,6 +85,7 @@ export class LineBlameDecorator implements vscode.Disposable {
     private async onActiveEditorChanged(editor: vscode.TextEditor | undefined) {
         this.activeEditor = editor;
         if (!editor || editor.document.uri.scheme !== 'file') { return; }
+        if (shouldIgnoreFile(editor.document.uri.fsPath)) { return; }
 
         // Asynchronously update blame when editor changes, doesn't block UI
         this.gitService.blameFile(editor.document.uri.fsPath, editor.document.getText()).then(() => {
@@ -100,6 +101,10 @@ export class LineBlameDecorator implements vscode.Disposable {
 
         const editor = this.activeEditor;
         if (!editor || editor.document.uri.scheme !== 'file') { return; }
+        if (shouldIgnoreFile(editor.document.uri.fsPath)) {
+            editor.setDecorations(this.decorationType, []);
+            return;
+        }
 
         const version = ++this.updateVersion;
         const activeLine = editor.selection.active.line;
