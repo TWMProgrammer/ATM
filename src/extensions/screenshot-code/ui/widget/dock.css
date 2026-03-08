@@ -78,6 +78,21 @@
   border-color: rgba(52, 211, 153, 0.3) !important;
 }
 
+/* Loading State */
+.dock-item.loading {
+  cursor: wait;
+}
+
+.dock-item.loading svg {
+  animation: spin 1s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Toggle dot indicator */
 .dock-item.toggle-btn::after {
   content: '';

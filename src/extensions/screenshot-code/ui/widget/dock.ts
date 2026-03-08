@@ -20,7 +20,7 @@ export interface DockConfig {
   
   getCurrentLineNumbersVisible: () => boolean;
   onToggleLineNumbers: (show: boolean) => void;
-  onSave: () => Promise<void>;
+  onSave: (btn: HTMLElement) => Promise<void>;
   onCopy: (btn: HTMLElement) => Promise<void>;
 }
 
@@ -257,8 +257,9 @@ export class DockWidget {
     }
 
     /* ─── Save / Copy Actions ──────────────── */
-    this.$('#btn-save')?.addEventListener('click', async () => {
-      await this.config.onSave();
+    this.$('#btn-save')?.addEventListener('click', async (e) => {
+      const btn = e.currentTarget as HTMLElement;
+      await this.config.onSave(btn);
     });
 
     this.$('#btn-copy')?.addEventListener('click', async (e) => {

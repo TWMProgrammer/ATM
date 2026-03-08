@@ -57,10 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
     onToggleLineNumbers: (show: boolean) => {
       showLineNumbers = show;
     },
-    onSave: async () => {
+    onSave: async (btn: HTMLElement) => {
       if (isTakingSnapshot || !containerNode) { return; }
+      const originalHTML = btn.innerHTML;
+      
       try {
         isTakingSnapshot = true;
+        btn.classList.add('loading');
+        btn.innerHTML = svgLoading;
+        
+        // Use a tiny delay to ensure the loading icon paints before heavy work starts
+        await new Promise(r => setTimeout(r, 10));
+
         flashAnimation();
 
         const scale = 2;
@@ -73,7 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
           command: 'saveImage',
           data: dataUrl,
         });
+
+        // Feedback for save - Just revert to original
+        btn.classList.remove('loading');
+        btn.innerHTML = originalHTML;
       } catch (err: any) {
+        btn.classList.remove('loading');
+        btn.innerHTML = originalHTML;
         vscode.postMessage({ command: 'error', text: err.message });
       } finally {
         isTakingSnapshot = false;
@@ -82,8 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
     onCopy: async (btn: HTMLElement) => {
       if (isTakingSnapshot || !containerNode) { return; }
 
+      const originalHTML = btn.innerHTML;
       try {
         isTakingSnapshot = true;
+        
+        // Show loading state immediately
+        btn.classList.add('loading');
+        btn.innerHTML = svgLoading;
+
+        // Use a tiny delay to ensure the loading icon paints before heavy work starts
+        await new Promise(r => setTimeout(r, 10));
 
         const scale = 2;
         const dataUrl = await htmlToImage.toPng(containerNode, {
@@ -95,17 +117,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = new ClipboardItem({ 'image/png': blob });
         await navigator.clipboard.write([item]);
 
-        // Visual feedback
+        // Visual feedback - Success
+        btn.classList.remove('loading');
         btn.classList.add('copied');
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = svgCheck + ' Copied!';
-        showToast('Copied to clipboard!', 'success');
+        btn.innerHTML = svgDoubleCheck;
 
         setTimeout(() => {
           btn.classList.remove('copied');
           btn.innerHTML = originalHTML;
         }, 2000);
       } catch (err: any) {
+        btn.classList.remove('loading');
+        btn.innerHTML = originalHTML;
         vscode.postMessage({ command: 'error', text: err.message });
       } finally {
         isTakingSnapshot = false;
@@ -293,6 +316,10 @@ document.addEventListener('DOMContentLoaded', () => {
    SVG ICON STRINGS
    ═══════════════════════════════════════ */
 
-const svgCheck = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const svgCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 
-const svgInfo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+const svgDoubleCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L7 17l-5-5"/><path d="M22 10l-7.5 7.5L13 16"/></svg>`;
+
+const svgLoading = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+
+const svgInfo = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
