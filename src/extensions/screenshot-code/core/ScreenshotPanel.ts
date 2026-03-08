@@ -55,6 +55,12 @@ export class ScreenshotPanel {
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
     this._panel = panel;
     this._extensionUri = extensionUri;
+    
+    // Set native VS Code icon for the panel (SVG workaround for themes)
+    this._panel.iconPath = {
+      light: vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'screenshot-code', 'assets', 'camera-light.svg'),
+      dark: vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'screenshot-code', 'assets', 'camera-dark.svg')
+    };
 
     this._update();
     this.updateCode();
