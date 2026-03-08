@@ -128,7 +128,7 @@ export class ScreenshotPanel {
       const lineCount = plainText.split(/\r\n|\r|\n/).length;
       if (lineCount > 98) {
         vscode.window.showWarningMessage(
-          `¡Atención! Has seleccionado ${lineCount} líneas. Por favor, selecciona un máximo de 98 líneas para garantizar una captura de alta calidad y evitar problemas de rendimiento.`
+          `Selection too large (${lineCount} lines). Max allowed is 98 for performance.`
         );
         return;
       }
