@@ -25,7 +25,7 @@ const $ = (sel: string, ctx: Document | HTMLElement = document) =>
 const $$ = (sel: string, ctx: Document | HTMLElement = document) =>
   Array.from(ctx.querySelectorAll<HTMLElement>(sel));
 
-import { ToolbarWidget } from './widget/toolbar';
+import { DockWidget } from './widget/dock';
 
 /* ═══════════════════════════════════════════════
    STATE
@@ -46,9 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const titleNode = $('#window-title')!;
   const navbarNode = $('#navbar')!;
 
-  // Initialize Toolbar Widget
-  new ToolbarWidget({
-    containerId: 'toolbar-container',
+  // Initialize Dock Widget
+  new DockWidget({
+    containerId: 'dock-container',
     snippetContainerId: 'snippet-container',
     windowNodeId: 'window',
     navbarNodeId: 'navbar',

@@ -56,7 +56,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 2rem 2rem 100px 2rem;
   min-height: 0;
 }
 

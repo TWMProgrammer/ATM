@@ -235,8 +235,8 @@ export class ScreenshotPanel {
 <body>
     <div id="app">
 
-        <!-- ─── Toolbar ───────────────────── -->
-        <div id="toolbar-container"></div>
+        <!-- ─── Bottom Dock ───────────────────── -->
+        <div id="dock-container"></div>
 
         <!-- ─── Snippet Area ──────────────── -->
         <div id="snippet-scroll">
