@@ -25,20 +25,7 @@ const $ = (sel: string, ctx: Document | HTMLElement = document) =>
 const $$ = (sel: string, ctx: Document | HTMLElement = document) =>
   Array.from(ctx.querySelectorAll<HTMLElement>(sel));
 
-/* ═══════════════════════════════════════════════
-   GRADIENT PRESETS
-   ═══════════════════════════════════════════════ */
-
-const GRADIENT_PRESETS = [
-  { name: 'Indigo Night', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  { name: 'Ocean Breeze', value: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)' },
-  { name: 'Sunset Blaze', value: 'linear-gradient(135deg, #f97316 0%, #ec4899 100%)' },
-  { name: 'Emerald Glow', value: 'linear-gradient(135deg, #10b981 0%, #0891b2 100%)' },
-  { name: 'Rose Gold', value: 'linear-gradient(135deg, #f43f5e 0%, #d946ef 100%)' },
-  { name: 'Midnight Blue', value: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)' },
-  { name: 'Amber Flame', value: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)' },
-  { name: 'Slate Mono', value: 'linear-gradient(135deg, #334155 0%, #1e293b 100%)' },
-];
+import { ToolbarWidget } from './widget/toolbar';
 
 /* ═══════════════════════════════════════════════
    STATE
@@ -47,9 +34,6 @@ const GRADIENT_PRESETS = [
 let isTakingSnapshot = false;
 let currentStartLine = 1;
 let showLineNumbers = true;
-let showWindowChrome = true;
-let showShadow = true;
-let currentPadding = 48; // px
 
 /* ═══════════════════════════════════════════════
    INIT
@@ -61,134 +45,71 @@ document.addEventListener('DOMContentLoaded', () => {
   const containerNode = $('#snippet-container')!;
   const titleNode = $('#window-title')!;
   const navbarNode = $('#navbar')!;
-  const colorPicker = $('#bg-color-picker') as HTMLInputElement;
 
-  /* ─── Gradient presets ────────────────── */
-  const presetsContainer = $('#gradient-presets');
-  if (presetsContainer) {
-    GRADIENT_PRESETS.forEach((preset, i) => {
-      const swatch = document.createElement('div');
-      swatch.className = `gradient-swatch${i === 0 ? ' active' : ''}`;
-      swatch.style.background = preset.value;
-      swatch.title = preset.name;
-      swatch.addEventListener('click', () => {
-        containerNode.style.background = preset.value;
-        containerNode.classList.remove('no-bg');
-        $$('.gradient-swatch').forEach(s => s.classList.remove('active'));
-        swatch.classList.add('active');
-      });
-      presetsContainer.appendChild(swatch);
-    });
-  }
+  // Initialize Toolbar Widget
+  new ToolbarWidget({
+    containerId: 'toolbar-container',
+    snippetContainerId: 'snippet-container',
+    windowNodeId: 'window',
+    navbarNodeId: 'navbar',
+    snippetNodeId: 'snippet-content',
+    getCurrentLineNumbersVisible: () => showLineNumbers,
+    onToggleLineNumbers: (show: boolean) => {
+      showLineNumbers = show;
+    },
+    onSave: async () => {
+      if (isTakingSnapshot || !containerNode) { return; }
+      try {
+        isTakingSnapshot = true;
+        flashAnimation();
 
-  /* ─── Custom colour picker ────────────── */
-  if (colorPicker && containerNode) {
-    colorPicker.addEventListener('input', (e) => {
-      const color = (e.target as HTMLInputElement).value;
-      containerNode.style.background = color;
-      containerNode.classList.remove('no-bg');
-      $$('.gradient-swatch').forEach(s => s.classList.remove('active'));
-    });
-  }
+        const scale = 2;
+        const dataUrl = await htmlToImage.toPng(containerNode, {
+          pixelRatio: scale,
+          skipFonts: true,
+        });
 
-  /* ─── Transparent background toggle ───── */
-  $('#btn-toggle-bg')?.addEventListener('click', () => {
-    const btn = $('#btn-toggle-bg')!;
-    containerNode.classList.toggle('no-bg');
-    btn.classList.toggle('active', containerNode.classList.contains('no-bg'));
-  });
+        vscode.postMessage({
+          command: 'saveImage',
+          data: dataUrl,
+        });
+      } catch (err: any) {
+        vscode.postMessage({ command: 'error', text: err.message });
+      } finally {
+        isTakingSnapshot = false;
+      }
+    },
+    onCopy: async (btn: HTMLElement) => {
+      if (isTakingSnapshot || !containerNode) { return; }
 
-  /* ─── Shadow toggle ──────────────────── */
-  $('#btn-toggle-shadow')?.addEventListener('click', () => {
-    const btn = $('#btn-toggle-shadow')!;
-    showShadow = !showShadow;
-    windowNode.classList.toggle('no-shadow', !showShadow);
-    btn.classList.toggle('active', showShadow);
-  });
+      try {
+        isTakingSnapshot = true;
 
-  /* ─── Window chrome toggle ────────────── */
-  $('#btn-toggle-chrome')?.addEventListener('click', () => {
-    const btn = $('#btn-toggle-chrome')!;
-    showWindowChrome = !showWindowChrome;
-    navbarNode.classList.toggle('hidden', !showWindowChrome);
-    btn.classList.toggle('active', showWindowChrome);
-  });
+        const scale = 2;
+        const dataUrl = await htmlToImage.toPng(containerNode, {
+          pixelRatio: scale,
+          skipFonts: true,
+        });
 
-  /* ─── Line numbers toggle ────────────── */
-  $('#btn-toggle-lines')?.addEventListener('click', () => {
-    const btn = $('#btn-toggle-lines')!;
-    showLineNumbers = !showLineNumbers;
-    btn.classList.toggle('active', showLineNumbers);
-    $$('.line-number', snippetNode).forEach(el => {
-      el.style.display = showLineNumbers ? '' : 'none';
-    });
-  });
+        const blob = await (await fetch(dataUrl)).blob();
+        const item = new ClipboardItem({ 'image/png': blob });
+        await navigator.clipboard.write([item]);
 
-  /* ─── Padding slider ─────────────────── */
-  const paddingSlider = $('#padding-slider') as HTMLInputElement | null;
-  if (paddingSlider) {
-    paddingSlider.addEventListener('input', () => {
-      currentPadding = parseInt(paddingSlider.value, 10);
-      containerNode.style.padding = `${currentPadding}px`;
-    });
-  }
+        // Visual feedback
+        btn.classList.add('copied');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = svgCheck + ' Copied!';
+        showToast('Copied to clipboard!', 'success');
 
-  /* ─── Save (PNG default) ──────────────── */
-  $('#btn-save')?.addEventListener('click', async () => {
-    if (isTakingSnapshot || !containerNode) { return; }
-    try {
-      isTakingSnapshot = true;
-      flashAnimation();
-
-      const scale = 2;
-      const dataUrl = await htmlToImage.toPng(containerNode, {
-        pixelRatio: scale,
-        skipFonts: true,
-      });
-
-      vscode.postMessage({
-        command: 'saveImage',
-        data: dataUrl,
-      });
-    } catch (err: any) {
-      vscode.postMessage({ command: 'error', text: err.message });
-    } finally {
-      isTakingSnapshot = false;
-    }
-  });
-
-  /* ─── Copy to clipboard ───────────────── */
-  $('#btn-copy')?.addEventListener('click', async () => {
-    if (isTakingSnapshot || !containerNode) { return; }
-    const btn = $('#btn-copy')!;
-
-    try {
-      isTakingSnapshot = true;
-
-      const scale = 2;
-      const dataUrl = await htmlToImage.toPng(containerNode, {
-        pixelRatio: scale,
-        skipFonts: true,
-      });
-
-      const blob = await (await fetch(dataUrl)).blob();
-      const item = new ClipboardItem({ 'image/png': blob });
-      await navigator.clipboard.write([item]);
-
-      // Visual feedback
-      btn.classList.add('copied');
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = svgCheck + ' Copied!';
-      showToast('Copied to clipboard!', 'success');
-
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = originalHTML;
-      }, 2000);
-    } catch (err: any) {
-      vscode.postMessage({ command: 'error', text: err.message });
-    } finally {
-      isTakingSnapshot = false;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = originalHTML;
+        }, 2000);
+      } catch (err: any) {
+        vscode.postMessage({ command: 'error', text: err.message });
+      } finally {
+        isTakingSnapshot = false;
+      }
     }
   });
 

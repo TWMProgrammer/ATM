@@ -200,6 +200,9 @@ export class ScreenshotPanel {
     const cssUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, 'dist', 'styles.css')
     );
+    const webviewCssUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'dist', 'webview.css')
+    );
 
     const downloadIconUri = webview.asWebviewUri(
       vscode.Uri.joinPath(
@@ -227,46 +230,13 @@ export class ScreenshotPanel {
                connect-src data: blob:;">
     <title>Screenshot 📸</title>
     <link href="${cssUri}" rel="stylesheet">
+    <link href="${webviewCssUri}" rel="stylesheet">
 </head>
 <body>
     <div id="app">
 
         <!-- ─── Toolbar ───────────────────── -->
-        <div id="toolbar">
-            <button id="btn-save" title="Save as PNG" class="action-btn primary">
-                <img src="${downloadIconUri}" alt="Save" />
-                Save
-            </button>
-            <button id="btn-copy" title="Copy to clipboard" class="action-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                Copy
-            </button>
-
-            <div class="divider"></div>
-
-            <!-- Gradient presets -->
-            <div class="control-label">
-                BG
-                <div id="gradient-presets" class="gradient-presets"></div>
-                <input type="color" id="bg-color-picker" value="#667eea" title="Custom colour" />
-            </div>
-
-            <div class="divider"></div>
-
-            <!-- Padding -->
-            <div class="slider-group">
-                <span class="control-label">PAD</span>
-                <input type="range" id="padding-slider" min="0" max="96" value="48" />
-            </div>
-
-            <div class="divider"></div>
-
-            <!-- Toggles -->
-            <button id="btn-toggle-bg" class="toggle-btn" title="Transparent background">No BG</button>
-            <button id="btn-toggle-shadow" class="toggle-btn active" title="Toggle shadow">Shadow</button>
-            <button id="btn-toggle-chrome" class="toggle-btn active" title="Toggle window bar">Chrome</button>
-            <button id="btn-toggle-lines" class="toggle-btn active" title="Toggle line numbers">Lines</button>
-        </div>
+        <div id="toolbar-container"></div>
 
         <!-- ─── Snippet Area ──────────────── -->
         <div id="snippet-scroll">
