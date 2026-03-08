@@ -122,16 +122,50 @@ body {
   height: 12px;
   border-radius: 50%;
   transition: opacity 0.2s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mac-dot::before {
+  content: "";
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+#window-controls:hover .mac-dot::before {
+  opacity: 1;
 }
 
 .mac-dot.red {
   background: #ff5f56;
 }
+.mac-dot.red::before {
+  width: 6px;
+  height: 6px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1 1l8 8M9 1L1 9' stroke='rgba(0,0,0,0.6)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
 .mac-dot.yellow {
   background: #ffbd2e;
 }
+.mac-dot.yellow::before {
+  width: 8px;
+  height: 2px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 1px;
+}
+
 .mac-dot.green {
   background: #27c93f;
+}
+.mac-dot.green::before {
+  width: 6px;
+  height: 6px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1 5l3 3 5-7' stroke='rgba(0,0,0,0.6)' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+  background-size: cover;
 }
 
 #window-title {
@@ -161,6 +195,7 @@ body {
   line-height: 1.6;
   white-space: pre;
   min-height: 40px;
+  counter-reset: line-number calc(var(--start-line, 1) - 1);
 }
 
 /* Empty state */
@@ -176,14 +211,16 @@ body {
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Line formatting from VS Code paste */
+/* Line formatting with pure CSS counters for extreme performance */
 .line {
   display: flex;
   align-items: baseline;
   min-height: 1.6em;
 }
 
-.line-number {
+.line::before {
+  counter-increment: line-number;
+  content: counter(line-number);
   color: rgba(255, 255, 255, 0.2);
   text-align: right;
   min-width: 2.5em;
@@ -192,6 +229,7 @@ body {
   font-family: inherit;
   font-variant-numeric: tabular-nums;
   font-size: 0.85em;
+  display: var(--show-line-numbers, block);
 }
 
 .line-code {

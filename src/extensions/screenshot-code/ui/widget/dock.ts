@@ -237,13 +237,6 @@ export class DockWidget {
       const btn = e.currentTarget as HTMLElement;
       this.showLineNumbers = !this.showLineNumbers;
       btn.classList.toggle('active', this.showLineNumbers);
-      
-      const snippetNode = this.$(`#${this.config.snippetNodeId}`);
-      if (snippetNode) {
-        this.$$('.line-number', snippetNode).forEach(el => {
-          el.style.display = this.showLineNumbers ? '' : 'none';
-        });
-      }
       this.config.onToggleLineNumbers(this.showLineNumbers);
     });
 

@@ -56,6 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
     getCurrentLineNumbersVisible: () => showLineNumbers,
     onToggleLineNumbers: (show: boolean) => {
       showLineNumbers = show;
+      if (snippetNode) {
+        snippetNode.style.setProperty('--show-line-numbers', show ? 'block' : 'none');
+      }
     },
     onSave: async (btn: HTMLElement) => {
       if (isTakingSnapshot || !containerNode) { return; }
@@ -142,6 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
         titleNode.textContent = config.windowTitle || 'code';
       }
       currentStartLine = config.startLine ?? 0;
+      if (snippetNode) {
+        snippetNode.style.setProperty('--start-line', String(currentStartLine + 1));
+        snippetNode.style.setProperty('--show-line-numbers', showLineNumbers ? 'block' : 'none');
+      }
 
       // Apply tab size
       if (config.tabSize && snippetNode) {
@@ -172,24 +179,16 @@ document.addEventListener('DOMContentLoaded', () => {
             .join('');
 
           const rows = $$(':scope > div', snippetNode);
-          rows.forEach((row, idx) => {
+          rows.forEach((row) => {
             const newRow = document.createElement('div');
             newRow.className = 'line';
             
-            const lineNum = document.createElement('div');
-            lineNum.className = 'line-number';
-            lineNum.textContent = String(currentStartLine + idx + 1);
-            if (!showLineNumbers) {
-              lineNum.style.display = 'none';
-            }
-
             const lineCodeDiv = document.createElement('div');
             lineCodeDiv.className = 'line-code';
             const lineCode = document.createElement('span');
             lineCode.innerHTML = row.innerHTML;
             lineCodeDiv.appendChild(lineCode);
 
-            newRow.appendChild(lineNum);
             newRow.appendChild(lineCodeDiv);
             row.replaceWith(newRow);
           });
@@ -243,17 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Rebuild rows with line numbers
-    rows.forEach((row, idx) => {
+    // Rebuild rows with new streamlined line numbers
+    rows.forEach((row) => {
       const newRow = document.createElement('div');
       newRow.className = 'line';
-
-      const lineNum = document.createElement('div');
-      lineNum.className = 'line-number';
-      lineNum.textContent = String(currentStartLine + idx + 1);
-      if (!showLineNumbers) {
-        lineNum.style.display = 'none';
-      }
 
       const lineCodeDiv = document.createElement('div');
       lineCodeDiv.className = 'line-code';
@@ -261,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
       lineCode.innerHTML = row.innerHTML;
       lineCodeDiv.appendChild(lineCode);
 
-      newRow.appendChild(lineNum);
       newRow.appendChild(lineCodeDiv);
       row.replaceWith(newRow);
     });
