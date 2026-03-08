@@ -237,6 +237,10 @@
       {
         "command": "git-better.toggleBlame",
         "title": "ATM Git: Toggle Inline Blame"
+      },
+      {
+        "command": "atm.screenshotCode",
+        "title": "ATM (📸) screenshot"
       }
     ],
     "keybindings": [
@@ -278,6 +282,13 @@
         {
           "command": "atm.markdown-store.translateExtension",
           "group": "1_modification"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "atm.screenshotCode",
+          "group": "1_modification",
+          "when": "editorHasSelection"
         }
       ]
     },
@@ -338,6 +349,7 @@
   },
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",
+    "html-to-image": "^1.11.13",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1"
   }
