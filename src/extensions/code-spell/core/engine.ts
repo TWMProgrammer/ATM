@@ -14,26 +14,41 @@ export interface SpellIssue {
 export function checkText(text: string): SpellIssue[] {
   const issues: SpellIssue[] = [];
 
-  // Remove raw URLs, Hexadecimal Colors (#FFFFFF) AND ANY camelCase / PascalCase words
-  // e.g: useSafeAreaInsets, StyleSheet, TouchableOpacity, AnalyticsResult
-  // while preserving the original length to maintain correct token offsets
-  const cleanText = text.replace(
-    /https?:\/\/[^\s"'<>]*|#[a-fA-F0-9]{3,8}\b|\b(?:[a-z]+[A-Z][a-zA-Z]*|[A-Z][a-z]+[A-Z][a-zA-Z]*)\b/g,
-    (match) => ' '.repeat(match.length),
-  );
+  const lines = text.split('\n');
+  let currentOffset = 0;
 
-  const tokens = tokenizeText(cleanText);
+  for (const line of lines) {
+    const lineLen = line.length;
 
-  for (const token of tokens) {
-    // Revisar si la palabra restante (en minúsculas completas o 1 sola mayúscula pura) está mal escrita
-    const isValid = isWordValid(token.text);
-    if (!isValid) {
-      issues.push({
-        word: token.text,
-        offset: token.offset,
-        length: token.length,
-      });
+    // Skip excessively long lines (e.g. base64 strings, embedded resources)
+    // to prevent regex catastrophic backtracking and UI lag.
+    if (lineLen > 1000) {
+      currentOffset += lineLen + 1; // +1 for the '\n'
+      continue;
     }
+
+    // Remove raw URLs, Hexadecimal Colors (#FFFFFF) AND ANY camelCase / PascalCase words
+    // while preserving the original length to maintain correct token offsets
+    const cleanLine = line.replace(
+      /https?:\/\/[^\s"'<>]*|#[a-fA-F0-9]{3,8}\b|\b(?:[a-z]+[A-Z][a-zA-Z]*|[A-Z][a-z]+[A-Z][a-zA-Z]*)\b/g,
+      (match) => ' '.repeat(match.length),
+    );
+
+    const tokens = tokenizeText(cleanLine);
+
+    for (const token of tokens) {
+      // Check if the remaining word is spelled correctly
+      const isValid = isWordValid(token.text);
+      if (!isValid) {
+        issues.push({
+          word: token.text,
+          offset: currentOffset + token.offset,
+          length: token.length,
+        });
+      }
+    }
+
+    currentOffset += lineLen + 1; // +1 for the '\n'
   }
 
   return issues;

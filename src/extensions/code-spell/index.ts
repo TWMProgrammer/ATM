@@ -10,6 +10,7 @@ import {
   addWordToUserSettings,
   addWordToWorkspaceSettings,
 } from './core/dictionary';
+import { SUPPORTED_LANGUAGES } from './core/exclusions';
 
 export function activateCodeSpell(context: vscode.ExtensionContext) {
   // 1. Initialize custom extension dictionary (10k words + Tech Keywords)
@@ -50,10 +51,13 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
   }
 
   // 4. Register CodeActions provider for spelling suggestions
-  // Subscribes to read all types of extensions (*)
+  // Subscribe specifically to languages where spell-checking is useful
+  const documentSelectors = Array.from(SUPPORTED_LANGUAGES).map((lang) => ({
+    language: lang,
+  }));
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
-      '*',
+      documentSelectors,
       new SpellCodeActionProvider(),
       {
         providedCodeActionKinds: [vscode.CodeActionKind.QuickFix],
