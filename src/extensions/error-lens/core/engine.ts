@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { shouldExcludeFromErrorLens } from './exclusions';
 
 // Filtro rápido para no aplicar en paneles output o git.
 function _shouldExclude(scheme: string): boolean {
@@ -20,6 +21,11 @@ export function updateDecorationsForEditor(
 ): void {
   const document = editor.document;
   if (!document || _shouldExclude(document.uri.scheme)) {
+    return;
+  }
+  
+  // Rendimiento: Salir inmediatamente si el archivo está en la lista de ignorados
+  if (shouldExcludeFromErrorLens(document.uri.fsPath)) {
     return;
   }
 
