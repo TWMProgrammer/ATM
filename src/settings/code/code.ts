@@ -3,7 +3,7 @@ import {
   activateAutoTagFeatures,
   deactivateAutoTagFeatures,
 } from './auto-tag-x2';
-import { activateColorBgTag } from './color-bg-tag';
+import { activateColorBgTag, deactivateColorBgTag } from './color-bg-tag';
 
 export function activateCodeSettings(context: vscode.ExtensionContext) {
   activateAutoTagFeatures(context);
@@ -12,4 +12,5 @@ export function activateCodeSettings(context: vscode.ExtensionContext) {
 
 export function deactivateCodeSettings() {
   deactivateAutoTagFeatures();
+  deactivateColorBgTag();
 }
