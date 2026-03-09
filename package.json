@@ -241,6 +241,16 @@
       {
         "command": "atm.screenshotCode",
         "title": "ATM (📸) screenshot"
+      },
+      {
+        "command": "atm.versionPackage.check",
+        "title": "ATM: Check Package Versions",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "atm.versionPackage.updateAll",
+        "title": "ATM: Update All Packages",
+        "icon": "$(wand)"
       }
     ],
     "keybindings": [
@@ -276,6 +286,16 @@
           "command": "atm.mdx.preview",
           "group": "navigation",
           "when": "editorLangId == mdx || editorLangId == markdown"
+        },
+        {
+          "command": "atm.versionPackage.check",
+          "group": "navigation@1",
+          "when": "resourceFilename == package.json"
+        },
+        {
+          "command": "atm.versionPackage.updateAll",
+          "group": "navigation@2",
+          "when": "resourceFilename == package.json && atm.versionPackage.hasUpdates"
         }
       ],
       "extension/context": [
