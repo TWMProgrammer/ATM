@@ -7,10 +7,10 @@ import { createDecorationStyles } from './ui/styles';
 import { VersionHoverProvider } from './ui/hoverProvider';
 import { clearPackageState, getDocumentCache } from './core/state';
 
-let debounceTimer: NodeJS.Timeout | null = null;
+const debounceTimers = new Map<string, NodeJS.Timeout>();
 const DEBOUNCE_MS = 600;
 
-// Track documents where the user has explicitly requested to see versions
+// Solo muestra versiones en documentos donde el usuario clickeó el botón "check"
 const activeChecks = new Set<string>();
 
 export function activateVersionPackage(context: vscode.ExtensionContext) {
@@ -70,49 +70,56 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         vscode.languages.registerHoverProvider({ language: 'json', pattern: '**/package.json' }, new VersionHoverProvider())
     );
 
-    // Evento: Al editar el archivo (debounce)
+    // Evento: Al editar el archivo (debounce) — solo si el usuario activó el check
     context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => {
         if (e.document.languageId === 'json' && e.document.fileName.endsWith('package.json')) {
-            if (activeChecks.has(e.document.uri.toString()) && Array.from(vscode.window.visibleTextEditors).some(ed => ed.document === e.document)) {
-                 triggerUpdateDecorations(e.document, styles);
+            const uriStr = e.document.uri.toString();
+            if (!activeChecks.has(uriStr)) { return; }
+            const editor = vscode.window.visibleTextEditors.find(ed => ed.document === e.document);
+            if (editor) {
+                triggerUpdateDecorations(e.document, styles);
             }
         }
     }));
     
-    // Evento: Cambio de ventana activa
+    // Evento: Cambio de ventana activa — solo re-renderiza si ya fue activado
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor && editor.document.languageId === 'json' && editor.document.fileName.endsWith('package.json')) {
             if (activeChecks.has(editor.document.uri.toString())) {
                 triggerUpdateDecorations(editor.document, styles);
-            } else {
-                vscode.commands.executeCommand('setContext', 'atm.versionPackage.hasUpdates', false);
             }
         } else {
             vscode.commands.executeCommand('setContext', 'atm.versionPackage.hasUpdates', false);
         }
     }));
 
+    // NO trigger inicial automático — el usuario decide cuándo chequear con el botón
+
     // Cleanup de memoria pura a lo agresivo al cerrar
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(doc => {
         if (doc.fileName.endsWith('package.json')) {
-            activeChecks.delete(doc.uri.toString());
-            clearVersionCache();
-            clearPackageState(doc.uri.toString());
+            const uriStr = doc.uri.toString();
+            activeChecks.delete(uriStr);
+            debounceTimers.delete(uriStr);
+            clearPackageState(uriStr);
             vscode.commands.executeCommand('setContext', 'atm.versionPackage.hasUpdates', false);
         }
     }));
     
-    context.subscriptions.push(styles); // Se asegura de disponer colores al desactivar
+    context.subscriptions.push(styles);
 }
 
 function triggerUpdateDecorations(document: vscode.TextDocument, styles: any) {
-    if (debounceTimer) {
-        clearTimeout(debounceTimer);
+    const key = document.uri.toString();
+    const existing = debounceTimers.get(key);
+    if (existing) {
+        clearTimeout(existing);
     }
     
-    debounceTimer = setTimeout(() => {
-        updateDecorations(document, styles);
-    }, DEBOUNCE_MS); 
+    debounceTimers.set(key, setTimeout(() => {
+        debounceTimers.delete(key);
+        updateDecorations(document, styles).catch(console.error);
+    }, DEBOUNCE_MS));
 }
 
 export function deactivate() {

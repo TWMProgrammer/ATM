@@ -14,11 +14,15 @@ export async function fetchPackageLatestVersion(packageName: string, currentVers
     }
 
     const fetchPromise = (async (): Promise<VersionInfo> => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
         try {
-            // Abbreviated metadata (much smaller JSON)
             const response = await fetch(`https://registry.npmjs.org/${packageName}`, {
-                headers: { 'Accept': 'application/vnd.npm.install-v1+json' }
+                headers: { 'Accept': 'application/vnd.npm.install-v1+json' },
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
             
             if (!response.ok) {
                 return { satisfies: null, latest: null, error: true };
@@ -40,6 +44,8 @@ export async function fetchPackageLatestVersion(packageName: string, currentVers
                 error: false
             };
         } catch (error) {
+            clearTimeout(timeoutId);
+            console.error(`Error fetching version for ${packageName}:`, error);
             return {
                 satisfies: null,
                 latest: null,

@@ -25,27 +25,37 @@ export async function updateDecorations(
     const dependencies = parsePackageJson(document);
     const documentCache = getDocumentCache(document.uri.toString());
     
-    // 1. Mostrar estado de carga inicial "checking..." (Ghost Text Temporal)
-    const loadingOptions: vscode.DecorationOptions[] = dependencies.map(dep => ({
-        range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
-        renderOptions: { after: { contentText: '  checking...' } }
-    }));
+    // 1. Mostrar estado de carga inicial "checking..."
+    const targetColumn = 70;
+    const loadingOptions: vscode.DecorationOptions[] = dependencies.map(dep => {
+        const lineTextLength = document.lineAt(dep.line).text.length;
+        const dotsCount = Math.max(3, targetColumn - lineTextLength);
+        const dotLeader = '.'.repeat(dotsCount);
+        
+        return {
+            range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
+            renderOptions: { 
+                before: {
+                    contentText: ' ' + dotLeader,
+                    color: '#88888855',
+                    margin: '0 10px 0 10px'
+                },
+                after: { contentText: ' checking...' } 
+            }
+        };
+    });
     
-    // Solo mostramos "checking" si realmente vamos a hacer fetch
     if (dependencies.length > 0) {
         editor.setDecorations(styles.loading, loadingOptions);
     }
     
-    // Limpiamos los anteriores mientras cargamos por si quedaron colgados
     editor.setDecorations(styles.updateAvailable, []);
     editor.setDecorations(styles.upToDate, []);
 
-    // Lanzar Spinner en la barra de estado
     await vscode.window.withProgress({
         location: vscode.ProgressLocation.Window,
         title: "Fetching latest package versions...",
     }, async () => {
-        // Enviar API fetch en paralelo!
         const results = await Promise.all(dependencies.map(async dep => {
             const info = await fetchPackageLatestVersion(dep.name, dep.currentVersion);
             return { dep, info };
@@ -56,10 +66,9 @@ export async function updateDecorations(
 
         for (const { dep, info } of results) {
             if (info.error || (!info.latest && !info.satisfies)) {
-                continue; // Skip silencioso para mantener UI limpio
+                continue;
             }
 
-            // Actualizar caché de memoria para el HoverProvider y UpdateAll
             documentCache.set(dep.line, {
                 name: dep.name,
                 currentVersion: dep.currentVersion,
@@ -67,25 +76,36 @@ export async function updateDecorations(
                 info: info
             });
 
-            // Mejoramos el rendimiento y robustez extrayendo la version sin regex
             const currentCoerced = semver.coerce(dep.currentVersion);
             const isUpToDateWithLatest = currentCoerced && info.latest && semver.eq(currentCoerced, info.latest);
 
-            let ghostText = '';
-            
-            // Si está actualizado
+            const lineTextLength = document.lineAt(dep.line).text.length;
+            const dotsCount = Math.max(3, targetColumn - lineTextLength);
+            const dotLeader = '.'.repeat(dotsCount);
+
             if (isUpToDateWithLatest) {
-                ghostText = `  ✓ Up to date`;
                 upToDateOptions.push({
                     range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
-                    renderOptions: { after: { contentText: ghostText } }
+                    renderOptions: { 
+                        before: {
+                            contentText: ' ' + dotLeader,
+                            color: '#4caf5055',
+                            margin: '0 10px 0 10px'
+                        },
+                        after: { contentText: ` ✓ Up to date` } 
+                    }
                 });
             } else {
-                // Si hay actualización
-                ghostText = `  Update: ${info.latest}`;
                 updateAvailableOptions.push({
                     range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
-                    renderOptions: { after: { contentText: ghostText } }
+                    renderOptions: { 
+                        before: {
+                            contentText: ' ' + dotLeader,
+                            color: '#ff980055',
+                            margin: '0 10px 0 10px'
+                        },
+                        after: { contentText: ` Update: ${info.latest}` } 
+                    }
                 });
             }
         }

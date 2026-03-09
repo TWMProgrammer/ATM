@@ -6,7 +6,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#ff980022', // Naranja/Dorado translúcido
       color: '#ffb300', // Dorado
-      margin: '0 0 0 30px',
+      margin: '0',
       textDecoration:
         'none; font-size: 0.9em; border-radius: 6px; padding: 2px 8px; font-weight: normal; font-style: normal;',
     },
@@ -17,7 +17,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#4caf5022', // Verde translúcido
       color: '#4caf50', // Verde
-      margin: '0 0 0 30px',
+      margin: '0',
       textDecoration:
         'none; font-size: 0.9em; border-radius: 6px; padding: 2px 8px; font-weight: normal; font-style: normal;',
     },
@@ -28,7 +28,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#88888822', // Gris translúcido
       color: '#888888', // Gris
-      margin: '0 0 0 30px',
+      margin: '0',
       textDecoration:
         'none; font-size: 0.9em; border-radius: 6px; padding: 2px 8px; font-weight: normal; font-style: normal;',
     },

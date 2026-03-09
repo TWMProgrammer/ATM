@@ -49,7 +49,7 @@ export async function updateAllVersions(depsToUpdate: {dep: DependencyInfo, newV
 }
 
 function getVersionToInject(currentVersion: string, newVersion: string): string {
-    // Preservar el rango actual: si era "^15.0.0", mantener el "^"
-    const prefix = currentVersion.replace(/[a-zA-Z0-9.\-]+/g, '').trim(); 
+    // Preservar el prefijo de rango: ^, ~, >=, <=, >, <, =
+    const prefix = currentVersion.match(/^[~^>=<]*/)?.[0] || '';
     return `${prefix}${newVersion}`;
 }

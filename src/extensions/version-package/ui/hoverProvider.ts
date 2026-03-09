@@ -24,25 +24,29 @@ export class VersionHoverProvider implements vscode.HoverProvider {
         const hoverMd = new vscode.MarkdownString('', true);
         hoverMd.isTrusted = true;
 
-        hoverMd.appendMarkdown(`📦 **${name}** update available!\n\n`);
+        hoverMd.appendMarkdown(`### 📦 ${name}\n\n`);
+        
+        const currentTag = `<span style="color:#888888;">current: ${currentVersion}</span>`;
+        const latestTag = `**latest: \`${info.latest}\`**`;
+        
+        hoverMd.appendMarkdown(`${currentTag} &nbsp;&nbsp; → &nbsp;&nbsp; ${latestTag}\n\n---\n\n`);
             
-            // Objeto DependencyInfo virtual para re-utilizar el updateCommand.ts original
-            const depInfoObj = {
-                name,
-                currentVersion,
-                line: position.line,
-                range: new vscode.Range(position.line, 0, position.line, 0)
-            };
+        const depInfoObj = {
+            name,
+            currentVersion,
+            line: position.line,
+            range: new vscode.Range(position.line, 0, position.line, 0)
+        };
 
-            // Link de actualización a Latest
-            const latestArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.latest, document.uri.toString()]));
-            hoverMd.appendMarkdown(`[🚀 Upgrade to Latest (\`${info.latest}\`)](command:atm.versionPackage.updateVersionString?${latestArgs})\n\n`);
-            
-            // Link de actualización a una version Segura (Satisfies parche)
-            if (info.satisfies && info.satisfies !== info.latest && !(currentCoerced && semver.eq(currentCoerced, info.satisfies))) {
-                const satisfiesArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.satisfies, document.uri.toString()]));
-                hoverMd.appendMarkdown(`&nbsp;&nbsp;|&nbsp;&nbsp;[✨ Safe patch (\`${info.satisfies}\`)](command:atm.versionPackage.updateVersionString?${satisfiesArgs})`);
-            }
+        const latestArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.latest, document.uri.toString()]));
+        hoverMd.appendMarkdown(`[🚀 Upgrade to Latest](command:atm.versionPackage.updateVersionString?${latestArgs})`);
+        
+        if (info.satisfies && info.satisfies !== info.latest && !(currentCoerced && semver.eq(currentCoerced, info.satisfies))) {
+            const satisfiesArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.satisfies, document.uri.toString()]));
+            hoverMd.appendMarkdown(`&nbsp;&nbsp;|&nbsp;&nbsp;[✨ Safe patch (\`${info.satisfies}\`)](command:atm.versionPackage.updateVersionString?${satisfiesArgs})`);
+        }
+        
+        hoverMd.appendMarkdown(`\n\n[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;•&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})`);
 
         return new vscode.Hover(hoverMd);
     }
