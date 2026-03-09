@@ -17,7 +17,7 @@ export function createDecorationStyles() {
       backgroundColor: '#9ca3af33',
       color: '#e5e7eb',
       margin: '0 0 0 21px',
-      textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 8px; padding: 2px 8px;',
+      textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 7px; padding: 2px 8px;',
     },
   });
 
