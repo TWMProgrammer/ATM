@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type MarkdownIt from 'markdown-it';
 import { activateExtensions } from './extensions/extensions';
+import { deactivateSettings } from './settings/settings';
 import { deactivateVoiceTts } from './extensions/voice-tts';
 import { deactivateCommentsCode } from './extensions/comments-code';
 import { deactivateMarkdownStore } from './extensions/markdown-store';
@@ -29,6 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export async function deactivate(): Promise<void> {
+  deactivateSettings();
   deactivateVoiceTts();
   deactivateCommentsCode();
   deactivateMarkdownStore();
