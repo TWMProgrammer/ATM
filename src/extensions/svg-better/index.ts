@@ -85,5 +85,67 @@ export function activateSvgBetter(context: vscode.ExtensionContext) {
     }
   });
 
-  context.subscriptions.push(disposable);
+  const optimizeCmd = vscode.commands.registerCommand('atm.svgBetter.optimize', async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || !editor.document.fileName.toLowerCase().endsWith('.svg')) {
+      vscode.window.showErrorMessage('No SVG file is currently active.');
+      return;
+    }
+
+    const document = editor.document;
+    const svgContent = document.getText();
+
+    try {
+      const { optimize } = await import('svgo/browser');
+      const result = optimize(svgContent, {
+        multipass: true,
+        plugins: [
+          {
+            name: 'preset-default',
+            params: {
+              overrides: {
+                cleanupIds: false,
+                removeUnknownsAndDefaults: false
+              }
+            }
+          },
+          'removeDoctype',
+          'removeComments',
+          {
+            name: 'removeAttrs',
+            params: {
+              attrs: ['xmlns:xlink', 'xml:space']
+            }
+          }
+        ]
+      });
+
+      if (result !== null && 'data' in result) {
+        const edit = new vscode.WorkspaceEdit();
+        const fullRange = new vscode.Range(
+          document.positionAt(0),
+          document.positionAt(svgContent.length)
+        );
+        edit.replace(document.uri, fullRange, result.data);
+
+        await vscode.workspace.applyEdit(edit);
+
+        const originalSize = Buffer.byteLength(svgContent, 'utf8');
+        const optimizedSize = Buffer.byteLength(result.data, 'utf8');
+        const savingPercent = (((originalSize - optimizedSize) / originalSize) * 100).toFixed(2);
+        const originalSizeKB = (originalSize / 1024).toFixed(2);
+        const optimizedSizeKB = (optimizedSize / 1024).toFixed(2);
+
+        vscode.window.showInformationMessage(
+          `SVG optimized. Reduced from ${originalSizeKB} KB to ${optimizedSizeKB} KB (${savingPercent}% saved)`
+        );
+      } else {
+        vscode.window.showErrorMessage('Failed to optimize SVG: Unknown error.');
+      }
+    } catch (error) {
+      vscode.window.showErrorMessage(`Failed to optimize SVG: ${error}`);
+    }
+  });
+
+  context.subscriptions.push(disposable, optimizeCmd);
 }

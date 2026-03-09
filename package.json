@@ -251,6 +251,11 @@
         "command": "atm.versionPackage.updateAll",
         "title": "ATM: Update All Packages",
         "icon": "$(wand)"
+      },
+      {
+        "command": "atm.svgBetter.optimize",
+        "title": "ATM: Optimize SVG",
+        "icon": "$(zap)"
       }
     ],
     "keybindings": [
@@ -296,6 +301,11 @@
           "command": "atm.versionPackage.updateAll",
           "group": "navigation@2",
           "when": "resourceFilename == package.json && atm.versionPackage.hasUpdates"
+        },
+        {
+          "command": "atm.svgBetter.optimize",
+          "group": "navigation",
+          "when": "resourceExtname == .svg"
         }
       ],
       "extension/context": [
@@ -353,6 +363,7 @@
     "@types/node-fetch": "^2.6.13",
     "@types/react": "^19.2.14",
     "@types/semver": "^7.7.1",
+    "@types/svgo": "^2.6.4",
     "@types/vscode": "^1.74.0",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
@@ -373,6 +384,7 @@
     "html-to-image": "^1.11.13",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
-    "semver": "^7.7.4"
+    "semver": "^7.7.4",
+    "svgo": "^4.0.1"
   }
 }
