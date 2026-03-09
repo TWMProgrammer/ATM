@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getThemeColors } from './colors';
 
 // ── Constants ────────────────────────────────────────────────────────
 const CONFIG_SECTION = 'atm';
@@ -11,21 +12,6 @@ const MANAGED_KEYS = [
   'editor.wordHighlightStrongBackground',
   'editor.wordHighlightStrongBorder',
 ] as const;
-
-const TRANSPARENT = '#00000000';
-
-// ── Theme-Aware Colors ──────────────────────────────────────────────
-function getThemeColors(): { background: string; border: string } {
-  const kind = vscode.window.activeColorTheme.kind;
-  const isDark =
-    kind === vscode.ColorThemeKind.Dark ||
-    kind === vscode.ColorThemeKind.HighContrast;
-
-  return {
-    background: isDark ? '#00a37557' : '#00875a40',
-    border: TRANSPARENT,
-  };
-}
 
 function buildColorMap(): Record<string, string> {
   const { background, border } = getThemeColors();
@@ -146,6 +132,6 @@ export function activateColorBgTag(context: vscode.ExtensionContext): void {
   );
 }
 
-export function deactivateColorBgTag(): void {
-  void removeColors();
+export function deactivateColorBgTag(): Promise<void> {
+  return removeColors();
 }
