@@ -39,7 +39,12 @@ export class VersionHoverProvider implements vscode.HoverProvider {
 
         const latestArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.latest, document.uri.toString()]));
         
-        let bottomLine = `[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Update $(arrow-up)](command:atm.versionPackage.updateVersionString?${latestArgs} "Upgrade to ${info.latest}")`;
+        const isSafeRange = currentVersion.startsWith('^');
+        let updateLink = isSafeRange 
+            ? `<span style="color:#888888;">Update</span>` 
+            : `[Update $(arrow-up)](command:atm.versionPackage.updateVersionString?${latestArgs} "Upgrade to ${info.latest}")`;
+
+        let bottomLine = `[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;${updateLink}`;
         
         if (info.satisfies && info.satisfies !== info.latest && !(currentCoerced && semver.eq(currentCoerced, info.satisfies))) {
             const satisfiesArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.satisfies, document.uri.toString()]));

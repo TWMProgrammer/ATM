@@ -7,9 +7,10 @@ import { getDocumentCache } from '../core/state';
 // Using Error-Lens style decorations passed from index.ts
 export async function clearDecorations(
     editor: vscode.TextEditor,
-    styles: { updateAvailable: vscode.TextEditorDecorationType; upToDate: vscode.TextEditorDecorationType; loading: vscode.TextEditorDecorationType; }
+    styles: { updateAvailable: vscode.TextEditorDecorationType; updateRecommended: vscode.TextEditorDecorationType; upToDate: vscode.TextEditorDecorationType; loading: vscode.TextEditorDecorationType; }
 ) {
     editor.setDecorations(styles.updateAvailable, []);
+    editor.setDecorations(styles.updateRecommended, []);
     editor.setDecorations(styles.upToDate, []);
     editor.setDecorations(styles.loading, []);
     vscode.commands.executeCommand('setContext', 'atm.versionPackage.hasUpdates', false);
@@ -17,7 +18,7 @@ export async function clearDecorations(
 
 export async function updateDecorations(
     document: vscode.TextDocument,
-    styles: { updateAvailable: vscode.TextEditorDecorationType; upToDate: vscode.TextEditorDecorationType; loading: vscode.TextEditorDecorationType; }
+    styles: { updateAvailable: vscode.TextEditorDecorationType; updateRecommended: vscode.TextEditorDecorationType; upToDate: vscode.TextEditorDecorationType; loading: vscode.TextEditorDecorationType; }
 ) {
     const editor = vscode.window.visibleTextEditors.find(e => e.document === document);
     if (!editor) { return; }
@@ -40,6 +41,7 @@ export async function updateDecorations(
     }
     
     editor.setDecorations(styles.updateAvailable, []);
+    editor.setDecorations(styles.updateRecommended, []);
     editor.setDecorations(styles.upToDate, []);
 
     await vscode.window.withProgress({
@@ -52,6 +54,7 @@ export async function updateDecorations(
         }));
 
         const updateAvailableOptions: vscode.DecorationOptions[] = [];
+        const updateRecommendedOptions: vscode.DecorationOptions[] = [];
         const upToDateOptions: vscode.DecorationOptions[] = [];
 
         for (const { dep, info } of results) {
@@ -77,21 +80,33 @@ export async function updateDecorations(
                     }
                 });
             } else {
-                updateAvailableOptions.push({
-                    range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
-                    renderOptions: { 
-                        after: { contentText: ` Update → ${info.latest}` } 
-                    }
-                });
+                const isSafeRange = dep.currentVersion.startsWith('^');
+
+                if (isSafeRange) {
+                    updateRecommendedOptions.push({
+                        range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
+                        renderOptions: { 
+                            after: { contentText: ` Recomend version ` } 
+                        }
+                    });
+                } else {
+                    updateAvailableOptions.push({
+                        range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
+                        renderOptions: { 
+                            after: { contentText: ` Update → ${info.latest}` } 
+                        }
+                    });
+                }
             }
         }
 
         // Una vez listos, quitamos los de loading y asignamos los reales
         editor.setDecorations(styles.loading, []);
         editor.setDecorations(styles.updateAvailable, updateAvailableOptions);
+        editor.setDecorations(styles.updateRecommended, updateRecommendedOptions);
         editor.setDecorations(styles.upToDate, upToDateOptions);
 
         // Activamos o desactivamos el context visual superior según haya o no updates
-        vscode.commands.executeCommand('setContext', 'atm.versionPackage.hasUpdates', updateAvailableOptions.length > 0);
+        vscode.commands.executeCommand('setContext', 'atm.versionPackage.hasUpdates', updateAvailableOptions.length > 0 || updateRecommendedOptions.length > 0);
     });
 }
