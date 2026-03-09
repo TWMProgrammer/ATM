@@ -199,6 +199,11 @@
           },
           "default": [],
           "description": "Array of custom words added to the ATM Code-Spell dictionary."
+        },
+        "atm.colorBgTag.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable native high-performance HTML Tag background coloration."
         }
       }
     },
