@@ -23,9 +23,10 @@ export function parsePackageJson(document: vscode.TextDocument): DependencyInfo[
             continue;
         }
         
-        // Salimos del bloque
-        if (inDependencyBlock && lineText.match(/}/)) {
+        // Salimos del bloque: detectamos cerramientos simples para mayor seguridad.
+        if (inDependencyBlock && lineText.match(/^\s*}/)) {
             inDependencyBlock = false;
+            continue;
         }
         
         // Estamos adentro de un bloque de dependencias

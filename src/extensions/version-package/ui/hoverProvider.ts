@@ -16,21 +16,20 @@ export class VersionHoverProvider implements vscode.HoverProvider {
         const currentCoerced = semver.coerce(currentVersion);
         const isUpToDateWithLatest = currentCoerced && info.latest && semver.eq(currentCoerced, info.latest);
 
-        // Ahorro extremo de rendimiento: Si está actulizado, no pintar Hover
         if (isUpToDateWithLatest) {
-            return null;
+            return null; // Ahorro extremo de rendimiento: no pintar hover si ya está actualizado
         }
 
         const hoverMd = new vscode.MarkdownString('', true);
         hoverMd.isTrusted = true;
 
-        hoverMd.appendMarkdown(`### 📦 ${name}\n\n`);
+        hoverMd.appendMarkdown(`### **${name}**\n\n`);
         
-        const currentTag = `<span style="color:#888888;">current: ${currentVersion}</span>`;
-        const latestTag = `**latest: \`${info.latest}\`**`;
+        const currentTag = `<span style="color:#888888;">Current: ${currentVersion}</span>`;
+        const latestTag = `**Latest: \`${info.latest}\`**`;
         
         hoverMd.appendMarkdown(`${currentTag} &nbsp;&nbsp; → &nbsp;&nbsp; ${latestTag}\n\n---\n\n`);
-            
+
         const depInfoObj = {
             name,
             currentVersion,
@@ -39,14 +38,15 @@ export class VersionHoverProvider implements vscode.HoverProvider {
         };
 
         const latestArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.latest, document.uri.toString()]));
-        hoverMd.appendMarkdown(`[🚀 Upgrade to Latest](command:atm.versionPackage.updateVersionString?${latestArgs})`);
+        hoverMd.appendMarkdown(`[Upgrade to Latest](command:atm.versionPackage.updateVersionString?${latestArgs})\n\n`);
         
         if (info.satisfies && info.satisfies !== info.latest && !(currentCoerced && semver.eq(currentCoerced, info.satisfies))) {
             const satisfiesArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.satisfies, document.uri.toString()]));
-            hoverMd.appendMarkdown(`&nbsp;&nbsp;|&nbsp;&nbsp;[✨ Safe patch (\`${info.satisfies}\`)](command:atm.versionPackage.updateVersionString?${satisfiesArgs})`);
+            hoverMd.appendMarkdown(`[Safe Patch (\`${info.satisfies}\`)](command:atm.versionPackage.updateVersionString?${satisfiesArgs})\n\n`);
         }
-        
-        hoverMd.appendMarkdown(`\n\n[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;•&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})`);
+        hoverMd.appendMarkdown(`---\n\n`);
+
+        hoverMd.appendMarkdown(`[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})`);
 
         return new vscode.Hover(hoverMd);
     }

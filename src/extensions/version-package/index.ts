@@ -10,7 +10,7 @@ import { clearPackageState, getDocumentCache } from './core/state';
 const debounceTimers = new Map<string, NodeJS.Timeout>();
 const DEBOUNCE_MS = 600;
 
-// Solo muestra versiones en documentos donde el usuario clickeó el botón "check"
+// Set para controlar qué archivos se comprobarán explícitamente al pulsar el botón
 const activeChecks = new Set<string>();
 
 export function activateVersionPackage(context: vscode.ExtensionContext) {
@@ -53,7 +53,7 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         }
     }));
 
-    // 3. Comando: Forzar chequeo manual
+    // 3. Comando: Forzar chequeo manual explícito
     context.subscriptions.push(vscode.commands.registerCommand('atm.versionPackage.check', () => {
         clearVersionCache();
         const editor = vscode.window.activeTextEditor;
@@ -70,19 +70,16 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         vscode.languages.registerHoverProvider({ language: 'json', pattern: '**/package.json' }, new VersionHoverProvider())
     );
 
-    // Evento: Al editar el archivo (debounce) — solo si el usuario activó el check
+    // Evento: Al editar el archivo (debounce)
     context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => {
         if (e.document.languageId === 'json' && e.document.fileName.endsWith('package.json')) {
-            const uriStr = e.document.uri.toString();
-            if (!activeChecks.has(uriStr)) { return; }
-            const editor = vscode.window.visibleTextEditors.find(ed => ed.document === e.document);
-            if (editor) {
+            if (activeChecks.has(e.document.uri.toString())) {
                 triggerUpdateDecorations(e.document, styles);
             }
         }
     }));
     
-    // Evento: Cambio de ventana activa — solo re-renderiza si ya fue activado
+    // Evento: Cambio de ventana activa
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor && editor.document.languageId === 'json' && editor.document.fileName.endsWith('package.json')) {
             if (activeChecks.has(editor.document.uri.toString())) {
@@ -93,9 +90,7 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         }
     }));
 
-    // NO trigger inicial automático — el usuario decide cuándo chequear con el botón
-
-    // Cleanup de memoria pura a lo agresivo al cerrar
+    // Cleanup de memoria pura al cerrar
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(doc => {
         if (doc.fileName.endsWith('package.json')) {
             const uriStr = doc.uri.toString();
@@ -126,3 +121,4 @@ export function deactivate() {
     clearVersionCache();
     clearPackageState();
 }
+

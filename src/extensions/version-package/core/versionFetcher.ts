@@ -6,11 +6,19 @@ export interface VersionInfo {
     error: boolean;
 }
 
-const memoryCache = new Map<string, Promise<VersionInfo>>();
+interface CacheEntry {
+    promise: Promise<VersionInfo>;
+    timestamp: number;
+}
+
+const memoryCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes cache
 
 export async function fetchPackageLatestVersion(packageName: string, currentVersionRange: string): Promise<VersionInfo> {
-    if (memoryCache.has(packageName)) {
-        return memoryCache.get(packageName)!;
+    const now = Date.now();
+    const cached = memoryCache.get(packageName);
+    if (cached && (now - cached.timestamp < CACHE_TTL)) {
+        return cached.promise;
     }
 
     const fetchPromise = (async (): Promise<VersionInfo> => {
@@ -54,7 +62,7 @@ export async function fetchPackageLatestVersion(packageName: string, currentVers
         }
     })();
 
-    memoryCache.set(packageName, fetchPromise);
+    memoryCache.set(packageName, { promise: fetchPromise, timestamp: now });
     return fetchPromise;
 }
 

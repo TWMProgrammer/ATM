@@ -4,33 +4,30 @@ export function createDecorationStyles() {
   const updateAvailableOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
     after: {
-      backgroundColor: '#ff980022', // Naranja/Dorado translúcido
-      color: '#ffb300', // Dorado
-      margin: '0',
-      textDecoration:
-        'none; font-size: 0.9em; border-radius: 6px; padding: 2px 8px; font-weight: normal; font-style: normal;',
+      backgroundColor: '#ff980022',
+      color: '#ffb300',
+      margin: '0 0 0 16px',
+      textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 4px; padding: 2px 6px;',
     },
   });
 
   const upToDateOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
     after: {
-      backgroundColor: '#4caf5022', // Verde translúcido
-      color: '#4caf50', // Verde
-      margin: '0',
-      textDecoration:
-        'none; font-size: 0.9em; border-radius: 6px; padding: 2px 8px; font-weight: normal; font-style: normal;',
+      backgroundColor: '#4caf5015',
+      color: '#4caf50',
+      margin: '0 0 0 16px',
+      textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 4px; padding: 2px 6px; opacity: 0.8;',
     },
   });
 
   const loadingOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
     after: {
-      backgroundColor: '#88888822', // Gris translúcido
-      color: '#888888', // Gris
-      margin: '0',
-      textDecoration:
-        'none; font-size: 0.9em; border-radius: 6px; padding: 2px 8px; font-weight: normal; font-style: normal;',
+      backgroundColor: '#8888881a',
+      color: '#888888',
+      margin: '0 0 0 16px',
+      textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 4px; padding: 2px 6px;',
     },
   });
 

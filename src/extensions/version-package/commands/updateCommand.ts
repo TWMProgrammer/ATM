@@ -11,17 +11,33 @@ export async function updateVersionString(dep: DependencyInfo, newVersion: strin
 
     const finalVersionToInject = getVersionToInject(dep.currentVersion, newVersion);
 
-    await editor.edit(editBuilder => {
-        const lineText = editor.document.lineAt(dep.line).text;
-        const replaceRegex = new RegExp(`"${dep.name}"\\s*:\\s*"${dep.currentVersion}"`);
-        const match = replaceRegex.exec(lineText);
-        
-        if (match) {
+    // Let's find the actual line safely, in case the user edited the file and shifted lines
+    let targetLine = dep.line;
+    const document = editor.document;
+    
+    // Verify if it's still on the same line
+    let lineText = document.lineAt(targetLine).text;
+    const replaceRegex = new RegExp(`"${dep.name}"\\s*:\\s*"${dep.currentVersion}"`);
+    
+    if (!replaceRegex.test(lineText)) {
+        // Fallback: search the document to find where it moved
+        for(let i=0; i<document.lineCount; i++) {
+            if (replaceRegex.test(document.lineAt(i).text)) {
+                targetLine = i;
+                lineText = document.lineAt(i).text;
+                break;
+            }
+        }
+    }
+
+    const match = replaceRegex.exec(lineText);
+    if (match) {
+        await editor.edit(editBuilder => {
             const index = match.index;
             const replacement = `"${dep.name}": "${finalVersionToInject}"`;
-            editBuilder.replace(new vscode.Range(dep.line, index, dep.line, index + match[0].length), replacement);
-        }
-    });
+            editBuilder.replace(new vscode.Range(targetLine, index, targetLine, index + match[0].length), replacement);
+        });
+    }
 }
 
 export async function updateAllVersions(depsToUpdate: {dep: DependencyInfo, newVersion: string}[], document: vscode.TextDocument) {

@@ -26,20 +26,10 @@ export async function updateDecorations(
     const documentCache = getDocumentCache(document.uri.toString());
     
     // 1. Mostrar estado de carga inicial "checking..."
-    const targetColumn = 70;
     const loadingOptions: vscode.DecorationOptions[] = dependencies.map(dep => {
-        const lineTextLength = document.lineAt(dep.line).text.length;
-        const dotsCount = Math.max(3, targetColumn - lineTextLength);
-        const dotLeader = '.'.repeat(dotsCount);
-        
         return {
             range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
             renderOptions: { 
-                before: {
-                    contentText: ' ' + dotLeader,
-                    color: '#88888855',
-                    margin: '0 10px 0 10px'
-                },
                 after: { contentText: ' checking...' } 
             }
         };
@@ -79,32 +69,18 @@ export async function updateDecorations(
             const currentCoerced = semver.coerce(dep.currentVersion);
             const isUpToDateWithLatest = currentCoerced && info.latest && semver.eq(currentCoerced, info.latest);
 
-            const lineTextLength = document.lineAt(dep.line).text.length;
-            const dotsCount = Math.max(3, targetColumn - lineTextLength);
-            const dotLeader = '.'.repeat(dotsCount);
-
             if (isUpToDateWithLatest) {
                 upToDateOptions.push({
                     range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
                     renderOptions: { 
-                        before: {
-                            contentText: ' ' + dotLeader,
-                            color: '#4caf5055',
-                            margin: '0 10px 0 10px'
-                        },
-                        after: { contentText: ` ✓ Up to date` } 
+                        after: { contentText: ` ✓ latest` } 
                     }
                 });
             } else {
                 updateAvailableOptions.push({
                     range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
                     renderOptions: { 
-                        before: {
-                            contentText: ' ' + dotLeader,
-                            color: '#ff980055',
-                            margin: '0 10px 0 10px'
-                        },
-                        after: { contentText: ` Update: ${info.latest}` } 
+                        after: { contentText: ` Update → ${info.latest}` } 
                     }
                 });
             }
