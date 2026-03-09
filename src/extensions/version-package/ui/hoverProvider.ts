@@ -23,7 +23,7 @@ export class VersionHoverProvider implements vscode.HoverProvider {
         const hoverMd = new vscode.MarkdownString('', true);
         hoverMd.isTrusted = true;
 
-        hoverMd.appendMarkdown(`### **${name}**\n\n`);
+        hoverMd.appendMarkdown(`### 📦 **${name}**\n\n`);
         
         const currentTag = `<span style="color:#888888;">Current: ${currentVersion}</span>`;
         const latestTag = `**Latest: \`${info.latest}\`**`;
@@ -38,15 +38,15 @@ export class VersionHoverProvider implements vscode.HoverProvider {
         };
 
         const latestArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.latest, document.uri.toString()]));
-        hoverMd.appendMarkdown(`[Upgrade to Latest](command:atm.versionPackage.updateVersionString?${latestArgs})\n\n`);
+        
+        let bottomLine = `[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Update $(arrow-up)](command:atm.versionPackage.updateVersionString?${latestArgs} "Upgrade to ${info.latest}")`;
         
         if (info.satisfies && info.satisfies !== info.latest && !(currentCoerced && semver.eq(currentCoerced, info.satisfies))) {
             const satisfiesArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.satisfies, document.uri.toString()]));
-            hoverMd.appendMarkdown(`[Safe Patch (\`${info.satisfies}\`)](command:atm.versionPackage.updateVersionString?${satisfiesArgs})\n\n`);
+            bottomLine += `&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Safe Patch (\`${info.satisfies}\`)](command:atm.versionPackage.updateVersionString?${satisfiesArgs} "Install safe patch ${info.satisfies}")`;
         }
-        hoverMd.appendMarkdown(`---\n\n`);
 
-        hoverMd.appendMarkdown(`[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})`);
+        hoverMd.appendMarkdown(bottomLine + `\n\n`);
 
         return new vscode.Hover(hoverMd);
     }
