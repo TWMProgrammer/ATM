@@ -14,10 +14,10 @@ export function createDecorationStyles() {
   const upToDateOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
     after: {
-      backgroundColor: '#4caf5015',
+      backgroundColor: '#4caf5022',
       color: '#4caf50',
       margin: '0 0 0 16px',
-      textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 4px; padding: 2px 6px; opacity: 0.8;',
+      textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 12px; padding: 2px 8px;',
     },
   });
 
