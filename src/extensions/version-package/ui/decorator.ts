@@ -86,7 +86,7 @@ export async function updateDecorations(
                     updateRecommendedOptions.push({
                         range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
                         renderOptions: { 
-                            after: { contentText: ` Recomend version ` } 
+                            after: { contentText: ` Recommended Version ` } 
                         }
                     });
                 } else {
