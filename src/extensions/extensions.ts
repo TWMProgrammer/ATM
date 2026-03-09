@@ -11,6 +11,7 @@ import { activateGitBetter } from './git-better';
 import { activateColorDebugging } from './color-debugging';
 import { activateScreenshotCode } from './screenshot-code';
 import { activateVersionPackage } from './version-package';
+import { activateSvgBetter } from './svg-better';
 
 
 /**
@@ -32,4 +33,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateColorDebugging(context);
   activateScreenshotCode(context);
   activateVersionPackage(context);
+  activateSvgBetter(context);
 }
