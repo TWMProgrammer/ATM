@@ -1,4 +1,5 @@
 import type * as vscode from 'vscode';
+import { activateSettings } from '../settings/settings';
 import { activateImagePreview } from './image-preview';
 import { activateVoiceTts } from './voice-tts';
 import { activateCodeSpell } from './code-spell';
@@ -19,6 +20,7 @@ import { activateSvgBetter } from './svg-better';
  * Each receives the shared ExtensionContext.
  */
 export function activateExtensions(context: vscode.ExtensionContext): void {
+  activateSettings(context);
   activateImagePreview(context);
   activateVoiceTts(context).catch((error) => {
     console.error('[voice-tts] Activation error:', error);
