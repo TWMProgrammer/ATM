@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { SUPPORTED_LANGUAGES } from '../config';
+import { SUPPORTED_LANGUAGES } from '../utils/config';
 import { SELF_CLOSING_TAGS } from '../utils/document-utils';
 
 export function registerAutoClose(context: vscode.ExtensionContext) {
