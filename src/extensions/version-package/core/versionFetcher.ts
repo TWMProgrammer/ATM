@@ -13,6 +13,7 @@ interface CacheEntry {
 
 const memoryCache = new Map<string, CacheEntry>();
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes cache
+const ERROR_CACHE_TTL = 30 * 1000; // 30 seconds for errors (retry faster)
 
 export async function fetchPackageLatestVersion(packageName: string, currentVersionRange: string): Promise<VersionInfo> {
     const now = Date.now();
@@ -61,6 +62,16 @@ export async function fetchPackageLatestVersion(packageName: string, currentVers
             };
         }
     })();
+
+    // Errors get a reduced TTL so users can retry quickly
+    fetchPromise.then(result => {
+        if (result.error) {
+            const entry = memoryCache.get(packageName);
+            if (entry) {
+                entry.timestamp = now - CACHE_TTL + ERROR_CACHE_TTL;
+            }
+        }
+    });
 
     memoryCache.set(packageName, { promise: fetchPromise, timestamp: now });
     return fetchPromise;

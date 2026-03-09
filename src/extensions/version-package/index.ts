@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import semver from 'semver';
 import { clearVersionCache } from './core/versionFetcher';
 import { updateVersionString, updateAllVersions } from './commands/updateCommand';
-import { updateDecorations, clearDecorations } from './ui/decorator';
+import { DependencyInfo } from './core/parser';
+import { updateDecorations } from './ui/decorator';
 import { createDecorationStyles } from './ui/styles';
 import { VersionHoverProvider } from './ui/hoverProvider';
 import { clearPackageState, getDocumentCache } from './core/state';
@@ -29,7 +30,7 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         }
 
         const cache = getDocumentCache(editor.document.uri.toString());
-        const toUpdate: any[] = [];
+        const toUpdate: { dep: DependencyInfo; newVersion: string }[] = [];
 
         cache.forEach((state) => {
             const currentCoerced = semver.coerce(state.currentVersion);
@@ -118,6 +119,9 @@ function triggerUpdateDecorations(document: vscode.TextDocument, styles: any) {
 }
 
 export function deactivate() {
+    debounceTimers.forEach(timer => clearTimeout(timer));
+    debounceTimers.clear();
+    activeChecks.clear();
     clearVersionCache();
     clearPackageState();
 }
