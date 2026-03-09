@@ -6,7 +6,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#ff980022',
       color: '#ffb300',
-      margin: '0 0 0 16px',
+      margin: '0 0 0 21px',
       textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 4px; padding: 2px 6px;',
     },
   });
@@ -16,7 +16,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#4caf5022',
       color: '#4caf50',
-      margin: '0 0 0 16px',
+      margin: '0 0 0 21px',
       textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 12px; padding: 2px 8px;',
     },
   });
@@ -26,7 +26,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#8888881a',
       color: '#888888',
-      margin: '0 0 0 16px',
+      margin: '0 0 0 21px',
       textDecoration: 'none; font-family: monospace; font-size: 0.85em; border-radius: 4px; padding: 2px 6px;',
     },
   });
