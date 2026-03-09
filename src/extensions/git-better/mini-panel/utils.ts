@@ -28,6 +28,7 @@ const IGNORED_FOLDERS = new Set([
 ]);
 
 const IGNORED_FILENAMES = new Set([
+    'package.json',
     'package-lock.json',
     'bun.lock',
     'bun.lockb',

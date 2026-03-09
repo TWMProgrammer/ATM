@@ -10,6 +10,7 @@ import { activateMdxPreview } from './markdown-mdx';
 import { activateGitBetter } from './git-better';
 import { activateColorDebugging } from './color-debugging';
 import { activateScreenshotCode } from './screenshot-code';
+import { activateVersionPackage } from './version-package';
 
 
 /**
@@ -30,4 +31,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateGitBetter(context);
   activateColorDebugging(context);
   activateScreenshotCode(context);
+  activateVersionPackage(context);
 }
