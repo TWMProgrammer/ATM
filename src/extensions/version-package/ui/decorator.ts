@@ -43,7 +43,7 @@ export async function updateDecorations(
     // 1. Show loading state ONLY for what changed or is new
     const loadingOptions: vscode.DecorationOptions[] = dependenciesToFetch.map(dep => ({
         range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
-        renderOptions: { after: { contentText: ' checking...' } }
+        renderOptions: { after: { contentText: 'checking...' } }
     }));
 
     // Keep current decorations for what will NOT be refreshed
@@ -65,15 +65,15 @@ export async function updateDecorations(
         };
 
         if (isUpToDateWithLatest) {
-            decoration.renderOptions.after!.contentText = ` ✓ latest`;
+            decoration.renderOptions.after!.contentText = `✓ latest`;
             upToDateOptions.push(decoration);
         } else {
             const isSafeRange = dep.currentVersion.startsWith('^');
             if (isSafeRange) {
-                decoration.renderOptions.after!.contentText = ` Recommended Version `;
+                decoration.renderOptions.after!.contentText = `Recommended Version`;
                 updateRecommendedOptions.push(decoration);
             } else {
-                decoration.renderOptions.after!.contentText = ` Update → ${info.latest}`;
+                decoration.renderOptions.after!.contentText = `Update → ${info.latest}`;
                 updateAvailableOptions.push(decoration);
             }
         }
