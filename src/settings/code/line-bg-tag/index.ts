@@ -2,15 +2,21 @@ import * as vscode from 'vscode';
 import { ConfigManager } from './config/ConfigManager';
 import { DecoratorManager } from './ui/DecoratorManager';
 import { IndentEngine } from './core/IndentEngine';
+import { NativeEnhancements } from './native/NativeEnhancements';
 
 let config: ConfigManager;
 let decorator: DecoratorManager;
 let engine: IndentEngine;
+let native: NativeEnhancements;
 
 export function activateLineBgTag(context: vscode.ExtensionContext) {
   config = new ConfigManager();
   decorator = new DecoratorManager(config);
   engine = new IndentEngine(config, decorator);
+  native = new NativeEnhancements(config);
+
+  // Apply native VS Code improvements
+  native.apply();
 
   // Render immediately on the active editor
   if (vscode.window.activeTextEditor) {

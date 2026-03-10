@@ -12,6 +12,7 @@ export class ConfigManager {
   public includedLanguages: string[] = [];
   public excludedLanguages: string[] = [];
   public ignoreErrorLanguages: string[] = [];
+  public applyNativeEnhancements: boolean = true;
 
   // Sets for O(1) lookup instead of O(n) includes()
   private includedSet: Set<string> = new Set();
@@ -41,6 +42,8 @@ export class ConfigManager {
     this.updateDelay = config.get<number>('updateDelay') ?? 100;
     this.colorOnWhiteSpaceOnly =
       config.get<boolean>('colorOnWhiteSpaceOnly') ?? false;
+    this.applyNativeEnhancements =
+      config.get<boolean>('applyNativeEnhancements') ?? true;
 
     this.includedLanguages = config.get<string[]>('includedLanguages') ?? [];
     this.excludedLanguages = config.get<string[]>('excludedLanguages') ?? [];
