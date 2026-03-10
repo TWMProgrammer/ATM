@@ -12,18 +12,17 @@ export function activateLineBgTag(context: vscode.ExtensionContext) {
   decorator = new DecoratorManager(config);
   engine = new IndentEngine(config, decorator);
 
-  // Intentar ejecutar de inmediato en el editor activo
+  // Render immediately on the active editor
   if (vscode.window.activeTextEditor) {
     engine.triggerUpdateDecorations(vscode.window.activeTextEditor);
   }
 
-  // 1. Escuchar cambios de configuración
+  // 1. Configuration changes — full rebuild of decorations
   const onConfigChange = vscode.workspace.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration('indentRainbow')) {
       config.reload();
       decorator.buildDecorations();
 
-      // Actualizar todos los editores visibles inmediatamente
       for (const editor of vscode.window.visibleTextEditors) {
         engine.clearAllDecorations(editor);
         engine.triggerUpdateDecorations(editor);
@@ -31,32 +30,31 @@ export function activateLineBgTag(context: vscode.ExtensionContext) {
     }
   });
 
-  // 2. Escuchar cambio de pestaña o editor
+  // 2. Tab/editor switch — cancel pending update to prevent stale renders
   const onActiveEditorChange = vscode.window.onDidChangeActiveTextEditor(
     (editor) => {
-      engine.cancelUpdate(); // Prevenir colisión con el editor anterior
+      engine.cancelUpdate();
       if (editor) {
         engine.triggerUpdateDecorations(editor);
       }
     },
   );
 
-  // 3. Escuchar edición de código
+  // 3. Text edits — re-decorate on content change
   const onTextChange = vscode.workspace.onDidChangeTextDocument((e) => {
     const editor = vscode.window.activeTextEditor;
-    if (editor && e.document.uri === editor.document.uri) {
+    if (editor && e.document === editor.document) {
       engine.triggerUpdateDecorations(editor);
     }
   });
 
-  // 4. EL NÚCLEO DE LA OPTIMIZACIÓN: Solo repintar si el usuario hace scroll para mostrar lo que es invisible.
+  // 4. Scroll — re-decorate newly visible ranges
   const onScroll = vscode.window.onDidChangeTextEditorVisibleRanges((e) => {
     if (e.textEditor === vscode.window.activeTextEditor) {
       engine.triggerUpdateDecorations(e.textEditor);
     }
   });
 
-  // Suscribir eventos al manejador del ciclo de vida de VSCode
   context.subscriptions.push(
     onConfigChange,
     onActiveEditorChange,
@@ -66,7 +64,10 @@ export function activateLineBgTag(context: vscode.ExtensionContext) {
 }
 
 export function deactivateLineBgTag() {
+  if (engine) {
+    engine.cancelUpdate();
+  }
   if (decorator) {
-    decorator.clearDecorations();
+    decorator.disposeAll();
   }
 }

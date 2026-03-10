@@ -12,48 +12,78 @@ export class DecoratorManager {
     this.buildDecorations();
   }
 
+  /**
+   * Rebuilds all decoration types from the current config.
+   * Always disposes existing decorations first to prevent memory leaks.
+   */
   public buildDecorations() {
-    // Limpiar decoraciones anteriores
-    this.clearDecorations();
+    this.disposeAll();
 
-    // Recrear decoraciones basadas en la configuración
-    this.config.colors.forEach((color) => {
-      if (this.config.indicatorStyle === 'classic') {
-        this.decorationTypes.push(
-          vscode.window.createTextEditorDecorationType({
-            backgroundColor: color,
-          }),
-        );
-      } else if (this.config.indicatorStyle === 'light') {
-        this.decorationTypes.push(
-          vscode.window.createTextEditorDecorationType({
-            borderStyle: 'solid',
-            borderColor: color,
-            borderWidth: `0 0 0 ${this.config.lineWidth}px`,
-          }),
-        );
-      }
-    });
+    const { colors, indicatorStyle, lineWidth, errorColor, tabmixColor } =
+      this.config;
+
+    for (const color of colors) {
+      const style: vscode.DecorationRenderOptions =
+        indicatorStyle === 'light'
+          ? {
+              borderStyle: 'solid',
+              borderColor: color,
+              borderWidth: `0 0 0 ${lineWidth}px`,
+            }
+          : { backgroundColor: color };
+
+      this.decorationTypes.push(
+        vscode.window.createTextEditorDecorationType(style),
+      );
+    }
 
     this.errorDecorationType = vscode.window.createTextEditorDecorationType({
-      backgroundColor: this.config.errorColor,
+      backgroundColor: errorColor,
     });
 
-    if (this.config.tabmixColor !== '') {
+    if (tabmixColor) {
       this.tabmixDecorationType = vscode.window.createTextEditorDecorationType({
-        backgroundColor: this.config.tabmixColor,
+        backgroundColor: tabmixColor,
       });
     }
   }
 
-  public clearDecorations() {
-    this.decorationTypes.forEach((dt) => dt.dispose());
+  /**
+   * Clears decorations from all visible editors without disposing types.
+   * Use when temporarily hiding decorations (e.g., language not supported).
+   */
+  public clearFromEditors(editors: readonly vscode.TextEditor[]) {
+    const empty: vscode.DecorationOptions[] = [];
+    for (const editor of editors) {
+      for (const dt of this.decorationTypes) {
+        editor.setDecorations(dt, empty);
+      }
+      if (this.errorDecorationType) {
+        editor.setDecorations(this.errorDecorationType, empty);
+      }
+      if (this.tabmixDecorationType) {
+        editor.setDecorations(this.tabmixDecorationType, empty);
+      }
+    }
+  }
+
+  /**
+   * Disposes all TextEditorDecorationType instances to free memory.
+   * Must be called on deactivation and before rebuilding decorations.
+   */
+  public disposeAll() {
+    for (const dt of this.decorationTypes) {
+      dt.dispose();
+    }
     this.decorationTypes = [];
+
     if (this.errorDecorationType) {
       this.errorDecorationType.dispose();
+      this.errorDecorationType = null;
     }
     if (this.tabmixDecorationType) {
       this.tabmixDecorationType.dispose();
+      this.tabmixDecorationType = null;
     }
   }
 }

@@ -2,10 +2,14 @@ import * as vscode from 'vscode';
 import { ConfigManager } from '../config/ConfigManager';
 import { DecoratorManager } from '../ui/DecoratorManager';
 
+/** Char codes for high-performance whitespace detection */
+const CHAR_TAB = 9;
+const CHAR_SPACE = 32;
+
 export class IndentEngine {
   private config: ConfigManager;
   private decorator: DecoratorManager;
-  private timeout: NodeJS.Timeout | null = null;
+  private timeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(config: ConfigManager, decorator: DecoratorManager) {
     this.config = config;
@@ -13,13 +17,12 @@ export class IndentEngine {
   }
 
   /**
-   * Dispara una actualización con Debounce para evitar lags extremos
-   * al escribir rápidamente o hacer mucho scroll.
+   * Triggers a debounced decoration update.
+   * Uses configurable delay to prevent lag during rapid typing/scrolling.
    */
   public triggerUpdateDecorations(editor: vscode.TextEditor | undefined) {
-    if (this.timeout) {
+    if (this.timeout !== null) {
       clearTimeout(this.timeout);
-      this.timeout = null;
     }
     this.timeout = setTimeout(
       () => this.updateDecorations(editor),
@@ -27,34 +30,47 @@ export class IndentEngine {
     );
   }
 
-  /**
-   * Cancela la actualización programada
-   */
+  /** Cancels any pending scheduled update */
   public cancelUpdate() {
-    if (this.timeout) {
+    if (this.timeout !== null) {
       clearTimeout(this.timeout);
       this.timeout = null;
     }
   }
 
+  /**
+   * Clears decorations from a specific editor without disposing types.
+   */
   public clearAllDecorations(editor: vscode.TextEditor) {
-    this.decorator.decorationTypes.forEach((dt) =>
-      editor.setDecorations(dt, []),
-    );
+    const empty: vscode.DecorationOptions[] = [];
+    for (const dt of this.decorator.decorationTypes) {
+      editor.setDecorations(dt, empty);
+    }
     if (this.decorator.errorDecorationType) {
-      editor.setDecorations(this.decorator.errorDecorationType, []);
+      editor.setDecorations(this.decorator.errorDecorationType, empty);
     }
     if (this.decorator.tabmixDecorationType) {
-      editor.setDecorations(this.decorator.tabmixDecorationType, []);
+      editor.setDecorations(this.decorator.tabmixDecorationType, empty);
     }
   }
 
+  /**
+   * Core decoration engine.
+   *
+   * Performance strategy for large files:
+   * - Only processes visible lines + dynamic buffer
+   * - Zero regex in the hot loop (uses charCodeAt)
+   * - Zero string allocations for indent calculation
+   * - Reuses arrays via pre-allocation
+   */
   private updateDecorations(editor: vscode.TextEditor | undefined) {
     if (!editor) {
       return;
     }
 
-    if (!this.isLanguageEnabled(editor)) {
+    const langId = editor.document.languageId;
+
+    if (!this.config.isLanguageIncluded(langId)) {
       this.clearAllDecorations(editor);
       return;
     }
@@ -62,47 +78,64 @@ export class IndentEngine {
     const document = editor.document;
     const tabSizeRaw = editor.options.tabSize;
     const tabSize = tabSizeRaw === 'auto' ? 4 : Number(tabSizeRaw);
+    const colorCount = this.config.colors.length;
 
-    const decorators: vscode.DecorationOptions[][] = this.config.colors.map(
-      () => [],
-    );
+    // Pre-allocate decoration arrays — one per color + error + tabmix
+    const decorators: vscode.DecorationOptions[][] = new Array(colorCount);
+    for (let i = 0; i < colorCount; i++) {
+      decorators[i] = [];
+    }
     const errorDecorator: vscode.DecorationOptions[] = [];
     const tabmixDecorator: vscode.DecorationOptions[] = [];
 
-    const skipAllErrors = this.shouldSkipErrors(document.languageId);
+    const skipAllErrors = this.config.shouldSkipErrors(langId);
+    const hasTabmix = this.decorator.tabmixDecorationType !== null;
+    const hasIgnorePatterns = this.config.ignoreLinePatterns.length > 0;
+    const colorOnWhiteSpaceOnly = this.config.colorOnWhiteSpaceOnly;
 
-    // Optimización 1: Procesar SOLO rangos visibles.
-    // Esto es magia negra para el rendimiento: pasamos de O(TodoElArvhivo) a O(LíneasVisibles)
+    // Visible ranges with dynamic buffer based on file size
     const visibleRanges = editor.visibleRanges;
     if (visibleRanges.length === 0) {
       return;
     }
 
+    // Dynamic buffer: larger files get smaller buffer to prevent lag
+    const lineCount = document.lineCount;
+    const buffer = lineCount > 10000 ? 15 : lineCount > 3000 ? 20 : 30;
+
     for (const range of visibleRanges) {
-      // Ampliar el rango en un "buffer" para prevenir ghosting visual durante el scroll rápido
-      const startLine = Math.max(0, range.start.line - 30);
-      const endLine = Math.min(document.lineCount - 1, range.end.line + 30);
+      const startLine = Math.max(0, range.start.line - buffer);
+      const endLine = Math.min(lineCount - 1, range.end.line + buffer);
 
       for (let lineIndex = startLine; lineIndex <= endLine; lineIndex++) {
         const line = document.lineAt(lineIndex);
-        if (line.isEmptyOrWhitespace && line.text.length === 0) {
+        const text = line.text;
+        const textLength = text.length;
+
+        // Skip truly empty lines
+        if (textLength === 0) {
           continue;
         }
 
-        const text = line.text;
-        const match = text.match(/^[\t ]+/);
+        // Fast whitespace prefix detection via charCodeAt (no regex needed)
+        let wsEnd = 0;
+        while (wsEnd < textLength) {
+          const ch = text.charCodeAt(wsEnd);
+          if (ch !== CHAR_SPACE && ch !== CHAR_TAB) {
+            break;
+          }
+          wsEnd++;
+        }
 
-        if (!match) {
+        // No leading whitespace → nothing to decorate
+        if (wsEnd === 0) {
           continue;
-        } // Si no hay espacios en blanco al inicio
+        }
 
-        const whitespace = match[0];
-
+        // Check if the line should skip error coloring
         let skip = skipAllErrors;
 
-        // Optimización 2: Búsqueda rápida y temprana de patrones a ignorar por línea,
-        // y solo si hay alguna regla.
-        if (!skip && this.config.ignoreLinePatterns.length > 0) {
+        if (!skip && hasIgnorePatterns) {
           for (const regex of this.config.ignoreLinePatterns) {
             if (regex.test(text)) {
               skip = true;
@@ -111,73 +144,81 @@ export class IndentEngine {
           }
         }
 
-        const indentSpaces = whitespace.replace(
-          /\t/g,
-          ' '.repeat(tabSize),
-        ).length;
+        // Calculate indent width without creating any new strings
+        // Tab = tabSize spaces, Space = 1 space
+        let indentWidth = 0;
+        for (let i = 0; i < wsEnd; i++) {
+          indentWidth += text.charCodeAt(i) === CHAR_TAB ? tabSize : 1;
+        }
 
-        // Validar Errores de Identación (ej: indentación que no es múltiplo del tamaño de la tabulación)
-        if (!skip && indentSpaces % tabSize !== 0) {
-          const startPos = new vscode.Position(lineIndex, 0);
-          const endPos = new vscode.Position(lineIndex, whitespace.length);
-          errorDecorator.push({ range: new vscode.Range(startPos, endPos) });
+        // Indent error detection (not a multiple of tabSize)
+        if (!skip && indentWidth % tabSize !== 0) {
+          errorDecorator.push({
+            range: new vscode.Range(lineIndex, 0, lineIndex, wsEnd),
+          });
         } else {
-          // Procesar las indentaciones correctas
-          let spaceCount = 0;
-          let tabCount = 0;
-
-          if (!skip && this.decorator.tabmixDecorationType) {
-            for (let i = 0; i < whitespace.length; i++) {
-              if (whitespace[i] === '\t') {
-                tabCount++;
-              } else if (whitespace[i] === ' ') {
-                spaceCount++;
+          // Count tabs vs spaces for tabmix detection (only if feature enabled)
+          let hasTabMix = false;
+          if (!skip && hasTabmix) {
+            let sawTab = false;
+            let sawSpace = false;
+            for (let i = 0; i < wsEnd; i++) {
+              if (text.charCodeAt(i) === CHAR_TAB) {
+                sawTab = true;
+              } else {
+                sawSpace = true;
+              }
+              if (sawTab && sawSpace) {
+                hasTabMix = true;
+                break; // Early exit
               }
             }
           }
 
-          let n = 0;
-          let o = 0;
+          // Parse indent blocks positionally
+          let charIndex = 0;
+          let blockIndex = 0;
 
-          // Optimización 3: Parseo matemático basado puramente en index posicionales en vez de expresiones regulares y replace globales.
-          while (n < whitespace.length) {
-            const startPos = new vscode.Position(lineIndex, n);
+          while (charIndex < wsEnd) {
+            const blockStart = charIndex;
 
-            if (whitespace[n] === '\t') {
-              n++;
+            if (text.charCodeAt(charIndex) === CHAR_TAB) {
+              charIndex++;
             } else {
-              n += tabSize;
+              charIndex += tabSize;
             }
 
-            if (this.config.colorOnWhiteSpaceOnly && n > whitespace.length) {
-              n = whitespace.length;
+            // Clamp to whitespace boundary
+            if (colorOnWhiteSpaceOnly && charIndex > wsEnd) {
+              charIndex = wsEnd;
             }
 
-            const endPos = new vscode.Position(lineIndex, n);
-            const decoration = { range: new vscode.Range(startPos, endPos) };
+            const decoration: vscode.DecorationOptions = {
+              range: new vscode.Range(
+                lineIndex,
+                blockStart,
+                lineIndex,
+                charIndex,
+              ),
+            };
 
-            if (
-              !skip &&
-              this.decorator.tabmixDecorationType &&
-              spaceCount > 0 &&
-              tabCount > 0
-            ) {
+            if (!skip && hasTabMix) {
               tabmixDecorator.push(decoration);
             } else {
-              const decoListIndex = o % decorators.length;
-              decorators[decoListIndex].push(decoration);
+              decorators[blockIndex % colorCount].push(decoration);
             }
 
-            o++;
+            blockIndex++;
           }
         }
       }
     }
 
-    // Aplicar los colores a la GUI de VSCode en lote
-    this.decorator.decorationTypes.forEach((decorationType, index) => {
-      editor.setDecorations(decorationType, decorators[index]);
-    });
+    // Batch-apply decorations to VS Code renderer
+    const decorationTypes = this.decorator.decorationTypes;
+    for (let i = 0; i < decorationTypes.length; i++) {
+      editor.setDecorations(decorationTypes[i], decorators[i]);
+    }
 
     if (this.decorator.errorDecorationType) {
       editor.setDecorations(this.decorator.errorDecorationType, errorDecorator);
@@ -189,36 +230,5 @@ export class IndentEngine {
         tabmixDecorator,
       );
     }
-  }
-
-  private isLanguageEnabled(editor: vscode.TextEditor): boolean {
-    const langId = editor.document.languageId;
-
-    if (
-      this.config.includedLanguages.length > 0 &&
-      !this.config.includedLanguages.includes(langId)
-    ) {
-      return false;
-    }
-    if (
-      this.config.excludedLanguages.length > 0 &&
-      this.config.excludedLanguages.includes(langId)
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  private shouldSkipErrors(langId: string): boolean {
-    if (this.config.ignoreErrorLanguages.length === 0) {
-      return false;
-    }
-    if (
-      this.config.ignoreErrorLanguages.includes('*') ||
-      this.config.ignoreErrorLanguages.includes(langId)
-    ) {
-      return true;
-    }
-    return false;
   }
 }
