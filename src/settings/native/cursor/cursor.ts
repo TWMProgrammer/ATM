@@ -6,21 +6,21 @@ import * as vscode from 'vscode';
  * - Cambia 'editor.cursorSmoothCaretAnimation' a 'on'.
  */
 export async function activateCursorSettings() {
-  const config = vscode.workspace.getConfiguration();
+  const editorConfig = vscode.workspace.getConfiguration('editor');
 
   // Configuración para el parpadeo del cursor (Cursor Blinking)
-  if (config.get('editor.cursorBlinking') !== 'expand') {
-    await config.update(
-      'editor.cursorBlinking',
+  if (editorConfig.get<string>('cursorBlinking') !== 'expand') {
+    await editorConfig.update(
+      'cursorBlinking',
       'expand',
       vscode.ConfigurationTarget.Global,
     );
   }
 
   // Configuración para la animación suave del cursor (Cursor Smooth Caret Animation)
-  if (config.get('editor.cursorSmoothCaretAnimation') !== 'on') {
-    await config.update(
-      'editor.cursorSmoothCaretAnimation',
+  if (editorConfig.get<string>('cursorSmoothCaretAnimation') !== 'on') {
+    await editorConfig.update(
+      'cursorSmoothCaretAnimation',
       'on',
       vscode.ConfigurationTarget.Global,
     );
