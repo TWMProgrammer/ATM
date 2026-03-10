@@ -7,10 +7,11 @@ export interface SpellIssue {
   length: number;
 }
 
-/**
+/* =========================================================
+ * 🔍 CHECK TEXT ENGINE
  * Scans text and returns spelling issues.
  * Automatically ignores numbers, URLs, Hex Colors (#FFF) AND CamelCase/PascalCase variables.
- */
+ * ========================================================= */
 export function checkText(text: string): SpellIssue[] {
   const issues: SpellIssue[] = [];
 
@@ -20,15 +21,21 @@ export function checkText(text: string): SpellIssue[] {
   for (const line of lines) {
     const lineLen = line.length;
 
-    // Skip excessively long lines (e.g. base64 strings, embedded resources)
-    // to prevent regex catastrophic backtracking and UI lag.
+    /* =========================================================
+     * ⏩ SKIP LONG LINES
+     * Skip excessively long lines (e.g. base64 strings, embedded resources)
+     * to prevent regex catastrophic backtracking and UI lag.
+     * ========================================================= */
     if (lineLen > 1000) {
       currentOffset += lineLen + 1; // +1 for the '\n'
       continue;
     }
 
-    // Remove raw URLs, Hexadecimal Colors (#FFFFFF) AND ANY camelCase / PascalCase words
-    // while preserving the original length to maintain correct token offsets
+    /* =========================================================
+     * 🧹 REMOVE INVALID TOKENS
+     * Remove raw URLs, Hexadecimal Colors (#FFFFFF) AND ANY camelCase / PascalCase words
+     * while preserving the original length to maintain correct token offsets
+     * ========================================================= */
     const cleanLine = line.replace(
       /https?:\/\/[^\s"'<>]*|#[a-fA-F0-9]{3,8}\b|\b(?:[a-z]+[A-Z][a-zA-Z]*|[A-Z][a-z]+[A-Z][a-zA-Z]*)\b/g,
       (match) => ' '.repeat(match.length),

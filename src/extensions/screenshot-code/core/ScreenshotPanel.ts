@@ -12,7 +12,9 @@ export class ScreenshotPanel {
 
 
 
-  /* ─── Factory ──────────────────────────── */
+  /* =========================================================
+   * 🏗️ FACTORY
+   * ========================================================= */
 
   public static createOrShow(context: vscode.ExtensionContext) {
     const column = vscode.window.activeTextEditor
@@ -50,7 +52,9 @@ export class ScreenshotPanel {
     );
   }
 
-  /* ─── Constructor ──────────────────────── */
+  /* =========================================================
+   * 🛠️ CONSTRUCTOR
+   * ========================================================= */
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
     this._panel = panel;
@@ -87,7 +91,9 @@ export class ScreenshotPanel {
 
   }
 
-  /* ─── Selection check ─────────────────── */
+  /* =========================================================
+   * 🔍 SELECTION CHECK
+   * ========================================================= */
 
   private _hasSelection(selections: readonly vscode.Selection[]): boolean {
     return (
@@ -97,7 +103,9 @@ export class ScreenshotPanel {
     );
   }
 
-  /* ─── Push code to webview ─────────────── */
+  /* =========================================================
+   * 📤 PUSH CODE TO WEBVIEW
+   * ========================================================= */
 
   public async updateCode() {
     const editor = vscode.window.activeTextEditor;
@@ -146,7 +154,9 @@ export class ScreenshotPanel {
     }
   }
 
-  /* ─── Save image to disk ───────────────── */
+  /* =========================================================
+   * 💾 SAVE IMAGE TO DISK
+   * ========================================================= */
 
   private async _saveImage(dataBase64: string) {
     try {
@@ -186,7 +196,9 @@ export class ScreenshotPanel {
     }
   }
 
-  /* ─── Dispose ──────────────────────────── */
+  /* =========================================================
+   * 🗑️ DISPOSE
+   * ========================================================= */
 
   public dispose() {
     ScreenshotPanel.currentPanel = undefined;
@@ -201,7 +213,9 @@ export class ScreenshotPanel {
     }
   }
 
-  /* ─── Update webview content ───────────── */
+  /* =========================================================
+   * 🔄 UPDATE WEBVIEW CONTENT
+   * ========================================================= */
 
   private _update() {
     const webview = this._panel.webview;
@@ -209,7 +223,9 @@ export class ScreenshotPanel {
     webview.html = this._getHtmlForWebview(webview);
   }
 
-  /* ─── HTML generation ──────────────────── */
+  /* =========================================================
+   * 🌐 HTML GENERATION
+   * ========================================================= */
 
   private _getHtmlForWebview(webview: vscode.Webview) {
     const scriptUri = webview.asWebviewUri(

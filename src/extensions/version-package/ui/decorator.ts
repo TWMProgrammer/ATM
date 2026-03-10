@@ -4,7 +4,10 @@ import { parsePackageJson } from '../core/parser';
 import { fetchPackageLatestVersion } from '../core/versionFetcher';
 import { getDocumentCache } from '../core/state';
 
-// Using Error-Lens style decorations passed from index.ts
+/* =========================================================
+ * 🎨 CLEAR DECORATIONS
+ * Using Error-Lens style decorations passed from index.ts
+ * ========================================================= */
 export async function clearDecorations(
     editor: vscode.TextEditor,
     styles: { updateAvailable: vscode.TextEditorDecorationType; updateRecommended: vscode.TextEditorDecorationType; upToDate: vscode.TextEditorDecorationType; loading: vscode.TextEditorDecorationType; }
@@ -26,26 +29,32 @@ export async function updateDecorations(
     const dependencies = parsePackageJson(document);
     const documentCache = getDocumentCache(document.uri.toString());
     
-    // Filtramos qué dependencias realmente necesitan "checking..."
-    // Si ya tenemos info en cache y la versión en el archivo es la misma, no parpadeamos el loading.
+    /* =========================================================
+     * 🔍 FILTER DEPENDENCIES
+     * Filter which dependencies actually need "checking..."
+     * If we already have info in cache and the version in the file is the same, do not blink the loading state.
+     * ========================================================= */
     const dependenciesToFetch = dependencies.filter(dep => {
         const cached = documentCache.get(dep.line);
-        // Si no está en cache, O la versión en el archivo cambió, necesitamos pedir de nuevo.
+        // If it's not in cache, OR the version in the file changed, we need to request again
         return !cached || cached.currentVersion !== dep.currentVersion || cached.name !== dep.name;
     });
 
-    // 1. Mostrar estado de carga SOLO para lo que cambió o es nuevo
+    // 1. Show loading state ONLY for what changed or is new
     const loadingOptions: vscode.DecorationOptions[] = dependenciesToFetch.map(dep => ({
         range: new vscode.Range(dep.line, Number.MAX_VALUE, dep.line, Number.MAX_VALUE),
-        renderOptions: { after: { contentText: ' checking...' } }
+        renderOptions: { after: { contentText: 'checking...' } }
     }));
 
-    // Mantener las decoraciones actuales para lo que NO se va a refrescar
+    // Keep current decorations for what will NOT be refreshed
     const updateAvailableOptions: vscode.DecorationOptions[] = [];
     const updateRecommendedOptions: vscode.DecorationOptions[] = [];
     const upToDateOptions: vscode.DecorationOptions[] = [];
 
-    // Función auxiliar para clasificar y agregar a las listas de opciones
+    /* =========================================================
+     * 🏷️ CLASSIFY DECORATION HELPER
+     * Helper function to classify and add to option lists
+     * ========================================================= */
     const classifyDecoration = (dep: { line: number, currentVersion: string }, info: any) => {
         const currentCoerced = semver.coerce(dep.currentVersion);
         const isUpToDateWithLatest = currentCoerced && info.latest && semver.eq(currentCoerced, info.latest);
@@ -56,21 +65,24 @@ export async function updateDecorations(
         };
 
         if (isUpToDateWithLatest) {
-            decoration.renderOptions.after!.contentText = ` ✓ latest`;
+            decoration.renderOptions.after!.contentText = `✓ latest`;
             upToDateOptions.push(decoration);
         } else {
             const isSafeRange = dep.currentVersion.startsWith('^');
             if (isSafeRange) {
-                decoration.renderOptions.after!.contentText = ` Recommended Version `;
+                decoration.renderOptions.after!.contentText = `Recommended Version`;
                 updateRecommendedOptions.push(decoration);
             } else {
-                decoration.renderOptions.after!.contentText = ` Update → ${info.latest}`;
+                decoration.renderOptions.after!.contentText = `Update → ${info.latest}`;
                 updateAvailableOptions.push(decoration);
             }
         }
     };
 
-    // Poblar con lo que ya tenemos en cache (lo que no vamos a re-descargar)
+    /* =========================================================
+     * ⚡ POPULATE FROM CACHE
+     * Populate with what we already have in cache (what we won't re-download)
+     * ========================================================= */
     dependencies.forEach(dep => {
         const cached = documentCache.get(dep.line);
         if (cached && cached.currentVersion === dep.currentVersion && cached.name === dep.name) {
@@ -78,14 +90,17 @@ export async function updateDecorations(
         }
     });
 
-    // Pintar estado inicial (cache + los nuevos en loading)
+    /* =========================================================
+     * 🖌️ PAINT INITIAL STATE
+     * Paint initial state (cache + new ones loading)
+     * ========================================================= */
     editor.setDecorations(styles.loading, loadingOptions);
     editor.setDecorations(styles.updateAvailable, updateAvailableOptions);
     editor.setDecorations(styles.updateRecommended, updateRecommendedOptions);
     editor.setDecorations(styles.upToDate, upToDateOptions);
 
     if (dependenciesToFetch.length === 0) {
-        return; // Nada nuevo que buscar
+        return; // Nothing new to fetch
     }
 
     await vscode.window.withProgress({
@@ -95,7 +110,7 @@ export async function updateDecorations(
         await Promise.all(dependenciesToFetch.map(async (dep) => {
             const info = await fetchPackageLatestVersion(dep.name, dep.currentVersion);
             
-            // Quitar el checking de ese item
+            // Remove checking state for this item
             const loadingIdx = loadingOptions.findIndex(o => o.range.start.line === dep.line);
             if (loadingIdx !== -1) {
                 loadingOptions.splice(loadingIdx, 1);
@@ -111,7 +126,7 @@ export async function updateDecorations(
                 classifyDecoration(dep, info);
             }
 
-            // Actualización progresiva sin parpadeo global
+            // Progressive update without global blinking
             editor.setDecorations(styles.loading, loadingOptions);
             editor.setDecorations(styles.updateAvailable, updateAvailableOptions);
             editor.setDecorations(styles.updateRecommended, updateRecommendedOptions);

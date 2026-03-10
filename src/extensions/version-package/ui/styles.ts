@@ -8,7 +8,7 @@ export function createDecorationStyles() {
 
   const updateAvailableOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
-    after: getCommonAfter('4px', '2px 6px'),
+    after: getCommonAfter('4px', '2px 10px'),
     dark: {
       after: {
         backgroundColor: '#ff980022',
@@ -25,7 +25,7 @@ export function createDecorationStyles() {
 
   const updateRecommendedOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
-    after: getCommonAfter('7px', '2px 8px'),
+    after: getCommonAfter('7px', '2px 10px'),
     dark: {
       after: {
         backgroundColor: '#9ca3af33',
@@ -42,7 +42,7 @@ export function createDecorationStyles() {
 
   const upToDateOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
-    after: getCommonAfter('12px', '2px 8px'),
+    after: getCommonAfter('12px', '2px 10px'),
     dark: {
       after: {
         backgroundColor: '#4caf5022',
@@ -59,7 +59,7 @@ export function createDecorationStyles() {
 
   const loadingOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
-    after: getCommonAfter('4px', '2px 6px'),
+    after: getCommonAfter('4px', '2px 10px'),
     dark: {
       after: {
         backgroundColor: '#8888881a',

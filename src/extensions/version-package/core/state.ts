@@ -7,7 +7,10 @@ export interface PackageState {
     info: VersionInfo;
 }
 
-// Map from document URI to a Map mapping line number to PackageState
+/* =========================================================
+ * 🗺️ DOCUMENT CACHE
+ * Map from document URI to a Map mapping line number to PackageState
+ * ========================================================= */
 export const packageStateCache = new Map<string, Map<number, PackageState>>();
 
 export function getDocumentCache(uri: string): Map<number, PackageState> {

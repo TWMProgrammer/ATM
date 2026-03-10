@@ -1,16 +1,24 @@
 import * as vscode from 'vscode';
 import { shouldExcludeFromErrorLens } from './exclusions';
 
-// Filtro rápido para no aplicar en paneles output o git.
+/* =========================================================
+ * 🛡️ VALIDATION CHECKS
+ * ========================================================= */
+
+// Fast filter to avoid applying to output or git panels
 function _shouldExclude(scheme: string): boolean {
   return scheme === 'output' || scheme === 'git' || scheme === 'debug';
 }
 
+/* =========================================================
+ * 🚀 CORE ENGINE UPDATE DECORATIONS
+ * ========================================================= */
+
 /**
- * Optimizaciones aplicadas:
- * 1. Uso de Map para O(1).
- * 2. Filtrado para obviar Hint/Info y guardar solo el error más grave (Error gana a Warning).
- * 3. Textos sin renderizado fantasma (margin usado en vez de blank spaces).
+ * Optimizations applied:
+ * 1. Map used for O(1) performance.
+ * 2. Filter out Hint/Info. Keep only the most severe error.
+ * 3. Ghost rendering avoidance (using margin instead of blank spaces).
  */
 export function updateDecorationsForEditor(
   editor: vscode.TextEditor,
@@ -24,7 +32,6 @@ export function updateDecorationsForEditor(
     return;
   }
   
-  // Rendimiento: Salir inmediatamente si el archivo está en la lista de ignorados
   if (shouldExcludeFromErrorLens(document.uri.fsPath)) {
     return;
   }
@@ -37,7 +44,6 @@ export function updateDecorationsForEditor(
   const diagnosticsByLine = new Map<number, vscode.Diagnostic>();
 
   for (const diagnostic of diagnostics) {
-    // Rendimiento extremo: Cortar y abandonar todo lo que sea Info(2) o Hint(3)
     if (diagnostic.severity > vscode.DiagnosticSeverity.Warning) {
       continue;
     }
@@ -45,8 +51,8 @@ export function updateDecorationsForEditor(
     const line = diagnostic.range.start.line;
     const existing = diagnosticsByLine.get(line);
 
-    // Solo permitimos decorar si es el más grave (Error gana sobre Warning)
-    // EMPATE DE GRAVEDAD: Si hay dos Errores (TypeScript VS ESLint), nos quedamos con el mensaje más detallado (largo).
+    // Filter out lesser severity diagnostics (Error > Warning)
+    // TIE BREAKER: If both are Errors, keep the one with the longest message.
     if (!existing || diagnostic.severity < existing.severity) {
       diagnosticsByLine.set(line, diagnostic);
     } else if (
@@ -60,26 +66,21 @@ export function updateDecorationsForEditor(
   for (const [line, diagnostic] of diagnosticsByLine) {
     const text = document.lineAt(line).text;
 
-    // Final de la cadena real para ubicar la decoración
     const endPos = new vscode.Position(line, text.length);
     const range = new vscode.Range(endPos, endPos);
 
-    // Mensaje limpio. .trim() para quitar cualquier espacio inicial o final fantasma.
-    // ESTO ELIMINA EL BUG del recuadro opaco apareciendo primero sin texto.
+    // Cleaned message to prevent the opaque box bug (ghost background)
     let cleanMsg = diagnostic.message.replace(/\r?\n/g, ' ').trim();
 
-    // PERFORMANCE & ESTÉTICA: Cortar los testamentos kilométricos de TypeScript
-    // que destruyen el margen visual a un máximo cómodo (~100 caracteres)
+    // Performance & Aesthetics: cut huge strings to avoid UI destruction
     if (cleanMsg.length > 100) {
       cleanMsg = cleanMsg.substring(0, 111) + '...';
     }
 
-    // Evitamos renderizar burbujas falsas / vacías
     if (!cleanMsg) {
       continue;
     }
 
-    // Insertar un icono semántico dependiendo de la gravedad
     const icon =
       diagnostic.severity === vscode.DiagnosticSeverity.Error ? '✖' : '⚠';
     const message = `${icon}  ${cleanMsg}`;

@@ -1,6 +1,9 @@
 import * as path from 'path';
 
-// ── Carpetas que no aportan valor visual para errores en línea (Error Lens)
+/* =========================================================
+ * 📁 IGNORED FOLDERS
+ * Folders that provide no visual value for inline errors
+ * ========================================================= */
 const IGNORED_FOLDERS = new Set([
   'node_modules',
   'vendor',     
@@ -16,7 +19,10 @@ const IGNORED_FOLDERS = new Set([
   'coverage',     
 ]);
 
-// ── Archivos exactos que se deben ignorar por rendimiento y ruido (Lockfiles)
+/* =========================================================
+ * 📄 IGNORED FILENAMES
+ * Exact files to ignore for performance and noise reduction
+ * ========================================================= */
 const IGNORED_FILENAMES = new Set([
   'bun.lock',         
   'bun.lockb',        
@@ -26,24 +32,27 @@ const IGNORED_FILENAMES = new Set([
   'composer.lock',    
   'cargo.lock',       
   'poetry.lock',      
-  'pubspec.lock',      // Específico para tu ecosistema de Flutter
+  'pubspec.lock',
 ]);
 
-// ── Extensiones de archivos donde mostrar errores en línea es inútil o pesado
+/* =========================================================
+ * 🧩 IGNORED EXTENSIONS
+ * File extensions where inline errors are useless or heavy
+ * ========================================================= */
 const IGNORED_EXTENSIONS = new Set([
   '.min.js',  
   '.min.css', 
   '.map',     
-  '.svg',     // Gráficos de vectores (XML gigantes, ruido visual innecesario)
+  '.svg',
   '.log',     
   '.snap',    
-  '.yaml',    // Ignorado según tu requerimiento (archivos de datos muy largos)
-  '.yml',     // Variante común de yaml
-  '.json',    // Archivos de configuración, a menudo enormes
+  '.yaml',
+  '.yml',
+  '.json',
 ]);
 
 /**
- * Retorna `true` si el archivo debe ser **excluido** de Error Lens.
+ * Returns `true` if the file should be **excluded** from Error Lens.
  */
 export function shouldExcludeFromErrorLens(fsPath: string): boolean {
   if (!fsPath) {

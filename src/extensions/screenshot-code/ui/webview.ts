@@ -3,9 +3,9 @@ import * as htmlToImage from 'html-to-image';
 declare const acquireVsCodeApi: () => any;
 const vscode = acquireVsCodeApi();
 
-/* ═══════════════════════════════════════════════
-   TYPES
-   ═══════════════════════════════════════════════ */
+/* =========================================================
+ * 🏷️ TYPES
+ * ========================================================= */
 
 interface Config {
   fontLigatures: boolean | string;
@@ -15,9 +15,9 @@ interface Config {
   plainText?: string;
 }
 
-/* ═══════════════════════════════════════════════
-   DOM HELPERS
-   ═══════════════════════════════════════════════ */
+/* =========================================================
+ * 🛠️ DOM HELPERS
+ * ========================================================= */
 
 const $ = (sel: string, ctx: Document | HTMLElement = document) =>
   ctx.querySelector<HTMLElement>(sel);
@@ -28,17 +28,17 @@ const $$ = (sel: string, ctx: Document | HTMLElement = document) =>
 import { DockWidget } from './widget/dock';
 import { ZoomWidget } from './widget/zoom';
 
-/* ═══════════════════════════════════════════════
-   STATE
-   ═══════════════════════════════════════════════ */
+/* =========================================================
+ * 🧊 STATE
+ * ========================================================= */
 
 let isTakingSnapshot = false;
 let currentStartLine = 1;
 let showLineNumbers = true;
 
-/* ═══════════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════════ */
+/* =========================================================
+ * 🚀 INIT
+ * ========================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
   const snippetNode = $('#snippet-content')!;
@@ -169,7 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* ─── Receive code update from extension ──── */
+  /* =========================================================
+   * 📨 RECEIVE CODE UPDATE FROM EXTENSION
+   * ========================================================= */
   window.addEventListener('message', event => {
     const config = event.data as Config;
     if (event.data.type === 'update') {
@@ -229,7 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* ─── Handle paste event ──────────────── */
+  /* =========================================================
+   * 📋 HANDLE PASTE EVENT
+   * ========================================================= */
   document.addEventListener('paste', (e) => {
     if (!snippetNode) { return; }
 
@@ -290,9 +294,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ═══════════════════════════════════════
-     UTILITIES
-     ═══════════════════════════════════════ */
+  /* =========================================================
+   * 🛠️ UTILITIES
+   * ========================================================= */
 
   function showToast(message: string, type: 'success' | 'info' = 'info') {
     // Remove existing toast
@@ -321,9 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ═══════════════════════════════════════
-   SVG ICON STRINGS
-   ═══════════════════════════════════════ */
+/* =========================================================
+ * 🖼️ SVG ICON STRINGS
+ * ========================================================= */
 
 const svgCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 

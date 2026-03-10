@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { debugColors } from './colorList';
 
+/* =========================================================
+ * ⚙️ CONFIG KEYS
+ * ========================================================= */
 const BACKGROUND_KEYS = [
     "activityBar.background",
     "statusBar.background",
@@ -13,8 +16,11 @@ const FOREGROUND_KEYS = [
     "statusBar.foreground"
 ];
 
+/* =========================================================
+ * 🎨 COLOR UTILITIES
+ * ========================================================= */
 function getContrastColor(hexColor: string): string {
-    // Basic conversion for #RRGGBB or #RRGGBBAA
+    // Convert #RRGGBB or #RRGGBBAA
     const hex = hexColor.replace('#', '').substring(0, 6);
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
@@ -29,7 +35,7 @@ export function hasColorApplied(): boolean {
     return isOurColor(colorCustomizations);
 }
 
-// Keep track of the last applied color to prevent immediate consecutive repeats
+// Prevent immediate consecutive repeats
 let lastAppliedColor: string | null = null;
 
 function isOurColor(colorCustomizations: any): boolean {
@@ -42,6 +48,9 @@ function isOurColor(colorCustomizations: any): boolean {
     return debugColors.map(c => c.toLowerCase()).includes(currentColor.toLowerCase());
 }
 
+/* =========================================================
+ * 🧹 CLEANUP WORKSPACE COLORS
+ * ========================================================= */
 export async function clearWorkspaceColors(): Promise<void> {
     const config = vscode.workspace.getConfiguration('workbench');
     const colorCustomizations = config.get<any>('colorCustomizations', {});
@@ -71,8 +80,11 @@ export async function clearWorkspaceColors(): Promise<void> {
     lastAppliedColor = null;
 }
 
+/* =========================================================
+ * 🎲 APPLY RANDOM COLOR
+ * ========================================================= */
 export async function applyRandomColor(): Promise<void> {
-    // Pick a random color that is NOT the same as the last applied one
+    // Pick a random color different from the last applied one
     const availableColors = lastAppliedColor 
         ? debugColors.filter(c => c !== lastAppliedColor)
         : debugColors;

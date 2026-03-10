@@ -1,24 +1,24 @@
-/**
- * markdown-it plugin: GFM Task List Checkboxes
- *
- * Renders `- [ ] text` as unchecked and `- [x] text` as checked checkboxes
+/* =========================================================
+ * ✅ MARKDOWN-IT PLUGIN: GFM TASK LIST CHECKBOXES
+ * Renders \`- [ ] text\` as unchecked and \`- [x] text\` as checked checkboxes
  * in the VS Code Markdown preview. Zero external dependencies.
  *
  * Performance notes:
  * - Regex is pre-compiled once (module level)
  * - Token manipulation is done in-place (no cloning)
  * - List item class is set via a single string assignment
- */
+ * ========================================================= */
 
 import type MarkdownIt from 'markdown-it';
 
 // Pre-compiled — allocated once at module load
 const CHECKBOX_RE = /^\[([ xX])\]\s/;
 
-/**
- * Core rule that transforms list-item tokens containing `[ ]` / `[x]`
+/* =========================================================
+ * 🚀 CORE RULE
+ * Transforms list-item tokens containing \`[ ]\` / \`[x]\`
  * into proper checkbox markup.
- */
+ * ========================================================= */
 function taskListRule(state: MarkdownIt.StateCore): void {
   const tokens = state.tokens;
   const len = tokens.length;
@@ -84,9 +84,10 @@ function taskListRule(state: MarkdownIt.StateCore): void {
   }
 }
 
-/**
+/* =========================================================
+ * 🔌 REGISTER PLUGIN
  * Register the plugin on a markdown-it instance.
- */
+ * ========================================================= */
 export function taskListPlugin(md: MarkdownIt): void {
   md.core.ruler.after('inline', 'github-task-lists', (state) => {
     taskListRule(state);

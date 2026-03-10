@@ -142,7 +142,9 @@ export class DockWidget {
     const windowNode = this.$(`#${this.config.windowNodeId}`);
     const navbarNode = this.$(`#${this.config.navbarNodeId}`);
 
-    /* ─── Palette toggle ────────────────── */
+    /* =========================================================
+     * 🎨 PALETTE TOGGLE
+     * ========================================================= */
     this.$('#btn-palette')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.togglePalette();
@@ -164,7 +166,9 @@ export class DockWidget {
       }
     });
 
-    /* ─── Gradient presets (fan) ────────── */
+    /* =========================================================
+     * 🌈 GRADIENT PRESETS (FAN)
+     * ========================================================= */
     this.$$('.fan-swatch:not(.color-picker-swatch)').forEach(swatch => {
       swatch.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -185,7 +189,9 @@ export class DockWidget {
       });
     });
 
-    /* ─── Custom colour picker ────────────── */
+    /* =========================================================
+     * 🖌️ CUSTOM COLOUR PICKER
+     * ========================================================= */
     const colorPicker = this.$('#bg-color-picker') as HTMLInputElement;
     if (colorPicker && snippetContainer) {
       colorPicker.addEventListener('click', (e) => {
@@ -208,7 +214,9 @@ export class DockWidget {
       });
     }
 
-    /* ─── Transparent background toggle ───── */
+    /* =========================================================
+     * 🌑 TRANSPARENT BACKGROUND TOGGLE
+     * ========================================================= */
     this.$('#btn-toggle-bg')?.addEventListener('click', (e) => {
       const btn = e.currentTarget as HTMLElement;
       if (snippetContainer) {
@@ -217,7 +225,9 @@ export class DockWidget {
       }
     });
 
-    /* ─── Shadow toggle ──────────────────── */
+    /* =========================================================
+     * 🕳️ SHADOW TOGGLE
+     * ========================================================= */
     this.$('#btn-toggle-shadow')?.addEventListener('click', (e) => {
       const btn = e.currentTarget as HTMLElement;
       this.showShadow = !this.showShadow;
@@ -225,7 +235,9 @@ export class DockWidget {
       btn.classList.toggle('active', this.showShadow);
     });
 
-    /* ─── Window chrome toggle ────────────── */
+    /* =========================================================
+     * 🪟 WINDOW CHROME TOGGLE
+     * ========================================================= */
     this.$('#btn-toggle-chrome')?.addEventListener('click', (e) => {
       const btn = e.currentTarget as HTMLElement;
       this.showWindowChrome = !this.showWindowChrome;
@@ -233,7 +245,9 @@ export class DockWidget {
       btn.classList.toggle('active', this.showWindowChrome);
     });
 
-    /* ─── Line numbers toggle ────────────── */
+    /* =========================================================
+     * 🔢 LINE NUMBERS TOGGLE
+     * ========================================================= */
     this.$('#btn-toggle-lines')?.addEventListener('click', (e) => {
       const btn = e.currentTarget as HTMLElement;
       this.showLineNumbers = !this.showLineNumbers;
@@ -241,7 +255,9 @@ export class DockWidget {
       this.config.onToggleLineNumbers(this.showLineNumbers);
     });
 
-    /* ─── Padding slider ─────────────────── */
+    /* =========================================================
+     * 📏 PADDING SLIDER
+     * ========================================================= */
     const paddingSlider = this.$('#padding-slider') as HTMLInputElement | null;
     if (paddingSlider && snippetContainer) {
       paddingSlider.addEventListener('input', () => {
@@ -250,7 +266,9 @@ export class DockWidget {
       });
     }
 
-    /* ─── Save / Copy Actions ──────────────── */
+    /* =========================================================
+     * 💾 SAVE / COPY ACTIONS
+     * ========================================================= */
     this.$('#btn-save')?.addEventListener('click', async (e) => {
       const btn = e.currentTarget as HTMLElement;
       await this.config.onSave(btn);

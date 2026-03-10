@@ -1,8 +1,9 @@
 import type MarkdownIt from 'markdown-it';
 
-/**
- * Escapes characters to make text safe for HTML rendering.
- */
+/* =========================================================
+ * 🛡️ ESCAPE CHARACTERS
+ * Escapes characters to make text safe for HTML rendering
+ * ========================================================= */
 function preProcess(source: string): string {
     return source
         .replace(/&/g, '&amp;')
@@ -12,10 +13,11 @@ function preProcess(source: string): string {
         .trimStart();
 }
 
-/**
+/* =========================================================
+ * 🧜 MERMAID PLUGIN
  * Super fast markdown-it plugin to intercept 'mermaid' code blocks
  * and output a div that the Webview will later render into an SVG diagram.
- */
+ * ========================================================= */
 export function mermaidPlugin(md: MarkdownIt) {
     const defaultRender = md.renderer.rules.fence || function (tokens, idx, options, env, self) {
         return self.renderToken(tokens, idx, options);

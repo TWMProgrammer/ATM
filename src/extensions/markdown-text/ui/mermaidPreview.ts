@@ -1,7 +1,10 @@
 // @ts-nocheck
 /// <reference lib="dom" />
 
+// =========================================================
+// 📦 DYNAMIC IMPORT
 // Dynamically import mermaid as it is an ESM module and our project uses CJS
+// =========================================================
 async function getMermaid() {
     const mermaidModule = await import('mermaid');
     return mermaidModule.default;
@@ -10,7 +13,10 @@ async function getMermaid() {
 import { diagramStyles } from './diagramStyles';
 
 /**
+ * =========================================================
+ * 🚀 INITIALIZE MERMAID
  * Initializes and manages Mermaids blocks injected by markdown-it
+ * =========================================================
  */
 async function init() {
     // Inject the styles for the wrapper, zoom controls, etc.
@@ -98,7 +104,10 @@ async function init() {
 }
 
 /**
+ * =========================================================
+ * 🖱️ SETUP INTERACTIONS
  * Super lightweight setup for zooming and panning with Vanilla JS
+ * =========================================================
  */
 function setupInteractions(wrapper: HTMLElement, content: HTMLElement, controls: HTMLElement) {
     let scale = 1;
@@ -172,7 +181,10 @@ function setupInteractions(wrapper: HTMLElement, content: HTMLElement, controls:
 }
 
 /**
+ * =========================================================
+ * 📋 SETUP COPY BUTTONS
  * Setup copy buttons for all markdown code blocks.
+ * =========================================================
  */
 function setupCopyButtons() {
     const pres = document.querySelectorAll('pre');

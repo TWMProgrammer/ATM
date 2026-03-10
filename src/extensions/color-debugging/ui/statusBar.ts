@@ -4,18 +4,19 @@ import { applyRandomColor, clearWorkspaceColors, hasColorApplied } from '../core
 export const COMMAND_ID = 'color-debugging.changeColor';
 
 export function createStatusBarItem(context: vscode.ExtensionContext) {
-    // Priority around 100 usually accommodates it well on the Right side
+    /* =========================================================
+     * 🎨 STATUS BAR ITEM INITIALIZATION
+     * ========================================================= */
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBarItem.command = COMMAND_ID;
 
-    // Initialization check for what icon/text to show
+    // Initial check for icon/text state
     updateStatusBarState(statusBarItem);
 
     const commandDisposable = vscode.commands.registerCommand(COMMAND_ID, async () => {
         if (hasColorApplied()) {
             await clearWorkspaceColors();
         } else {
-            // Apply a new random color
             await applyRandomColor();
         }
         
@@ -23,7 +24,10 @@ export function createStatusBarItem(context: vscode.ExtensionContext) {
         updateStatusBarState(statusBarItem);
     });
 
-    // Listen to changes in settings.json to update the icon automatically!
+    /* =========================================================
+     * 👁️ LISTENERS
+     * Listen to config changes to automatically update icon
+     * ========================================================= */
     const configListener = vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('workbench.colorCustomizations')) {
             updateStatusBarState(statusBarItem);
@@ -37,9 +41,11 @@ export function createStatusBarItem(context: vscode.ExtensionContext) {
     statusBarItem.show();
 }
 
-// Helper to switch the button based on the current state
+/* =========================================================
+ * 🔄 UPDATE STATE
+ * Helper to switch the button based on the current state
+ * ========================================================= */
 function updateStatusBarState(statusBarItem: vscode.StatusBarItem) {
-    // Refresh the config directly to get the latest state
     if (hasColorApplied()) {
         statusBarItem.text = "$(x) Color";
         statusBarItem.tooltip = "Remove Workspace Color";
