@@ -13,13 +13,22 @@ import {
 import { SUPPORTED_LANGUAGES } from './core/exclusions';
 
 export function activateCodeSpell(context: vscode.ExtensionContext) {
-  // 1. Initialize custom extension dictionary (10k words + Tech Keywords)
+  /* =========================================================
+   * 1️⃣ INITIALIZE DICTIONARY
+   * Initialize custom extension dictionary (10k words + Tech Keywords)
+   * ========================================================= */
   initDictionary(context);
 
-  // 2. Register Diagnostics Provider (Wavy text underlines)
+  /* =========================================================
+   * 2️⃣ REGISTER DIAGNOSTICS PROVIDER
+   * Wavy text underlines
+   * ========================================================= */
   context.subscriptions.push(spellDiagnostics);
 
-  // 3. Document/Workspace event hooks
+  /* =========================================================
+   * 3️⃣ EVENT HOOKS
+   * Document/Workspace event hooks
+   * ========================================================= */
   vscode.workspace.onDidChangeTextDocument(
     (e) => scheduleDiagnosticsCheck(e.document),
     null,
@@ -45,13 +54,18 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
     context.subscriptions,
   );
 
-  // Activate immediately if there is any open editor when ATM starts
+  /* =========================================================
+   * ⚡ IMMEDIATE ACTIVATION
+   * Activate immediately if there is any open editor when ATM starts
+   * ========================================================= */
   if (vscode.window.activeTextEditor) {
     scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
   }
 
-  // 4. Register CodeActions provider for spelling suggestions
-  // Subscribe specifically to languages where spell-checking is useful
+  /* =========================================================
+   * 4️⃣ REGISTER CODE ACTIONS PROVIDER
+   * Subscribe specifically to languages where spell-checking is useful
+   * ========================================================= */
   const documentSelectors = Array.from(SUPPORTED_LANGUAGES).map((lang) => ({
     language: lang,
   }));
@@ -65,7 +79,10 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
     ),
   );
 
-  // 5. Code Action trigger command internally
+  /* =========================================================
+   * 5️⃣ INTERNAL COMMANDS
+   * Code Action trigger command internally
+   * ========================================================= */
   context.subscriptions.push(
     vscode.commands.registerCommand(
       'atm.code-spell.addWordUser',

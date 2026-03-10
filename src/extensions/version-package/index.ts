@@ -11,18 +11,25 @@ import { clearPackageState, getDocumentCache } from './core/state';
 const debounceTimers = new Map<string, NodeJS.Timeout>();
 const DEBOUNCE_MS = 600;
 
-// Set para controlar qué archivos se comprobarán explícitamente al pulsar el botón
+// =========================================================
+// 🎯 ACTIVE CHECKS SET
+// Set to control which files will be explicitly checked when clicking the button
+// =========================================================
 const activeChecks = new Set<string>();
 
 export function activateVersionPackage(context: vscode.ExtensionContext) {
     const styles = createDecorationStyles();
 
-    // 1. Comando: Actualización individual desde el Hover
+    // =========================================================
+    // 1️⃣ INDIVIDUAL UPDATE COMMAND (FROM HOVER)
+    // =========================================================
     context.subscriptions.push(
         vscode.commands.registerCommand('atm.versionPackage.updateVersionString', updateVersionString)
     );
 
-    // 2. Comando: Actualizar TODO (botoncito magico $(wand))
+    // =========================================================
+    // 2️⃣ UPDATE ALL COMMAND (MAGIC WAND)
+    // =========================================================
     context.subscriptions.push(vscode.commands.registerCommand('atm.versionPackage.updateAll', () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor || !editor.document.fileName.endsWith('package.json')) {
@@ -54,7 +61,9 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         }
     }));
 
-    // 3. Comando: Forzar chequeo manual explícito
+    // =========================================================
+    // 3️⃣ FORCE EXPLICIT MANUAL CHECK COMMAND
+    // =========================================================
     context.subscriptions.push(vscode.commands.registerCommand('atm.versionPackage.check', () => {
         clearVersionCache();
         const editor = vscode.window.activeTextEditor;
@@ -66,12 +75,16 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         }
     }));
     
-    // 4. Hover Provider Native para un rendimiento estelar (0 lag)
+    // =========================================================
+    // 4️⃣ NATIVE HOVER PROVIDER (0 LAG PERFORMANCE)
+    // =========================================================
     context.subscriptions.push(
         vscode.languages.registerHoverProvider({ language: 'json', pattern: '**/package.json' }, new VersionHoverProvider())
     );
 
-    // Evento: Al editar el archivo (debounce)
+    // =========================================================
+    // ⚡ ON FILE EDIT EVENT (DEBOUNCED)
+    // =========================================================
     context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(e => {
         if (e.document.languageId === 'json' && e.document.fileName.endsWith('package.json')) {
             if (activeChecks.has(e.document.uri.toString())) {
@@ -80,7 +93,9 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         }
     }));
     
-    // Evento: Cambio de ventana activa
+    // =========================================================
+    // 🪟 ACTIVE WINDOW CHANGE EVENT
+    // =========================================================
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor && editor.document.languageId === 'json' && editor.document.fileName.endsWith('package.json')) {
             if (activeChecks.has(editor.document.uri.toString())) {
@@ -91,7 +106,9 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         }
     }));
 
-    // Cleanup de memoria pura al cerrar
+    // =========================================================
+    // 🧹 PURE MEMORY CLEANUP ON CLOSE
+    // =========================================================
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(doc => {
         if (doc.fileName.endsWith('package.json')) {
             const uriStr = doc.uri.toString();

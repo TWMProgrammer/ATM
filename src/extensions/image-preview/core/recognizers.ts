@@ -1,8 +1,10 @@
 import type { Recognizer, UrlMatch } from './types';
 import { ACCEPTED_EXTENSIONS } from './types';
 
-// ─── Link Recognizer ────────────────────────────────────────────────
+// =========================================================
+// 🔗 LINK RECOGNIZER
 // Detects http(s) and ftp URLs
+// =========================================================
 
 const LINK_PATTERN =
   /(?:(?:https?|ftp):\/\/|\b(?:[a-z\d]+\.))(?:(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))?\)|[^\s`!()\[\]{};:'".,<>?«»""'']))?/gi;
@@ -24,8 +26,10 @@ const linkRecognizer: Recognizer = {
   },
 };
 
-// ─── Local Link Recognizer ──────────────────────────────────────────
+// =========================================================
+// 💻 LOCAL LINK RECOGNIZER
 // Detects file-system paths (Unix & Windows)
+// =========================================================
 
 const UNIX_PATH =
   /(([a-zA-Z]{2,}:)|(\.\.?|~)|([^\0\s!$`&*()\[\]+'":;\\])+)?(\/([^\0\s!$`&*()\[\]+'":;\\])+)+/g;
@@ -49,8 +53,10 @@ const localLinkRecognizer: Recognizer = {
   },
 };
 
-// ─── Data URL Recognizer ────────────────────────────────────────────
+// =========================================================
+// 🖼️ DATA URL RECOGNIZER
 // Detects inline data:image URIs
+// =========================================================
 
 function collectDataMatches(pattern: RegExp, lineIndex: number, line: string): UrlMatch[] {
   const results: UrlMatch[] = [];
@@ -85,8 +91,10 @@ const dataUrlRecognizer: Recognizer = {
   },
 };
 
-// ─── Sibling File Recognizer ────────────────────────────────────────
+// =========================================================
+// 📁 SIBLING FILE RECOGNIZER
 // Detects filenames with known image extensions (regex pre-compiled once)
+// =========================================================
 
 const SIBLING_PATTERN = new RegExp(
   `([^\\0\\s!$\`&*()\\[\\]+'":;\\\\]+(?:${ACCEPTED_EXTENSIONS.map((e) => e.replace('.', '\\.')).join('|')}))(?=[\\s'"\`)\\]},;]|$)`,
@@ -110,8 +118,10 @@ const siblingRecognizer: Recognizer = {
   },
 };
 
-// ─── Markdown Link Recognizer ───────────────────────────────────────
+// =========================================================
+// 📝 MARKDOWN LINK RECOGNIZER
 // Detects ![alt](path) and [text](path) patterns
+// =========================================================
 
 const MARKDOWN_LINK = /(\[.*?\])\(([^")]*?)(?:\s*".*?")?\)/gi;
 
@@ -134,7 +144,9 @@ const markedLinkRecognizer: Recognizer = {
   },
 };
 
-// ─── Export all recognizers in priority order ────────────────────────
+// =========================================================
+// 🚀 EXPORT ALL RECOGNIZERS IN PRIORITY ORDER
+// =========================================================
 
 export const recognizers: Recognizer[] = [
   markedLinkRecognizer,

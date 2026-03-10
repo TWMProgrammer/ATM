@@ -63,7 +63,10 @@ export async function fetchPackageLatestVersion(packageName: string, currentVers
         }
     })();
 
-    // Errors get a reduced TTL so users can retry quickly
+    /* =========================================================
+     * ⏱️ REDUCED TTL FOR ERRORS
+     * Errors get a reduced TTL so users can retry quickly
+     * ========================================================= */
     fetchPromise.then(result => {
         if (result.error) {
             const entry = memoryCache.get(packageName);

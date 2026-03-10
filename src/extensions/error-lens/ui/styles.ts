@@ -4,9 +4,9 @@ export function createDecorationStyles() {
   const errorOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
     after: {
-      backgroundColor: '#ff2a6d22', // Fondo translúcido opacidad baja
-      color: '#ff2a6d', // Fucsia vibrante
-      margin: '0 0 0 40px', // Separación visual hacia la derecha, sin generar ghost-background
+      backgroundColor: '#ff2a6d22',
+      color: '#ff2a6d',
+      margin: '0 0 0 40px',
       textDecoration:
         'none; font-size: 0.95em; border-radius: 8px; padding: 3px 10px; font-weight: normal; font-style: normal;',
     },
@@ -15,8 +15,8 @@ export function createDecorationStyles() {
   const warningOptions = vscode.window.createTextEditorDecorationType({
     isWholeLine: false,
     after: {
-      backgroundColor: '#ff980022', // Naranja/Dorado translúcido
-      color: '#ffb300', // Amarillo oscuro/Dorado
+      backgroundColor: '#ff980022',
+      color: '#ffb300',
       margin: '0 0 0 40px',
       textDecoration:
         'none; font-size: 0.95em; border-radius: 8px; padding: 3px 10px; font-weight: normal; font-style: normal;',

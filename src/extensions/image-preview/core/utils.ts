@@ -15,7 +15,9 @@ export function formatFileSize(bytes: number): string {
   return `${i === 0 ? size : size.toFixed(1)} ${units[i]}`;
 }
 
-// ─── Combined image metadata cache (TTL: 15 s) ─────────────────────
+// =========================================================
+// 💾 COMBINED IMAGE METADATA CACHE (TTL: 15s)
+// =========================================================
 
 export interface ImageMeta {
   fileSize?: string;
@@ -82,7 +84,9 @@ export function invalidateMetaCache(filePath: string): void {
   metaCache.delete(filePath);
 }
 
-// ─── Resolution cache ───────────────────────────────────────────────
+// =========================================================
+// 🗺️ RESOLUTION CACHE
+// =========================================================
 
 const RESOLVE_TTL = 30_000;
 const resolveCache = new Map<string, { value: string | undefined; ts: number }>();

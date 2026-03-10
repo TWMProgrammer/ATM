@@ -13,9 +13,9 @@ export function activateSvgBetter(context: vscode.ExtensionContext) {
   context.subscriptions.push(splitViewDisposable, optimizeDisposable);
 }
 
-// ============================================================================
-// SPLIT VIEW FEATURE
-// ============================================================================
+/* =========================================================
+ * ✂️ SPLIT VIEW FEATURE
+ * ========================================================= */
 
 /**
  * Registers the tab open event and triggers auto-split view for SVG files.
@@ -103,9 +103,9 @@ async function handleSvgSplitView(
   }
 }
 
-// ============================================================================
-// OPTIMIZATION FEATURE
-// ============================================================================
+/* =========================================================
+ * ⚡ OPTIMIZATION FEATURE
+ * ========================================================= */
 
 /**
  * Registers the SVGO optimization command 'atm.svgBetter.optimize'.
@@ -199,9 +199,9 @@ function showOptimizationResult(originalContent: string, optimizedContent: strin
   );
 }
 
-// ============================================================================
-// UTILITIES
-// ============================================================================
+/* =========================================================
+ * 🛠️ UTILITIES
+ * ========================================================= */
 
 function getByteSize(content: string): number {
   return Buffer.byteLength(content, 'utf8');

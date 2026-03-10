@@ -8,7 +8,7 @@ export class Decorator {
    * Initializes TextEditorDecorationType objects based on loaded tags.
    */
   public initializeTags(tags: CommentTag[]) {
-    // Clear old if needed
+    // Clear existing decoration types if needed
     for (const dec of this.decorationTypes.values()) {
       dec.dispose();
     }
@@ -32,7 +32,7 @@ export class Decorator {
         options.fontStyle = tag.fontStyle;
       }
 
-      // Add overview ruler markers (colored dots on the scrollbar)
+      // Add overview ruler markers on the scrollbar
       if (tag.type === 'word' && tag.backgroundColor) {
         options.overviewRulerLane = vscode.OverviewRulerLane.Right;
         options.overviewRulerColor = tag.backgroundColor;

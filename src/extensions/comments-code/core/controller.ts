@@ -3,13 +3,17 @@ import { defaultTags, CommentTag } from '../ui/styles';
 import { Decorator } from '../ui/decorator';
 import { getLanguageConfig, LanguageConfig } from './languages';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+/* =========================================================
+ * 🛠️ HELPERS
+ * ========================================================= */
 
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+/* =========================================================
+ * 🏷️ TYPES
+ * ========================================================= */
 
 interface BlockRegion {
   spanStart: number; // position of "/*" opener (or 0 when continuing from previous line)
@@ -25,7 +29,9 @@ interface LineCacheEntry {
   ranges: Map<string, vscode.DecorationOptions[]>;
 }
 
-// ─── Controller ──────────────────────────────────────────────────────────────
+/* =========================================================
+ * 🧠 CONTROLLER
+ * ========================================================= */
 
 export class CommentsCodeController {
   private editTimeout: NodeJS.Timeout | undefined;
@@ -49,7 +55,10 @@ export class CommentsCodeController {
     this.buildTagIndex(defaultTags);
   }
 
-  // P3: Build compiled regex + O(1) lookup map
+  /* =========================================================
+   * ⚡ INDEX BUILDER
+   * Build compiled regex + O(1) lookup map
+   * ========================================================= */
   private buildTagIndex(tags: CommentTag[]) {
     this.tagByText.clear();
     for (const tag of tags) {
@@ -79,7 +88,9 @@ export class CommentsCodeController {
         : null;
   }
 
-  // ─── P1: Edit debounce (300 ms) ──────────────────────────────────────────
+  /* =========================================================
+   * ⏱️ EDIT DEBOUNCE (300ms)
+   * ========================================================= */
 
   public triggerUpdateDecorations(
     document: vscode.TextDocument,
@@ -99,7 +110,9 @@ export class CommentsCodeController {
     }
   }
 
-  // ─── P1: Scroll debounce (50 ms) ─────────────────────────────────────────
+  /* =========================================================
+   * 📜 SCROLL DEBOUNCE (50ms)
+   * ========================================================= */
 
   public triggerScrollUpdate(document: vscode.TextDocument) {
     if (this.scrollTimeout) {
@@ -109,7 +122,10 @@ export class CommentsCodeController {
     this.scrollTimeout = setTimeout(() => this.updateDecorations(document), 50);
   }
 
-  // R1: Partial cache invalidation — only invalidate from the earliest changed line
+  /* =========================================================
+   * ♻️ CACHE INVALIDATION
+   * Partial cache invalidation: only from earliest changed line
+   * ========================================================= */
   public handleContentChanges(
     changes: readonly vscode.TextDocumentContentChangeEvent[],
   ) {
@@ -133,7 +149,9 @@ export class CommentsCodeController {
     }
   }
 
-  // ─── Main update ─────────────────────────────────────────────────────────
+  /* =========================================================
+   * 🚀 MAIN UPDATE
+   * ========================================================= */
 
   private updateDecorations(document: vscode.TextDocument) {
     const activeEditor = vscode.window.activeTextEditor;
@@ -219,7 +237,10 @@ export class CommentsCodeController {
     this.decorator.applyDecorations(activeEditor, rangesToDecorate);
   }
 
-  // ─── P4: Process one line, returns updated inBlock state ─────────────────
+  /* =========================================================
+   * 🧩 LINE PROCESSOR
+   * Process one line, returns updated inBlock state
+   * ========================================================= */
 
   private processLine(
     lineIndex: number,
@@ -358,7 +379,10 @@ export class CommentsCodeController {
     return inBlock;
   }
 
-  // ─── R2: Word tag scanner (compiled regex, single-pass) ─────────────────
+  /* =========================================================
+   * 🔎 WORD TAG SCANNER
+   * Compiled regex, single-pass scanner
+   * ========================================================= */
 
   private findWordTags(
     lineIndex: number,
@@ -394,7 +418,9 @@ export class CommentsCodeController {
     }
   }
 
-  // ─── P4: Block state resolver ────────────────────────────────────────────
+  /* =========================================================
+   * 🧱 BLOCK STATE RESOLVER
+   * ========================================================= */
 
   /**
    * Returns the inBlock state at the START of `lineIndex`.
@@ -469,7 +495,9 @@ export class CommentsCodeController {
     return inBlock;
   }
 
-  // ─── Command & lifecycle ─────────────────────────────────────────────────
+  /* =========================================================
+   * ⚙️ COMMANDS & LIFECYCLE
+   * ========================================================= */
 
   public listAnnotations() {
     vscode.window.showInformationMessage(

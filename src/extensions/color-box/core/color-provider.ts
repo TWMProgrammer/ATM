@@ -1,7 +1,10 @@
 import * as vscode from 'vscode';
 
 export class ColorBoxProvider implements vscode.DocumentColorProvider {
-  // Regular expressions for colors
+  /* =========================================================
+   * 🔎 REGEX DEFINITIONS
+   * Custom regex to extract hex, rgb(a), and flutter colors
+   * ========================================================= */
   private static HEX_REGEX =
     /#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/gi;
   private static FLUTTER_REGEX = /0x([0-9a-fA-F]{8})\b/gi;
@@ -30,10 +33,14 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
     const text = document.getText();
     const colors: vscode.ColorInformation[] = [];
 
-    // 1. Pre-calculate block comments to filter them out instantly
+    /* =========================================================
+     * 🚀 COMMENT FILTERING (PRE-CALCULATION)
+     * Rapid lookup to avoid highlighting colors in comments
+     * ========================================================= */
     const blockComments: { start: number; end: number }[] = [];
     let blockMatch;
-    // Reset lastIndex just in case
+    
+    // Reset regex index state
     ColorBoxProvider.BLOCK_COMMENT_REGEX.lastIndex = 0;
     while (
       (blockMatch = ColorBoxProvider.BLOCK_COMMENT_REGEX.exec(text)) !== null
@@ -44,24 +51,26 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
       });
     }
 
-    // Helper: Check if an offset is inside a comment
+    // Helper: Check if offset falls within comments
     const isIgnored = (offset: number, length: number): boolean => {
       const startPos = document.positionAt(offset);
       const lineText = document.lineAt(startPos.line).text;
 
-      // Check // line comments
+      // Inline comments
       const textBeforeMatch = lineText.substring(0, startPos.character);
       if (textBeforeMatch.includes('//')) {
         return true;
       }
 
-      // Check /* block comments */
+      // Block comments
       return blockComments.some(
         (block) => offset >= block.start && offset <= block.end,
       );
     };
 
-    // 2. Parse Hex colors
+    /* =========================================================
+     * 🎨 EXTRACT HEX COLORS
+     * ========================================================= */
     ColorBoxProvider.HEX_REGEX.lastIndex = 0;
     let match;
     while ((match = ColorBoxProvider.HEX_REGEX.exec(text)) !== null) {
@@ -78,7 +87,9 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
       }
     }
 
-    // 3. Parse Flutter colors (0xAARRGGBB)
+    /* =========================================================
+     * 🎨 EXTRACT FLUTTER COLORS (0xAARRGGBB)
+     * ========================================================= */
     ColorBoxProvider.FLUTTER_REGEX.lastIndex = 0;
     while ((match = ColorBoxProvider.FLUTTER_REGEX.exec(text)) !== null) {
       if (isIgnored(match.index, match[0].length)) {
@@ -94,7 +105,9 @@ export class ColorBoxProvider implements vscode.DocumentColorProvider {
       }
     }
 
-    // 4. Parse RGB(A) colors
+    /* =========================================================
+     * 🎨 EXTRACT RGB(A) COLORS
+     * ========================================================= */
     ColorBoxProvider.RGB_REGEX.lastIndex = 0;
     while ((match = ColorBoxProvider.RGB_REGEX.exec(text)) !== null) {
       if (isIgnored(match.index, match[0].length)) {

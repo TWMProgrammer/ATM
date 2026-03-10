@@ -24,7 +24,9 @@ const throttleTimers = new Map<string, ReturnType<typeof setTimeout>>();
 // This avoids running all recognizer regexes on every line.
 const IMAGE_SIGNAL_PATTERN = /\.(svg|png|jpe?g|bmp|gif|ico|webp|avif|jfif)\b|data:image|https?:\/\/|!\[/i;
 
-// ─── Core scanning logic ────────────────────────────────────────────
+// =========================================================
+// 🚀 CORE SCANNING LOGIC
+// =========================================================
 
 function scanDocument(document: vscode.TextDocument): void {
   const editors = vscode.window.visibleTextEditors.filter(
@@ -169,7 +171,9 @@ function throttledScan(document: vscode.TextDocument, delay = 500): void {
   }, delay));
 }
 
-// ─── Hover Provider ─────────────────────────────────────────────────
+// =========================================================
+// 🖱️ HOVER PROVIDER
+// =========================================================
 
 const hoverProvider: vscode.HoverProvider = {
   async provideHover(document, position) {
@@ -249,7 +253,9 @@ const hoverProvider: vscode.HoverProvider = {
   },
 };
 
-// ─── Activate ───────────────────────────────────────────────────────
+// =========================================================
+// 🔌 ACTIVATE
+// =========================================================
 
 export function activateImagePreview(context: vscode.ExtensionContext): void {
   // Hover

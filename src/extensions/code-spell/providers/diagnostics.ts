@@ -12,10 +12,11 @@ const debounceTimers = new Map<string, NodeJS.Timeout>();
 // The delay (ms) determines how long to wait after typing before analyzing new text.
 const DEBOUNCE_DELAY = 400;
 
-/**
+/* =========================================================
+ * ⏳ SCHEDULE DIAGNOSTICS CHECK
  * Intelligently schedules the execution of the spelling check.
  * It will only run if the user stops typing for DEBOUNCE_DELAY ms.
- */
+ * ========================================================= */
 export function scheduleDiagnosticsCheck(doc: vscode.TextDocument) {
   if (doc.uri.scheme !== 'file' && doc.uri.scheme !== 'untitled') {
     return;
@@ -44,9 +45,10 @@ export function scheduleDiagnosticsCheck(doc: vscode.TextDocument) {
   debounceTimers.set(key, timer);
 }
 
-/**
+/* =========================================================
+ * 🧹 CLEAR DIAGNOSTICS
  * Clears diagnostics if a document is closed.
- */
+ * ========================================================= */
 export function clearDiagnostics(doc: vscode.TextDocument) {
   spellDiagnostics.delete(doc.uri);
   const key = doc.uri.toString();
@@ -56,10 +58,11 @@ export function clearDiagnostics(doc: vscode.TextDocument) {
   }
 }
 
-/**
+/* =========================================================
+ * 🚀 PERFORM CHECK
  * Executes the analysis using the main engine non-blockingly,
  * relying on its extreme lightness to avoid affecting the Main UI Thread.
- */
+ * ========================================================= */
 function performCheck(doc: vscode.TextDocument) {
   const text = doc.getText();
 
@@ -69,7 +72,10 @@ function performCheck(doc: vscode.TextDocument) {
   const ranges: vscode.Range[] = [];
   const diagnostics: vscode.Diagnostic[] = [];
 
-  // 1. Obtener problemas críticos actuales (TS, ESLint, etc.) para priorizarlos
+  /* =========================================================
+   * 1️⃣ GET CRITICAL PROBLEMS
+   * Get current critical problems (TS, ESLint, etc.) to prioritize them
+   * ========================================================= */
   const existingDiagnostics = vscode.languages
     .getDiagnostics(doc.uri)
     .filter(
@@ -84,7 +90,10 @@ function performCheck(doc: vscode.TextDocument) {
     const end = doc.positionAt(issue.offset + issue.length);
     const range = new vscode.Range(start, end);
 
-    // 2. Si el error ortográfico choca con un error de código crítico, lo ignoramos para darle prioridad visual (ej. Error Lens)
+    /* =========================================================
+     * 2️⃣ AVOID OVERLAP
+     * If the spelling error collides with a critical code error, we ignore it to give it visual priority (e.g. Error Lens)
+     * ========================================================= */
     const isOverlapping = existingDiagnostics.some((d) =>
       d.range.intersection(range),
     );
@@ -108,8 +117,11 @@ function performCheck(doc: vscode.TextDocument) {
 
   spellDiagnostics.set(doc.uri, diagnostics);
 
-  // Apply our custom UI styles over the words directly
-  // Handles multiple split-screen editors showing the same document
+  /* =========================================================
+   * 💅 APPLY CUSTOM STYLES
+   * Apply our custom UI styles over the words directly
+   * Handles multiple split-screen editors showing the same document
+   * ========================================================= */
   vscode.window.visibleTextEditors
     .filter((e) => e.document.uri.toString() === doc.uri.toString())
     .forEach((editor) => {

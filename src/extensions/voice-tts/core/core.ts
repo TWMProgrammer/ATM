@@ -11,7 +11,9 @@ import type {
   PresetLanguage,
 } from './types';
 
-// ─── Configuration ──────────────────────────────────────────────────
+/* =========================================================
+ * ⚙️ CONFIGURATION
+ * ========================================================= */
 
 export const CONFIG_SECTION = 'atm.voiceTts';
 export const DEFAULT_VOICE = 'en_US-hfc_female-medium';
@@ -62,7 +64,9 @@ export const PRESET_LANGUAGES: PresetLanguage[] = [
   },
 ];
 
-// ─── Paths (Async) ──────────────────────────────────────────────────
+/* =========================================================
+ * 📁 PATHS (ASYNC)
+ * ========================================================= */
 
 export async function getResourcesBasePath(
   context: vscode.ExtensionContext,
@@ -184,7 +188,9 @@ export async function getPlaybackCommand(
   }
 }
 
-// ─── Helper: File existence check ──────────────────────────────────
+/* =========================================================
+ * 🔍 HELPER: FILE EXISTENCE CHECK
+ * ========================================================= */
 
 export async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -195,7 +201,9 @@ export async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
-// ─── Voices Management (Async + Cached) ─────────────────────────────
+/* =========================================================
+ * 🎤 VOICES MANAGEMENT (ASYNC + CACHED)
+ * ========================================================= */
 
 export async function getAvailableVoices(
   context: vscode.ExtensionContext,
@@ -349,7 +357,9 @@ export async function deleteVoiceFiles(
   }
 }
 
-// ─── Playback (Async) ───────────────────────────────────────────────
+/* =========================================================
+ * ▶️ PLAYBACK (ASYNC)
+ * ========================================================= */
 
 let piperProcess: ChildProcess | undefined;
 let playerProcess: ChildProcess | undefined;

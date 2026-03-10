@@ -1,6 +1,9 @@
+/* =========================================================
+ * 🏷️ TYPES
+ * ========================================================= */
 export interface CommentTag {
   text: string;
-  type: 'word' | 'line'; // 'word' paints only the match, 'line' paints the rest of the comment
+  type: 'word' | 'line'; // 'word' colors only the match, 'line' colors the rest of the comment
   color?: string;
   backgroundColor?: string;
   strikethrough?: boolean;
@@ -8,8 +11,11 @@ export interface CommentTag {
   fontStyle?: string; // italic?
 }
 
+/* =========================================================
+ * 🎨 DEFAULT TAGS
+ * ========================================================= */
 export const defaultTags: CommentTag[] = [
-  // Colorful Comments (paint the whole line from the tag onwards)
+  // Colorful Line Comments (colors the whole line from the tag onwards)
   { text: '!', type: 'line', color: '#FF3333', fontStyle: 'italic' },     // Alert / Error    → Red
   { text: '?', type: 'line', color: '#3297fbff', fontStyle: 'italic' },   // Question         → Blue
   { text: '*', type: 'line', color: '#ab23d1ff', fontStyle: 'italic' },   // Highlight        → Purple
@@ -22,7 +28,7 @@ export const defaultTags: CommentTag[] = [
   { text: '~', type: 'line', color: '#aef958ff', fontStyle: 'italic' },   // Deprecated       → Lime
   { text: '////', type: 'line', color: '#5A5A5A', strikethrough: true },  // Removed          → Grey
 
-  // Keyword badges (only the keyword itself is painted)
+  // Keyword badges (only the keyword itself is highlighted)
   {
     text: 'TODO:',
     type: 'word',

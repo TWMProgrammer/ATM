@@ -6,7 +6,10 @@ let controller: CommentsCodeController | undefined;
 export function activateCommentsCode(context: vscode.ExtensionContext) {
   controller = new CommentsCodeController();
 
-  // R1: Partial cache invalidation + debounced decoration update
+  /* =========================================================
+   * 🔄 DEBOUNCE CACHE INVALIDATION
+   * Partial cache invalidation + debounced decoration update
+   * ========================================================= */
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
       const activeEditor = vscode.window.activeTextEditor;
@@ -17,7 +20,10 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
     }),
   );
 
-  // Escuchar cambios de editor visible (cuando cambias de pestaña)
+  /* =========================================================
+   * 👁️ ACTIVE EDITOR CHANGES
+   * Listen for visible editor switches
+   * ========================================================= */
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor) {
@@ -26,7 +32,10 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
     }),
   );
 
-  // Listen for scroll changes — separate 50ms debounce to avoid excessive repaints
+  /* =========================================================
+   * 📜 SCROLL UPDATER
+   * Separate 50ms debounce to avoid excessive repaints
+   * ========================================================= */
   context.subscriptions.push(
     vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
       if (
@@ -37,14 +46,20 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
     }),
   );
 
-  // Comando para listar todos los TODOs/FIXMEs manual (como hacía todo-highlight)
+  /* =========================================================
+   * 🔍 GLOBAL ANNOTATIONS LIST
+   * Command to manually list all TODOs/FIXMEs
+   * ========================================================= */
   context.subscriptions.push(
     vscode.commands.registerCommand('commentsCode.listAnnotations', () => {
       controller?.listAnnotations();
     }),
   );
 
-  // Primera pasada si hay un editor abierto
+  /* =========================================================
+   * 🚀 INITIAL ACTIVATION
+   * Fast-pass update if an editor is already open
+   * ========================================================= */
   if (vscode.window.activeTextEditor) {
     controller.triggerUpdateDecorations(
       vscode.window.activeTextEditor.document,

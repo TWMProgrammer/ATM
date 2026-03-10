@@ -47,7 +47,7 @@ const programmingKeywords = [
   'reanimated',
   'worklets',
 
-  // --- Ecosistema CSS y Tooling Web ---
+  // --- CSS Ecosystem and Web Tooling ---
   'tailwind',
   'tailwindcss',
   'postcss',
@@ -60,7 +60,7 @@ const programmingKeywords = [
   'axios',
   'fetcher',
 
-  // --- Conceptos modernos y modifiers (React/TS/Tech) ---
+  // --- Modern concepts and modifiers (React/TS/Tech) ---
   'readonly',
   'unwind',
   'uniwind',
@@ -260,7 +260,7 @@ const programmingKeywords = [
   'pinia',
   'rxjs',
 
-  // --- Nombres de variables / carpetas comunes ---
+  // --- Common variable / folder names ---
   'config',
   'configs',
   'util',
@@ -387,7 +387,7 @@ const programmingKeywords = [
   'script',
   'noscript',
 
-  // -- CSS Styles Adicionales --
+  // -- Additional CSS Styles --
   'rgba',
   'hsla',
   'rem',
@@ -545,19 +545,19 @@ export function isWordValid(word: string): boolean {
   // 2. Check main dictionary
   let isValid = dict.has(lower);
 
-  // 3. Fallback inteligente para plurales (terminados en 's' o 'es')
-  // No consume RAM adicional y se aprovecha de la velocidad de slice()
+  // 3. Smart fallback for plurals (ending in 's' or 'es')
+  // Consumes no additional RAM and leverages the speed of slice()
   if (!isValid && lower.length > 3 && lower.endsWith('s')) {
     if (lower.endsWith('es')) {
-      isValid = dict.has(lower.slice(0, -2)); // ej. "branches" -> "branch"
+      isValid = dict.has(lower.slice(0, -2)); // e.g. "branches" -> "branch"
     }
     if (!isValid) {
-      isValid = dict.has(lower.slice(0, -1)); // ej. "defaults" -> "default", "typings" -> "typing"
+      isValid = dict.has(lower.slice(0, -1)); // e.g. "defaults" -> "default", "typings" -> "typing"
     }
   }
 
   // 4. Update local fast-cache
-  // ¡El fastCache guardará el plural completo ("typings") en memoria para que no se repita el slice() jamás!
+  // The fastCache will save the full plural ("typings") in memory so slice() is never repeated!
   if (isValid) {
     fastCache.add(lower);
   }

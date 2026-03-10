@@ -63,7 +63,10 @@ export class ZoomWidget {
       }
     });
 
-    // We can also allow Ctrl+Wheel to zoom, listening on document or snippet-scroll
+    /* =========================================================
+     * 🖱️ CTRL+WHEEL ZOOM EVENTS
+     * We can also allow Ctrl+Wheel to zoom, listening on document or snippet-scroll
+     * ========================================================= */
     const snippetScroll = this.$('#snippet-scroll');
     if (snippetScroll) {
       snippetScroll.addEventListener('wheel', (e) => {

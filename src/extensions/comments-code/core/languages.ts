@@ -56,7 +56,7 @@ export function getLanguageConfig(
       return { singleLine: '//', blockStart: '/*', blockEnd: '*/' };
 
     default:
-      // Fallback
+      // Default fallback
       return { singleLine: '//', blockStart: '/*', blockEnd: '*/' };
   }
 }

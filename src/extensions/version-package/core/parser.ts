@@ -17,25 +17,35 @@ export function parsePackageJson(document: vscode.TextDocument): DependencyInfo[
     for (let i = 0; i < lines.length; i++) {
         const lineText = lines[i];
         
-        // Entramos en bloques de dependencias
+        /* =========================================================
+         * 📥 ENTER DEPENDENCY BLOCKS
+         * ========================================================= */
         if (lineText.match(/"(dependencies|devDependencies|peerDependencies|optionalDependencies)"\s*:/)) {
             inDependencyBlock = true;
             continue;
         }
         
-        // Salimos del bloque: detectamos cerramientos simples para mayor seguridad.
+        /* =========================================================
+         * 📤 EXIT BLOCK
+         * Detect simple closures for safety
+         * ========================================================= */
         if (inDependencyBlock && lineText.match(/^\s*}/)) {
             inDependencyBlock = false;
             continue;
         }
         
-        // Estamos adentro de un bloque de dependencias
+        /* =========================================================
+         * 📦 INSIDE DEPENDENCY BLOCK
+         * ========================================================= */
         if (inDependencyBlock) {
             const match = lineText.match(/"([^"]+)"\s*:\s*"([^"]+)"/);
             if (match) {
                 const name = match[1];
                 const version = match[2];
-                // Excluir dependencias de workspace, git local o nulas
+                /* =========================================================
+                 * 🚫 EXCLUDE DEPENDENCIES
+                 * Exclude workspace, local git, or null dependencies
+                 * ========================================================= */
                 if (!version.startsWith('file:') && !version.startsWith('github:') && !version.startsWith('workspace:')) {
                     const startPos = lineText.indexOf(match[0]);
                     dependencies.push({

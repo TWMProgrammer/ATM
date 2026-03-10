@@ -3,10 +3,15 @@ import { createDecorationStyles } from './ui/styles';
 import { updateDecorationsForEditor } from './core/engine';
 
 export function activateErrorLens(context: vscode.ExtensionContext): void {
-  // 1. Inicializar estilos (UI)
+  /* =========================================================
+   * 🎨 INITIALIZE SETTINGS (UI)
+   * ========================================================= */
   const styles = createDecorationStyles();
 
-  // 2. Función auxiliar para actualizar todos los editores visibles (con Debounce central)
+  /* =========================================================
+   * ⏱️ DEBOUNCE & UPDATE
+   * Helper function with centralized debounce
+   * ========================================================= */
   let diagnosticTimer: NodeJS.Timeout | null = null;
   const DEBOUNCE_MS = 300;
 
@@ -21,7 +26,9 @@ export function activateErrorLens(context: vscode.ExtensionContext): void {
     }, DEBOUNCE_MS);
   };
 
-  // 3. Registrar eventos de VS Code (Core)
+  /* =========================================================
+   * 🔌 REGISTER CORE EVENTS
+   * ========================================================= */
   context.subscriptions.push(
     vscode.languages.onDidChangeDiagnostics(() => {
       triggerUpdate();
@@ -37,13 +44,14 @@ export function activateErrorLens(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidChangeTextDocument((event) => {
       const editor = vscode.window.activeTextEditor;
       if (editor && event.document === editor.document) {
-        // Ahora sí usamos un Debounce real mediante el timer global
         triggerUpdate();
       }
     }),
-    styles, // Registramos el objeto styles que tiene su propio método `dispose()`
+    styles,
   );
 
-  // 4. Pintado (renderizado inicial)
+  /* =========================================================
+   * 🚀 INITIAL RENDER
+   * ========================================================= */
   triggerUpdate();
 }

@@ -4,10 +4,11 @@ import { showLanguageQuickPick } from './ui/quickPick';
 import { TranslatorWebviewPanel } from './ui/webview';
 import type { TranslationTarget } from './ui/webview';
 
-// ---------------------------------------------------------------------------
-// In-memory translation cache (lives only while VS Code is open)
-// Key: "textLength:langCode"  —  Value: translated text
-// ---------------------------------------------------------------------------
+/* =========================================================
+ * 🧠 IN-MEMORY TRANSLATION CACHE
+ * Lives only while VS Code is open
+ * Key: "textLength:langCode" — Value: translated text
+ * ========================================================= */
 const translationCache = new Map<string, string>();
 
 function cacheKey(text: string, langCode: string): string {
@@ -75,9 +76,9 @@ export function activateMarkdownStore(context: vscode.ExtensionContext) {
   context.subscriptions.push(translateCmd);
 }
 
-// ---------------------------------------------------------------------------
-// Translate + render helper (uses cache)
-// ---------------------------------------------------------------------------
+// =========================================================
+// 🔄 TRANSLATE + RENDER HELPER (USES CACHE)
+// =========================================================
 
 async function translateAndRender(
   panel: TranslatorWebviewPanel,
@@ -111,9 +112,9 @@ async function translateAndRender(
 }
 
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+// =========================================================
+// 🛠️ HELPERS
+// =========================================================
 
 /**
  * Try multiple casing variants of README.md to find the file.

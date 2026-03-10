@@ -11,16 +11,24 @@ export async function updateVersionString(dep: DependencyInfo, newVersion: strin
 
     const finalVersionToInject = getVersionToInject(dep.currentVersion, newVersion);
 
-    // Let's find the actual line safely, in case the user edited the file and shifted lines
+    /* =========================================================
+     * 🔍 FIND ACTUAL LINE SAFELY
+     * In case the user edited the file and shifted lines
+     * ========================================================= */
     let targetLine = dep.line;
     const document = editor.document;
     
-    // Verify if it's still on the same line
+    /* =========================================================
+     * ✨ VERIFY SAME LINE
+     * ========================================================= */
     let lineText = document.lineAt(targetLine).text;
     const replaceRegex = new RegExp(`"${dep.name}"\\s*:\\s*"${dep.currentVersion}"`);
     
     if (!replaceRegex.test(lineText)) {
-        // Fallback: search the document to find where it moved
+        /* =========================================================
+         * 🔄 FALLBACK SEARCH
+         * Search the document to find where it moved
+         * ========================================================= */
         for(let i=0; i<document.lineCount; i++) {
             if (replaceRegex.test(document.lineAt(i).text)) {
                 targetLine = i;
@@ -45,8 +53,10 @@ export async function updateAllVersions(depsToUpdate: {dep: DependencyInfo, newV
     if (!editor) { return; }
 
     await editor.edit(editBuilder => {
-        // Reverse order so that line edits don't affect subsequent line numbers
-        // Although here we are only editing within the line so it might not matter, but it's safer.
+        /* =========================================================
+         * 🔃 REVERSE ORDER
+         * So that line edits don't affect subsequent line numbers
+         * ========================================================= */
         const sortedUpdates = [...depsToUpdate].sort((a, b) => b.dep.line - a.dep.line);
 
         for (const {dep, newVersion} of sortedUpdates) {
@@ -65,7 +75,10 @@ export async function updateAllVersions(depsToUpdate: {dep: DependencyInfo, newV
 }
 
 function getVersionToInject(currentVersion: string, newVersion: string): string {
-    // Preservar el prefijo de rango: ^, ~, >=, <=, >, <, =
+    /* =========================================================
+     * 🏷️ PRESERVE RANGE PREFIX
+     * Preserve ^, ~, >=, <=, >, <, =
+     * ========================================================= */
     const prefix = currentVersion.match(/^[~^>=<]*/)?.[0] || '';
     return `${prefix}${newVersion}`;
 }

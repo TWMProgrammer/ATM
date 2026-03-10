@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import MarkdownIt from 'markdown-it';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+// =========================================================
+// 🏷️ TYPES
+// =========================================================
 
 export interface TranslationTarget {
   extensionUri?: vscode.Uri;
@@ -12,9 +12,9 @@ export interface TranslationTarget {
   languageLabel?: string; // e.g. "🇪🇸 Español"
 }
 
-// ---------------------------------------------------------------------------
-// Panel
-// ---------------------------------------------------------------------------
+// =========================================================
+// 🪟 PANEL
+// =========================================================
 
 export class TranslatorWebviewPanel {
   public static currentPanel: TranslatorWebviewPanel | undefined;
@@ -26,9 +26,9 @@ export class TranslatorWebviewPanel {
   private _disposables: vscode.Disposable[] = [];
   private _isDisposed = false;
 
-  // -----------------------------------------------------------------------
-  // Constructor / Factory
-  // -----------------------------------------------------------------------
+  // =========================================================
+  // 🏗️ CONSTRUCTOR / FACTORY
+  // =========================================================
 
   private constructor(panel: vscode.WebviewPanel, targetExtensionUri: vscode.Uri | undefined) {
     this._panel = panel;
@@ -96,9 +96,9 @@ export class TranslatorWebviewPanel {
     return TranslatorWebviewPanel.currentPanel;
   }
 
-  // -----------------------------------------------------------------------
-  // Public API
-  // -----------------------------------------------------------------------
+  // =========================================================
+  // 🚀 PUBLIC API
+  // =========================================================
 
   /** Show an animated skeleton while waiting for the translation. */
   public setSkeleton(): void {
@@ -139,9 +139,9 @@ export class TranslatorWebviewPanel {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // Image resolution
-  // -----------------------------------------------------------------------
+  // =========================================================
+  // 🖼️ IMAGE RESOLUTION
+  // =========================================================
 
   /**
    * Replace relative `<img src="...">` paths with webview-compatible URIs
@@ -166,9 +166,9 @@ export class TranslatorWebviewPanel {
     );
   }
 
-  // -----------------------------------------------------------------------
-  // HTML builder
-  // -----------------------------------------------------------------------
+  // =========================================================
+  // 🌐 HTML BUILDER
+  // =========================================================
 
   private _buildHtml(isLoading: boolean, content: string): string {
     const skeleton = `
@@ -409,9 +409,9 @@ export class TranslatorWebviewPanel {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+// =========================================================
+// 🛠️ HELPERS
+// =========================================================
 
 /** Escape HTML special characters to prevent XSS injection. */
 function escapeHtml(text: string): string {

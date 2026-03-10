@@ -4,12 +4,15 @@ import { getDocumentCache } from '../core/state';
 
 export class VersionHoverProvider implements vscode.HoverProvider {
     provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
-        // Extraemos el caché guardado velozmente sin procesar nada extra
+        /* =========================================================
+         * ⚡ EXTRACT CACHE
+         * Extract saved cache extremely fast without processing anything extra
+         * ========================================================= */
         const cache = getDocumentCache(document.uri.toString());
         const state = cache.get(position.line);
 
         if (!state) {
-            return null; // Nada que mostrar, el mouse no está sobre una dependencia
+            return null; // Nothing to show, mouse is not hovering a dependency
         }
 
         const { name, currentVersion, info } = state;
@@ -17,7 +20,7 @@ export class VersionHoverProvider implements vscode.HoverProvider {
         const isUpToDateWithLatest = currentCoerced && info.latest && semver.eq(currentCoerced, info.latest);
 
         if (isUpToDateWithLatest) {
-            return null; // Ahorro extremo de rendimiento: no pintar hover si ya está actualizado
+            return null; // Extreme performance saving: do not paint hover if already updated
         }
 
         const hoverMd = new vscode.MarkdownString('', true);

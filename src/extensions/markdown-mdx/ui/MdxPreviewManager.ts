@@ -55,7 +55,10 @@ export class MdxPreviewManager {
 
       this.panel.webview.onDidReceiveMessage((message) => {
         if (message.command === 'ready') {
-          // Send initial preview once webview scripts (React) have loaded
+          /* =========================================================
+           * 🚀 INITIAL PREVIEW
+           * Send once webview scripts (React) have loaded
+           * ========================================================= */
           if (this.currentDocumentUri) {
             const doc = vscode.workspace.textDocuments.find(d => d.uri.toString() === this.currentDocumentUri?.toString());
             if (doc) {
@@ -65,14 +68,20 @@ export class MdxPreviewManager {
         }
       }, null, this.disposables);
 
-      // Listen to text changes to live-update the preview
+      /* =========================================================
+       * 🔄 TEXT CHANGES LISTENER
+       * Live-update the preview
+       * ========================================================= */
       vscode.workspace.onDidChangeTextDocument((e) => {
         if (e.document.uri.toString() === this.currentDocumentUri?.toString()) {
           this.queueUpdate(e.document.getText());
         }
       }, null, this.disposables);
       
-      // Listen to active editor changes to switch preview document
+      /* =========================================================
+       * 👁️ ACTIVE EDITOR CHANGES LISTENER
+       * Switch preview document
+       * ========================================================= */
       vscode.window.onDidChangeActiveTextEditor((e) => {
         if (e && ['mdx', 'markdown'].includes(e.document.languageId)) {
           this.currentDocumentUri = e.document.uri;
@@ -80,7 +89,9 @@ export class MdxPreviewManager {
         }
       }, null, this.disposables);
 
-      // Setup static container
+      /* =========================================================
+       * 🌐 SETUP WEBVIEW
+       * ========================================================= */
       this.setupWebviewHtml();
     }
   }
@@ -224,7 +235,10 @@ export class MdxPreviewManager {
         }
       });
       
-      // Let the extension know the webview is ready to receive messages
+      /* =========================================================
+       * 📨 READY SIGNAL
+       * Webview is ready to receive messages
+       * ========================================================= */
       vscode.postMessage({ command: 'ready' });
     })();
   </script>
@@ -243,7 +257,7 @@ export class MdxPreviewManager {
     
     try {
       const jsCode = await MdxCompiler.compileToJS(mdxContent);
-      // Discard if a newer update was queued while we were compiling
+      // Discard if a newer update was queued while compiling
       if (version === this.previewVersion) {
         this.panel.webview.postMessage({ command: 'update', code: jsCode });
       }
