@@ -32,7 +32,7 @@
     "update-version",
     "bump-version"
   ],
-  "icon": "assets/icon.png",
+  "icon": "icon.png",
   "galleryBanner": {
     "color": "#0a0a0a",
     "theme": "dark"
