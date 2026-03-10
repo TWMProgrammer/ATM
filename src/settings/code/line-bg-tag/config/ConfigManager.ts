@@ -60,13 +60,21 @@ export class ConfigManager {
     this.ignoreLinePatterns = ignorePatternsConfig
       .map((pattern) => {
         if (typeof pattern === 'string') {
-          const match = pattern.match(/^\/(.*?)\/([gimsuy]*)$/);
-          if (match) {
-            // Strip 'g' flag to prevent stateful lastIndex bug in test()
-            const safeFlags = match[2].replace(/g/g, '');
-            return new RegExp(match[1], safeFlags);
+          try {
+            const match = pattern.match(/^\/(.*?)\/([gimsuy]*)$/);
+            if (match) {
+              // Strip 'g' flag to prevent stateful lastIndex bug in test()
+              const safeFlags = match[2].replace(/g/g, '');
+              return new RegExp(match[1], safeFlags);
+            }
+            return new RegExp(pattern);
+          } catch (e) {
+            console.warn(
+              `[Atm Extension] Invalid regex provided in settings: ${pattern}`,
+              e,
+            );
+            return null;
           }
-          return new RegExp(pattern);
         }
         return null;
       })

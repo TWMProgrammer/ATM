@@ -136,8 +136,10 @@ export class IndentEngine {
         let skip = skipAllErrors;
 
         if (!skip && hasIgnorePatterns) {
-          for (const regex of this.config.ignoreLinePatterns) {
-            if (regex.test(text)) {
+          const ignorePatterns = this.config.ignoreLinePatterns;
+          const patternsLen = ignorePatterns.length;
+          for (let i = 0; i < patternsLen; i++) {
+            if (ignorePatterns[i].test(text)) {
               skip = true;
               break;
             }
