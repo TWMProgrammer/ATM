@@ -3,7 +3,7 @@ import * as path from 'path';
 // ── Exclusion filter for code-spell ──────────────────────────────────────────
 // Folders, files, and extensions where spell-checking is wasteful or noisy.
 
-// ── Languages where spell-checking IS useful (whitelist) ─────────────────────
+// ── Languages where spell-checking IS useful (white list) ─────────────────────
 export const SUPPORTED_LANGUAGES = new Set([
   'typescript',
   'javascript',
