@@ -18,6 +18,7 @@ const programmingKeywords = [
   'xyz',
   'bastndev',
   'gohitx',
+  'pls',
   
   // my words
   'todo',
