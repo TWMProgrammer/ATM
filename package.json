@@ -212,21 +212,18 @@
         },
         "atm.copyTag.backgroundColor": {
           "type": "string",
-          "default": "rgba(34, 197, 94, 0.4)",
+          "default": "rgba(45, 212, 191, 0.3)",
           "description": "Background color for the copied text highlight."
         },
         "atm.copyTag.foregroundColor": {
           "type": "string",
           "description": "Optional text foreground color when highlighted."
         },
-        "atm.copyTag.borderColor": {
-          "type": "string",
-          "default": "rgba(34, 197, 94, 0.8)",
-          "description": "Border color for the copied text highlight."
-        },
         "atm.copyTag.timeout": {
           "type": "number",
           "default": 250,
+          "minimum": 50,
+          "maximum": 2000,
           "description": "Duration in milliseconds the highlight remains visible."
         }
       }

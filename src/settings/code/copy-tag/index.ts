@@ -1,136 +1,116 @@
 import * as vscode from 'vscode';
-import { getCopyColors } from './colors';
 
 // ── Globals ──────────────────────────────────────────────────────
-let decorationType: vscode.TextEditorDecorationType | undefined;
-let clearTimer: NodeJS.Timeout | undefined;
+let deco: vscode.TextEditorDecorationType | undefined;
+let timer: ReturnType<typeof setTimeout> | undefined;
 
-// ── Core feature ──────────────────────────────────────────────────────
-export function activateCopyTag(context: vscode.ExtensionContext): void {
-  // Configurar colores UI visualmente e instanciar
-  updateDecorationType();
+let isEnabled = true;
+let timeoutDuration = 250;
 
-  const command = vscode.commands.registerCommand(
-    'atm.copyTag.run',
-    async () => {
-      // 1. Efectuar el copiado nativo original sin alterar el portapapeles ni lógicas de editor
-      await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+// ── Core feature ─────────────────────────────────────────────────
+export function activateCopyTag(ctx: vscode.ExtensionContext): void {
+  updateConfig();
 
-      const editor = vscode.window.activeTextEditor;
-      if (!editor || !decorationType) {
+  const cmd = vscode.commands.registerCommand('atm.copyTag.run', async () => {
+    // 1. Ejecutar el portapapeles de forma nativa primero para que no haya latencia
+    await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || !deco || !isEnabled) {
+      return;
+    }
+
+    const ranges = getRanges(editor);
+    const saved = editor.selections;
+    const hasSelection = !saved.every((s) => s.isEmpty);
+
+    // Ocultar la selección del sistema operativo temporalmente
+    if (hasSelection) {
+      editor.selections = saved.map(
+        (s) => new vscode.Selection(s.active, s.active),
+      );
+    }
+
+    editor.setDecorations(deco, ranges);
+
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = setTimeout(() => {
+      timer = undefined;
+      // Verificar si el editor sigue activo y existe la decoración
+      if (vscode.window.activeTextEditor !== editor || !deco) {
         return;
       }
 
-      const config = vscode.workspace.getConfiguration('atm.copyTag');
-      if (!config.get<boolean>('enabled', true)) {
-        return;
-      }
+      editor.setDecorations(deco, []);
 
-      const timeout = config.get<number>('timeout', 250);
-
-      // 2. Extraer las líneas o piezas de texto exactas a pintar
-      const rangesToHighlight = getHighlightedRanges(editor);
-      const originalSelections = editor.selections;
-      const hasSelection = !originalSelections.every((s) => s.isEmpty);
-
-      // Ocultamos temporalmente la selección azul de VSCode colapsando los cursores
+      // Restaurar selección si el usuario no ha movido el cursor
       if (hasSelection) {
-        editor.selections = originalSelections.map(
-          (s) => new vscode.Selection(s.active, s.active),
-        );
-      }
-
-      // 3. Pintar en verde (o el color configurado)
-      editor.setDecorations(decorationType, rangesToHighlight);
-
-      // 4. Limpieza y restauración
-      if (clearTimer) {
-        clearTimeout(clearTimer);
-      }
-      clearTimer = setTimeout(() => {
-        if (vscode.window.activeTextEditor === editor && decorationType) {
-          // Remover decoración
-          editor.setDecorations(decorationType, []);
-
-          // Restauramos la selección original azul solo si el usuario no movió el cursor
-          if (hasSelection) {
-            const currentSelections = editor.selections;
-            const sameCursor =
-              currentSelections.length === originalSelections.length &&
-              currentSelections.every((s, i) =>
-                s.active.isEqual(originalSelections[i].active),
-              );
-            if (sameCursor) {
-              editor.selections = originalSelections;
-            }
-          }
+        const cur = editor.selections;
+        if (
+          cur.length === saved.length &&
+          cur.every((s, i) => s.active.isEqual(saved[i].active))
+        ) {
+          editor.selections = saved;
         }
-      }, timeout);
-    },
-  );
+      }
+    }, timeoutDuration);
+  });
 
-  const configListener = vscode.workspace.onDidChangeConfiguration((e) => {
+  const onCfg = vscode.workspace.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration('atm.copyTag')) {
-      updateDecorationType();
+      updateConfig();
     }
   });
 
-  context.subscriptions.push(command, configListener);
+  ctx.subscriptions.push(cmd, onCfg);
 }
 
 export function deactivateCopyTag(): void {
-  if (clearTimer) {
-    clearTimeout(clearTimer);
+  if (timer) {
+    clearTimeout(timer);
+    timer = undefined;
   }
-  if (decorationType) {
-    decorationType.dispose();
-  }
+  deco?.dispose();
+  deco = undefined;
 }
 
-/**
- * Crea o actualiza el recuadro decorativo
- */
-function updateDecorationType(): void {
-  if (decorationType) {
-    decorationType.dispose();
-  }
+// ── Internals ────────────────────────────────────────────────────
+function updateConfig(): void {
+  const c = vscode.workspace.getConfiguration('atm.copyTag');
+  isEnabled = c.get<boolean>('enabled', true);
+  timeoutDuration = c.get<number>('timeout', 250);
 
-  // Extraer paleta de colores moderna desde nuestro nuevo archivo
-  const { bg, fg, border } = getCopyColors();
+  const bg = c.get<string>('backgroundColor', 'rgba(45, 212, 191, 0.3)');
+  const fg = c.get<string | undefined>('foregroundColor', undefined);
 
-  decorationType = vscode.window.createTextEditorDecorationType({
+  deco?.dispose();
+  deco = vscode.window.createTextEditorDecorationType({
     backgroundColor: bg,
     color: fg || undefined,
-    borderRadius: '3px', // Diseño moderno y suave sin bordes feos
+    borderRadius: '3px',
   });
 }
 
-function getHighlightedRanges(editor: vscode.TextEditor): vscode.Range[] {
-  let lastSelectionGlobalLine = -1;
+function getRanges(editor: vscode.TextEditor): vscode.Range[] {
+  const sels = editor.selections;
+  const sorted = [...sels].sort((a, b) => a.start.compareTo(b.start));
 
-  const sorted = [...editor.selections].sort((a, b) => {
-    if (a.active.line === b.active.line) {
-      return a.active.character - b.active.character;
+  const out: vscode.Range[] = [];
+  let prev = -1;
+
+  for (const s of sorted) {
+    if (s.isEmpty) {
+      if (s.active.line === prev) {
+        continue;
+      }
+      prev = s.active.line;
+      out.push(editor.document.lineAt(s.active).range);
+    } else {
+      out.push(s as vscode.Range);
     }
-    return a.active.line - b.active.line;
-  });
-
-  const parsed = sorted.map((selection) => {
-    if (
-      selection.isEmpty &&
-      lastSelectionGlobalLine === selection.active.line
-    ) {
-      return null;
-    }
-    lastSelectionGlobalLine = selection.active.line;
-
-    if (selection.isEmpty) {
-      // Extraemos la línea entera pero incluyendo el salto de línea para que cubra todo el ancho azul
-      return editor.document.lineAt(selection.active).rangeIncludingLineBreak;
-    }
-
-    return selection;
-  });
-
-  return parsed.filter((sel) => sel !== null) as vscode.Range[];
+  }
+  return out;
 }
