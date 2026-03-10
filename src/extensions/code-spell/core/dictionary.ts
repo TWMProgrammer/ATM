@@ -9,6 +9,16 @@ const fastCache = new Set<string>();
 
 // Technical parameters usually ignored by standard dictionaries
 const programmingKeywords = [
+  // --- ATM Words ---
+  'antigravity',
+  'windsurf',
+  'trae',
+  'gohit',
+  'bastian',
+  'xyz',
+  'bastndev',
+  'gohitx',
+  
   // my words
   'todo',
   'fixme',

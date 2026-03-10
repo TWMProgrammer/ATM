@@ -66,9 +66,12 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
    * 4️⃣ REGISTER CODE ACTIONS PROVIDER
    * Subscribe specifically to languages where spell-checking is useful
    * ========================================================= */
-  const documentSelectors = Array.from(SUPPORTED_LANGUAGES).map((lang) => ({
-    language: lang,
-  }));
+  const documentSelectors: vscode.DocumentFilter[] = [
+    ...Array.from(SUPPORTED_LANGUAGES).map((lang) => ({
+      language: lang,
+    })),
+    { pattern: '**/package.json' },
+  ];
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       documentSelectors,

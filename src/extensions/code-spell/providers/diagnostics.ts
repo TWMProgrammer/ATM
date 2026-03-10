@@ -22,8 +22,10 @@ export function scheduleDiagnosticsCheck(doc: vscode.TextDocument) {
     return;
   }
 
-  // Only analyze languages where spell-checking is useful
-  if (!SUPPORTED_LANGUAGES.has(doc.languageId)) {
+  const isPackageJson = doc.uri.fsPath.endsWith('package.json');
+
+  // Only analyze languages where spell-checking is useful, or package.json
+  if (!SUPPORTED_LANGUAGES.has(doc.languageId) && !isPackageJson) {
     return;
   }
 
