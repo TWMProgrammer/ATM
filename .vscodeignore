@@ -11,6 +11,8 @@ src/**
 !src/**/*.tmLanguage
 .gitignore
 .yarnrc
+.prettierrc
+.prettierignore
 esbuild.js
 vsc-extension-quickstart.md
 **/tsconfig.json
@@ -18,8 +20,14 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+package-lock.json
+ARCHITECTURE.md
+docs/**
 
 # Voice TTS: no incluir modelos de voz en el .vsix (cada usuario los descarga con "Download Voice")
 **/*.onnx
 voices
 piper
+
+# Public: imágenes del README (se jalan desde GitHub)
+public
