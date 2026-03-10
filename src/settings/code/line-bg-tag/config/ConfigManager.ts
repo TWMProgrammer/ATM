@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { LINE_BG_COLORS } from '../ui/colors';
 
 export class ConfigManager {
   public colors: string[] = [];
@@ -27,15 +28,11 @@ export class ConfigManager {
     const config = vscode.workspace.getConfiguration('indentRainbow');
 
     // Premium color palette — intermediate opacity for perfect balance
-    this.colors = config.get<string[]>('colors') ?? [
-      'rgba(99,102,241,0.09)', // Indigo
-      'rgba(16,185,129,0.09)', // Emerald
-      'rgba(245,158,11,0.09)', // Amber
-      'rgba(244,63,94,0.09)', // Rose
-    ];
+    this.colors =
+      config.get<string[]>('colors') ?? LINE_BG_COLORS.defaultColors;
 
     this.errorColor =
-      config.get<string>('errorColor') ?? 'rgba(239,68,68,0.14)';
+      config.get<string>('errorColor') ?? LINE_BG_COLORS.defaultErrorColor;
     this.tabmixColor = config.get<string>('tabmixColor') ?? '';
     this.indicatorStyle = config.get<string>('indicatorStyle') ?? 'classic';
     this.lineWidth = config.get<number>('lightIndicatorStyleLineWidth') ?? 1;
