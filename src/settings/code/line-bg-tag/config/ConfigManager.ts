@@ -26,16 +26,16 @@ export class ConfigManager {
   public reload() {
     const config = vscode.workspace.getConfiguration('indentRainbow');
 
-    // Premium color palette — visible in both dark/light themes, harmonious tones
+    // Premium color palette — intermediate opacity for perfect balance
     this.colors = config.get<string[]>('colors') ?? [
-      'rgba(99,102,241,0.12)', // Indigo — calm, professional
-      'rgba(16,185,129,0.12)', // Emerald — refreshing, natural
-      'rgba(245,158,11,0.12)', // Amber — warm, welcoming
-      'rgba(244,63,94,0.12)', // Rose — elegant, attention
+      'rgba(99,102,241,0.09)', // Indigo
+      'rgba(16,185,129,0.09)', // Emerald
+      'rgba(245,158,11,0.09)', // Amber
+      'rgba(244,63,94,0.09)', // Rose
     ];
 
     this.errorColor =
-      config.get<string>('errorColor') ?? 'rgba(239,68,68,0.18)';
+      config.get<string>('errorColor') ?? 'rgba(239,68,68,0.14)';
     this.tabmixColor = config.get<string>('tabmixColor') ?? '';
     this.indicatorStyle = config.get<string>('indicatorStyle') ?? 'classic';
     this.lineWidth = config.get<number>('lightIndicatorStyleLineWidth') ?? 1;
