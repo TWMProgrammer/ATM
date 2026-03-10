@@ -9,9 +9,6 @@ export async function activateNativeSettings(
     await activateCursorSettings();
     await activateFilesSettings();
   } catch (error) {
-    console.error(
-      'ATM Extension: Error activando las configuraciones nativas.',
-      error,
-    );
+    console.error('ATM Extension: Error activating native settings.', error);
   }
 }

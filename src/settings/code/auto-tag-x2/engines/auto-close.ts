@@ -5,7 +5,7 @@ import { SELF_CLOSING_TAGS } from '../utils/document-utils';
 export function registerAutoClose(context: vscode.ExtensionContext) {
   const disposable = vscode.workspace.onDidChangeTextDocument((event) => {
     const { document, contentChanges } = event;
-    // Salida temprana: Solo se ejecuta si el archivo está en lenguajes soportados (ej. Markdown). ¡0% lag!
+
     if (!SUPPORTED_LANGUAGES.includes(document.languageId)) {
       return;
     }
@@ -16,7 +16,7 @@ export function registerAutoClose(context: vscode.ExtensionContext) {
 
     const change = contentChanges[0];
 
-    // Solo actuamos si el último carácter introducido es ">"
+    // Check if the character typed is '>'
     if (change.text === '>') {
       const editor = vscode.window.activeTextEditor;
       if (!editor || editor.document !== document) {
@@ -26,11 +26,10 @@ export function registerAutoClose(context: vscode.ExtensionContext) {
       const position = change.range.start;
       const line = document.lineAt(position.line).text;
 
-      // Evaluamos la línea justo hasta donde se acaba de teclear el ">"
+      // Evaluate the line up to where '>' was typed
       const textBeforeCursor = line.substring(0, position.character + 1);
 
-      // Expresión regular ultrarrápida para detectar si acabamos de cerrar una etiqueta de apertura
-      // Ej: "<div>" o "<span class='x'>"
+      // Regex to detect if an opening tag was just closed
       const tagMatch = textBeforeCursor.match(
         /<([a-zA-Z0-9\-]+)(?:\s+[^>]*?)?>$/,
       );
@@ -38,7 +37,7 @@ export function registerAutoClose(context: vscode.ExtensionContext) {
       if (tagMatch) {
         const tagName = tagMatch[1].toLowerCase();
 
-        // Si es un tag que no se cierra (img, br, etc.), ignoramos
+        // Skip self-closing tags
         if (SELF_CLOSING_TAGS.has(tagName)) {
           return;
         }
@@ -49,7 +48,7 @@ export function registerAutoClose(context: vscode.ExtensionContext) {
           position.character + 1,
         );
 
-        // Desacoplamos la inyección para evitar conflictos de escritura en tiempo real de VS Code
+        // Inject the closing tag
         Promise.resolve().then(() => {
           editor
             .edit(
@@ -59,7 +58,7 @@ export function registerAutoClose(context: vscode.ExtensionContext) {
               { undoStopBefore: false, undoStopAfter: false },
             )
             .then(() => {
-              // Devolvemos el cursor al medio de las etiquetas <-- | -->
+              // Move cursor inside the tags
               const newPosition = insertPosition;
               editor.selection = new vscode.Selection(newPosition, newPosition);
             });
