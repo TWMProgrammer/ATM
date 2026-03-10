@@ -204,6 +204,27 @@
           "type": "boolean",
           "default": true,
           "description": "Enable native high-performance HTML Tag background coloration."
+        },
+        "atm.copyTag.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable visual highlight when copying text."
+        },
+        "atm.copyTag.backgroundColor": {
+          "type": "string",
+          "default": "rgba(45, 212, 191, 0.3)",
+          "description": "Background color for the copied text highlight."
+        },
+        "atm.copyTag.foregroundColor": {
+          "type": "string",
+          "description": "Optional text foreground color when highlighted."
+        },
+        "atm.copyTag.timeout": {
+          "type": "number",
+          "default": 250,
+          "minimum": 50,
+          "maximum": 2000,
+          "description": "Duration in milliseconds the highlight remains visible."
         }
       }
     },
@@ -261,6 +282,10 @@
         "command": "atm.svgBetter.optimize",
         "title": "ATM: Optimize SVG",
         "icon": "$(zap)"
+      },
+      {
+        "command": "atm.copyTag.run",
+        "title": "ATM Copy: Highlight Copied Text"
       }
     ],
     "keybindings": [
@@ -283,6 +308,12 @@
         "key": "shift+alt+m",
         "mac": "shift+alt+m",
         "when": "editorLangId == mdx || editorLangId == markdown"
+      },
+      {
+        "command": "atm.copyTag.run",
+        "key": "ctrl+c",
+        "mac": "cmd+c",
+        "when": "editorTextFocus"
       }
     ],
     "menus": {
