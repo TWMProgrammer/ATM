@@ -31,13 +31,8 @@ export function checkText(text: string): SpellIssue[] {
       continue;
     }
 
-    /* =========================================================
-     * 🧹 REMOVE INVALID TOKENS
-     * Remove raw URLs, Hexadecimal Colors (#FFFFFF) AND ANY camelCase / PascalCase words
-     * while preserving the original length to maintain correct token offsets
-     * ========================================================= */
     const cleanLine = line.replace(
-      /https?:\/\/[^\s"'<>]*|#[a-fA-F0-9]{3,8}\b|\b(?:[a-z]+[A-Z][a-zA-Z]*|[A-Z][a-z]+[A-Z][a-zA-Z]*)\b/g,
+      /https?:\/\/[^\s"'<>]*|#[a-fA-F0-9]{3,8}\b/g,
       (match) => ' '.repeat(match.length),
     );
 

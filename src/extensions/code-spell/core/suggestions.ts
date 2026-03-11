@@ -1,62 +1,83 @@
 import { getDictionaryWordsAsArray } from './dictionary';
 
+let cachedDictionaryArray: string[] | null = null;
+
 /**
- * Levenshtein Distance - Optimized.
- * Returns how many operations are needed to transform String A into String B.
+ * Optimized Levenshtein Distance.
+ * Uses only two rows of memory (O(n) instead of O(n*m)) and supports early exit.
  */
-function levenshteinDistance(a: string, b: string): number {
-  const matrix: number[][] = [];
+function levenshteinDistance(a: string, b: string, threshold: number): number {
+  if (Math.abs(a.length - b.length) > threshold) {
+    return threshold + 1;
+  }
 
-  // Create the base matrix quickly
+  let v0 = new Int32Array(b.length + 1);
+  let v1 = new Int32Array(b.length + 1);
+
   for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
-  }
-  for (let j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
+    v0[i] = i;
   }
 
-  // Calculate distance values
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b[i - 1] === a[j - 1]) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // Substitution
-          matrix[i][j - 1] + 1, // Insertion
-          matrix[i - 1][j] + 1, // Deletion
-        );
+  for (let i = 0; i < a.length; i++) {
+    v1[0] = i + 1;
+    let minLineDist = v1[0];
+
+    for (let j = 0; j < b.length; j++) {
+      const cost = a[i] === b[j] ? 0 : 1;
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+      minLineDist = Math.min(minLineDist, v1[j + 1]);
+    }
+
+    // Early exit if the entire row exceeds threshold
+    if (minLineDist > threshold) {
+      return threshold + 1;
+    }
+
+    // Swap buffers
+    const tmp = v0;
+    v0 = v1;
+    v1 = tmp;
+  }
+
+  return v0[b.length];
+}
+
+/**
+ * Generates typographical suggestions for Quick Fixes.
+ * Uses a cached dictionary array to avoid O(n) copy on every call.
+ */
+export function getSuggestions(word: string, maxSuggestions = 3): string[] {
+  const target = word.toLowerCase();
+
+  // Lazy initialization of the dictionary array cache
+  if (!cachedDictionaryArray) {
+    cachedDictionaryArray = getDictionaryWordsAsArray();
+  }
+
+  const dictionary = cachedDictionaryArray;
+  const candidates: { word: string; distance: number }[] = [];
+  const MAX_DISTANCE = 2; // Suggestions beyond 2 edits are rarely helpful
+
+  for (const dictWord of dictionary) {
+    // Length pre-filter (90% faster)
+    if (Math.abs(dictWord.length - target.length) <= MAX_DISTANCE) {
+      const dist = levenshteinDistance(target, dictWord, MAX_DISTANCE);
+      if (dist <= MAX_DISTANCE) {
+        candidates.push({ word: dictWord, distance: dist });
       }
     }
   }
 
-  return matrix[b.length][a.length];
+  // Sort and return top results
+  return candidates
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, maxSuggestions)
+    .map((s) => s.word);
 }
 
 /**
- * Generates typographical suggestions for Quick Fixes via Code Actions.
- * Fast check against the 10k db cache ensures 5ms execution.
+ * Public method to invalidate the cache when the dictionary changes (new words added).
  */
-export function getSuggestions(word: string, maxSuggestions = 4): string[] {
-  const target = word.toLowerCase();
-  const dictionary = getDictionaryWordsAsArray();
-
-  const candidates: { word: string; distance: number }[] = [];
-
-  // Fast pre-filter (Checking similar lengths increases performance by 90%)
-  for (const dictWord of dictionary) {
-    // Only calculate Levenshtein for words with similar length (max diff 2 letters)
-    if (Math.abs(dictWord.length - target.length) <= 2) {
-      candidates.push({
-        word: dictWord,
-        distance: levenshteinDistance(target, dictWord),
-      });
-    }
-  }
-
-  // Sort by smallest Levenshtein "Error Distance"
-  candidates.sort((a, b) => a.distance - b.distance);
-
-  // Return only top {maxSuggestions}
-  return candidates.slice(0, maxSuggestions).map((s) => s.word);
+export function invalidateSuggestionsCache() {
+  cachedDictionaryArray = null;
 }

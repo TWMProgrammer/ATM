@@ -6,6 +6,7 @@
 export const TECH_KEYWORDS = [
   'aarch',
   'aarrggbb',
+  'rrggbbaa',
   'abort',
   'activate',
   'activates',

@@ -1,3 +1,4 @@
+import { invalidateSuggestionsCache } from './suggestions';
 import { englishWords } from '../data/en-dict';
 import { TECH_KEYWORDS } from '../data/tech-keywords';
 import * as vscode from 'vscode';
@@ -58,6 +59,7 @@ export async function addWordToUserSettings(word: string): Promise<void> {
   // Add to RAM memory
   dict.add(lower);
   fastCache.add(lower);
+  invalidateSuggestionsCache();
 
   // Save to persistence
   try {
@@ -88,6 +90,7 @@ export async function addWordToWorkspaceSettings(word: string): Promise<void> {
   // Add to RAM memory
   dict.add(lower);
   fastCache.add(lower);
+  invalidateSuggestionsCache();
 
   // Save to persistence
   try {
