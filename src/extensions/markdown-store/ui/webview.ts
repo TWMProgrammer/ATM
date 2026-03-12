@@ -35,6 +35,21 @@ export class TranslatorWebviewPanel {
     this._targetExtensionUri = targetExtensionUri;
 
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+
+    // --- Message Handling ---
+    this._panel.webview.onDidReceiveMessage(
+      async (message) => {
+        switch (message.command) {
+          case 'textSelected':
+            if (message.text) {
+              await vscode.env.clipboard.writeText(message.text);
+            }
+            break;
+        }
+      },
+      null,
+      this._disposables
+    );
   }
 
   /**
@@ -394,13 +409,28 @@ export class TranslatorWebviewPanel {
   <button class="scroll-top-btn" id="scrollTopBtn" title="Scroll to top"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.5l-5 5 .7.7L8 5.9l4.3 4.3.7-.7z"/></svg></button>
   <script>
     (function() {
-      var btn = document.getElementById('scrollTopBtn');
+      const vscode = acquireVsCodeApi();
+      const btn = document.getElementById('scrollTopBtn');
+      
       btn.addEventListener('click', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
+
       window.addEventListener('scroll', function() {
-        var scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+        const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
         btn.classList.toggle('visible', scrollPercent > 0.2);
+      });
+
+      // 🎤 ATM Voice TTS Bridge
+      // Listens for text selection and "silently" copies it for Voice TTS
+      document.addEventListener('mouseup', () => {
+        const selection = window.getSelection().toString().trim();
+        if (selection) {
+          vscode.postMessage({
+            command: 'textSelected',
+            text: selection
+          });
+        }
       });
     })();
   </script>`}

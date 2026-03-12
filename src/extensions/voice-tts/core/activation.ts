@@ -124,30 +124,35 @@ async function runPlayback(
     return;
   }
 
-  // 1. Save current clipboard to detect if a copy action changes it
-  const previousClipboard = await vscode.env.clipboard.readText();
+  // 1. Get current editor selection (if any)
+  const editor = vscode.window.activeTextEditor;
+  const editorText = (editor && !editor.selection.isEmpty) 
+    ? editor.document.getText(editor.selection).trim() 
+    : '';
 
-  // 2. Try to copy from focus (editor, webview, etc)
+  // 2. Try to capture selection from the focused panel (AI Chat, Terminal, Webviews)
   try {
     await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
   } catch {
-    // Ignore if no command handler
+    // Ignore error
   }
 
+  const clipboardText = (await vscode.env.clipboard.readText()).trim();
   let text = '';
-  const newClipboard = (await vscode.env.clipboard.readText()).trim();
 
-  // 3. If clipboard changed, use that
-  if (newClipboard && newClipboard !== previousClipboard.trim()) {
-    text = newClipboard;
+  // 3. LOGIC:
+  // If clipboard has text AND it's different from the editor selection,
+  // it means the user has something selected in a Webview/Chat.
+  if (clipboardText && clipboardText !== editorText) {
+    text = clipboardText;
+  } 
+  // Otherwise, if the editor has a selection, use that.
+  else if (editorText) {
+    text = editorText;
   }
-
-  // 4. Fallback: current editor selection
-  if (!text) {
-    const editor = vscode.window.activeTextEditor;
-    if (editor && !editor.selection.isEmpty) {
-      text = editor.document.getText(editor.selection);
-    }
+  // Fallback: just use whatever is in the clipboard
+  else if (clipboardText) {
+    text = clipboardText;
   }
 
   if (!text) {
@@ -161,7 +166,7 @@ async function runPlayback(
   } catch (error) {
     // Only show error if it wasn't a manual stop
     if (!stoppedByUser) {
-       vscode.window.showErrorMessage(
+      vscode.window.showErrorMessage(
         'Error running text-to-speech: ' +
           (error instanceof Error ? error.message : String(error)),
       );
