@@ -3,7 +3,7 @@ import { SUPPORTED_LANGUAGES } from '../utils/config';
 import { parseTagInfo, SELF_CLOSING_TAGS } from '../utils/document-utils';
 
 export function registerAutoRename(context: vscode.ExtensionContext) {
-  // LinkedEditingRangeProvider es el motor súper optimizado que usa VS Code para renombramiento múltiple.
+  // LinkedEditingRangeProvider is the optimized engine used by VS Code for multi-rename.
   const provider = vscode.languages.registerLinkedEditingRangeProvider(
     SUPPORTED_LANGUAGES,
     {
@@ -19,7 +19,7 @@ export function registerAutoRename(context: vscode.ExtensionContext) {
         let isClosing = false;
         let currentRange: vscode.Range | undefined;
 
-        // 1. Identificar la etiqueta bajo el cursor en la línea actual
+        // 1. Identify the tag under the cursor on the current line
         while ((match = tagPattern.exec(lineText)) !== null) {
           const start = match.index;
           const end = start + match[0].length;
@@ -30,7 +30,7 @@ export function registerAutoRename(context: vscode.ExtensionContext) {
               tagName = tagInfo.name;
               isClosing = tagInfo.isClosing;
 
-              // Si es una etiqueta auto-conclusiva, no tiene hermana
+              // Exit if it's a self-closing tag
               if (SELF_CLOSING_TAGS.has(tagName.toLowerCase())) {
                 return undefined;
               }
@@ -52,7 +52,7 @@ export function registerAutoRename(context: vscode.ExtensionContext) {
           return undefined;
         }
 
-        // 2. Buscar la etiqueta hermana en TODO el documento (manejo de anidamiento)
+        // 2. Find the sibling tag (opening/closing pair)
         const siblingRange = findSiblingTag(
           document,
           tagName,
@@ -73,8 +73,8 @@ export function registerAutoRename(context: vscode.ExtensionContext) {
 }
 
 /**
- * Busca la etiqueta correspondiente (apertura si es cierre, cierre si es apertura).
- * Implementa un contador para saltar etiquetas anidadas con el mismo nombre.
+ * Finds the corresponding tag (opening if closing, closing if opening).
+ * Uses a counter to skip nested tags with the same name.
  */
 function findSiblingTag(
   document: vscode.TextDocument,
@@ -83,13 +83,11 @@ function findSiblingTag(
   currentRange: vscode.Range,
 ): vscode.Range | undefined {
   const fullText = document.getText();
-  // Usamos un lookahead (?=[\s/>]) para asegurar que el nombre de la etiqueta termine ahí
-  // y no coincida con prefijos (ej: 'div' no debe coincidir con 'divider')
   const tagPattern = new RegExp(`</?${tagName}(?=[\\s/>])`, 'gi');
   let depth = 0;
 
   if (!isClosing) {
-    // Buscar la etiqueta de cierre </tagName> hacia adelante
+    // Search forward for the closing tag
     const startOffset = document.offsetAt(currentRange.end);
     tagPattern.lastIndex = startOffset;
     let match;
@@ -111,17 +109,16 @@ function findSiblingTag(
         }
         depth--;
       } else {
-        // Encontramos otra etiqueta de apertura del mismo tipo (anidamiento)
-        // Ignoramos si es auto-conclusiva explícitamente <tag />
+        // Nested opening tag
         if (!matchText.endsWith('/>')) {
           depth++;
         }
       }
     }
   } else {
-    // Buscar la etiqueta de apertura <tagName> hacia atrás
+    // Search backward for the opening tag
     const startOffset = document.offsetAt(currentRange.start);
-    const textBefore = fullText.substring(0, startOffset - 2); // -2 para quitar el "</"
+    const textBefore = fullText.substring(0, startOffset - 2);
     const allMatches = Array.from(textBefore.matchAll(tagPattern));
 
     for (let i = allMatches.length - 1; i >= 0; i--) {

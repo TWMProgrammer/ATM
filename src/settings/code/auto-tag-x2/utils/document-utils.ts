@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 /**
- * Obtiene el texto de una línea específica de un documento.
+ * Gets the text of a specific line from a document.
  */
 export function getLineText(
   document: vscode.TextDocument,
@@ -11,7 +11,7 @@ export function getLineText(
 }
 
 /**
- * Verifica si es una etiqueta de cierre o apertura válida y extrae su nombre.
+ * Parses tag info to extract name and check if it's a closing tag.
  */
 export function parseTagInfo(
   tagString: string,
@@ -24,7 +24,7 @@ export function parseTagInfo(
 }
 
 /**
- * Lista ligera de etiquetas que no necesitan cierre (self-closing).
+ * List of self-closing tags.
  */
 export const SELF_CLOSING_TAGS = new Set([
   'br',

@@ -10,7 +10,7 @@ export function getThemeColors(): { background: string; border: string } {
     kind === vscode.ColorThemeKind.HighContrast;
 
   return {
-    // Color azul oscuro similar a la captura, con un poco de transparencia
+    // Dark blue similar to the screenshot, with some transparency
     background: isDark ? '#1a456b90' : '#8ab4f860',
     border: TRANSPARENT,
   };

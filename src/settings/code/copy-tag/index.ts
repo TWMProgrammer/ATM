@@ -12,7 +12,7 @@ export function activateCopyTag(ctx: vscode.ExtensionContext): void {
   updateConfig();
 
   const cmd = vscode.commands.registerCommand('atm.copyTag.run', async () => {
-    // 1. Ejecutar el portapapeles de forma nativa primero para que no haya latencia
+    // Execute native clipboard copy first to avoid latency
     await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
 
     const editor = vscode.window.activeTextEditor;
@@ -24,7 +24,7 @@ export function activateCopyTag(ctx: vscode.ExtensionContext): void {
     const saved = editor.selections;
     const hasSelection = !saved.every((s) => s.isEmpty);
 
-    // Ocultar la selección del sistema operativo temporalmente
+    // Hide selection temporarily
     if (hasSelection) {
       editor.selections = saved.map(
         (s) => new vscode.Selection(s.active, s.active),
@@ -39,14 +39,14 @@ export function activateCopyTag(ctx: vscode.ExtensionContext): void {
 
     timer = setTimeout(() => {
       timer = undefined;
-      // Verificar si el editor sigue activo y existe la decoración
+      // Ensure editor and decoration still exist
       if (vscode.window.activeTextEditor !== editor || !deco) {
         return;
       }
 
       editor.setDecorations(deco, []);
 
-      // Restaurar selección si el usuario no ha movido el cursor
+      // Restore selection if cursor hasn't moved
       if (hasSelection) {
         const cur = editor.selections;
         if (
