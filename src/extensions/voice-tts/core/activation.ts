@@ -124,29 +124,35 @@ async function runPlayback(
     return;
   }
 
-  let text = '';
-
-  // 1. Priority: Current selection in the active editor
+  // 1. Get current editor selection (if any)
   const editor = vscode.window.activeTextEditor;
-  if (editor && !editor.selection.isEmpty) {
-    text = editor.document.getText(editor.selection);
+  const editorText = (editor && !editor.selection.isEmpty) 
+    ? editor.document.getText(editor.selection).trim() 
+    : '';
+
+  // 2. Try to capture selection from the focused panel (AI Chat, Terminal, Webviews)
+  try {
+    await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+  } catch {
+    // Ignore error
   }
 
-  // 2. Fallback: Try to capture selection from other panels (AI Chat, Terminal, Webviews)
-  if (!text) {
-    // We try to trigger a copy action. If there is a selection in the focused panel,
-    // it will overwrite/refresh the clipboard.
-    try {
-      await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
-    } catch {
-      // Ignore if no command handler
-    }
+  const clipboardText = (await vscode.env.clipboard.readText()).trim();
+  let text = '';
 
-    // Read whatever is in the clipboard now
-    const clipboardText = (await vscode.env.clipboard.readText()).trim();
-    if (clipboardText) {
-      text = clipboardText;
-    }
+  // 3. LOGIC:
+  // If clipboard has text AND it's different from the editor selection,
+  // it means the user has something selected in a Webview/Chat.
+  if (clipboardText && clipboardText !== editorText) {
+    text = clipboardText;
+  } 
+  // Otherwise, if the editor has a selection, use that.
+  else if (editorText) {
+    text = editorText;
+  }
+  // Fallback: just use whatever is in the clipboard
+  else if (clipboardText) {
+    text = clipboardText;
   }
 
   if (!text) {
