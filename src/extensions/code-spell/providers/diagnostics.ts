@@ -107,14 +107,11 @@ function performCheck(doc: vscode.TextDocument) {
     const range = new vscode.Range(start, end);
 
     /* =========================================================
-     * 2️⃣ AVOID OVERLAP — LINE LEVEL
-     * If error-lens is showing an Error/Warning on this line, skip
-     * ALL code-spell decorations on it to give error-lens full visual priority.
+     * 2️⃣ AVOID OVERLAP
+     * If the spelling error collides with a critical code error, we ignore it to give it visual priority (e.g. Error Lens)
      * ========================================================= */
-    if (linesWithCriticalErrors.has(start.line)) {
-      return; // Skip — error-lens has priority on this line
-    }
-
+    // Note: To restore the "both lines" overlapping visual like before, 
+    // simply remove the overlap checking logic. Range is always added now.
     ranges.push(range);
 
     // Information severity instead of Error to avoid alerting the Problems Tab unnecessarily
