@@ -6,12 +6,22 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 
 let isEnabled = true;
 let timeoutDuration = 250;
+let lastSavedSelections: readonly vscode.Selection[] | undefined;
+let lastEditor: vscode.TextEditor | undefined;
 
 // ── Core feature ─────────────────────────────────────────────────
 export function activateCopyTag(ctx: vscode.ExtensionContext): void {
   updateConfig();
 
   const cmd = vscode.commands.registerCommand('atm.copyTag.run', async () => {
+    // Si el usuario copia de nuevo rápidamente, restauramos la selección antes de la acción nativa
+    if (timer && lastEditor && lastSavedSelections && deco) {
+      clearTimeout(timer);
+      timer = undefined;
+      lastEditor.selections = lastSavedSelections;
+      lastEditor.setDecorations(deco, []);
+    }
+
     // Execute native clipboard copy first to avoid latency
     await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
 
@@ -23,6 +33,10 @@ export function activateCopyTag(ctx: vscode.ExtensionContext): void {
     const ranges = getRanges(editor);
     const saved = editor.selections;
     const hasSelection = !saved.every((s) => s.isEmpty);
+
+    // Guardar estado global por si hay otra copia rápida
+    lastSavedSelections = saved;
+    lastEditor = editor;
 
     // Hide selection temporarily
     if (hasSelection) {
@@ -56,6 +70,10 @@ export function activateCopyTag(ctx: vscode.ExtensionContext): void {
           editor.selections = saved;
         }
       }
+      
+      // Limpiar referencias
+      lastSavedSelections = undefined;
+      lastEditor = undefined;
     }, timeoutDuration);
   });
 
