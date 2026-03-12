@@ -20,6 +20,8 @@ export const TECH_KEYWORDS = [
   'gim',
   'dragging',
   'watcher',
+  'dashboard',
+  'breaskdown',
 
   'aarch',
   'aarrggbb',
