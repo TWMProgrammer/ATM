@@ -167,7 +167,6 @@ export async function showVoiceSelector(
   });
 
   qp.onDidHide(() => qp.dispose());
-  qp.show();
 }
 
 // ─── Delete Voice ───────────────────────────────────────────────────

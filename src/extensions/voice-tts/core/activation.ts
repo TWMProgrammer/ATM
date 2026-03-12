@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getResourcesBasePath, getPiperPath, CONFIG_SECTION, DEFAULT_VOICE, isPlaying, readText, isVoiceInstalled, stopCurrentPlayback } from './core';
+import { getResourcesBasePath, getPiperPath, CONFIG_SECTION, DEFAULT_VOICE, isPlaying, readText, isVoiceInstalled, stopCurrentPlayback, stoppedByUser } from './core';
 import { createStatusBarItems, setPlayingState, getIsPlaying, disposeStatusBar, showVoiceSelector } from '../ui/ui';
 import { fixSymlinks } from './installer';
 import type { VoiceTtsApi } from './types';
@@ -94,125 +94,81 @@ export async function activateVoiceTts(
       api.selectVoice(),
     ),
 
-    vscode.commands.registerCommand('atm.voiceTts.togglePlayback', async () => {
-      if (isPlaying() || getIsPlaying()) {
-        api.stopPlayback();
-        return;
-      }
+    vscode.commands.registerCommand('atm.voiceTts.togglePlayback', () => 
+      runPlayback(context, api)
+    ),
 
-      const hasVoice = await ensureVoiceForPlayback(context);
-      if (!hasVoice) {
-        return;
-      }
-
-      // 1. Save current clipboard to detect changes
-      const previousClipboard = await vscode.env.clipboard.readText();
-
-      // 2. Try Ctrl+C from whichever panel has focus
-      try {
-        await vscode.commands.executeCommand(
-          'editor.action.clipboardCopyAction',
-        );
-      } catch {
-        // Command may fail if focus is not on a text editor, that's ok
-      }
-
-      let text = '';
-      const newClipboard = (await vscode.env.clipboard.readText()).trim();
-
-      // 3. If clipboard changed, use the newly copied text
-      if (newClipboard && newClipboard !== previousClipboard.trim()) {
-        text = newClipboard;
-      }
-
-      // 4. Fallback: editor selection (if clipboard didn't capture anything new)
-      if (!text) {
-        const editor = vscode.window.activeTextEditor;
-        if (editor && !editor.selection.isEmpty) {
-          text = editor.document.getText(editor.selection);
-        }
-      }
-
-      // 5. Nothing available
-      if (!text) {
-        vscode.window.showInformationMessage('SELECT TEXT 📃');
-        return;
-      }
-
-      try {
-        setPlayingState(true);
-        await api.readText(text);
-      } catch (error) {
-        vscode.window.showErrorMessage(
-          'Error running text-to-speech: ' +
-            (error instanceof Error ? error.message : String(error)),
-        );
-      } finally {
-        setPlayingState(false);
-      }
-    }),
-
-    // Shift+Alt+V → copy whatever is selected + read it aloud
-    vscode.commands.registerCommand('atm.voiceTts.copyAndRead', async () => {
-      if (isPlaying() || getIsPlaying()) {
-        api.stopPlayback();
-        return;
-      }
-
-      const hasVoice = await ensureVoiceForPlayback(context);
-      if (!hasVoice) {
-        return;
-      }
-
-      // 1. Save current clipboard to detect changes
-      const previousClipboard = await vscode.env.clipboard.readText();
-
-      // 2. Try Ctrl+C from whichever panel has focus
-      try {
-        await vscode.commands.executeCommand(
-          'editor.action.clipboardCopyAction',
-        );
-      } catch {
-        // Command may fail if focus is not on a text editor, that's ok
-      }
-
-      let text = '';
-      const newClipboard = (await vscode.env.clipboard.readText()).trim();
-
-      // 3. If clipboard changed, use the newly copied text
-      if (newClipboard && newClipboard !== previousClipboard.trim()) {
-        text = newClipboard;
-      }
-
-      // 4. Fallback: editor selection
-      if (!text) {
-        const editor = vscode.window.activeTextEditor;
-        if (editor && !editor.selection.isEmpty) {
-          text = editor.document.getText(editor.selection);
-        }
-      }
-
-      // 5. Nothing available
-      if (!text) {
-        vscode.window.showInformationMessage('SELECT TEXT 📃');
-        return;
-      }
-
-      try {
-        setPlayingState(true);
-        await api.readText(text);
-      } catch (error) {
-        vscode.window.showErrorMessage(
-          'Error running text-to-speech: ' +
-            (error instanceof Error ? error.message : String(error)),
-        );
-      } finally {
-        setPlayingState(false);
-      }
-    }),
+    vscode.commands.registerCommand('atm.voiceTts.copyAndRead', () => 
+      runPlayback(context, api)
+    ),
   );
 
   return api;
+}
+
+/**
+ * Common logic for detecting text and starting/stopping playback
+ */
+async function runPlayback(
+  context: vscode.ExtensionContext,
+  api: VoiceTtsApi,
+): Promise<void> {
+  // Use a single source of truth for "playing" state
+  if (isPlaying() || getIsPlaying()) {
+    api.stopPlayback();
+    return;
+  }
+
+  const hasVoice = await ensureVoiceForPlayback(context);
+  if (!hasVoice) {
+    return;
+  }
+
+  // 1. Save current clipboard to detect if a copy action changes it
+  const previousClipboard = await vscode.env.clipboard.readText();
+
+  // 2. Try to copy from focus (editor, webview, etc)
+  try {
+    await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+  } catch {
+    // Ignore if no command handler
+  }
+
+  let text = '';
+  const newClipboard = (await vscode.env.clipboard.readText()).trim();
+
+  // 3. If clipboard changed, use that
+  if (newClipboard && newClipboard !== previousClipboard.trim()) {
+    text = newClipboard;
+  }
+
+  // 4. Fallback: current editor selection
+  if (!text) {
+    const editor = vscode.window.activeTextEditor;
+    if (editor && !editor.selection.isEmpty) {
+      text = editor.document.getText(editor.selection);
+    }
+  }
+
+  if (!text) {
+    vscode.window.showInformationMessage('SELECT TEXT 📃');
+    return;
+  }
+
+  try {
+    setPlayingState(true);
+    await api.readText(text);
+  } catch (error) {
+    // Only show error if it wasn't a manual stop
+    if (!stoppedByUser) {
+       vscode.window.showErrorMessage(
+        'Error running text-to-speech: ' +
+          (error instanceof Error ? error.message : String(error)),
+      );
+    }
+  } finally {
+    setPlayingState(false);
+  }
 }
 
 export function deactivateVoiceTts(): void {
