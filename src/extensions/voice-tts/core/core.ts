@@ -262,7 +262,6 @@ export async function loadVoicesCatalog(
 
   try {
     await fs.promises.mkdir(voicesDir, { recursive: true });
-
     // Dynamic import to avoid circular dependency
     const { downloadFile } = await import('./installer.js');
     await downloadFile(VOICES_JSON_URL, voicesJsonPath);
@@ -363,7 +362,7 @@ export async function deleteVoiceFiles(
 
 let piperProcess: ChildProcess | undefined;
 let playerProcess: ChildProcess | undefined;
-let stoppedByUser = false;
+export let stoppedByUser = false;
 
 export function stopCurrentPlayback(): void {
   stoppedByUser = true;
@@ -390,7 +389,7 @@ export function stopCurrentPlayback(): void {
 export async function readText(
   context: vscode.ExtensionContext,
   text: string,
-): Promise<void> {
+ ): Promise<void> {
   if (!text) {
     throw new Error('No text provided');
   }
@@ -422,6 +421,8 @@ export async function readText(
 
   const playback = await getPlaybackCommand(context);
 
+  stoppedByUser = false;
+
   const piper = spawn(piperPath, ['--model', voicePath, '--output-raw'], {
     cwd: path.dirname(piperPath),
     env: { ...process.env },
@@ -439,8 +440,6 @@ export async function readText(
   piper.stdout.pipe(player.stdin);
   piper.stdin.write(text);
   piper.stdin.end();
-
-  stoppedByUser = false;
 
   return new Promise((resolve, reject) => {
     let settled = false;
