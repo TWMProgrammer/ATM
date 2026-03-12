@@ -238,7 +238,7 @@
         "title": "ATM: List TODO / FIXME Annotations"
       },
       {
-        "command": "atm.markdown-store.translateExtension",
+        "command": "atm.translate-doc.translateExtension",
         "title": "ATM: Translate",
         "icon": "$(globe)"
       },
@@ -288,7 +288,7 @@
         "title": "ATM Copy: Highlight Copied Text"
       },
       {
-        "command": "atm.release-notes.translate",
+        "command": "atm.translate-doc.translateReleaseNotes",
         "title": "ATM: Translate Release Notes",
         "icon": "$(globe)"
       }
@@ -303,7 +303,7 @@
         "key": "shift+alt+space"
       },
       {
-        "command": "atm.markdown-store.translateExtension",
+        "command": "atm.translate-doc.translateExtension",
         "key": "ctrl+shift+space",
         "mac": "cmd+shift+space",
         "when": "activeEditor == 'workbench.editor.extension'"
@@ -321,7 +321,7 @@
         "when": "editorTextFocus"
       },
       {
-        "command": "atm.release-notes.translate",
+        "command": "atm.translate-doc.translateReleaseNotes",
         "key": "ctrl+shift+r",
         "mac": "cmd+shift+r",
         "when": "atm.releaseNotes.active"
@@ -330,7 +330,7 @@
     "menus": {
       "editor/title": [
         {
-          "command": "atm.markdown-store.translateExtension",
+          "command": "atm.translate-doc.translateExtension",
           "group": "navigation",
           "when": "activeEditor == 'workbench.editor.extension'"
         },
@@ -355,14 +355,14 @@
           "when": "resourceExtname == .svg"
         },
         {
-          "command": "atm.release-notes.translate",
+          "command": "atm.translate-doc.translateReleaseNotes",
           "group": "navigation",
           "when": "atm.releaseNotes.active"
         }
       ],
       "extension/context": [
         {
-          "command": "atm.markdown-store.translateExtension",
+          "command": "atm.translate-doc.translateExtension",
           "group": "1_modification"
         }
       ],
@@ -373,7 +373,7 @@
           "when": "editorHasSelection"
         },
         {
-          "command": "atm.release-notes.translate",
+          "command": "atm.translate-doc.translateReleaseNotes",
           "group": "1_modification",
           "when": "atm.releaseNotes.active"
         }

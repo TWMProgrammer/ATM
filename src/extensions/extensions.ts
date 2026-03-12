@@ -6,14 +6,13 @@ import { activateCodeSpell } from './code-spell';
 import { activateErrorLens } from './error-lens';
 import { activateColorBox } from './color-box';
 import { activateCommentsCode } from './comments-code';
-import { activateMarkdownStore } from './markdown-store';
+import { activateTranslateDoc } from './translate-doc';
 import { activateMdxPreview } from './markdown-mdx';
 import { activateGitBetter } from './git-better';
 import { activateColorDebugging } from './color-debugging';
 import { activateScreenshotCode } from './screenshot-code';
 import { activateVersionPackage } from './version-package';
 import { activateSvgBetter } from './svg-better';
-import { activateReleaseNotes } from './release-notes';
 
 
 /**
@@ -30,12 +29,11 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateErrorLens(context);
   activateColorBox(context);
   activateCommentsCode(context);
-  activateMarkdownStore(context);
+  activateTranslateDoc(context);
   activateMdxPreview(context);
   activateGitBetter(context);
   activateColorDebugging(context);
   activateScreenshotCode(context);
   activateVersionPackage(context);
   activateSvgBetter(context);
-  activateReleaseNotes(context);
 }
