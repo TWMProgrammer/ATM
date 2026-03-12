@@ -126,20 +126,45 @@ export function isWordValid(word: string): boolean {
   // 2. Check main dictionary
   let isValid = dict.has(lower);
 
-  // 3. Smart fallback for plurals (ending in 's' or 'es')
-  // Consumes no additional RAM and leverages the speed of slice()
+  // 3. Smart morphological fallbacks — O(0) RAM, uses slice() speed
+
+  // -ies → -y  (countries → country, victories → victory)
+  if (!isValid && lower.length > 4 && lower.endsWith('ies')) {
+    isValid = dict.has(lower.slice(0, -3) + 'y');
+  }
+
+  // -es / -s  (plurals and 3rd person singular)
   if (!isValid && lower.length > 3 && lower.endsWith('s')) {
     if (lower.endsWith('es')) {
       isValid = dict.has(lower.slice(0, -2)); // e.g. "branches" -> "branch"
     }
     if (!isValid) {
-      isValid = dict.has(lower.slice(0, -1)); // e.g. "defaults" -> "default", "typings" -> "typing"
+      isValid = dict.has(lower.slice(0, -1)); // e.g. "defaults" -> "default"
+    }
+  }
+
+  // -ing  (gerunds / present participles)
+  if (!isValid && lower.length > 5 && lower.endsWith('ing')) {
+    isValid = dict.has(lower.slice(0, -3)); // e.g. "walking" -> "walk"
+    if (!isValid) {
+      isValid = dict.has(lower.slice(0, -3) + 'e'); // e.g. "typing" -> "type", "configuring" -> "configure"
+    }
+  }
+
+  // -ed  (past tense / past participle)
+  if (!isValid && lower.length > 4 && lower.endsWith('ed')) {
+    isValid = dict.has(lower.slice(0, -2)); // e.g. "walked" -> "walk", "branched" -> "branch"
+    if (!isValid) {
+      isValid = dict.has(lower.slice(0, -1)); // e.g. "baked" -> "bake", "freed" -> "free"
     }
   }
 
   // 4. Update local fast-cache
   // The fastCache will save the full plural ("typings") in memory so slice() is never repeated!
   if (isValid) {
+    if (fastCache.size >= 5000) {
+      fastCache.clear(); // Protect against unlimited RAM growth in long sessions
+    }
     fastCache.add(lower);
   }
 

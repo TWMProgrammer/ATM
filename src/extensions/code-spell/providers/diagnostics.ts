@@ -53,6 +53,15 @@ export function scheduleDiagnosticsCheck(doc: vscode.TextDocument) {
  * ========================================================= */
 export function clearDiagnostics(doc: vscode.TextDocument) {
   spellDiagnostics.delete(doc.uri);
+
+  // Clear custom decorations from all visible editors showing this document
+  const editors = vscode.window.visibleTextEditors.filter(
+    (e) => e.document === doc,
+  );
+  for (const editor of editors) {
+    editor.setDecorations(spellDecorationType, []);
+  }
+
   const key = doc.uri.toString();
   if (debounceTimers.has(key)) {
     clearTimeout(debounceTimers.get(key)!);
@@ -76,15 +85,20 @@ function performCheck(doc: vscode.TextDocument) {
 
   /* =========================================================
    * 1️⃣ GET CRITICAL PROBLEMS
-   * Get current critical problems (TS, ESLint, etc.) to prioritize them
+   * Get current critical problems (TS, ESLint, etc.) to prioritize them.
+   * Build a Set of line numbers so code-spell stays silent on any line
+   * where error-lens is already showing an Error or Warning.
    * ========================================================= */
-  const existingDiagnostics = vscode.languages
-    .getDiagnostics(doc.uri)
-    .filter(
-      (d) =>
-        d.source !== 'ATM code-spell' &&
-        d.severity <= vscode.DiagnosticSeverity.Warning,
-    );
+  const linesWithCriticalErrors = new Set(
+    vscode.languages
+      .getDiagnostics(doc.uri)
+      .filter(
+        (d) =>
+          d.source !== 'ATM code-spell' &&
+          d.severity <= vscode.DiagnosticSeverity.Warning,
+      )
+      .map((d) => d.range.start.line),
+  );
 
   issues.forEach((issue) => {
     // vscode.TextDocument helps transform Offsets to Line/Column Ranges
@@ -93,15 +107,12 @@ function performCheck(doc: vscode.TextDocument) {
     const range = new vscode.Range(start, end);
 
     /* =========================================================
-     * 2️⃣ AVOID OVERLAP
-     * If the spelling error collides with a critical code error, we ignore it to give it visual priority (e.g. Error Lens)
+     * 2️⃣ AVOID OVERLAP — LINE LEVEL
+     * If error-lens is showing an Error/Warning on this line, skip
+     * ALL code-spell decorations on it to give error-lens full visual priority.
      * ========================================================= */
-    const isOverlapping = existingDiagnostics.some((d) =>
-      d.range.intersection(range),
-    );
-
-    if (isOverlapping) {
-      return; // Skip this issue
+    if (linesWithCriticalErrors.has(start.line)) {
+      return; // Skip — error-lens has priority on this line
     }
 
     ranges.push(range);
