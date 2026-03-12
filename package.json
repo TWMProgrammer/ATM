@@ -286,6 +286,11 @@
       {
         "command": "atm.copyTag.run",
         "title": "ATM Copy: Highlight Copied Text"
+      },
+      {
+        "command": "atm.release-notes.translate",
+        "title": "ATM: Translate Release Notes",
+        "icon": "$(globe)"
       }
     ],
     "keybindings": [
@@ -314,6 +319,12 @@
         "key": "ctrl+c",
         "mac": "cmd+c",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "atm.release-notes.translate",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "atm.releaseNotes.active"
       }
     ],
     "menus": {
@@ -342,6 +353,11 @@
           "command": "atm.svgBetter.optimize",
           "group": "navigation",
           "when": "resourceExtname == .svg"
+        },
+        {
+          "command": "atm.release-notes.translate",
+          "group": "navigation",
+          "when": "atm.releaseNotes.active"
         }
       ],
       "extension/context": [
@@ -355,6 +371,11 @@
           "command": "atm.screenshotCode",
           "group": "1_modification",
           "when": "editorHasSelection"
+        },
+        {
+          "command": "atm.release-notes.translate",
+          "group": "1_modification",
+          "when": "atm.releaseNotes.active"
         }
       ]
     },
