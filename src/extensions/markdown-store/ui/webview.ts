@@ -342,7 +342,7 @@ export class TranslatorWebviewPanel {
     }
 
     atm-media-placeholder::after {
-      content: "Image official in left <-";
+      content: attr(data-hint);
       position: absolute;
       left: 0;
       right: 0;

@@ -7,7 +7,6 @@ import type { TranslationTarget } from '../markdown-store/ui/webview';
 
 interface ReleaseNotesFetchResult {
     markdown: string;
-    baseUrl: string;
 }
 
 /**
@@ -56,7 +55,10 @@ export function activateReleaseNotes(context: vscode.ExtensionContext) {
                 throw new Error('Could not fetch the release notes content.');
             }
 
-            const cleanMarkdown = preprocessReleaseNotesMarkdown(fetched.markdown, fetched.baseUrl);
+            const cleanMarkdown = preprocessReleaseNotesMarkdown(
+                fetched.markdown,
+                getMediaPlaceholderHint(lang.code)
+            );
 
             const translated = await translateText(cleanMarkdown, lang.code);
             panel.setTranslatedMarkdown(translated);
@@ -138,7 +140,6 @@ async function fetchReleaseNotesMarkdown(version: string): Promise<ReleaseNotesF
             if (content) {
                 return {
                     markdown: content,
-                    baseUrl: `https://raw.githubusercontent.com/microsoft/vscode-docs/${branch}/release-notes/`,
                 };
             }
         }
@@ -147,7 +148,7 @@ async function fetchReleaseNotesMarkdown(version: string): Promise<ReleaseNotesF
     return undefined;
 }
 
-function preprocessReleaseNotesMarkdown(markdown: string, baseUrl: string): string {
+function preprocessReleaseNotesMarkdown(markdown: string, mediaHint: string): string {
     // Remove YAML frontmatter block at the top (--- ... ---)
     let result = markdown.replace(/^---\s*[\r\n]+[\s\S]*?[\r\n]+---\s*[\r\n]*/m, '');
 
@@ -156,7 +157,8 @@ function preprocessReleaseNotesMarkdown(markdown: string, baseUrl: string): stri
 
     // Replace media with a lightweight placeholder banner for performance.
     // This avoids broken assets from relative docs paths and heavy media rendering.
-    const mediaPlaceholder = '\n<atm-media-placeholder></atm-media-placeholder>\n';
+    const safeHint = escapeHtmlAttribute(mediaHint);
+    const mediaPlaceholder = `\n<atm-media-placeholder data-hint="${safeHint}"></atm-media-placeholder>\n`;
 
     // Markdown image syntax: ![alt](url)
     result = result.replace(/!\[[^\]]*\]\([^)]+\)/g, mediaPlaceholder);
@@ -169,8 +171,25 @@ function preprocessReleaseNotesMarkdown(markdown: string, baseUrl: string): stri
     result = result.replace(/<video\b[\s\S]*?<\/video>/gi, mediaPlaceholder);
     result = result.replace(/<source\b[^>]*>/gi, '');
 
-    // Keep parameter used until we remove the old absolute URL pathway in a later cleanup.
-    void baseUrl;
-
     return result;
+}
+
+function getMediaPlaceholderHint(languageCode: string): string {
+    if (languageCode === 'es') {
+        return '← Imagen oficial en el panel izquierdo';
+    }
+
+    if (/^zh\b/i.test(languageCode)) {
+        return '← 官方图片请看左侧面板';
+    }
+
+    return '← Official image in the left panel';
+}
+
+function escapeHtmlAttribute(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
