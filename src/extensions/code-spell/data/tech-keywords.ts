@@ -4,6 +4,23 @@
  * technical terms, modern tools, and abbreviations.
  */
 export const TECH_KEYWORDS = [
+  // new words ATM
+  'swatch',
+  'listener',
+  'callback',
+  'des',
+  'symlink',
+  'readlink',
+  'inactive',
+  'gaussian',
+  'propagation',
+  'collapsed',
+  'gutter',
+  'inject',
+  'gim',
+  'dragging',
+  'watcher',
+
   'aarch',
   'aarrggbb',
   'rrggbbaa',
