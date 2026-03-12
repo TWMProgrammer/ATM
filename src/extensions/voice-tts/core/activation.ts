@@ -124,29 +124,28 @@ async function runPlayback(
     return;
   }
 
-  // 1. Save current clipboard to detect if a copy action changes it
-  const previousClipboard = await vscode.env.clipboard.readText();
-
-  // 2. Try to copy from focus (editor, webview, etc)
-  try {
-    await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
-  } catch {
-    // Ignore if no command handler
-  }
-
   let text = '';
-  const newClipboard = (await vscode.env.clipboard.readText()).trim();
 
-  // 3. If clipboard changed, use that
-  if (newClipboard && newClipboard !== previousClipboard.trim()) {
-    text = newClipboard;
+  // 1. Priority: Current selection in the active editor
+  const editor = vscode.window.activeTextEditor;
+  if (editor && !editor.selection.isEmpty) {
+    text = editor.document.getText(editor.selection);
   }
 
-  // 4. Fallback: current editor selection
+  // 2. Fallback: Try to capture selection from other panels (AI Chat, Terminal, Webviews)
   if (!text) {
-    const editor = vscode.window.activeTextEditor;
-    if (editor && !editor.selection.isEmpty) {
-      text = editor.document.getText(editor.selection);
+    // We try to trigger a copy action. If there is a selection in the focused panel,
+    // it will overwrite/refresh the clipboard.
+    try {
+      await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+    } catch {
+      // Ignore if no command handler
+    }
+
+    // Read whatever is in the clipboard now
+    const clipboardText = (await vscode.env.clipboard.readText()).trim();
+    if (clipboardText) {
+      text = clipboardText;
     }
   }
 
@@ -161,7 +160,7 @@ async function runPlayback(
   } catch (error) {
     // Only show error if it wasn't a manual stop
     if (!stoppedByUser) {
-       vscode.window.showErrorMessage(
+      vscode.window.showErrorMessage(
         'Error running text-to-speech: ' +
           (error instanceof Error ? error.message : String(error)),
       );
