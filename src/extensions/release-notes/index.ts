@@ -5,6 +5,11 @@ import { showLanguageQuickPick } from '../markdown-store/ui/quickPick';
 import { TranslatorWebviewPanel } from '../markdown-store/ui/webview';
 import type { TranslationTarget } from '../markdown-store/ui/webview';
 
+interface ReleaseNotesFetchResult {
+    markdown: string;
+    baseUrl: string;
+}
+
 /**
  * 📢 RELEASE NOTES EXTENSION
  * Specifically designed to detect, fetch, and translate VS Code Release Notes.
@@ -46,12 +51,14 @@ export function activateReleaseNotes(context: vscode.ExtensionContext) {
         panel.setSkeleton();
 
         try {
-            const markdown = await fetchReleaseNotesMarkdown(versionInfo.version);
-            if (!markdown) {
+            const fetched = await fetchReleaseNotesMarkdown(versionInfo.version);
+            if (!fetched) {
                 throw new Error('Could not fetch the release notes content.');
             }
 
-            const translated = await translateText(markdown, lang.code);
+            const cleanMarkdown = preprocessReleaseNotesMarkdown(fetched.markdown, fetched.baseUrl);
+
+            const translated = await translateText(cleanMarkdown, lang.code);
             panel.setTranslatedMarkdown(translated);
         } catch (error: any) {
             vscode.window.showErrorMessage(`Failed to translate Release Notes: ${error.message}`);
@@ -97,7 +104,7 @@ function isReleaseNotesTab(tab: vscode.Tab | undefined): boolean {
  * Fetches the Markdown source for a specific VS Code version using Node.js https.
  * Tries 'main' branch first, then 'vnext' as fallback.
  */
-async function fetchReleaseNotesMarkdown(version: string): Promise<string | undefined> {
+async function fetchReleaseNotesMarkdown(version: string): Promise<ReleaseNotesFetchResult | undefined> {
     // Try exact first (e.g. 1.111.0), then fallback to major.minor (1.111)
     // because docs are usually stored as v1_111.md.
     const [major, minor] = version.split('.');
@@ -129,10 +136,41 @@ async function fetchReleaseNotesMarkdown(version: string): Promise<string | unde
             });
 
             if (content) {
-                return content;
+                return {
+                    markdown: content,
+                    baseUrl: `https://raw.githubusercontent.com/microsoft/vscode-docs/${branch}/release-notes/`,
+                };
             }
         }
     }
 
     return undefined;
+}
+
+function preprocessReleaseNotesMarkdown(markdown: string, baseUrl: string): string {
+    // Remove YAML frontmatter block at the top (--- ... ---)
+    let result = markdown.replace(/^---\s*[\r\n]+[\s\S]*?[\r\n]+---\s*[\r\n]*/m, '');
+
+    // Remove VS Code docs placeholders/comments that do not make sense in webview
+    result = result.replace(/<!--\s*DOWNLOAD_LINKS_PLACEHOLDER\s*-->/g, '');
+
+    // Replace media with a lightweight placeholder banner for performance.
+    // This avoids broken assets from relative docs paths and heavy media rendering.
+    const mediaPlaceholder = '\n<atm-media-placeholder></atm-media-placeholder>\n';
+
+    // Markdown image syntax: ![alt](url)
+    result = result.replace(/!\[[^\]]*\]\([^)]+\)/g, mediaPlaceholder);
+
+    // Markdown links that point directly to media files
+    result = result.replace(/\[[^\]]+\]\(([^)]+\.(?:png|jpe?g|gif|webp|svg|mp4|webm|ogg)(?:\?[^)]*)?)\)/gi, mediaPlaceholder);
+
+    // Inline HTML media
+    result = result.replace(/<img\b[^>]*>/gi, mediaPlaceholder);
+    result = result.replace(/<video\b[\s\S]*?<\/video>/gi, mediaPlaceholder);
+    result = result.replace(/<source\b[^>]*>/gi, '');
+
+    // Keep parameter used until we remove the old absolute URL pathway in a later cleanup.
+    void baseUrl;
+
+    return result;
 }

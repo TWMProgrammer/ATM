@@ -218,7 +218,7 @@ export class TranslatorWebviewPanel {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; media-src ${cspSource} https: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
   <title>Translated Extension</title>
   <style>
     /* ── Base ───────────────────────────────────────────────── */
@@ -299,6 +299,60 @@ export class TranslatorWebviewPanel {
       max-width: 100%;
       border-radius: 6px;
       margin: 8px 0;
+    }
+
+    video {
+      max-width: 100%;
+      border-radius: 6px;
+      margin: 10px 0;
+      background: var(--vscode-editorWidget-background, rgba(0,0,0,.2));
+    }
+
+    /* ── Release Notes media placeholder (lightweight UI fallback) ─────── */
+    atm-media-placeholder {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-height: 220px;
+      margin: 18px 0;
+      border-radius: 14px;
+      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.14));
+      background:
+        radial-gradient(120% 150% at 10% 10%, rgba(33, 150, 243, 0.18) 0%, rgba(33, 150, 243, 0) 45%),
+        radial-gradient(120% 120% at 90% 90%, rgba(0, 200, 120, 0.16) 0%, rgba(0, 200, 120, 0) 50%),
+        linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .28);
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    atm-media-placeholder::before {
+      content: "MEDIA";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: .14em;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--vscode-descriptionForeground, rgba(255,255,255,.7));
+      text-shadow: 0 2px 18px rgba(0, 0, 0, .45);
+    }
+
+    atm-media-placeholder::after {
+      content: "Image official in left <-";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 14px;
+      text-align: center;
+      font-size: .88rem;
+      font-weight: 500;
+      color: var(--vscode-descriptionForeground, rgba(255,255,255,.7));
+      opacity: .95;
+      letter-spacing: .02em;
     }
 
     /* ── Code ──────────────────────────────────────────────── */
