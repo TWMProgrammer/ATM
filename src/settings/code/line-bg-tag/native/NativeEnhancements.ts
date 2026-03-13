@@ -25,8 +25,8 @@ export class NativeEnhancements {
     // 2. Bracket Pair Colorization - Enable for clear hierarchical view
     this.safeUpdate(editorConfig, 'bracketPairColorization.enabled', true);
 
-    // 3. Render Whitespace - Show all (dots always visible)
-    this.safeUpdate(editorConfig, 'renderWhitespace', 'all');
+    // 3. Render Whitespace - Show boundary whitespace only
+    this.safeUpdate(editorConfig, 'renderWhitespace', 'boundary');
 
     // 4. Indentation Guides - Enable clean native guides
     this.safeUpdate(editorConfig, 'guides.indentation', true);

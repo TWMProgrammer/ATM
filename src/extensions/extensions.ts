@@ -6,7 +6,7 @@ import { activateCodeSpell } from './code-spell';
 import { activateErrorLens } from './error-lens';
 import { activateColorBox } from './color-box';
 import { activateCommentsCode } from './comments-code';
-import { activateMarkdownStore } from './markdown-store';
+import { activateTranslateDoc } from './translate-doc';
 import { activateMdxPreview } from './markdown-mdx';
 import { activateGitBetter } from './git-better';
 import { activateColorDebugging } from './color-debugging';
@@ -29,7 +29,7 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateErrorLens(context);
   activateColorBox(context);
   activateCommentsCode(context);
-  activateMarkdownStore(context);
+  activateTranslateDoc(context);
   activateMdxPreview(context);
   activateGitBetter(context);
   activateColorDebugging(context);

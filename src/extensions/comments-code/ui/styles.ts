@@ -18,7 +18,7 @@ export const defaultTags: CommentTag[] = [
   // Colorful Line Comments (colors the whole line from the tag onwards)
   { text: '!', type: 'line', color: '#FF3333', fontStyle: 'italic' },     // Alert / Error    → Red
   { text: '?', type: 'line', color: '#3297fbff', fontStyle: 'italic' },   // Question         → Blue
-  { text: '*', type: 'line', color: '#ecececff', fontStyle: 'italic' },   // Highlight        → Purple
+  { text: '*', type: 'line', color: '#464646', fontStyle: 'italic' },   // Highlight        → Purple
   { text: '^', type: 'line', color: '#FFD602', fontStyle: 'italic' },     // Warning          → Yellow
   { text: '#', type: 'line', color: '#FF922B', fontStyle: 'italic' },     // Section / Header → Orange
   { text: '$', type: 'line', color: '#18cbe7ff', fontStyle: 'italic' },   // Resource / Value → Sky Blue

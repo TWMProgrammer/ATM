@@ -285,7 +285,7 @@ src/
 │   ├── comments-code/      ← ✅  TODO/FIXME indexer
 │   ├── markdown-mdx/       ← 📝  MDX support
 │   ├── markdown-text/      ← 📄  Markdown preview
-│   ├── markdown-store/     ← 🌐  Translation engine
+│   ├── translate-doc/      ← 🌐  Translation engine
 │   ├── git-better/         ← 🔗  Git blame + GitHub
 │   ├── screenshot-code/    ← 📸  Code screenshots
 │   ├── version-package/    ← 📦  Dependency checker

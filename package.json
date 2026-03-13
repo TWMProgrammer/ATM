@@ -54,7 +54,9 @@
     "url": "https://github.com/sponsors/bastndev"
   },
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onLanguage:mdx",
+    "onCommand:atm.mdx.preview"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -67,7 +69,7 @@
         "extensions": [
           ".mdx"
         ],
-        "configuration": "./src/extensions/markdown-mdx/language-configuration.json"
+        "configuration": "./src/extensions/markdown-mdx/syntaxes/language-configuration.json"
       }
     ],
     "grammars": [
@@ -238,7 +240,7 @@
         "title": "ATM: List TODO / FIXME Annotations"
       },
       {
-        "command": "atm.markdown-store.translateExtension",
+        "command": "atm.translate-doc.translateExtension",
         "title": "ATM: Translate",
         "icon": "$(globe)"
       },
@@ -286,6 +288,11 @@
       {
         "command": "atm.copyTag.run",
         "title": "ATM Copy: Highlight Copied Text"
+      },
+      {
+        "command": "atm.translate-doc.translateReleaseNotes",
+        "title": "ATM: Translate Release Notes",
+        "icon": "$(globe)"
       }
     ],
     "keybindings": [
@@ -298,7 +305,7 @@
         "key": "shift+alt+space"
       },
       {
-        "command": "atm.markdown-store.translateExtension",
+        "command": "atm.translate-doc.translateExtension",
         "key": "ctrl+shift+space",
         "mac": "cmd+shift+space",
         "when": "activeEditor == 'workbench.editor.extension'"
@@ -307,26 +314,32 @@
         "command": "atm.mdx.preview",
         "key": "shift+alt+m",
         "mac": "shift+alt+m",
-        "when": "editorLangId == mdx || editorLangId == markdown"
+        "when": "editorLangId == mdx"
       },
       {
         "command": "atm.copyTag.run",
         "key": "ctrl+c",
         "mac": "cmd+c",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "atm.translate-doc.translateReleaseNotes",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "atm.releaseNotes.active"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "atm.markdown-store.translateExtension",
+          "command": "atm.translate-doc.translateExtension",
           "group": "navigation",
           "when": "activeEditor == 'workbench.editor.extension'"
         },
         {
           "command": "atm.mdx.preview",
           "group": "navigation",
-          "when": "editorLangId == mdx || editorLangId == markdown"
+          "when": "editorLangId == mdx"
         },
         {
           "command": "atm.versionPackage.check",
@@ -342,11 +355,16 @@
           "command": "atm.svgBetter.optimize",
           "group": "navigation",
           "when": "resourceExtname == .svg"
+        },
+        {
+          "command": "atm.translate-doc.translateReleaseNotes",
+          "group": "navigation",
+          "when": "atm.releaseNotes.active"
         }
       ],
       "extension/context": [
         {
-          "command": "atm.markdown-store.translateExtension",
+          "command": "atm.translate-doc.translateExtension",
           "group": "1_modification"
         }
       ],
@@ -355,6 +373,11 @@
           "command": "atm.screenshotCode",
           "group": "1_modification",
           "when": "editorHasSelection"
+        },
+        {
+          "command": "atm.translate-doc.translateReleaseNotes",
+          "group": "1_modification",
+          "when": "atm.releaseNotes.active"
         }
       ]
     },
@@ -378,82 +401,82 @@
       ]
     },
     "problemMatchers": [
-			{
-				"name": "esbuild",
-				"label": "esbuild problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"pattern": [
-					{
-						"regexp": "^[✘▲] \\[([A-Z]+)\\] (.+)",
-						"severity": 1,
-						"message": 2
-					},
-					{
-						"regexp": "^(?:\\t| {4})(?!\\s)([^:]+)(?::([0-9]+))?(?::([0-9]+))?:$",
-						"file": 1,
-						"line": 2,
-						"column": 3
-					}
-				]
-			},
-			{
-				"name": "esbuild-watch",
-				"base": "$esbuild",
-				"label": "esbuild --watch problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": {
-						"regexp": "\\[watch\\] build started"
-					},
-					"endsPattern": {
-						"regexp": "\\[watch\\] build finished"
-					}
-				}
-			},
-			{
-				"name": "esbuild-0.13",
-				"label": "esbuild <0.14 problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"pattern": [
-					{
-						"regexp": "> (.*?):([0-9]+):([0-9]+): (warning|error): (.+)$",
-						"file": 1,
-						"line": 2,
-						"column": 3,
-						"severity": 4,
-						"message": 5
-					}
-				]
-			},
-			{
-				"name": "esbuild-0.13-watch",
-				"base": "$esbuild-0.13",
-				"label": "esbuild <0.14 --watch problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": {
-						"regexp": "\\[watch\\] build started"
-					},
-					"endsPattern": {
-						"regexp": "\\[watch\\] build finished"
-					}
-				}
-			}
-		]
+      {
+        "name": "esbuild",
+        "label": "esbuild problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "pattern": [
+          {
+            "regexp": "^[✘▲] \\[([A-Z]+)\\] (.+)",
+            "severity": 1,
+            "message": 2
+          },
+          {
+            "regexp": "^(?:\\t| {4})(?!\\s)([^:]+)(?::([0-9]+))?(?::([0-9]+))?:$",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          }
+        ]
+      },
+      {
+        "name": "esbuild-watch",
+        "base": "$esbuild",
+        "label": "esbuild --watch problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "\\[watch\\] build started"
+          },
+          "endsPattern": {
+            "regexp": "\\[watch\\] build finished"
+          }
+        }
+      },
+      {
+        "name": "esbuild-0.13",
+        "label": "esbuild <0.14 problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "pattern": [
+          {
+            "regexp": "> (.*?):([0-9]+):([0-9]+): (warning|error): (.+)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        ]
+      },
+      {
+        "name": "esbuild-0.13-watch",
+        "base": "$esbuild-0.13",
+        "label": "esbuild <0.14 --watch problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "\\[watch\\] build started"
+          },
+          "endsPattern": {
+            "regexp": "\\[watch\\] build finished"
+          }
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -475,6 +498,7 @@
     "@types/node": "20.x",
     "@types/node-fetch": "^2.6.13",
     "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/semver": "^7.7.1",
     "@types/svgo": "^2.6.4",
     "@types/vscode": "^1.74.0",
@@ -496,6 +520,8 @@
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",
     "html-to-image": "^1.11.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
     "semver": "^7.7.4",

@@ -4,7 +4,7 @@ import { activateExtensions } from './extensions/extensions';
 import { deactivateSettings } from './settings/settings';
 import { deactivateVoiceTts } from './extensions/voice-tts';
 import { deactivateCommentsCode } from './extensions/comments-code';
-import { deactivateMarkdownStore } from './extensions/markdown-store';
+import { deactivateTranslateDoc } from './extensions/translate-doc';
 import { deactivateColorDebugging } from './extensions/color-debugging';
 import { taskListPlugin } from './extensions/markdown-text/core/taskListPlugin';
 import { mermaidPlugin } from './extensions/markdown-text/core/mermaidPlugin';
@@ -33,6 +33,6 @@ export async function deactivate(): Promise<void> {
   deactivateSettings();
   deactivateVoiceTts();
   deactivateCommentsCode();
-  deactivateMarkdownStore();
+  deactivateTranslateDoc();
   await deactivateColorDebugging();
 }
