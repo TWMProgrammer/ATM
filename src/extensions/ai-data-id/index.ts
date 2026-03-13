@@ -17,15 +17,7 @@ const INITIAL_DELAY_MS = 3_000;
 const ICON_DEFAULT = '$(sparkle-filled)';
 const ICON_ERROR = '$(error)';
 const ICON_WARNING = '$(warning)';
-const ICON_ALERT = '$(alert)';
 const ICON_REFRESH = '$(sync~spin)';
-
-// ── Thresholds ───────────────────────────────────────────────────────
-
-/** Below this %, the status bar shows a warning icon. */
-const THRESHOLD_DANGER = 15;
-/** Below this %, the status bar shows an alert icon. */
-const THRESHOLD_LOW = 40;
 
 /**
  * Activates the AI Data status bar extension.
@@ -70,9 +62,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	}
 
 	/** Selects the appropriate status bar icon based on the lowest quota %. */
-	function getStatusBarIcon(minRemaining: number): string {
-		if (minRemaining < THRESHOLD_DANGER) { return ICON_WARNING; }
-		if (minRemaining < THRESHOLD_LOW) { return ICON_ALERT; }
+	function getStatusBarIcon(_minRemaining: number): string {
 		return ICON_DEFAULT;
 	}
 
