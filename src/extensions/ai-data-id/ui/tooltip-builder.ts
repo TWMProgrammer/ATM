@@ -2,69 +2,126 @@ import * as vscode from 'vscode';
 import { QuotaSnapshot } from '../core/types';
 
 /**
- * Builds a compact, rich Markdown tooltip for the AI Data status bar item.
- * Uses HTML spans with inline CSS for colored progress bars.
+ * Builds a minimalist, modern Markdown tooltip with "glassmorphism" fades.
  */
 export function buildTooltip(snapshot: QuotaSnapshot): vscode.MarkdownString {
 	const md = new vscode.MarkdownString();
 	md.isTrusted = true;
 	md.supportHtml = true;
+	md.supportThemeIcons = true;
 
-	md.appendMarkdown('#### $(sparkle) Antigravity AI Data\n');
-	md.appendMarkdown('---\n\n');
+	md.appendMarkdown('### <span style="color:#f4f4f5; font-weight:600;">AI Consumption</span>\n\n');
+	md.appendMarkdown(`${buildTopSummary(snapshot)}\n\n`);
+	md.appendMarkdown('<span style="color:#3f3f46;">─────────────────────────────────────────</span>\n\n');
 
 	if (snapshot.models.length === 0) {
-		md.appendMarkdown('*$(sync~spin) Waiting for quota data...*\n');
+		md.appendMarkdown('*$(sync~spin) <span style="color:#a1a1aa;">Waiting for quota data...</span>*\n');
 		return md;
 	}
 
-	for (const model of snapshot.models) {
+	const orderedModels = [...snapshot.models].sort((a, b) => {
+		const aPct = a.remainingPercentage;
+		const bPct = b.remainingPercentage;
+
+		if (aPct === undefined && bPct !== undefined) { return 1; }
+		if (aPct !== undefined && bPct === undefined) { return -1; }
+		if (aPct === undefined && bPct === undefined) { return a.label.localeCompare(b.label); }
+		if (aPct === undefined || bPct === undefined) { return 0; }
+
+		return aPct - bPct;
+	});
+
+	for (const model of orderedModels) {
 		const isIncluded = model.remainingPercentage === undefined;
+		const safeLabel = escapeInlineMarkdown(model.label);
 
 		if (isIncluded) {
-			md.appendMarkdown(`$(check) **${model.label}** — *Included*\n\n`);
+			md.appendMarkdown(`<span style="color:#f4f4f5;">**${safeLabel}**</span>  \n`);
+			md.appendMarkdown(`$(pass) <span style="color:#a1a1aa;">Included in plan • Unlimited</span>\n\n`);
 			continue;
 		}
 
 		const pct = Math.round(model.remainingPercentage!);
-		const bar = generateProgressBar(pct);
 		const pctColor = getStatusColor(pct);
-
-		// Line 1: model name
-		md.appendMarkdown(`**${model.label}**\n\n`);
-
-		// Line 2: progress bar + colored percentage + reset time
+		const bar = generateModernBar(pct, pctColor);
+		
+		let resetText: string;
 		if (model.isExhausted) {
-			md.appendMarkdown(`${bar} <span style="color:${pctColor};">${pct}%</span> &nbsp; $(error) Resets in **${model.timeUntilResetFormatted}**\n\n`);
+			resetText = `$(history) <span style="color:#f87171;">${model.timeUntilResetFormatted}</span>`;
 		} else {
-			md.appendMarkdown(`${bar} <span style="color:${pctColor};">${pct}%</span> &nbsp; $(clock) ${model.timeUntilResetFormatted}\n\n`);
+			// Changed from clock to history to keep consistency and ensure it's a valid codicon
+			resetText = `$(history) <span style="color:#a1a1aa;">${model.timeUntilResetFormatted}</span>`;
 		}
+
+		md.appendMarkdown(`<span style="color:#f4f4f5;">**${safeLabel}**</span>  \n`);
+		md.appendMarkdown(`${bar} &nbsp;&nbsp; <span style="color:${pctColor};">**${pct}%**</span> &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; ${resetText}\n\n`);
 	}
 
-	md.appendMarkdown('[$(refresh) Refresh usage statistics](command:atm.dataId.refreshConsumption)');
+	md.appendMarkdown('<span style="color:#3f3f46;">─────────────────────────────────────────</span>\n\n');
+	
+	md.appendMarkdown(`<span style="color:#a1a1aa;">Last update: ${formatTimestamp(snapshot.timestamp)}</span> &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; [$(refresh) Refresh Usage](command:atm.dataId.refreshConsumption)`);
+	
 	return md;
 }
 
-/**
- * Generates a progress bar using colored Unicode blocks with HTML spans.
- * Uses inline CSS for colors instead of emoji blocks.
- */
-function generateProgressBar(percentage: number): string {
-	const totalBlocks = 12;
-	const filled = Math.round((percentage / 100) * totalBlocks);
-	const empty = Math.max(0, totalBlocks - filled);
+function buildTopSummary(snapshot: QuotaSnapshot): string {
+	const measured = snapshot.models.filter(m => m.remainingPercentage !== undefined);
+	const totalMeasured = measured.length;
+	const exhausted = measured.filter(m => m.isExhausted).length;
+	const critical = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
 
-	const color = getStatusColor(percentage);
-	const filledBar = `<span style="color:${color};">${'█'.repeat(filled)}</span>`;
-	const emptyBar = `<span style="color:#333;">${'█'.repeat(empty)}</span>`;
+	if (totalMeasured === 0) {
+		return '*<span style="color:#a1a1aa;">Discovering available models...</span>*';
+	}
 
-	return filledBar + emptyBar;
+	const lowest = Math.round(Math.min(...measured.map(m => m.remainingPercentage ?? 100)));
+	const healthColor = getStatusColor(lowest);
+	const safeZone = Math.max(totalMeasured - exhausted - critical, 0);
+
+	return [
+		`<span style="color:#a1a1aa;">Lowest:</span> <span style="color:${healthColor};">**${lowest}%**</span>`,
+		`<span style="color:#a1a1aa;">Healthy:</span> <span style="color:#4ade80;">**${safeZone}/${totalMeasured}**</span>`,
+		critical > 0 ? `<span style="color:#facc15;">Low: ${critical}</span>` : '',
+		exhausted > 0 ? `<span style="color:#f87171;">Exhausted: ${exhausted}</span>` : '',
+	].filter(Boolean).join(' &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; ');
 }
 
-/** Returns a semantic color based on remaining percentage. */
+/**
+ * Generates a modern minimalist progress bar.
+ * Applies a fade/gradient via alpha channel to simulate glassmorphism and modern UI.
+ */
+function generateModernBar(pct: number, baseColor: string): string {
+	const totalBlocks = 15; // 15 dots for a smooth fade
+	const filled = Math.round((pct / 100) * totalBlocks);
+
+	let bar = '';
+	for (let i = 0; i < totalBlocks; i++) {
+		if (i < filled) {
+			// Fade degradado: interpolates opacity from 100% (FF) to 35% (5A)
+			const progress = filled > 1 ? i / (filled - 1) : 0;
+			const alphaInt = Math.round(255 - (progress * 165)); // 255 to 90
+			const alphaHex = alphaInt.toString(16).padStart(2, '0');
+			
+			bar += `<span style="color:${baseColor}${alphaHex};">●</span> `;
+		} else {
+			// Glassmorphism effect: very faint transparent background pattern
+			bar += `<span style="color:#ffffff0f;">●</span> `;
+		}
+	}
+	return bar.trimEnd();
+}
+
+function escapeInlineMarkdown(value: string): string {
+	return value.replace(/[\\`*_{}\[\]()#+\-.!|]/g, '\\$&');
+}
+
+function formatTimestamp(date: Date): string {
+	return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
 function getStatusColor(percentage: number): string {
-	if (percentage < 15) { return '#ef4444'; } // red — critical
-	if (percentage < 40) { return '#eab308'; } // yellow — warning 
-	if (percentage < 70) { return '#22d3ee'; } // cyan — moderate
-	return '#4ade80'; // green — healthy
+	if (percentage < 15) { return '#f87171'; } // red-400
+	if (percentage < 40) { return '#facc15'; } // yellow-400
+	if (percentage < 70) { return '#22d3ee'; } // cyan-400
+	return '#4ade80'; // green-400
 }

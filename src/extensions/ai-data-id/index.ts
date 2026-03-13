@@ -50,7 +50,22 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 			const snapshot = await quotaManager.fetchQuota();
 			if (snapshot) {
 				statusBarItem.tooltip = buildTooltip(snapshot);
-				statusBarItem.text = '$(sparkle-filled) AI Data';
+				const measuredModels = snapshot.models.filter(m => m.remainingPercentage !== undefined);
+				if (measuredModels.length === 0) {
+					statusBarItem.text = '$(sparkle-filled) AI Data';
+				} else {
+					const minRemaining = Math.round(
+						Math.min(...measuredModels.map(m => m.remainingPercentage ?? 100))
+					);
+
+					const icon = minRemaining < 15
+						? '$(warning)'
+						: minRemaining < 40
+							? '$(alert)'
+							: '$(sparkle-filled)';
+
+					statusBarItem.text = `${icon} AI ${minRemaining}%`;
+				}
 			}
 		} catch (e) {
 			console.error('[ai-data-id] Error fetching quota:', e);
