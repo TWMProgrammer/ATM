@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 
 let blurDecorationType: vscode.TextEditorDecorationType;
 let isBlurEnabled = true;
+const revealedKeys = new Set<string>();
+const revealTimers = new Map<string, NodeJS.Timeout>();
 
 export function registerEnvDecorations(context: vscode.ExtensionContext) {
     blurDecorationType = vscode.window.createTextEditorDecorationType({
@@ -66,17 +68,30 @@ function applyDecorationsToEditor(editor: vscode.TextEditor) {
     while ((match = envRegex.exec(text))) {
         // match[1] = key
         // match[2] = value (this is what we blur)
-        
-        if (!match[2] || match[2].trim() === '') {
+
+        const key = match[1]?.trim();
+        const value = match[2]?.trim();
+
+        if (!key || !value) {
+            continue;
+        }
+
+        if (revealedKeys.has(key)) {
             continue;
         }
 
         const valueStartPos = editor.document.positionAt(match.index + match[1].length + 1); // +1 for the =
         const valueEndPos = editor.document.positionAt(match.index + match[0].length);
 
-        const decoration = { 
-            range: new vscode.Range(valueStartPos, valueEndPos), 
-            hoverMessage: '👁️ Click to reveal value' 
+        const payload = encodeURIComponent(JSON.stringify({ key, value }));
+        const hoverMessage = new vscode.MarkdownString(
+            `[👁 Reveal this value for 3s](command:envLens.revealValue?${payload})`
+        );
+        hoverMessage.isTrusted = true;
+
+        const decoration = {
+            range: new vscode.Range(valueStartPos, valueEndPos),
+            hoverMessage
         };
         blurRanges.push(decoration);
     }
@@ -84,15 +99,41 @@ function applyDecorationsToEditor(editor: vscode.TextEditor) {
     editor.setDecorations(blurDecorationType, blurRanges);
 }
 
+export function revealKeyTemporarily(key: string, durationMs = 3000): void {
+    if (!key) {
+        return;
+    }
+
+    const existingTimer = revealTimers.get(key);
+    if (existingTimer) {
+        clearTimeout(existingTimer);
+    }
+
+    revealedKeys.add(key);
+    refreshVisibleEditors();
+
+    const timer = setTimeout(() => {
+        revealedKeys.delete(key);
+        revealTimers.delete(key);
+        refreshVisibleEditors();
+    }, durationMs);
+
+    revealTimers.set(key, timer);
+}
+
 export function setBlurEnabled(enabled: boolean): void {
     isBlurEnabled = enabled;
-    for (const editor of vscode.window.visibleTextEditors) {
-        applyDecorationsToEditor(editor);
-    }
+    refreshVisibleEditors();
 }
 
 export function getBlurEnabled(): boolean {
     return isBlurEnabled;
+}
+
+function refreshVisibleEditors(): void {
+    for (const editor of vscode.window.visibleTextEditors) {
+        applyDecorationsToEditor(editor);
+    }
 }
 
 // Simple debounce utility for performance

@@ -40,7 +40,7 @@ export class EnvHoverProvider implements vscode.HoverProvider {
                 md.appendCodeblock(`${key} = ${obfuscated}`, 'env');
                 
                 // Add command link
-                md.appendMarkdown(`\n\n[👁️ Reveal Value](command:envLens.revealValue?${encodeURIComponent(JSON.stringify(key))})`);
+                md.appendMarkdown(`\n\n[👁️ Reveal for 3s](command:envLens.revealValue?${encodeURIComponent(JSON.stringify(key))})`);
 
                 md.isTrusted = true;
                 return new vscode.Hover(md, range);

@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import { EnvHoverProvider } from './ui/hover-provider';
-import { getBlurEnabled, registerEnvDecorations, setBlurEnabled } from './ui/decorations';
+import { getBlurEnabled, registerEnvDecorations, revealKeyTemporarily, setBlurEnabled } from './ui/decorations';
 import { envParser } from './core/env-parser';
+
+type RevealPayload = string | { key: string; value?: string };
 
 export async function activateEnvLens(context: vscode.ExtensionContext) {
   const isEnvEditor = (editor?: vscode.TextEditor): boolean => {
@@ -34,10 +36,17 @@ export async function activateEnvLens(context: vscode.ExtensionContext) {
   context.subscriptions.push(hoverProvider);
 
   // 3. Register Reveal Command
-  const revealCommand = vscode.commands.registerCommand('envLens.revealValue', (key: string) => {
-    const value = envParser.getValue(key);
+  const revealCommand = vscode.commands.registerCommand('envLens.revealValue', (payload: RevealPayload) => {
+    const key = typeof payload === 'string' ? payload : payload?.key;
+    const valueFromPayload = typeof payload === 'string' ? undefined : payload?.value;
+    const value = valueFromPayload ?? (key ? envParser.getValue(key) : undefined);
+
+    if (!key) {
+      return;
+    }
+
     if (value) {
-      vscode.window.showInformationMessage(`Env Lens: ${key} = ${value}`, { modal: false });
+      revealKeyTemporarily(key, 3000);
     }
   });
 
