@@ -13,7 +13,7 @@ import { activateColorDebugging } from './color-debugging';
 import { activateScreenshotCode } from './screenshot-code';
 import { activateVersionPackage } from './version-package';
 import { activateSvgBetter } from './svg-better';
-import { activateDataId } from './data-id';
+import { activateDataId } from './ai-data-id';
 
 
 /**
