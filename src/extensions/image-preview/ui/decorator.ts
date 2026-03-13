@@ -102,10 +102,10 @@ function isKnownMarkdownImageUrl(source: string): boolean {
 }
 
 function toDecorationCacheKey(imagePath: string, underline: boolean): string {
-  return `${underline ? 'u1' : 'u0'}|${imagePath}`;
+  return `g|${imagePath}`;
 }
 
-function acquireDecorationType(cacheKey: string, uri: vscode.Uri, underline: boolean): vscode.TextEditorDecorationType {
+function acquireDecorationType(cacheKey: string, uri: vscode.Uri): vscode.TextEditorDecorationType {
   const cached = decorationTypeCache.get(cacheKey);
   const now = Date.now();
   if (cached) {
@@ -117,7 +117,7 @@ function acquireDecorationType(cacheKey: string, uri: vscode.Uri, underline: boo
   const created = vscode.window.createTextEditorDecorationType({
     gutterIconPath: uri,
     gutterIconSize: 'contain',
-    textDecoration: underline ? 'underline' : 'none',
+    textDecoration: 'none',
   });
 
   decorationTypeCache.set(cacheKey, {
@@ -128,6 +128,10 @@ function acquireDecorationType(cacheKey: string, uri: vscode.Uri, underline: boo
 
   return created;
 }
+
+const underlineDecorationType = vscode.window.createTextEditorDecorationType({
+  textDecoration: 'underline',
+});
 
 function releaseDecorationType(cacheKey: string | undefined): void {
   if (!cacheKey) { return; }
@@ -261,25 +265,45 @@ function scanDocument(document: vscode.TextDocument): void {
         : vscode.Uri.file(img.imagePath.replace(/\\/g, '/'));
 
     const cacheKey = toDecorationCacheKey(img.imagePath, underline);
-    const decorationType = acquireDecorationType(cacheKey, uri, underline);
+    const decorationType = acquireDecorationType(cacheKey, uri);
 
-    const decoration: vscode.DecorationOptions = {
+    const hoverDecoration: vscode.DecorationOptions = {
       range: img.range,
+      hoverMessage: '',
+    };
+
+    const gutterDecoration: vscode.DecorationOptions = {
+      // Zero-length anchor keeps one gutter icon even when the URL wraps visually.
+      range: new vscode.Range(img.range.start, img.range.start),
       hoverMessage: '',
     };
 
     entry.decorations.push({
       cacheKey,
       type: decorationType,
-      decorations: [decoration],
+      decorations: [hoverDecoration],
       originalImagePath: img.originalImagePath,
       imagePath: img.imagePath,
     });
 
     if (showGutter) {
       for (const editor of editors) {
-        editor.setDecorations(decorationType, [decoration]);
+        editor.setDecorations(decorationType, [gutterDecoration]);
       }
+    }
+  }
+
+  if (underline) {
+    const underlineDecorations: vscode.DecorationOptions[] = unique.map((img) => ({
+      range: img.range,
+      hoverMessage: '',
+    }));
+    for (const editor of editors) {
+      editor.setDecorations(underlineDecorationType, underlineDecorations);
+    }
+  } else {
+    for (const editor of editors) {
+      editor.setDecorations(underlineDecorationType, []);
     }
   }
 }
@@ -293,6 +317,9 @@ function clearDecorations(document: vscode.TextDocument, decorations: Decoration
       editor.setDecorations(dec.type, []);
     }
     releaseDecorationType(dec.cacheKey);
+  }
+  for (const editor of editors) {
+    editor.setDecorations(underlineDecorationType, []);
   }
   decorations.length = 0;
 }
@@ -456,6 +483,7 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
         cached.type.dispose();
       }
       decorationTypeCache.clear();
+      underlineDecorationType.dispose();
       for (const timer of throttleTimers.values()) { clearTimeout(timer); }
       throttleTimers.clear();
     },
