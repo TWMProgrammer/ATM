@@ -1,4 +1,7 @@
 export class MdxCompiler {
+  private static readonly maxCacheEntries = 40;
+  private static readonly compileCache = new Map<string, string>();
+
   private static depsPromise:
     | Promise<{
         compile: (source: string, options: Record<string, unknown>) => Promise<unknown>;
@@ -25,8 +28,44 @@ export class MdxCompiler {
     return this.depsPromise;
   }
 
+  private static getCacheKey(mdxCode: string, baseUrl?: string): string {
+    return `${baseUrl || ''}\n---\n${mdxCode}`;
+  }
+
+  private static cacheGet(key: string): string | undefined {
+    const cached = this.compileCache.get(key);
+    if (!cached) {
+      return undefined;
+    }
+
+    // Refresh insertion order for simple LRU behavior.
+    this.compileCache.delete(key);
+    this.compileCache.set(key, cached);
+    return cached;
+  }
+
+  private static cacheSet(key: string, value: string): void {
+    if (this.compileCache.has(key)) {
+      this.compileCache.delete(key);
+    }
+    this.compileCache.set(key, value);
+
+    if (this.compileCache.size > this.maxCacheEntries) {
+      const firstKey = this.compileCache.keys().next().value;
+      if (firstKey) {
+        this.compileCache.delete(firstKey);
+      }
+    }
+  }
+
   public static async compileToJS(mdxCode: string, baseUrl?: string): Promise<string> {
     try {
+      const cacheKey = this.getCacheKey(mdxCode, baseUrl);
+      const cached = this.cacheGet(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const { compile, remarkFrontmatter, remarkGfm } = await this.getDeps();
 
       const baseOptions = {
@@ -41,7 +80,9 @@ export class MdxCompiler {
           ...baseOptions,
           format: 'mdx'
         });
-        return String(compiled);
+        const output = String(compiled);
+        this.cacheSet(cacheKey, output);
+        return output;
       } catch (strictErr: any) {
         const details = [
           strictErr?.message,
@@ -60,7 +101,9 @@ export class MdxCompiler {
             ...baseOptions,
             format: 'mdx'
           });
-          return String(retried);
+          const output = String(retried);
+          this.cacheSet(cacheKey, output);
+          return output;
         }
 
         throw strictErr;
