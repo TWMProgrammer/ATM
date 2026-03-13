@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { recognizers } from '../core/recognizers';
+import { recognizers, markdownRecognizers } from '../core/recognizers';
 import { mappers } from '../core/mappers';
 import { getConfig } from '../core/config';
 import {
@@ -24,6 +24,29 @@ const throttleTimers = new Map<string, ReturnType<typeof setTimeout>>();
 // This avoids running all recognizer regexes on every line.
 const IMAGE_SIGNAL_PATTERN = /\.(svg|png|jpe?g|bmp|gif|ico|webp|avif|jfif)\b|data:image|https?:\/\/|!\[/i;
 
+function hasAcceptedImageExtension(source: string): boolean {
+  if (isDataUri(source)) { return true; }
+  const withoutQueryOrHash = source.split(/[?#]/, 1)[0].toLowerCase();
+  return ACCEPTED_EXTENSIONS.some((ext) => withoutQueryOrHash.endsWith(ext));
+}
+
+function isKnownMarkdownImageUrl(source: string): boolean {
+  try {
+    const parsed = new URL(source);
+    const host = parsed.hostname.toLowerCase();
+    const pathname = parsed.pathname.toLowerCase();
+
+    // Shields badge URLs render image content without file extension.
+    if (host === 'img.shields.io' && pathname.startsWith('/badge/')) {
+      return true;
+    }
+  } catch {
+    // Not a valid URL; ignore and fall back to extension checks.
+  }
+
+  return false;
+}
+
 // =========================================================
 // 🚀 CORE SCANNING LOGIC
 // =========================================================
@@ -36,6 +59,8 @@ function scanDocument(document: vscode.TextDocument): void {
 
   const showGutter = getConfig(document, 'showImagePreviewOnGutter', true);
   const underline = getConfig(document, 'showUnderline', true);
+  const isMarkdown = document.languageId === 'markdown';
+  const activeRecognizers = isMarkdown ? markdownRecognizers : recognizers;
 
   // Collect visible line indices
   const visibleLines = new Set<number>();
@@ -75,7 +100,7 @@ function scanDocument(document: vscode.TextDocument): void {
     // Quick reject: skip lines without any image-like signal
     if (!IMAGE_SIGNAL_PATTERN.test(lineText)) { continue; }
 
-    for (const recognizer of recognizers) {
+    for (const recognizer of activeRecognizers) {
       const matches = recognizer.recognize(lineIndex, lineText);
       for (const match of matches) {
         // Try resolution cache first
@@ -92,6 +117,9 @@ function scanDocument(document: vscode.TextDocument): void {
         }
 
         if (!resolved) { continue; }
+
+        // For markdown, only accept obvious image paths/data URIs.
+        if (isMarkdown && !hasAcceptedImageExtension(resolved) && !isKnownMarkdownImageUrl(resolved)) { continue; }
 
         // Validate extension for non-data/non-http images
         if (!isDataUri(resolved) && isLocalFile(resolved)) {
@@ -129,7 +157,7 @@ function scanDocument(document: vscode.TextDocument): void {
     });
 
     const decoration: vscode.DecorationOptions = {
-      range: new vscode.Range(img.range.start, img.range.start),
+      range: img.range,
       hoverMessage: '',
     };
 
@@ -177,6 +205,9 @@ function throttledScan(document: vscode.TextDocument, delay = 500): void {
 
 const hoverProvider: vscode.HoverProvider = {
   async provideHover(document, position) {
+    // Markdown already has native link hovers; keep extension hover disabled there.
+    if (document.languageId === 'markdown') { return undefined; }
+
     const key = document.uri.toString();
     const result = scanResults.get(key);
     if (!result) { return; }
@@ -186,11 +217,7 @@ const hoverProvider: vscode.HoverProvider = {
 
     for (const entry of result.decorations) {
       const match = entry.decorations.find((d) => {
-        const fullRange = new vscode.Range(
-          d.range.start.line, 0,
-          d.range.start.line, document.lineAt(d.range.start.line).text.length
-        );
-        return fullRange.contains(position);
+        return d.range.contains(position);
       });
 
       if (!match) { continue; }
