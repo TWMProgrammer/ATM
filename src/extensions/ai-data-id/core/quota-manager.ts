@@ -1,5 +1,11 @@
 import * as https from 'https';
-import { QuotaSnapshot, ServerUserStatusResponse, ModelQuotaInfo } from './types';
+import {
+	QuotaSnapshot,
+	ServerUserStatusResponse,
+	ModelQuotaInfo,
+	PromptCreditsInfo,
+	ServerClientModelConfig,
+} from './types';
 
 /**
  * Manages the connection to the local Antigravity language server
@@ -61,6 +67,14 @@ export class QuotaManager {
 				let body = '';
 				res.on('data', chunk => body += chunk);
 				res.on('end', () => {
+					if (res.statusCode !== 200) {
+						reject(new Error(`Unexpected status ${res.statusCode}: ${body.slice(0, 200)}`));
+						return;
+					}
+					if (!body.trim()) {
+						reject(new Error('Empty response body from quota endpoint'));
+						return;
+					}
 					try {
 						const json = JSON.parse(body) as ServerUserStatusResponse;
 						resolve(this.parseResponse(json));
@@ -79,30 +93,69 @@ export class QuotaManager {
 	private parseResponse(data: ServerUserStatusResponse): QuotaSnapshot {
 		const { userStatus } = data;
 		if (!userStatus?.cascadeModelConfigData) {
-			return { timestamp: new Date(), models: [] };
+			return {
+				timestamp: new Date(),
+				promptCredits: this.parsePromptCredits(data),
+				models: [],
+			};
 		}
 
-		const rawModels = userStatus.cascadeModelConfigData.clientModelConfigs || [];
+		const rawModels: ServerClientModelConfig[] = userStatus.cascadeModelConfigData.clientModelConfigs || [];
 		const models: ModelQuotaInfo[] = rawModels
-			.filter((m: any) => m.quotaInfo)
-			.map((m: any) => {
-				const resetTime = new Date(m.quotaInfo.resetTime);
+			.filter(m => m.quotaInfo)
+			.map(m => {
+				const rawFraction = m.quotaInfo?.remainingFraction;
+				const remainingFraction = this.normalizeFraction(rawFraction);
+
+				const resetTime = m.quotaInfo?.resetTime ? new Date(m.quotaInfo.resetTime) : new Date();
 				const diff = resetTime.getTime() - Date.now();
 				return {
-					label: m.label,
+					label: m.label || 'Unknown model',
 					modelId: m.modelOrAlias?.model || 'unknown',
-					remainingFraction: m.quotaInfo.remainingFraction,
-					remainingPercentage: m.quotaInfo.remainingFraction !== undefined
-						? m.quotaInfo.remainingFraction * 100
+					remainingFraction,
+					remainingPercentage: remainingFraction !== undefined
+						? remainingFraction * 100
 						: undefined,
-					isExhausted: m.quotaInfo.remainingFraction === 0,
+					isExhausted: remainingFraction === 0,
 					resetTime,
 					timeUntilReset: diff,
 					timeUntilResetFormatted: this.formatTime(diff),
 				};
 			});
 
-		return { timestamp: new Date(), models };
+		return {
+			timestamp: new Date(),
+			promptCredits: this.parsePromptCredits(data),
+			models,
+		};
+	}
+
+	private parsePromptCredits(data: ServerUserStatusResponse): PromptCreditsInfo | undefined {
+		const planStatus = data.userStatus?.planStatus;
+		if (!planStatus) { return undefined; }
+
+		const monthly = planStatus.planInfo?.monthlyPromptCredits;
+		const available = planStatus.availablePromptCredits;
+		if (!Number.isFinite(monthly) || !Number.isFinite(available) || monthly <= 0) {
+			return undefined;
+		}
+
+		const usedPercentage = ((monthly - available) / monthly) * 100;
+		const remainingPercentage = (available / monthly) * 100;
+
+		return {
+			available,
+			monthly,
+			usedPercentage: Math.min(Math.max(usedPercentage, 0), 100),
+			remainingPercentage: Math.min(Math.max(remainingPercentage, 0), 100),
+		};
+	}
+
+	private normalizeFraction(value: number | undefined): number | undefined {
+		if (typeof value !== 'number' || !Number.isFinite(value)) {
+			return undefined;
+		}
+		return Math.min(Math.max(value, 0), 1);
 	}
 
 	private formatTime(ms: number): string {
@@ -110,6 +163,11 @@ export class QuotaManager {
 		const mins = Math.ceil(ms / 60000);
 		if (mins < 60) { return `${mins}m`; }
 		const hours = Math.floor(mins / 60);
+		if (hours >= 24) {
+			const days = Math.floor(hours / 24);
+			const remHours = hours % 24;
+			return `${days}d ${remHours}h`;
+		}
 		return `${hours}h ${mins % 60}m`;
 	}
 }

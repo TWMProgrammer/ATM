@@ -33,7 +33,6 @@ export class ProcessFinder {
 
 					if (validPort) {
 						return {
-							extensionPort: info.extensionPort,
 							connectPort: validPort,
 							csrfToken: info.csrfToken,
 						};
@@ -50,22 +49,22 @@ export class ProcessFinder {
 		return null;
 	}
 
-	private async getProcessInfoForPlatform(): Promise<{ pid: number; extensionPort: number; csrfToken: string } | null> {
+	private async getProcessInfoForPlatform(): Promise<{ pid: number; csrfToken: string } | null> {
 		if (process.platform === 'win32') {
 			return this.detectWindows();
 		}
 		return this.detectUnix();
 	}
 
-	private async detectWindows(): Promise<{ pid: number; extensionPort: number; csrfToken: string } | null> {
+	private async detectWindows(): Promise<{ pid: number; csrfToken: string } | null> {
 		const cmd = `powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \\\\"name='${this.processName}'\\\\" | Select-Object ProcessId,CommandLine | ConvertTo-Json"`;
 		const { stdout } = await execAsync(cmd);
 
 		try {
-			let data = JSON.parse(stdout.trim());
+			let data = JSON.parse(stdout.trim()) as { ProcessId: number; CommandLine?: string } | Array<{ ProcessId: number; CommandLine?: string }>;
 			if (Array.isArray(data)) {
 				const antigravityProcess = data.find(
-					(item: any) => item.CommandLine?.toLowerCase().includes('antigravity')
+					(item) => item.CommandLine?.toLowerCase().includes('antigravity')
 				);
 				if (!antigravityProcess) { return null; }
 				data = antigravityProcess;
@@ -75,13 +74,13 @@ export class ProcessFinder {
 			const tokenMatch = commandLine.match(/--csrf_token[=\s]+([a-f0-9\-]+)/i);
 			if (!tokenMatch) { return null; }
 
-			return { pid: data.ProcessId, extensionPort: 0, csrfToken: tokenMatch[1] };
+			return { pid: data.ProcessId, csrfToken: tokenMatch[1] };
 		} catch {
 			return null;
 		}
 	}
 
-	private async detectUnix(): Promise<{ pid: number; extensionPort: number; csrfToken: string } | null> {
+	private async detectUnix(): Promise<{ pid: number; csrfToken: string } | null> {
 		const flag = process.platform === 'darwin' ? '-fl' : '-af';
 		const cmd = `pgrep ${flag} ${this.processName}`;
 		const { stdout } = await execAsync(cmd);
@@ -90,10 +89,11 @@ export class ProcessFinder {
 			if (line.includes('antigravity') && line.includes('--csrf_token')) {
 				const parts = line.trim().split(/\s+/);
 				const pid = parseInt(parts[0], 10);
+				if (!Number.isFinite(pid)) { continue; }
 				const tokenMatch = line.match(/--csrf_token[=\s]+([a-zA-Z0-9\-]+)/);
 
 				if (tokenMatch) {
-					return { pid, extensionPort: 0, csrfToken: tokenMatch[1] };
+					return { pid, csrfToken: tokenMatch[1] };
 				}
 			}
 		}

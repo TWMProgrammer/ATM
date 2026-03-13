@@ -4,7 +4,7 @@ import { QuotaSnapshot } from '../core/types';
 /**
  * Builds a minimalist, modern Markdown tooltip with "glassmorphism" fades.
  */
-export function buildTooltip(snapshot: QuotaSnapshot): vscode.MarkdownString {
+export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vscode.MarkdownString {
 	const md = new vscode.MarkdownString();
 	md.isTrusted = true;
 	md.supportHtml = true;
@@ -67,7 +67,13 @@ export function buildTooltip(snapshot: QuotaSnapshot): vscode.MarkdownString {
 
 	md.appendMarkdown('<span style="color:#3f3f46;">─────────────────────────────────────────</span>\n\n');
 	
-	md.appendMarkdown(`<span style="color:#a1a1aa;">Last update: ${formatTimestamp(snapshot.timestamp)}</span> &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; [$(refresh) Refresh Usage](command:atm.dataId.refreshConsumption)`);
+	const refreshIcon = isRefreshing ? '$(sync~spin)' : '$(refresh)';
+	const refreshText = isRefreshing ? 'Refreshing...' : 'Refresh Usage';
+	const refreshLink = isRefreshing 
+		? `<span style="color:#a1a1aa;">${refreshIcon} ${refreshText}</span>` 
+		: `[${refreshIcon} ${refreshText}](command:atm.dataId.refreshConsumption)`;
+
+	md.appendMarkdown(`<span style="color:#a1a1aa;">Last update: ${formatTimestamp(snapshot.timestamp)}</span> &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; ${refreshLink}`);
 	
 	return md;
 }
@@ -77,21 +83,30 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 	const totalMeasured = measured.length;
 	const exhausted = measured.filter(m => m.isExhausted).length;
 	const critical = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
+	const credits = snapshot.promptCredits;
 
-	if (totalMeasured === 0) {
-		return '*<span style="color:#a1a1aa;">Discovering available models...</span>*';
+	const parts: string[] = [];
+	if (credits) {
+		parts.push(
+			`$(account) <span style="color:#a1a1aa;">Credits:</span> <span style="color:#f4f4f5;">**${credits.available}/${credits.monthly}**</span>`,
+			`$(pulse) <span style="color:${getStatusColor(Math.round(credits.remainingPercentage))};">${Math.round(credits.remainingPercentage)}% left</span>`
+		);
 	}
 
-	const lowest = Math.round(Math.min(...measured.map(m => m.remainingPercentage ?? 100)));
-	const healthColor = getStatusColor(lowest);
+	if (totalMeasured === 0) {
+		parts.push('*<span style="color:#a1a1aa;">Discovering available models...</span>*');
+		return parts.join(' &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; ');
+	}
+
 	const safeZone = Math.max(totalMeasured - exhausted - critical, 0);
 
-	return [
-		`$(dashboard) <span style="color:#a1a1aa;">Lowest:</span> <span style="color:${healthColor};">**${lowest}%**</span>`,
+	parts.push(...[
 		`$(heart) <span style="color:#a1a1aa;">Healthy:</span> <span style="color:#4ade80;">**${safeZone}/${totalMeasured}**</span>`,
 		critical > 0 ? `$(warning) <span style="color:#facc15;">Low: ${critical}</span>` : '',
 		exhausted > 0 ? `$(error) <span style="color:#f87171;">Exhausted: ${exhausted}</span>` : '',
-	].filter(Boolean).join(' &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; ');
+	]);
+
+	return parts.filter(Boolean).join(' &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; ');
 }
 
 /**

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ProcessFinder } from './core/process-finder';
 import { QuotaManager } from './core/quota-manager';
+import { QuotaSnapshot } from './core/types';
 import { buildTooltip } from './ui/tooltip-builder';
 
 const POLLING_INTERVAL_MS = 120_000; // 2 minutes
@@ -29,6 +30,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	let isFetching = false;
 	let queuedForceRefresh = false;
 	let lastSnapshotHash = '';
+	let lastSnapshot: QuotaSnapshot | null = null;
 	let fetchTimer: NodeJS.Timeout | null = null;
 
 	async function fetchAndUpdateQuota(forceRefresh = false): Promise<boolean> {
@@ -66,6 +68,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					.join('|');
 
 				if (currentHash !== lastSnapshotHash || forceRefresh) {
+					lastSnapshot = snapshot;
 					statusBarItem.tooltip = buildTooltip(snapshot);
 					lastSnapshotHash = currentHash;
 				}
@@ -113,21 +116,19 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 		}
 	}
 
-	// Refresh command (used from the tooltip link)
-	const refreshCmd = vscode.commands.registerCommand('atm.dataId.refreshConsumption', async () => {
+	const forceRefresh = async (): Promise<void> => {
 		statusBarItem.text = '$(sync~spin) AI Data';
-		const refreshed = await fetchAndUpdateQuota(true);
-		if (refreshed) {
-			vscode.window.showInformationMessage('🗘 Refresh Antigravity (data). ✅');
-		} else {
-			vscode.window.showInformationMessage('🗘 Refresh en cola. Se aplicara al terminar la actualizacion en curso.');
+		if (lastSnapshot && !isFetching) {
+			statusBarItem.tooltip = buildTooltip(lastSnapshot, true);
 		}
-	});
+		await fetchAndUpdateQuota(true);
+	};
+
+	// Refresh command (used from the tooltip link)
+	const refreshCmd = vscode.commands.registerCommand('atm.dataId.refreshConsumption', forceRefresh);
 
 	// Status bar click command
-	const showCmd = vscode.commands.registerCommand('atm.dataId.showConsumption', () => {
-		vscode.commands.executeCommand('atm.dataId.refreshConsumption');
-	});
+	const showCmd = vscode.commands.registerCommand('atm.dataId.showConsumption', forceRefresh);
 
 	// Initial fetch with a small delay to avoid blocking IDE startup
 	fetchTimer = setTimeout(() => fetchAndUpdateQuota(), INITIAL_DELAY_MS);

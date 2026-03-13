@@ -22,6 +22,21 @@ export interface QuotaSnapshot {
 	models: ModelQuotaInfo[];
 }
 
+export interface ServerModelQuotaInfo {
+	remainingFraction?: number;
+	resetTime?: string;
+}
+
+export interface ServerModelOrAlias {
+	model?: string;
+}
+
+export interface ServerClientModelConfig {
+	label?: string;
+	modelOrAlias?: ServerModelOrAlias;
+	quotaInfo?: ServerModelQuotaInfo;
+}
+
 export interface ServerUserStatusResponse {
 	userStatus: {
 		name: string;
@@ -37,13 +52,12 @@ export interface ServerUserStatusResponse {
 			availableFlowCredits: number;
 		};
 		cascadeModelConfigData?: {
-			clientModelConfigs: any[];
+			clientModelConfigs: ServerClientModelConfig[];
 		};
 	};
 }
 
 export interface ProcessInfo {
-	extensionPort: number;
 	connectPort: number;
 	csrfToken: string;
 }
