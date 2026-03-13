@@ -13,6 +13,7 @@ import { activateColorDebugging } from './color-debugging';
 import { activateScreenshotCode } from './screenshot-code';
 import { activateVersionPackage } from './version-package';
 import { activateSvgBetter } from './svg-better';
+import { activateDataId } from './ai-data-id';
 
 
 /**
@@ -36,4 +37,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateScreenshotCode(context);
   activateVersionPackage(context);
   activateSvgBetter(context);
+  activateDataId(context);
 }
