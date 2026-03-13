@@ -54,7 +54,9 @@
     "url": "https://github.com/sponsors/bastndev"
   },
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onLanguage:mdx",
+    "onCommand:atm.mdx.preview"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -399,82 +401,82 @@
       ]
     },
     "problemMatchers": [
-			{
-				"name": "esbuild",
-				"label": "esbuild problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"pattern": [
-					{
-						"regexp": "^[✘▲] \\[([A-Z]+)\\] (.+)",
-						"severity": 1,
-						"message": 2
-					},
-					{
-						"regexp": "^(?:\\t| {4})(?!\\s)([^:]+)(?::([0-9]+))?(?::([0-9]+))?:$",
-						"file": 1,
-						"line": 2,
-						"column": 3
-					}
-				]
-			},
-			{
-				"name": "esbuild-watch",
-				"base": "$esbuild",
-				"label": "esbuild --watch problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": {
-						"regexp": "\\[watch\\] build started"
-					},
-					"endsPattern": {
-						"regexp": "\\[watch\\] build finished"
-					}
-				}
-			},
-			{
-				"name": "esbuild-0.13",
-				"label": "esbuild <0.14 problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"pattern": [
-					{
-						"regexp": "> (.*?):([0-9]+):([0-9]+): (warning|error): (.+)$",
-						"file": 1,
-						"line": 2,
-						"column": 3,
-						"severity": 4,
-						"message": 5
-					}
-				]
-			},
-			{
-				"name": "esbuild-0.13-watch",
-				"base": "$esbuild-0.13",
-				"label": "esbuild <0.14 --watch problem matcher",
-				"severity": "error",
-				"applyTo": "closedDocuments",
-				"source": "esbuild",
-				"fileLocation": "relative",
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": {
-						"regexp": "\\[watch\\] build started"
-					},
-					"endsPattern": {
-						"regexp": "\\[watch\\] build finished"
-					}
-				}
-			}
-		]
+      {
+        "name": "esbuild",
+        "label": "esbuild problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "pattern": [
+          {
+            "regexp": "^[✘▲] \\[([A-Z]+)\\] (.+)",
+            "severity": 1,
+            "message": 2
+          },
+          {
+            "regexp": "^(?:\\t| {4})(?!\\s)([^:]+)(?::([0-9]+))?(?::([0-9]+))?:$",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          }
+        ]
+      },
+      {
+        "name": "esbuild-watch",
+        "base": "$esbuild",
+        "label": "esbuild --watch problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "\\[watch\\] build started"
+          },
+          "endsPattern": {
+            "regexp": "\\[watch\\] build finished"
+          }
+        }
+      },
+      {
+        "name": "esbuild-0.13",
+        "label": "esbuild <0.14 problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "pattern": [
+          {
+            "regexp": "> (.*?):([0-9]+):([0-9]+): (warning|error): (.+)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        ]
+      },
+      {
+        "name": "esbuild-0.13-watch",
+        "base": "$esbuild-0.13",
+        "label": "esbuild <0.14 --watch problem matcher",
+        "severity": "error",
+        "applyTo": "closedDocuments",
+        "source": "esbuild",
+        "fileLocation": "relative",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "\\[watch\\] build started"
+          },
+          "endsPattern": {
+            "regexp": "\\[watch\\] build finished"
+          }
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -496,6 +498,7 @@
     "@types/node": "20.x",
     "@types/node-fetch": "^2.6.13",
     "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/semver": "^7.7.1",
     "@types/svgo": "^2.6.4",
     "@types/vscode": "^1.74.0",
@@ -517,6 +520,8 @@
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",
     "html-to-image": "^1.11.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
     "semver": "^7.7.4",

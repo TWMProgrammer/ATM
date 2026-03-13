@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { MdxCompiler } from '../core/MdxCompiler';
 
 export class MdxPreviewManager {
@@ -10,6 +9,15 @@ export class MdxPreviewManager {
   private updateTimeout: NodeJS.Timeout | undefined;
 
   constructor(private readonly extensionUri: vscode.Uri) {}
+
+  private createNonce(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let text = '';
+    for (let i = 0; i < 32; i++) {
+      text += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return text;
+  }
 
   public showPreview() {
     const editor = vscode.window.activeTextEditor;
@@ -50,7 +58,14 @@ export class MdxPreviewManager {
       );
 
       this.panel.onDidDispose(() => {
-        this.dispose();
+        this.panel = undefined;
+        this.disposables.forEach((d) => d.dispose());
+        this.disposables = [];
+        if (this.updateTimeout) {
+          clearTimeout(this.updateTimeout);
+          this.updateTimeout = undefined;
+        }
+        this.currentDocumentUri = undefined;
       }, null, this.disposables);
 
       this.panel.webview.onDidReceiveMessage((message) => {
@@ -109,15 +124,27 @@ export class MdxPreviewManager {
     if (!this.panel) {
         return;
     }
+
+    const scriptUri = this.panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.extensionUri, 'dist', 'mdxPreviewWebview.js')
+    );
+    const nonce = this.createNonce();
+    const csp = [
+      "default-src 'none'",
+      `img-src ${this.panel.webview.cspSource} https: data:`,
+      `style-src ${this.panel.webview.cspSource} 'nonce-${nonce}'`,
+      `script-src 'nonce-${nonce}' 'unsafe-eval'`,
+      `font-src ${this.panel.webview.cspSource}`
+    ].join('; ');
+
     this.panel.webview.html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="${csp}">
   <title>MDX Preview</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <style>
+  <style nonce="${nonce}">
     body {
       padding: 20px;
       font-family: var(--vscode-font-family);
@@ -181,67 +208,7 @@ export class MdxPreviewManager {
 <body>
   <div id="error-overlay"></div>
   <div id="root"></div>
-  <script>
-    (function() {
-      const vscode = acquireVsCodeApi();
-      const rootEl = document.getElementById('root');
-      const errEl = document.getElementById('error-overlay');
-      const reactRoot = ReactDOM.createRoot(rootEl);
-      
-      function jsx(type, props, key) {
-        const { children, ...rest } = props || {};
-        if (key !== undefined) { rest.key = key; }
-        if (children !== undefined && children !== null) {
-          return React.createElement(type, rest, children);
-        }
-        return React.createElement(type, rest);
-      }
-
-      function jsxs(type, props, key) {
-        const { children, ...rest } = props || {};
-        if (key !== undefined) { rest.key = key; }
-        if (Array.isArray(children)) {
-          return React.createElement(type, rest, ...children);
-        }
-        return React.createElement(type, rest, children);
-      }
-
-      window.addEventListener('message', event => {
-        const message = event.data;
-        if (message.command === 'update') {
-          try {
-            errEl.style.display = 'none';
-            rootEl.style.display = 'block';
-
-            const runTarget = new Function(message.code);
-            const modArgs = { Fragment: React.Fragment, jsx, jsxs };
-            const executeMdx = runTarget(modArgs);
-            const MDXContent = executeMdx.default;
-            
-            if (typeof MDXContent === 'function') {
-               reactRoot.render(React.createElement(MDXContent, {}));
-            } else {
-               throw new Error("No default export found from MDX evaluation.");
-            }
-          } catch (err) {
-            rootEl.style.display = 'none';
-            errEl.style.display = 'block';
-            errEl.innerText = err.stack || err.toString();
-          }
-        } else if (message.command === 'error') {
-            rootEl.style.display = 'none';
-            errEl.style.display = 'block';
-            errEl.innerText = message.text;
-        }
-      });
-      
-      /* =========================================================
-       * 📨 READY SIGNAL
-       * Webview is ready to receive messages
-       * ========================================================= */
-      vscode.postMessage({ command: 'ready' });
-    })();
-  </script>
+  <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
   }
@@ -254,9 +221,10 @@ export class MdxPreviewManager {
     }
     
     const version = ++this.previewVersion;
+    const baseUrl = this.currentDocumentUri?.toString();
     
     try {
-      const jsCode = await MdxCompiler.compileToJS(mdxContent);
+      const jsCode = await MdxCompiler.compileToJS(mdxContent, baseUrl);
       // Discard if a newer update was queued while compiling
       if (version === this.previewVersion) {
         this.panel.webview.postMessage({ command: 'update', code: jsCode });
@@ -269,14 +237,16 @@ export class MdxPreviewManager {
   }
 
   public dispose() {
-    if (this.panel) {
-      this.panel.dispose();
-      this.panel = undefined;
+    const panel = this.panel;
+    this.panel = undefined;
+    if (panel) {
+      panel.dispose();
     }
     this.disposables.forEach(d => d.dispose());
     this.disposables = [];
     if (this.updateTimeout) {
       clearTimeout(this.updateTimeout);
+      this.updateTimeout = undefined;
     }
     this.currentDocumentUri = undefined;
   }

@@ -1,13 +1,38 @@
 export class MdxCompiler {
-  public static async compileToJS(mdxCode: string): Promise<string> {
+  private static depsPromise:
+    | Promise<{
+        compile: (source: string, options: Record<string, unknown>) => Promise<unknown>;
+        remarkFrontmatter: unknown;
+        remarkGfm: unknown;
+      }>
+    | undefined;
+
+  private static getDeps() {
+    if (!this.depsPromise) {
+      this.depsPromise = (async () => {
+        const { compile } = await import('@mdx-js/mdx');
+        const { default: remarkFrontmatter } = await import('remark-frontmatter');
+        const { default: remarkGfm } = await import('remark-gfm');
+
+        return {
+          compile,
+          remarkFrontmatter,
+          remarkGfm
+        };
+      })();
+    }
+
+    return this.depsPromise;
+  }
+
+  public static async compileToJS(mdxCode: string, baseUrl?: string): Promise<string> {
     try {
-      const { compile } = await import('@mdx-js/mdx');
-      const { default: remarkFrontmatter } = await import('remark-frontmatter');
-      const { default: remarkGfm } = await import('remark-gfm');
+      const { compile, remarkFrontmatter, remarkGfm } = await this.getDeps();
 
       const baseOptions = {
         outputFormat: 'function-body' as const,
         development: false,
+        baseUrl,
         remarkPlugins: [remarkFrontmatter, remarkGfm]
       };
 

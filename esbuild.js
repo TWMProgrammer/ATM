@@ -60,6 +60,7 @@ async function main() {
 	const browserCtx = await esbuild.context({
 		entryPoints: [
 			'src/extensions/markdown-text/ui/mermaidPreview.ts',
+			'src/extensions/markdown-mdx/ui/mdxPreviewWebview.ts',
 			'src/extensions/git-better/gitlab-panel/panels/header/header.ts',
 			'src/extensions/git-better/gitlab-panel/panels/graphics-top/graphics.ts',
 			'src/extensions/git-better/gitlab-panel/panels/stats-left/stats.ts',
