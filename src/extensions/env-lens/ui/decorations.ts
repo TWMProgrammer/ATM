@@ -16,19 +16,21 @@ export function registerEnvDecorations(context: vscode.ExtensionContext) {
 
     vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor) {
-            triggerDecorationsUpdate();
+            // Security-first: apply immediately on editor switch to avoid clear-text flash.
+            updateDecorations();
         }
     }, null, context.subscriptions);
 
     vscode.workspace.onDidChangeTextDocument(event => {
         if (vscode.window.activeTextEditor && event.document === vscode.window.activeTextEditor.document) {
+            // Debounce only typing updates for better performance.
             triggerDecorationsUpdate();
         }
     }, null, context.subscriptions);
 
     // Initial update
     if (vscode.window.activeTextEditor) {
-        triggerDecorationsUpdate();
+        updateDecorations();
     }
 }
 
