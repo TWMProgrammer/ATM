@@ -312,7 +312,7 @@
         "command": "atm.mdx.preview",
         "key": "shift+alt+m",
         "mac": "shift+alt+m",
-        "when": "editorLangId == mdx || editorLangId == markdown"
+        "when": "editorLangId == mdx"
       },
       {
         "command": "atm.copyTag.run",
@@ -337,7 +337,7 @@
         {
           "command": "atm.mdx.preview",
           "group": "navigation",
-          "when": "editorLangId == mdx || editorLangId == markdown"
+          "when": "editorLangId == mdx"
         },
         {
           "command": "atm.versionPackage.check",

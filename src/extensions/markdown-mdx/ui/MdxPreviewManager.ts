@@ -18,8 +18,8 @@ export class MdxPreviewManager {
       return;
     }
 
-    if (!['mdx', 'markdown'].includes(editor.document.languageId)) {
-      vscode.window.showErrorMessage('Active document is not an MDX or Markdown file.');
+    if (editor.document.languageId !== 'mdx') {
+      vscode.window.showErrorMessage('Active document is not an MDX file.');
       return;
     }
 
@@ -83,7 +83,7 @@ export class MdxPreviewManager {
        * Switch preview document
        * ========================================================= */
       vscode.window.onDidChangeActiveTextEditor((e) => {
-        if (e && ['mdx', 'markdown'].includes(e.document.languageId)) {
+        if (e && e.document.languageId === 'mdx') {
           this.currentDocumentUri = e.document.uri;
           this.queueUpdate(e.document.getText());
         }
