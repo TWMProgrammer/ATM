@@ -1,6 +1,6 @@
 {
   "name": "atm",
-  "displayName": "ATM - Ultimate Developer Toolkit",
+  "displayName": "ATM",
   "description": "Supercharge your IDE with 15+ essential tools: Inline Errors, Image/SVG Previews, Env Lens, MDX Support, AI Translation, Git Helpers, Voice TTS, and more.",
   "version": "1.1.1",
   "publisher": "bastndev",
@@ -18,11 +18,14 @@
   ],
   "keywords": [
     "developer-tools",
+    "cursor-settings",
     "image-preview",
     "ATM extension",
     "productivity",
+    "highlighting",
     "error-lens",
     "markdown",
+    "auto-tag",
     "env-lens",
     "mdx",
     "git",
