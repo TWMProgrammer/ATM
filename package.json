@@ -56,6 +56,7 @@
   "activationEvents": [
     "onStartupFinished",
     "onLanguage:mdx",
+    "onLanguage:dotenv",
     "onCommand:atm.mdx.preview"
   ],
   "main": "./dist/extension.js",
@@ -298,6 +299,10 @@
         "command": "atm.dataId.showConsumption",
         "title": "ATM: Data AI",
         "icon": "$(sparkle-filled)"
+      },
+      {
+        "command": "envLens.revealValue",
+        "title": "Env Lens: Reveal Value"
       }
     ],
     "keybindings": [
