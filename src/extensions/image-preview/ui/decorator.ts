@@ -31,6 +31,52 @@ const throttleTimers = new Map<string, ReturnType<typeof setTimeout>>();
 // Quick-reject heuristic: skip lines that can't possibly contain an image reference.
 // This avoids running all recognizer regexes on every line.
 const IMAGE_SIGNAL_PATTERN = /\.(svg|png|jpe?g|bmp|gif|ico|webp|avif|jfif)\b|data:image|https?:\/\/|!\[/i;
+const DEFAULT_EXCLUDED_FILE_PATTERNS = [
+  '.env*',
+  '.envrc',
+  '.secrets',
+  '.secret',
+  '.credentials',
+  '.npmrc',
+  '.pypirc',
+  '.netrc',
+  '.git-credentials',
+];
+
+function escapeRegExp(input: string): string {
+  return input.replace(/[|\\{}()[\]^$+?.]/g, '\\$&');
+}
+
+function globToRegExp(pattern: string): RegExp {
+  const normalized = pattern.replace(/\\/g, '/').trim();
+  const source = `^${normalized
+    .split('*')
+    .map((segment) => escapeRegExp(segment).replace(/\\\?/g, '.'))
+    .join('.*')}$`;
+  return new RegExp(source, 'i');
+}
+
+function shouldExcludeDocument(document: vscode.TextDocument): boolean {
+  const configuredPatterns = getConfig(document, 'excludeFilePatterns', DEFAULT_EXCLUDED_FILE_PATTERNS);
+  const patterns = Array.isArray(configuredPatterns)
+    ? configuredPatterns.filter((p): p is string => typeof p === 'string' && p.trim().length > 0)
+    : DEFAULT_EXCLUDED_FILE_PATTERNS;
+
+  if (patterns.length === 0) { return false; }
+
+  const fileName = document.fileName.split(/[\\/]/).pop() ?? '';
+  const relativePath = vscode.workspace.asRelativePath(document.uri, false).replace(/\\/g, '/');
+  const normalizedFilePath = document.fileName.replace(/\\/g, '/');
+
+  for (const pattern of patterns) {
+    const regex = globToRegExp(pattern);
+    if (regex.test(fileName) || regex.test(relativePath) || regex.test(normalizedFilePath)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 function hasAcceptedImageExtension(source: string): boolean {
   if (isDataUri(source)) { return true; }
@@ -111,6 +157,18 @@ function scanDocument(document: vscode.TextDocument): void {
   );
   if (editors.length === 0) { return; }
 
+  const key = document.uri.toString();
+  const prev = scanResults.get(key);
+
+  if (shouldExcludeDocument(document)) {
+    if (prev) {
+      prev.token.cancel();
+      clearDecorations(document, prev.decorations);
+      scanResults.delete(key);
+    }
+    return;
+  }
+
   const showGutter = getConfig(document, 'showImagePreviewOnGutter', true);
   const underline = getConfig(document, 'showUnderline', true);
   const isMarkdown = document.languageId === 'markdown';
@@ -127,8 +185,6 @@ function scanDocument(document: vscode.TextDocument): void {
   }
 
   // Cancel previous scan
-  const key = document.uri.toString();
-  const prev = scanResults.get(key);
   if (prev) {
     prev.token.cancel();
     clearDecorations(document, prev.decorations);
@@ -259,6 +315,7 @@ const hoverProvider: vscode.HoverProvider = {
   async provideHover(document, position) {
     // Markdown already has native link hovers; keep extension hover disabled there.
     if (document.languageId === 'markdown') { return undefined; }
+    if (shouldExcludeDocument(document)) { return undefined; }
 
     const key = document.uri.toString();
     const result = scanResults.get(key);

@@ -184,6 +184,25 @@
           "scope": "resource",
           "description": "Additional folders to consider when resolving relative URLs"
         },
+        "atm.image.preview.excludeFilePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".env*",
+            ".envrc",
+            ".secrets",
+            ".secret",
+            ".credentials",
+            ".npmrc",
+            ".pypirc",
+            ".netrc",
+            ".git-credentials"
+          ],
+          "scope": "resource",
+          "description": "File name/path patterns where image preview is disabled (no gutter icon and no hover). Supports * and ? wildcards."
+        },
         "atm.image.preview.currentColorForSVG": {
           "type": "string",
           "default": "white",
