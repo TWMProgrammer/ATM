@@ -303,6 +303,16 @@
       {
         "command": "envLens.revealValue",
         "title": "Env Lens: Reveal Value"
+      },
+      {
+        "command": "envLens.disableBlur",
+        "title": "Env Lens: Reveal .env Values",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "envLens.enableBlur",
+        "title": "Env Lens: Hide .env Values",
+        "icon": "$(eye)"
       }
     ],
     "keybindings": [
@@ -376,6 +386,16 @@
           "command": "atm.translate-doc.translateReleaseNotes",
           "group": "navigation",
           "when": "atm.releaseNotes.active"
+        },
+        {
+          "command": "envLens.disableBlur",
+          "group": "navigation@50",
+          "when": "envLens.isEnvFile && envLens.blurEnabled"
+        },
+        {
+          "command": "envLens.enableBlur",
+          "group": "navigation@50",
+          "when": "envLens.isEnvFile && !envLens.blurEnabled"
         }
       ],
       "extension/context": [

@@ -1,9 +1,18 @@
 import * as vscode from 'vscode';
 import { EnvHoverProvider } from './ui/hover-provider';
-import { registerEnvDecorations } from './ui/decorations';
+import { getBlurEnabled, registerEnvDecorations, setBlurEnabled } from './ui/decorations';
 import { envParser } from './core/env-parser';
 
 export async function activateEnvLens(context: vscode.ExtensionContext) {
+  const updateEnvLensContext = (editor?: vscode.TextEditor) => {
+    const activeEditor = editor ?? vscode.window.activeTextEditor;
+    const fileName = activeEditor?.document.fileName.split(/[\\/]/).pop();
+    const isEnvFile = fileName === '.env';
+
+    void vscode.commands.executeCommand('setContext', 'envLens.isEnvFile', isEnvFile);
+    void vscode.commands.executeCommand('setContext', 'envLens.blurEnabled', getBlurEnabled());
+  };
+
   // 1. Initialize the ENV parser (watches .env files)
   await envParser.initialize(context);
 
@@ -30,8 +39,27 @@ export async function activateEnvLens(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(revealCommand);
 
+  const disableBlurCommand = vscode.commands.registerCommand('envLens.disableBlur', () => {
+    setBlurEnabled(false);
+    void vscode.commands.executeCommand('setContext', 'envLens.blurEnabled', false);
+  });
+
+  const enableBlurCommand = vscode.commands.registerCommand('envLens.enableBlur', () => {
+    setBlurEnabled(true);
+    void vscode.commands.executeCommand('setContext', 'envLens.blurEnabled', true);
+  });
+
+  context.subscriptions.push(disableBlurCommand, enableBlurCommand);
+
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      updateEnvLensContext(editor);
+    })
+  );
+
   // 4. Register Editor Decorations for .env files
   registerEnvDecorations(context);
+  updateEnvLensContext();
 }
 
 export function deactivateEnvLens() {

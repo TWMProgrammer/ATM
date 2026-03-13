@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 let blurDecorationType: vscode.TextEditorDecorationType;
+let isBlurEnabled = true;
 
 export function registerEnvDecorations(context: vscode.ExtensionContext) {
     blurDecorationType = vscode.window.createTextEditorDecorationType({
@@ -34,8 +35,24 @@ function updateDecorations() {
         return;
     }
 
+    applyDecorationsToEditor(editor);
+}
+
+function applyDecorationsToEditor(editor: vscode.TextEditor) {
+    if (!editor) {
+        return;
+    }
+
+    const fileName = editor.document.fileName.split(/[\\/]/).pop();
+
     // Only apply to .env files
-    if (!editor.document.fileName.includes('.env')) {
+    if (fileName !== '.env') {
+        editor.setDecorations(blurDecorationType, []);
+        return;
+    }
+
+    if (!isBlurEnabled) {
+        editor.setDecorations(blurDecorationType, []);
         return;
     }
 
@@ -65,6 +82,17 @@ function updateDecorations() {
     }
 
     editor.setDecorations(blurDecorationType, blurRanges);
+}
+
+export function setBlurEnabled(enabled: boolean): void {
+    isBlurEnabled = enabled;
+    for (const editor of vscode.window.visibleTextEditors) {
+        applyDecorationsToEditor(editor);
+    }
+}
+
+export function getBlurEnabled(): boolean {
+    return isBlurEnabled;
 }
 
 // Simple debounce utility for performance
