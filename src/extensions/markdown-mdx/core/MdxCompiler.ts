@@ -27,14 +27,15 @@ export class MdxCompiler {
           .join(' | ')
           .toLowerCase();
 
-        // Some MDX files contain content that is markdown-valid but not strict MDX ESM.
-        // Retry in markdown mode so preview remains usable instead of failing hard.
+        // Keep preview in true MDX mode: normalize common problematic top-level comment blocks
+        // (e.g. {/** ... */}) and retry instead of degrading to plain Markdown rendering.
         if (details.includes('import/exports') || details.includes('blockstatement')) {
-          const fallbackCompiled = await compile(mdxCode, {
+          const sanitized = mdxCode.replace(/^[ \t]*\{\/\*[\s\S]*?\*\/\}[ \t]*$/gm, '');
+          const retried = await compile(sanitized, {
             ...baseOptions,
-            format: 'md'
+            format: 'mdx'
           });
-          return String(fallbackCompiled);
+          return String(retried);
         }
 
         throw strictErr;
