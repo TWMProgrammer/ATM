@@ -67,7 +67,7 @@
         "extensions": [
           ".mdx"
         ],
-        "configuration": "./src/extensions/markdown-mdx/language-configuration.json"
+        "configuration": "./src/extensions/markdown-mdx/syntaxes/language-configuration.json"
       }
     ],
     "grammars": [
