@@ -129,8 +129,18 @@ export class ProcessFinder {
 	}
 
 	private async findWorkingPort(ports: number[], csrfToken: string): Promise<number | null> {
-		for (const port of ports) {
-			const working = await new Promise(resolve => {
+		if (ports.length === 0) { return null; }
+		const activeRequests = new Set<ReturnType<typeof https.request>>();
+
+		const cancelPendingRequests = (): void => {
+			for (const request of activeRequests) {
+				request.destroy();
+			}
+			activeRequests.clear();
+		};
+
+		const testPort = (port: number): Promise<number> => {
+			return new Promise((resolve, reject) => {
 				const req = https.request({
 					hostname: '127.0.0.1', port,
 					path: '/exa.language_server_pb.LanguageServerService/GetUnleashData',
@@ -143,15 +153,32 @@ export class ProcessFinder {
 					rejectUnauthorized: false,
 					timeout: 2000,
 				}, res => {
-					resolve(res.statusCode === 200);
+					if (res.statusCode === 200) {
+						cancelPendingRequests();
+						resolve(port);
+					}
+					else { reject(new Error(`Status: ${res.statusCode}`)); }
 				});
-				req.on('error', () => resolve(false));
-				req.on('timeout', () => { req.destroy(); resolve(false); });
+				activeRequests.add(req);
+				req.on('close', () => {
+					activeRequests.delete(req);
+				});
+				req.on('error', reject);
+				req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
 				req.write(JSON.stringify({ wrapper_data: {} }));
 				req.end();
 			});
-			if (working) { return port; }
+		};
+
+		try {
+			// Tests all ports in parallel. Resolves instantly with the first successful port.
+			const workingPort = await Promise.any(ports.map(testPort));
+			cancelPendingRequests();
+			return workingPort;
+		} catch (e) {
+			// AggregateError thrown if all ports fail
+			cancelPendingRequests();
+			return null;
 		}
-		return null;
 	}
 }

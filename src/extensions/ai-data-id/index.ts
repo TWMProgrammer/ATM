@@ -26,10 +26,22 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 
 	const processFinder = new ProcessFinder();
 	const quotaManager = new QuotaManager();
+	let isFetching = false;
+	let queuedForceRefresh = false;
+	let lastSnapshotHash = '';
+	let fetchTimer: NodeJS.Timeout | null = null;
 
-	async function fetchAndUpdateQuota(): Promise<void> {
+	async function fetchAndUpdateQuota(forceRefresh = false): Promise<boolean> {
+		if (isFetching) {
+			if (forceRefresh) {
+				queuedForceRefresh = true;
+			}
+			return false;
+		}
+		isFetching = true;
+
 		try {
-			let connectionInfo = quotaManager.getConnectionInfo();
+			const connectionInfo = quotaManager.getConnectionInfo();
 
 			// If not connected yet, detect the Antigravity process
 			if (!connectionInfo) {
@@ -42,14 +54,21 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					statusBarItem.tooltip = new vscode.MarkdownString(
 						'Could not connect to the local Antigravity AI process.'
 					);
-					return;
+					return false;
 				}
 			}
 
 			// Fetch quota data via local HTTPS
 			const snapshot = await quotaManager.fetchQuota();
 			if (snapshot) {
-				statusBarItem.tooltip = buildTooltip(snapshot);
+				const currentHash = snapshot.models
+					.map(m => `${m.modelId}:${m.remainingPercentage}:${m.isExhausted}:${m.timeUntilResetFormatted}`)
+					.join('|');
+
+				if (currentHash !== lastSnapshotHash || forceRefresh) {
+					statusBarItem.tooltip = buildTooltip(snapshot);
+					lastSnapshotHash = currentHash;
+				}
 				const measuredModels = snapshot.models.filter(m => m.remainingPercentage !== undefined);
 				if (measuredModels.length === 0) {
 					statusBarItem.text = '$(sparkle-filled) AI Data';
@@ -67,6 +86,8 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					statusBarItem.text = `${icon} AI ${minRemaining}%`;
 				}
 			}
+
+			return true;
 		} catch (e) {
 			console.error('[ai-data-id] Error fetching quota:', e);
 			quotaManager.reset();
@@ -74,14 +95,33 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 			statusBarItem.tooltip = new vscode.MarkdownString(
 				'Partial connection error. Will retry automatically...'
 			);
+			return false;
+		} finally {
+			isFetching = false;
+			if (fetchTimer) { clearTimeout(fetchTimer); }
+
+			if (queuedForceRefresh) {
+				queuedForceRefresh = false;
+				fetchTimer = setTimeout(() => {
+					void fetchAndUpdateQuota(true);
+				}, 0);
+			} else {
+				fetchTimer = setTimeout(() => {
+					void fetchAndUpdateQuota();
+				}, POLLING_INTERVAL_MS);
+			}
 		}
 	}
 
 	// Refresh command (used from the tooltip link)
 	const refreshCmd = vscode.commands.registerCommand('atm.dataId.refreshConsumption', async () => {
 		statusBarItem.text = '$(sync~spin) AI Data';
-		await fetchAndUpdateQuota();
-		vscode.window.showInformationMessage('🗘 Refresh Antigravity (data). ✅');
+		const refreshed = await fetchAndUpdateQuota(true);
+		if (refreshed) {
+			vscode.window.showInformationMessage('🗘 Refresh Antigravity (data). ✅');
+		} else {
+			vscode.window.showInformationMessage('🗘 Refresh en cola. Se aplicara al terminar la actualizacion en curso.');
+		}
 	});
 
 	// Status bar click command
@@ -90,17 +130,18 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	});
 
 	// Initial fetch with a small delay to avoid blocking IDE startup
-	const initialTimeout = setTimeout(() => fetchAndUpdateQuota(), INITIAL_DELAY_MS);
-
-	// Passive polling every 2 minutes
-	const pollingInterval = setInterval(() => fetchAndUpdateQuota(), POLLING_INTERVAL_MS);
+	fetchTimer = setTimeout(() => fetchAndUpdateQuota(), INITIAL_DELAY_MS);
 
 	// Proper cleanup on extension deactivation
 	context.subscriptions.push(
 		statusBarItem,
 		refreshCmd,
 		showCmd,
-		{ dispose: () => clearTimeout(initialTimeout) },
-		{ dispose: () => clearInterval(pollingInterval) },
+		{
+			dispose: () => {
+				if (fetchTimer) { clearTimeout(fetchTimer); }
+				quotaManager.dispose();
+			}
+		}
 	);
 }

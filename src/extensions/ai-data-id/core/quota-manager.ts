@@ -8,6 +8,7 @@ import { QuotaSnapshot, ServerUserStatusResponse, ModelQuotaInfo } from './types
 export class QuotaManager {
 	private port: number = 0;
 	private csrfToken: string = '';
+	private sharedAgent = new https.Agent({ keepAlive: true });
 
 	init(port: number, csrfToken: string): void {
 		this.port = port;
@@ -17,6 +18,10 @@ export class QuotaManager {
 	reset(): void {
 		this.port = 0;
 		this.csrfToken = '';
+	}
+
+	dispose(): void {
+		this.sharedAgent.destroy();
 	}
 
 	isConnected(): boolean {
@@ -43,6 +48,7 @@ export class QuotaManager {
 				port: this.port,
 				path: '/exa.language_server_pb.LanguageServerService/GetUserStatus',
 				method: 'POST',
+				agent: this.sharedAgent,
 				headers: {
 					'Content-Type': 'application/json',
 					'Content-Length': Buffer.byteLength(data),
