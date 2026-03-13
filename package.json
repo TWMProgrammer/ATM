@@ -293,6 +293,11 @@
         "command": "atm.translate-doc.translateReleaseNotes",
         "title": "ATM: Translate Release Notes",
         "icon": "$(globe)"
+      },
+      {
+        "command": "atm.dataId.showConsumption",
+        "title": "ATM: Data AI",
+        "icon": "$(sparkle-filled)"
       }
     ],
     "keybindings": [
@@ -330,6 +335,12 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "atm.dataId.showConsumption",
+          "when": "atm.isAntigravity"
+        }
+      ],
       "editor/title": [
         {
           "command": "atm.translate-doc.translateExtension",

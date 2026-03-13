@@ -25,6 +25,7 @@ export const TECH_KEYWORDS = [
   'splash',
   'tailwindcss',
   'uniwind',
+  'keybindings',
   'xxxxxxx',
 
   'aarch',
