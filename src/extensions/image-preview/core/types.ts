@@ -33,6 +33,7 @@ export interface ImageInfo {
 
 /** Decoration entry stored per document */
 export interface DecorationEntry {
+  cacheKey?: string;
   type: vscode.TextEditorDecorationType;
   decorations: vscode.DecorationOptions[];
   originalImagePath: string;

@@ -17,6 +17,14 @@ const scanResults = new Map<string, {
   token: vscode.CancellationTokenSource;
 }>();
 
+/** Reusable decoration types keyed by image+style to reduce churn on rescans. */
+const DECORATION_CACHE_TTL = 60_000;
+const decorationTypeCache = new Map<string, {
+  type: vscode.TextEditorDecorationType;
+  refs: number;
+  lastUsed: number;
+}>();
+
 /** Throttle timers per document URI */
 const throttleTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -45,6 +53,52 @@ function isKnownMarkdownImageUrl(source: string): boolean {
   }
 
   return false;
+}
+
+function toDecorationCacheKey(imagePath: string, underline: boolean): string {
+  return `${underline ? 'u1' : 'u0'}|${imagePath}`;
+}
+
+function acquireDecorationType(cacheKey: string, uri: vscode.Uri, underline: boolean): vscode.TextEditorDecorationType {
+  const cached = decorationTypeCache.get(cacheKey);
+  const now = Date.now();
+  if (cached) {
+    cached.refs += 1;
+    cached.lastUsed = now;
+    return cached.type;
+  }
+
+  const created = vscode.window.createTextEditorDecorationType({
+    gutterIconPath: uri,
+    gutterIconSize: 'contain',
+    textDecoration: underline ? 'underline' : 'none',
+  });
+
+  decorationTypeCache.set(cacheKey, {
+    type: created,
+    refs: 1,
+    lastUsed: now,
+  });
+
+  return created;
+}
+
+function releaseDecorationType(cacheKey: string | undefined): void {
+  if (!cacheKey) { return; }
+  const cached = decorationTypeCache.get(cacheKey);
+  if (!cached) { return; }
+  cached.refs = Math.max(0, cached.refs - 1);
+  cached.lastUsed = Date.now();
+}
+
+function pruneDecorationTypeCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of decorationTypeCache) {
+    if (entry.refs === 0 && now - entry.lastUsed >= DECORATION_CACHE_TTL) {
+      entry.type.dispose();
+      decorationTypeCache.delete(key);
+    }
+  }
 }
 
 // =========================================================
@@ -150,11 +204,8 @@ function scanDocument(document: vscode.TextDocument): void {
         ? vscode.Uri.parse(img.imagePath)
         : vscode.Uri.file(img.imagePath.replace(/\\/g, '/'));
 
-    const decorationType = vscode.window.createTextEditorDecorationType({
-      gutterIconPath: uri,
-      gutterIconSize: 'contain',
-      textDecoration: underline ? 'underline' : 'none',
-    });
+    const cacheKey = toDecorationCacheKey(img.imagePath, underline);
+    const decorationType = acquireDecorationType(cacheKey, uri, underline);
 
     const decoration: vscode.DecorationOptions = {
       range: img.range,
@@ -162,6 +213,7 @@ function scanDocument(document: vscode.TextDocument): void {
     };
 
     entry.decorations.push({
+      cacheKey,
       type: decorationType,
       decorations: [decoration],
       originalImagePath: img.originalImagePath,
@@ -181,10 +233,10 @@ function clearDecorations(document: vscode.TextDocument, decorations: Decoration
     (e) => e.document.uri.toString() === document.uri.toString()
   );
   for (const dec of decorations) {
-    dec.type.dispose();
     for (const editor of editors) {
       editor.setDecorations(dec.type, []);
     }
+    releaseDecorationType(dec.cacheKey);
   }
   decorations.length = 0;
 }
@@ -331,6 +383,7 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
   const cacheInterval = setInterval(() => {
     pruneMetaCache();
     pruneResolveCache();
+    pruneDecorationTypeCache();
   }, 30_000);
 
   // Cleanup on deactivation
@@ -339,9 +392,13 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
       clearInterval(cacheInterval);
       for (const [, entry] of scanResults) {
         entry.token.cancel();
-        for (const dec of entry.decorations) { dec.type.dispose(); }
+        for (const dec of entry.decorations) { releaseDecorationType(dec.cacheKey); }
       }
       scanResults.clear();
+      for (const [, cached] of decorationTypeCache) {
+        cached.type.dispose();
+      }
+      decorationTypeCache.clear();
       for (const timer of throttleTimers.values()) { clearTimeout(timer); }
       throttleTimers.clear();
     },
