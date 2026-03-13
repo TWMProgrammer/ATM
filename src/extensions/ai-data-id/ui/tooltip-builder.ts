@@ -19,16 +19,24 @@ export function buildTooltip(snapshot: QuotaSnapshot): vscode.MarkdownString {
 		return md;
 	}
 
+	const PREDEFINED_ORDER = [
+		'Gemini 3.1 Pro (High)',
+		'Gemini 3.1 Pro (Low)',
+		'Gemini 3 Flash',
+		'Claude Sonnet 4.6 (Thinking)',
+		'Claude Opus 4.6 (Thinking)',
+		'GPT-OSS 120B (Medium)'
+	];
+
 	const orderedModels = [...snapshot.models].sort((a, b) => {
-		const aPct = a.remainingPercentage;
-		const bPct = b.remainingPercentage;
+		const aIndex = PREDEFINED_ORDER.indexOf(a.label);
+		const bIndex = PREDEFINED_ORDER.indexOf(b.label);
 
-		if (aPct === undefined && bPct !== undefined) { return 1; }
-		if (aPct !== undefined && bPct === undefined) { return -1; }
-		if (aPct === undefined && bPct === undefined) { return a.label.localeCompare(b.label); }
-		if (aPct === undefined || bPct === undefined) { return 0; }
+		if (aIndex !== -1 && bIndex !== -1) { return aIndex - bIndex; }
+		if (aIndex !== -1) { return -1; }
+		if (bIndex !== -1) { return 1; }
 
-		return aPct - bPct;
+		return a.label.localeCompare(b.label);
 	});
 
 	for (const model of orderedModels) {

@@ -4,6 +4,15 @@
  * technical terms, modern tools, and abbreviations.
  */
 export const TECH_KEYWORDS = [
+  'gemini',
+  'claude',
+  'sonnet',
+  'opus',
+  'glassmorphism',
+  'minimalist',
+  'xxxxxxx',
+  'xxxxxxx',
+
   // new words ATM
   'swatch',
   'listener',
@@ -26,7 +35,6 @@ export const TECH_KEYWORDS = [
   'tailwindcss',
   'uniwind',
   'keybindings',
-  'xxxxxxx',
 
   'aarch',
   'aarrggbb',
