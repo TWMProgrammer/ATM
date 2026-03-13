@@ -1,29 +1,54 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import * as https from 'https';
 import * as process from 'process';
 import { ProcessInfo } from './types';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+// ── Constants ────────────────────────────────────────────────────────
+
+/** Maximum time (ms) to wait for a port health-check response. */
+const PORT_PROBE_TIMEOUT_MS = 2_000;
+
+/** Delay (ms) between retry attempts during process detection. */
+const RETRY_DELAY_MS = 500;
+
+/** Default maximum number of retries for process detection. */
+const DEFAULT_MAX_RETRIES = 2;
+
+// ── Platform-specific process names ──────────────────────────────────
+
+const PROCESS_NAMES: Record<string, string> = {
+	win32_x64: 'language_server_windows_x64.exe',
+	darwin_x64: 'language_server_macos',
+	darwin_arm64: 'language_server_macos_arm',
+	linux_x64: 'language_server_linux_x64',
+	linux_arm64: 'language_server_linux_arm',
+};
 
 /**
  * Detects the Antigravity language server process running locally
- * and finds a working port to communicate with it.
+ * and discovers a working HTTPS port to communicate with it.
+ *
+ * Supports Windows (PowerShell), macOS, and Linux (x64 & ARM64).
  */
 export class ProcessFinder {
-	private processName: string;
+	private readonly processName: string;
 
 	constructor() {
-		if (process.platform === 'win32') {
-			this.processName = 'language_server_windows_x64.exe';
-		} else if (process.platform === 'darwin') {
-			this.processName = `language_server_macos${process.arch === 'arm64' ? '_arm' : ''}`;
-		} else {
-			this.processName = `language_server_linux${process.arch === 'arm64' ? '_arm' : '_x64'}`;
-		}
+		const key = `${process.platform}_${process.arch}`;
+		this.processName = PROCESS_NAMES[key]
+			?? PROCESS_NAMES[`${process.platform}_x64`]
+			?? 'language_server_linux_x64';
 	}
 
-	async detectProcessInfo(maxRetries: number = 2): Promise<ProcessInfo | null> {
+	/**
+	 * Attempts to detect the Antigravity process and find a working port.
+	 * @param maxRetries - Number of detection attempts before giving up.
+	 * @returns Connection info or `null` if the process could not be found.
+	 */
+	async detectProcessInfo(maxRetries: number = DEFAULT_MAX_RETRIES): Promise<ProcessInfo | null> {
 		for (let i = 0; i < maxRetries; i++) {
 			try {
 				const info = await this.getProcessInfoForPlatform();
@@ -43,7 +68,7 @@ export class ProcessFinder {
 			}
 
 			if (i < maxRetries - 1) {
-				await new Promise(r => setTimeout(r, 500));
+				await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
 			}
 		}
 		return null;
@@ -57,8 +82,10 @@ export class ProcessFinder {
 	}
 
 	private async detectWindows(): Promise<{ pid: number; csrfToken: string } | null> {
-		const cmd = `powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \\\\"name='${this.processName}'\\\\" | Select-Object ProcessId,CommandLine | ConvertTo-Json"`;
-		const { stdout } = await execAsync(cmd);
+		const psScript = `Get-CimInstance Win32_Process -Filter "name='${this.processName}'" | Select-Object ProcessId,CommandLine | ConvertTo-Json`;
+		const { stdout } = await execFileAsync(
+			'powershell', ['-NoProfile', '-Command', psScript],
+		);
 
 		try {
 			let data = JSON.parse(stdout.trim()) as { ProcessId: number; CommandLine?: string } | Array<{ ProcessId: number; CommandLine?: string }>;
@@ -82,8 +109,8 @@ export class ProcessFinder {
 
 	private async detectUnix(): Promise<{ pid: number; csrfToken: string } | null> {
 		const flag = process.platform === 'darwin' ? '-fl' : '-af';
-		const cmd = `pgrep ${flag} ${this.processName}`;
-		const { stdout } = await execAsync(cmd);
+
+		const { stdout } = await execFileAsync('pgrep', [flag, this.processName]);
 
 		for (const line of stdout.split('\n')) {
 			if (line.includes('antigravity') && line.includes('--csrf_token')) {
@@ -104,30 +131,63 @@ export class ProcessFinder {
 		const ports: number[] = [];
 		try {
 			if (process.platform === 'win32') {
-				const cmd = `powershell -NoProfile -Command "Get-NetTCPConnection -OwningProcess ${pid} -State Listen | Select-Object -ExpandProperty LocalPort | ConvertTo-Json"`;
-				const { stdout } = await execAsync(cmd);
+				const psScript = `Get-NetTCPConnection -OwningProcess ${pid} -State Listen | Select-Object -ExpandProperty LocalPort | ConvertTo-Json`;
+				const { stdout } = await execFileAsync(
+					'powershell', ['-NoProfile', '-Command', psScript],
+				);
 				const data = JSON.parse(stdout.trim());
 				if (Array.isArray(data)) { ports.push(...data); }
 				else if (typeof data === 'number') { ports.push(data); }
+			} else if (process.platform === 'darwin') {
+				const { stdout } = await execFileAsync(
+					'lsof', ['-nP', '-a', '-iTCP', '-sTCP:LISTEN', '-p', String(pid)],
+				);
+				this.parseLsofOutput(stdout, ports);
 			} else {
-				const cmd = process.platform === 'darwin'
-					? `lsof -nP -a -iTCP -sTCP:LISTEN -p ${pid}`
-					: `ss -tlnp 2>/dev/null | grep "pid=${pid}" || lsof -nP -a -iTCP -sTCP:LISTEN -p ${pid} 2>/dev/null`;
-				const { stdout } = await execAsync(cmd);
-
-				const lsofRegex = /(?:TCP|UDP)\s+(?:\*|[\d.]+|\[[\da-f:]+\]):(\d+)\s+\(LISTEN\)/gim;
-				let match;
-				while ((match = lsofRegex.exec(stdout)) !== null) { ports.push(parseInt(match[1], 10)); }
-
-				const ssRegex = /LISTEN\s+\d+\s+\d+\s+(?:\*|[\d.]+|\[[\da-f:]*\]):(\d+)/gi;
-				while ((match = ssRegex.exec(stdout)) !== null) { ports.push(parseInt(match[1], 10)); }
+				// On Linux, try `ss` first, fallback to `lsof`
+				try {
+					const { stdout } = await execFileAsync('ss', ['-tlnp']);
+					const pidFilter = `pid=${pid}`;
+					for (const line of stdout.split('\n')) {
+						if (line.includes(pidFilter)) {
+							const ssRegex = /LISTEN\s+\d+\s+\d+\s+(?:\*|[\d.]+|\[[\da-f:]*\]):(\d+)/gi;
+							let match;
+							while ((match = ssRegex.exec(line)) !== null) {
+								ports.push(parseInt(match[1], 10));
+							}
+						}
+					}
+				} catch {
+					// ss not available, try lsof
+					const { stdout } = await execFileAsync(
+						'lsof', ['-nP', '-a', '-iTCP', '-sTCP:LISTEN', '-p', String(pid)],
+					);
+					this.parseLsofOutput(stdout, ports);
+				}
 			}
 		} catch {
-			// Port detection may fail silently, retries will handle it
+			// Port detection may fail silently; retries will handle it
 		}
 		return [...new Set(ports)].sort((a, b) => a - b);
 	}
 
+	/** Extracts port numbers from `lsof` output. */
+	private parseLsofOutput(stdout: string, ports: number[]): void {
+		const lsofRegex = /(?:TCP|UDP)\s+(?:\*|[\d.]+|\[[\da-f:]+\]):(\d+)\s+\(LISTEN\)/gim;
+		let match;
+		while ((match = lsofRegex.exec(stdout)) !== null) {
+			ports.push(parseInt(match[1], 10));
+		}
+	}
+
+	/**
+	 * Tests all candidate ports in parallel and returns the first one
+	 * that responds successfully to an HTTPS health-check.
+	 *
+	 * **Security note**: `rejectUnauthorized: false` is intentional here.
+	 * The language server uses a self-signed certificate on `127.0.0.1`.
+	 * The CSRF token provides authentication; TLS here is only for transport encryption.
+	 */
 	private async findWorkingPort(ports: number[], csrfToken: string): Promise<number | null> {
 		if (ports.length === 0) { return null; }
 		const activeRequests = new Set<ReturnType<typeof https.request>>();
@@ -150,8 +210,8 @@ export class ProcessFinder {
 						'X-Codeium-Csrf-Token': csrfToken,
 						'Connect-Protocol-Version': '1',
 					},
-					rejectUnauthorized: false,
-					timeout: 2000,
+					rejectUnauthorized: false, // Self-signed cert on localhost (see JSDoc above)
+					timeout: PORT_PROBE_TIMEOUT_MS,
 				}, res => {
 					if (res.statusCode === 200) {
 						cancelPendingRequests();
@@ -175,7 +235,7 @@ export class ProcessFinder {
 			const workingPort = await Promise.any(ports.map(testPort));
 			cancelPendingRequests();
 			return workingPort;
-		} catch (e) {
+		} catch {
 			// AggregateError thrown if all ports fail
 			cancelPendingRequests();
 			return null;
