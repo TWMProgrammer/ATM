@@ -87,10 +87,10 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 	const safeZone = Math.max(totalMeasured - exhausted - critical, 0);
 
 	return [
-		`<span style="color:#a1a1aa;">Lowest:</span> <span style="color:${healthColor};">**${lowest}%**</span>`,
-		`<span style="color:#a1a1aa;">Healthy:</span> <span style="color:#4ade80;">**${safeZone}/${totalMeasured}**</span>`,
-		critical > 0 ? `<span style="color:#facc15;">Low: ${critical}</span>` : '',
-		exhausted > 0 ? `<span style="color:#f87171;">Exhausted: ${exhausted}</span>` : '',
+		`$(dashboard) <span style="color:#a1a1aa;">Lowest:</span> <span style="color:${healthColor};">**${lowest}%**</span>`,
+		`$(heart) <span style="color:#a1a1aa;">Healthy:</span> <span style="color:#4ade80;">**${safeZone}/${totalMeasured}**</span>`,
+		critical > 0 ? `$(warning) <span style="color:#facc15;">Low: ${critical}</span>` : '',
+		exhausted > 0 ? `$(error) <span style="color:#f87171;">Exhausted: ${exhausted}</span>` : '',
 	].filter(Boolean).join(' &nbsp;&nbsp;<span style="color:#3f3f46;">|</span>&nbsp;&nbsp; ');
 }
 
