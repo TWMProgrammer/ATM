@@ -154,6 +154,12 @@ export class QuotaManager {
 
 				const resetTime = m.quotaInfo?.resetTime ? new Date(m.quotaInfo.resetTime) : new Date();
 				const diff = resetTime.getTime() - Date.now();
+
+				// A model is exhausted if:
+				// 1. Its remaining fraction is explicitly 0
+				// 2. OR it has a reset time but NO remaining fraction (common for exhausted Claude/GPT-OSS models)
+				const isExhausted = remainingFraction === 0 || (remainingFraction === undefined && m.quotaInfo?.resetTime !== undefined && diff > 0);
+
 				return {
 					label: m.label || 'Unknown model',
 					modelId: m.modelOrAlias?.model || 'unknown',
@@ -161,7 +167,7 @@ export class QuotaManager {
 					remainingPercentage: remainingFraction !== undefined
 						? remainingFraction * PERCENTAGE_MAX
 						: undefined,
-					isExhausted: remainingFraction === 0,
+					isExhausted,
 					resetTime,
 					timeUntilReset: diff,
 					timeUntilResetFormatted: QuotaManager.formatTime(diff),

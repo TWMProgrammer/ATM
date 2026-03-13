@@ -15,7 +15,7 @@ const UNFILLED_SEGMENT_COLOR = '#ffffff0f';
 
 // ── Status colors (Tailwind CSS palette) ─────────────────────────────
 
-const COLOR_DANGER = '#f87171';  // red-400    — quota < 15%
+const COLOR_DANGER = '#ff0066';  // fuchsia-400 — quota < 15% or exhausted
 const COLOR_WARNING = '#facc15'; // yellow-400 — quota < 40%
 const COLOR_INFO = '#22d3ee';    // cyan-400   — quota < 70%
 const COLOR_HEALTHY = '#4ade80'; // green-400  — quota ≥ 70%
@@ -118,8 +118,30 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 
 /** Renders a single model row with its progress bar, percentage, and reset time. */
 function buildModelRow(model: QuotaSnapshot['models'][number]): string {
-	const isUnlimited = model.remainingPercentage === undefined;
 	const safeLabel = escapeInlineMarkdown(model.label);
+	const isExhausted = model.isExhausted;
+
+	// A model is only truly unlimited if it's NOT exhausted AND has no percentage.
+	const isUnlimited = model.remainingPercentage === undefined && !isExhausted;
+
+	if (isExhausted) {
+		const resetDate = model.resetTime.toLocaleDateString([], {
+			month: 'numeric',
+			day: 'numeric',
+			year: 'numeric',
+		});
+		const resetTime = model.resetTime.toLocaleTimeString([], {
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+
+		return (
+			`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
+			`<span style="color:${COLOR_DANGER};">**@gohitx**</span> &nbsp;&nbsp;` +
+			`<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; ` +
+			`$(history) <span style="color:${COLOR_TEXT_SECONDARY};">Refills on ${resetDate}, ${resetTime}</span>\n\n`
+		);
+	}
 
 	if (isUnlimited) {
 		return (
@@ -132,8 +154,7 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 	const pctColor = getStatusColor(pct);
 	const bar = generateModernBar(pct, pctColor);
 
-	const resetColor = model.isExhausted ? COLOR_DANGER : COLOR_TEXT_SECONDARY;
-	const resetText = `$(history) <span style="color:${resetColor};">${model.timeUntilResetFormatted}</span>`;
+	const resetText = `$(history) <span style="color:${COLOR_TEXT_SECONDARY};">${model.timeUntilResetFormatted}</span>`;
 
 	return (
 		`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
