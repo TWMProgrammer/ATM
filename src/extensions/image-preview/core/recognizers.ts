@@ -119,20 +119,46 @@ const siblingRecognizer: Recognizer = {
 };
 
 // =========================================================
-// 📝 MARKDOWN LINK RECOGNIZER
-// Detects ![alt](path) and [text](path) patterns
+// 📝 MARKDOWN IMAGE RECOGNIZERS
+// Detects markdown images and <img src="..."> tags
 // =========================================================
 
-const MARKDOWN_LINK = /(\[.*?\])\(([^")]*?)(?:\s*".*?")?\)/gi;
+const MARKDOWN_IMAGE = /!\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/gi;
+const HTML_IMAGE_TAG = /<img\b[^>]*\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi;
 
-const markedLinkRecognizer: Recognizer = {
+const markdownImageRecognizer: Recognizer = {
   recognize(lineIndex, line) {
     const results: UrlMatch[] = [];
     let match: RegExpExecArray | null;
-    MARKDOWN_LINK.lastIndex = 0;
-    while ((match = MARKDOWN_LINK.exec(line)) !== null) {
-      const imagePath = match[2].trim();
-      const offset = match.index + match[1].length + 1;
+    MARKDOWN_IMAGE.lastIndex = 0;
+    while ((match = MARKDOWN_IMAGE.exec(line)) !== null) {
+      const imagePath = (match[1] ?? match[2] ?? '').trim();
+      if (!imagePath) { continue; }
+      const relativeStart = match[0].indexOf(imagePath);
+      if (relativeStart < 0) { continue; }
+      const offset = match.index + relativeStart;
+      results.push({
+        url: imagePath,
+        lineIndex,
+        start: offset,
+        end: offset + imagePath.length,
+      });
+    }
+    return results;
+  },
+};
+
+const htmlImageRecognizer: Recognizer = {
+  recognize(lineIndex, line) {
+    const results: UrlMatch[] = [];
+    let match: RegExpExecArray | null;
+    HTML_IMAGE_TAG.lastIndex = 0;
+    while ((match = HTML_IMAGE_TAG.exec(line)) !== null) {
+      const imagePath = (match[1] ?? match[2] ?? match[3] ?? '').trim();
+      if (!imagePath) { continue; }
+      const relativeStart = match[0].indexOf(imagePath);
+      if (relativeStart < 0) { continue; }
+      const offset = match.index + relativeStart;
       results.push({
         url: imagePath,
         lineIndex,
@@ -149,9 +175,15 @@ const markedLinkRecognizer: Recognizer = {
 // =========================================================
 
 export const recognizers: Recognizer[] = [
-  markedLinkRecognizer,
   dataUrlRecognizer,
   linkRecognizer,
   localLinkRecognizer,
+  siblingRecognizer,
+];
+
+export const markdownRecognizers: Recognizer[] = [
+  markdownImageRecognizer,
+  htmlImageRecognizer,
+  dataUrlRecognizer,
   siblingRecognizer,
 ];
