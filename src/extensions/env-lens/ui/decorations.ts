@@ -4,6 +4,7 @@ let blurDecorationType: vscode.TextEditorDecorationType;
 let isBlurEnabled = true;
 const revealedKeys = new Set<string>();
 const revealTimers = new Map<string, NodeJS.Timeout>();
+const DEFAULT_REVEAL_MS = 5000;
 
 export function registerEnvDecorations(context: vscode.ExtensionContext) {
     blurDecorationType = vscode.window.createTextEditorDecorationType({
@@ -85,7 +86,7 @@ function applyDecorationsToEditor(editor: vscode.TextEditor) {
 
         const payload = encodeURIComponent(JSON.stringify({ key, value }));
         const hoverMessage = new vscode.MarkdownString(
-            `[👁 Reveal this value for 3s](command:envLens.revealValue?${payload})`
+            `[👁️ Reveal this value for 3s](command:envLens.revealValue?${payload})`
         );
         hoverMessage.isTrusted = true;
 
@@ -99,14 +100,15 @@ function applyDecorationsToEditor(editor: vscode.TextEditor) {
     editor.setDecorations(blurDecorationType, blurRanges);
 }
 
-export function revealKeyTemporarily(key: string, durationMs = 3000): void {
+export function revealKeyTemporarily(key: string, durationMs = DEFAULT_REVEAL_MS): void {
     if (!key) {
         return;
     }
 
-    const existingTimer = revealTimers.get(key);
-    if (existingTimer) {
-        clearTimeout(existingTimer);
+    // If it's already revealed, ignore repeated clicks.
+    // This guarantees it returns to blur after the original 5s.
+    if (revealedKeys.has(key)) {
+        return;
     }
 
     revealedKeys.add(key);

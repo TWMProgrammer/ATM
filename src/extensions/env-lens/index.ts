@@ -46,7 +46,7 @@ export async function activateEnvLens(context: vscode.ExtensionContext) {
     }
 
     if (value) {
-      revealKeyTemporarily(key, 3000);
+      revealKeyTemporarily(key, 4000);
     }
   });
 
