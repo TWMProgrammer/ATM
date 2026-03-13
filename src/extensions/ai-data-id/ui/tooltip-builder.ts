@@ -15,7 +15,7 @@ const UNFILLED_SEGMENT_COLOR = '#ffffff0f';
 
 // ── Status colors (Tailwind CSS palette) ─────────────────────────────
 
-const COLOR_DANGER = '#f87171';  // red-400    — quota < 15%
+const COLOR_DANGER = '#ff0066';  // fuchsia-400 — quota < 15% or exhausted
 const COLOR_WARNING = '#facc15'; // yellow-400 — quota < 40%
 const COLOR_INFO = '#22d3ee';    // cyan-400   — quota < 70%
 const COLOR_HEALTHY = '#4ade80'; // green-400  — quota ≥ 70%
