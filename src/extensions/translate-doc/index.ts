@@ -53,7 +53,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
 
         if (!targetText) {
           vscode.window.showInformationMessage(
-            'Could not detect the extension. Right-click on an extension and select "Translate".'
+            'First, install the extension 😉 and then start translating.'
           );
           return;
         }
