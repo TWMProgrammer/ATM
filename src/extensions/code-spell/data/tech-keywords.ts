@@ -22,6 +22,10 @@ export const TECH_KEYWORDS = [
   'watcher',
   'dashboard',
   'breaskdown',
+  'splash',
+  'tailwindcss',
+  'uniwind',
+  'xxxxxxx',
 
   'aarch',
   'aarrggbb',
