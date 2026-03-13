@@ -228,6 +228,37 @@
           "minimum": 50,
           "maximum": 2000,
           "description": "Duration in milliseconds the highlight remains visible."
+        },
+        "atm.envLens.renderMode": {
+          "type": "string",
+          "enum": [
+            "blur",
+            "mask"
+          ],
+          "default": "blur",
+          "description": "How ENV values are hidden in .env files: blur keeps shape visible, mask hides text fully with bullets."
+        },
+        "atm.envLens.revealDurationMs": {
+          "type": "number",
+          "default": 4000,
+          "minimum": 1000,
+          "maximum": 15000,
+          "description": "How long (ms) a single revealed env value stays visible before being hidden again."
+        },
+        "atm.envLens.enableHoverReveal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable reveal links in hovers for individual env values."
+        },
+        "atm.envLens.autoEnableBlurOnFocusOut": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically re-enable blur when leaving a .env file."
+        },
+        "atm.envLens.ultraSecureMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Disable all hover reveal actions and force hidden env values for maximum safety."
         }
       }
     },

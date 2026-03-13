@@ -1,6 +1,15 @@
 import * as vscode from 'vscode';
 import { envParser } from '../core/env-parser';
 
+function getHoverConfig() {
+    const config = vscode.workspace.getConfiguration('atm.envLens');
+
+    return {
+        enableHoverReveal: config.get<boolean>('enableHoverReveal', true),
+        ultraSecureMode: config.get<boolean>('ultraSecureMode', false),
+    };
+}
+
 export class EnvHoverProvider implements vscode.HoverProvider {
     /**
      * Regexes to match `process.env.XXX` or `import.meta.env.XXX`
@@ -26,6 +35,7 @@ export class EnvHoverProvider implements vscode.HoverProvider {
         if (match && match[1]) {
             const key = match[1];
             const value = envParser.getValue(key);
+            const config = getHoverConfig();
 
             if (value !== undefined) {
                 // Obfuscate value by default
@@ -38,9 +48,10 @@ export class EnvHoverProvider implements vscode.HoverProvider {
                 // Add the actual text, using markdown to create a minimal UI block
                 md.appendMarkdown(`**Env Lens** 👁️\n\n`);
                 md.appendCodeblock(`${key} = ${obfuscated}`, 'env');
-                
-                // Add command link
-                md.appendMarkdown(`\n\n[👁️ Reveal for 3s](command:envLens.revealValue?${encodeURIComponent(JSON.stringify(key))})`);
+
+                if (!config.ultraSecureMode && config.enableHoverReveal) {
+                    md.appendMarkdown(`\n\n[👁️ Reveal for 3s](command:envLens.revealValue?${encodeURIComponent(JSON.stringify(key))})`);
+                }
 
                 md.isTrusted = true;
                 return new vscode.Hover(md, range);

@@ -5,6 +5,21 @@ import { envParser } from './core/env-parser';
 
 type RevealPayload = string | { key: string; value?: string };
 
+function getEnvLensConfig() {
+  const config = vscode.workspace.getConfiguration('atm.envLens');
+  const revealDurationRaw = config.get<number>('revealDurationMs', 4000);
+  const revealDurationMs = Number.isFinite(revealDurationRaw)
+    ? Math.max(1000, Math.min(15000, Math.round(revealDurationRaw)))
+    : 5000;
+
+  return {
+    revealDurationMs,
+    enableHoverReveal: config.get<boolean>('enableHoverReveal', true),
+    ultraSecureMode: config.get<boolean>('ultraSecureMode', false),
+    autoEnableBlurOnFocusOut: config.get<boolean>('autoEnableBlurOnFocusOut', true),
+  };
+}
+
 export async function activateEnvLens(context: vscode.ExtensionContext) {
   const isEnvEditor = (editor?: vscode.TextEditor): boolean => {
     const fileName = editor?.document.fileName.split(/[\\/]/).pop();
@@ -37,6 +52,11 @@ export async function activateEnvLens(context: vscode.ExtensionContext) {
 
   // 3. Register Reveal Command
   const revealCommand = vscode.commands.registerCommand('envLens.revealValue', (payload: RevealPayload) => {
+    const config = getEnvLensConfig();
+    if (config.ultraSecureMode || !config.enableHoverReveal) {
+      return;
+    }
+
     const key = typeof payload === 'string' ? payload : payload?.key;
     const valueFromPayload = typeof payload === 'string' ? undefined : payload?.value;
     const value = valueFromPayload ?? (key ? envParser.getValue(key) : undefined);
@@ -46,7 +66,7 @@ export async function activateEnvLens(context: vscode.ExtensionContext) {
     }
 
     if (value) {
-      revealKeyTemporarily(key, 4000);
+      revealKeyTemporarily(key, config.revealDurationMs);
     }
   });
 
@@ -66,11 +86,27 @@ export async function activateEnvLens(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
+      const config = getEnvLensConfig();
       // Safety-first: if user leaves .env, always re-enable blur.
-      if (!isEnvEditor(editor) && !getBlurEnabled()) {
+      if (config.autoEnableBlurOnFocusOut && !isEnvEditor(editor) && !getBlurEnabled()) {
         setBlurEnabled(true);
       }
       updateEnvLensContext(editor);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (!event.affectsConfiguration('atm.envLens')) {
+        return;
+      }
+
+      const config = getEnvLensConfig();
+      if (config.ultraSecureMode && !getBlurEnabled()) {
+        setBlurEnabled(true);
+      }
+
+      updateEnvLensContext();
     })
   );
 
