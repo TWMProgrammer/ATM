@@ -10,7 +10,7 @@ export function buildTooltip(snapshot: QuotaSnapshot): vscode.MarkdownString {
 	md.supportHtml = true;
 	md.supportThemeIcons = true;
 
-	md.appendMarkdown('### <span style="color:#f4f4f5; font-weight:600;">AI Consumption</span>\n\n');
+	md.appendMarkdown('### <span style="color:#f4f4f5; font-weight:600;">Antigravity Quota - AI (Data)</span>\n\n');
 	md.appendMarkdown(`${buildTopSummary(snapshot)}\n\n`);
 	md.appendMarkdown('<span style="color:#3f3f46;">─────────────────────────────────────────</span>\n\n');
 

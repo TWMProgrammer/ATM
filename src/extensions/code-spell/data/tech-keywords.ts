@@ -10,7 +10,7 @@ export const TECH_KEYWORDS = [
   'opus',
   'glassmorphism',
   'minimalist',
-  'xxxxxxx',
+  'quota',
   'xxxxxxx',
 
   // new words ATM
