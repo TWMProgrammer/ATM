@@ -14,7 +14,7 @@ import { activateScreenshotCode } from './screenshot-code';
 import { activateVersionPackage } from './version-package';
 import { activateSvgBetter } from './svg-better';
 import { activateDataId } from './ai-data-id';
-
+import { activateEnvLens } from './env-lens';
 
 /**
  * Register all sub-extensions here.
@@ -38,4 +38,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateVersionPackage(context);
   activateSvgBetter(context);
   activateDataId(context);
+  activateEnvLens(context);
 }

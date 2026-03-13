@@ -5,6 +5,7 @@ const SECTION = 'atm.image.preview';
 type ConfigKey =
   | 'sourceFolder'
   | 'sourceFolders'
+  | 'excludeFilePatterns'
   | 'imagePreviewMaxHeight'
   | 'imagePreviewMaxWidth'
   | 'showImagePreviewOnGutter'

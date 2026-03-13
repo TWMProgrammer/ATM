@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "ATM",
   "description": "Available now: VSCode • Antigravity • Cursor • Windsurf • Trae.ai • Kiro & (Firebase Studio)... 雨",
-  "version": "0.0.2",
+  "version": "0.1.1",
   "publisher": "bastndev",
   "preview": true,
   "license": "MIT",
@@ -56,6 +56,7 @@
   "activationEvents": [
     "onStartupFinished",
     "onLanguage:mdx",
+    "onLanguage:dotenv",
     "onCommand:atm.mdx.preview"
   ],
   "main": "./dist/extension.js",
@@ -183,6 +184,25 @@
           "scope": "resource",
           "description": "Additional folders to consider when resolving relative URLs"
         },
+        "atm.image.preview.excludeFilePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".env*",
+            ".envrc",
+            ".secrets",
+            ".secret",
+            ".credentials",
+            ".npmrc",
+            ".pypirc",
+            ".netrc",
+            ".git-credentials"
+          ],
+          "scope": "resource",
+          "description": "File name/path patterns where image preview is disabled (no gutter icon and no hover). Supports * and ? wildcards."
+        },
         "atm.image.preview.currentColorForSVG": {
           "type": "string",
           "default": "white",
@@ -227,6 +247,37 @@
           "minimum": 50,
           "maximum": 2000,
           "description": "Duration in milliseconds the highlight remains visible."
+        },
+        "atm.envLens.renderMode": {
+          "type": "string",
+          "enum": [
+            "blur",
+            "mask"
+          ],
+          "default": "blur",
+          "description": "How ENV values are hidden in .env files: blur keeps shape visible, mask hides text fully with bullets."
+        },
+        "atm.envLens.revealDurationMs": {
+          "type": "number",
+          "default": 4000,
+          "minimum": 1000,
+          "maximum": 15000,
+          "description": "How long (ms) a single revealed env value stays visible before being hidden again."
+        },
+        "atm.envLens.enableHoverReveal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable reveal links in hovers for individual env values."
+        },
+        "atm.envLens.autoEnableBlurOnFocusOut": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically re-enable blur when leaving a .env file."
+        },
+        "atm.envLens.ultraSecureMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Disable all hover reveal actions and force hidden env values for maximum safety."
         }
       }
     },
@@ -298,6 +349,20 @@
         "command": "atm.dataId.showConsumption",
         "title": "ATM: Data AI",
         "icon": "$(sparkle-filled)"
+      },
+      {
+        "command": "envLens.revealValue",
+        "title": "Env Lens: Reveal Value"
+      },
+      {
+        "command": "envLens.disableBlur",
+        "title": "Env Lens: Reveal .env Values",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "envLens.enableBlur",
+        "title": "Env Lens: Hide .env Values",
+        "icon": "$(eye)"
       }
     ],
     "keybindings": [
@@ -371,6 +436,16 @@
           "command": "atm.translate-doc.translateReleaseNotes",
           "group": "navigation",
           "when": "atm.releaseNotes.active"
+        },
+        {
+          "command": "envLens.disableBlur",
+          "group": "navigation@50",
+          "when": "envLens.isEnvFile && envLens.blurEnabled"
+        },
+        {
+          "command": "envLens.enableBlur",
+          "group": "navigation@50",
+          "when": "envLens.isEnvFile && !envLens.blurEnabled"
         }
       ],
       "extension/context": [
