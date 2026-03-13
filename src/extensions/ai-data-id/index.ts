@@ -20,6 +20,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 
 	const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	statusBarItem.text = '$(sparkle-filled) AI Data';
+	statusBarItem.command = 'atm.dataId.showConsumption';
 	statusBarItem.tooltip = new vscode.MarkdownString('*Loading AI usage data...*');
 	statusBarItem.show();
 
