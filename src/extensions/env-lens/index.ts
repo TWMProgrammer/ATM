@@ -4,10 +4,14 @@ import { getBlurEnabled, registerEnvDecorations, setBlurEnabled } from './ui/dec
 import { envParser } from './core/env-parser';
 
 export async function activateEnvLens(context: vscode.ExtensionContext) {
+  const isEnvEditor = (editor?: vscode.TextEditor): boolean => {
+    const fileName = editor?.document.fileName.split(/[\\/]/).pop();
+    return fileName === '.env';
+  };
+
   const updateEnvLensContext = (editor?: vscode.TextEditor) => {
     const activeEditor = editor ?? vscode.window.activeTextEditor;
-    const fileName = activeEditor?.document.fileName.split(/[\\/]/).pop();
-    const isEnvFile = fileName === '.env';
+    const isEnvFile = isEnvEditor(activeEditor);
 
     void vscode.commands.executeCommand('setContext', 'envLens.isEnvFile', isEnvFile);
     void vscode.commands.executeCommand('setContext', 'envLens.blurEnabled', getBlurEnabled());
@@ -53,6 +57,10 @@ export async function activateEnvLens(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
+      // Safety-first: if user leaves .env, always re-enable blur.
+      if (!isEnvEditor(editor) && !getBlurEnabled()) {
+        setBlurEnabled(true);
+      }
       updateEnvLensContext(editor);
     })
   );
