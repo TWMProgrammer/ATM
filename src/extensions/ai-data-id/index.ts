@@ -81,7 +81,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	const refreshCmd = vscode.commands.registerCommand('atm.dataId.refreshConsumption', async () => {
 		statusBarItem.text = '$(sync~spin) AI Data';
 		await fetchAndUpdateQuota();
-		vscode.window.showInformationMessage('AI usage data updated successfully.');
+		vscode.window.showInformationMessage('🗘 Refresh Antigravity (data). ✅');
 	});
 
 	// Status bar click command
