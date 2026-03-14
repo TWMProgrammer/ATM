@@ -36,7 +36,7 @@
 <details>
 <summary>Tutorial VIDEO</summary>
 
-<video  loop src="./public/github/video/v-test.mp4"></video>
+<video  loop start src="./public/github/video/v-test.mp4"></video>
 
 </details>
 
@@ -45,9 +45,9 @@
 | ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
 
 <details>
-<summary>Tutorial VIDEO</summary>
+<summary>Tutorial VIDEO 2</summary>
 
-<video  loop src="./public/github/video/v-test.mp4"></video>
+<video controller src="./public/github/video/v-test.mp4"></video>
 
 </details>
 
@@ -91,7 +91,7 @@ ext install bastndev.atm
 |                     **[Gohit X](https://gohit.xyz)**                      |
 |                          _Creator & Maintainer_                           |
 
-- [🍀 IG](https://instagram.com/gohitx) - Preview post in stories.
+- [🌱 IG](https://instagram.com/gohitx) - `new` Preview post in stories.
 - 🔴 [Youtube](https://www.youtube.com/@gohitx?sub_confirmation=1) - Code, Software and development insights.
 - 💼 [Linkedin](https://www.linkedin.com/in/gohitx) - Professional networking and career updates.
 
