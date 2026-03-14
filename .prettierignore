@@ -4,3 +4,6 @@ tsconfig.json
 
 # src/extension.ts
 src/extensions/
+
+# Others
+REAMDE.md
