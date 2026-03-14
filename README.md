@@ -12,4 +12,12 @@
   <a href="https://github.com/bastndev/ATM"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/star.png" width="26.6px" alt="Github Star ⭐️"></a>
 </p>
 
+<p align="center">
+  <a href="./public/docs/README_ES.md">Español 🇪🇸</a> |
+  <a href="./public/docs/README_ZH.md">中文 🇨🇳</a>
+</p>
+
 <br>
+
+## HELLO
+
