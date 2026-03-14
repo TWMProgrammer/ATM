@@ -18,9 +18,9 @@
 
 <br>
 
-| `Icon`                                                 | `Code/Name`                                     | `Description`                                                                                                                                                         | `SIZE` |
-| ------------------------------------------------------ | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB   |
+| `Icon`                                                 | `Code/Name`                                     | `Description`                                                                                                                                                          | `SIZE` |
+| ------------------------------------------------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Ctrl + C` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB   |
 
 <details>
 <summary>Tutorial GIF</summary>
@@ -31,7 +31,7 @@
 
 |                                                        |                                                 |                                                                                                                                                                       |      |
 | ------------------------------------------------------ | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+| ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -58,7 +58,7 @@
 
 <br>
 
-### [➕] `Settings` disable or enable
+### [+] `Settings` disable or enable
 
 - **Cursor**: disable animation
 - **breadcrumbs**: disable animation
@@ -91,14 +91,63 @@ ext install bastndev.atm
 |                     **[Gohit X](https://gohit.xyz)**                      |
 |                          _Creator & Maintainer_                           |
 
-- [🌱 IG](https://instagram.com/gohitx) - `new` Preview post in stories.
+- [🌱 IG](https://instagram.com/gohitx) **`new`** - Preview post in stories.
 - 🔴 [Youtube](https://www.youtube.com/@gohitx?sub_confirmation=1) - Code, Software and development insights.
 - 💼 [Linkedin](https://www.linkedin.com/in/gohitx) - Professional networking and career updates.
 
 <br>
 
+## Sponsors 💗
+
+<div align="center"><table>
+    <tr>
+      <td align="center">
+        <img src="https://avatars.githubusercontent.com/u/94884563?v=4" width="80" height="80" style="border-radius: 50%;" alt="Sponsor 1"/>
+        <p>Celia A.</p>
+      </td>
+            <td align="center">
+        <img src="https://avatars.githubusercontent.com/u/94884563?v=4" width="80" height="80" style="border-radius: 50%;" alt="Sponsor 1"/>
+        <p>Octavio A.</p>
+      </td>
+            <td align="center">
+        <img src="https://avatars.githubusercontent.com/u/94884563?v=4" width="80" height="80" style="border-radius: 50%;" alt="Sponsor 1"/>
+        <p>Richar C.</p>
+      </td>
+            <td align="center">
+        <img src="https://avatars.githubusercontent.com/u/94884563?v=4" width="80" height="80" style="border-radius: 50%;" alt="Sponsor 1"/>
+        <p>Frank C.</p>
+      </td>
+      <td align="center">
+        <img src="https://avatars.githubusercontent.com/u/22199520?v=4" width="80" height="80" style="border-radius: 50%;" alt="Sponsor 2"/>
+        <p>M</p>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p align="center">
+  <em>Thank you to all our amazing sponsors! 💖</em><br>
+  <a href="https://github.com/sponsors/bastndev">Become a sponsor</a>
+</p>
+
+<br>
+
+<h2 align="center">
+  Complement Extension 🧩
+</h2>
+
+<!-- ##   Complement Extension 🧩 -->
+
+| Icon                                                                                                                                                                                                                                   | Name                                                           | Description                                                                                                                                                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/0.1.2/1744898058774/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme) | [Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)       | A professional extension with six available themes: Dark, Light, Night, Ghibli, Coffee, and Kiro—with integrated icons. Each theme is optimized to offer a more pleasant visual experience.   |
+| [![Lynx Keymap Pro](https://raw.githubusercontent.com/bastndev/Lynx-Keymap-Pro/refs/heads/main/assets/images/logo.png)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap)                                      | [Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro) | Standardizes keyboard shortcuts across all code editors, allowing you to use key combinations to access any functionality. It improves workflow and development experience.                   |
+| [![LynxJS Pack](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynxjs-pack/0.1.8/1745206864969/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynxjs-pack)  | [LynxJS Pack](https://github.com/bastndev/LynxJs-Packge)       | An all-in-one toolkit for web and mobile development with LynxJS: includes keyboard shortcuts, error alerts, text correction, snippets, and more. Tools designed to streamline your workflow. |
+
+<br>
+
 <div align="center">
   
-  **Enjoy 🎉 Your (Lynxjs Pack) are now installed!**  
-  *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/Lynxjs-Pack/issues)*
+  **Enjoy 🎉 Your (ATM - Extension) are now installed!**  
+  *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/atm/issues)*
 </div>
