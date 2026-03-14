@@ -36,7 +36,7 @@
 <details>
 <summary>Tutorial VIDEO</summary>
 
-<video  loop start src="./public/github/video/v-test.mp4"></video>
+<video controls autoplay muted loop src="./public/github/video/v-test.mp4" width="100%"></video>
 
 </details>
 
@@ -47,7 +47,7 @@
 <details>
 <summary>Tutorial VIDEO</summary>
 
-<video  loop start src="./public/github/video/v-test.mp4"></video>
+<video controls autoplay muted loop src="./public/github/video/v-test.mp4" width="100%"></video>
 
 </details>
 
@@ -58,13 +58,13 @@
 <details>
 <summary>Tutorial VIDEO</summary>
 
-<video  loop start src="./public/github/video/v-test.mp4"></video>
+<video controls autoplay muted loop src="./public/github/video/v-test.mp4" width="100%"></video>
 
 </details>
 
 |                                                                                    |                                                 |                                                                                                                                                                       |       |
 | ---------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| <img src="./public/github/images/logos/test.png" alt="Compare Code" width="80%" /> | [Compare Code](https://github.com/bastndev/ATM) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB  |
+| <img src="./public/github/images/logos/test.png" alt="Compare Code" width="80%" /> | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Shift + Alt+ Space` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB  |
 | TOTAL                                                                              | -                                               | -                                                                                                                                                                     | `1MB` |
 
 ---
