@@ -18,9 +18,9 @@
 
 <br>
 
-| `Icon`                                                 | `Code/Name`                                     | `Description`                                                                                                                                                          | `SIZE` |
-| ------------------------------------------------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Ctrl + C` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB   |
+| `Icon`                                                                             | `Code/Name`                                     | `Description`                                                                                                                                                          | `SIZE` |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| <img src="./public/github/images/logos/test.png" alt="Compare Code" width="80%" /> | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Ctrl + C` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB   |
 
 <details alaing="center">
 <summary>Tutorial GIF</summary>
@@ -29,9 +29,9 @@
 
 </details>
 
-|                                                        |                                                 |                                                                                                                                                                       |      |
-| ------------------------------------------------------ | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                    |                                                 |                                                                                                                                                                       |      |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Compare Code" width="95%" /> | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -40,21 +40,32 @@
 
 </details>
 
-|                                                        |                                                 |                                                                                                                                                                       |      |
-| ------------------------------------------------------ | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                    |                                                 |                                                                                                                                                                       |      |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Compare Code" width="95%" /> | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
 
 <details>
-<summary>Tutorial VIDEO 2</summary>
+<summary>Tutorial VIDEO</summary>
 
-<video controller src="./public/github/video/v-test.mp4"></video>
+<video  loop start src="./public/github/video/v-test.mp4"></video>
 
 </details>
 
-|                                                                                                                                     |                                                                                                                                                                                |                                                                                                                                                                       |       |
-| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| [![Compare Code](./public/github/images/logos/test.png)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code) | <img src="https://raw.githubusercontent.com/bastndev/Lynxjs-Pack/refs/heads/main/assets/images/code.png" width="19"/> [Compare Code](https://github.com/bastndev/Compare-Code) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 30KB  |
-| TOTAL                                                                                                                               | -                                                                                                                                                                              | -                                                                                                                                                                     | `1MB` |
+|                                                                                    |                                                 |                                                                                                                                                                       |      |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Compare Code" width="95%" /> | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+
+<details>
+<summary>Tutorial VIDEO</summary>
+
+<video  loop start src="./public/github/video/v-test.mp4"></video>
+
+</details>
+
+|                                                                                    |                                                 |                                                                                                                                                                       |       |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| <img src="./public/github/images/logos/test.png" alt="Compare Code" width="80%" /> | [Compare Code](https://github.com/bastndev/ATM) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB  |
+| TOTAL                                                                              | -                                               | -                                                                                                                                                                     | `1MB` |
 
 ---
 
