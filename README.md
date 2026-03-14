@@ -56,6 +56,8 @@
 | [![Compare Code](./public/github/images/logos/test.png)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code) | <img src="https://raw.githubusercontent.com/bastndev/Lynxjs-Pack/refs/heads/main/assets/images/code.png" width="19"/> [Compare Code](https://github.com/bastndev/Compare-Code) | Lets you `compare` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 30KB  |
 | TOTAL                                                                                                                               | -                                                                                                                                                                              | -                                                                                                                                                                     | `1MB` |
 
+---
+
 <br>
 
 ### [+] `Settings` disable or enable
