@@ -22,7 +22,7 @@
 | ------------------------------------------------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | ![Compare Code](./public/github/images/logos/test.png) | [Compare Code](https://github.com/bastndev/ATM) | Lets you `Ctrl + C` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB   |
 
-<details>
+<details alaing="center">
 <summary>Tutorial GIF</summary>
 
 <img src="./public/github/gif/g-test.gif" alt="Tutorial GIF" width="100%"/>
@@ -99,7 +99,7 @@ ext install bastndev.atm
 
 <br>
 
-## Sponsors 💗
+## Sponsors <img src="./public/github/icons/sponsor.png" alt="Image" width="5%"/>
 
 <div align="center"><table>
     <tr>
