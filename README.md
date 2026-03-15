@@ -18,9 +18,9 @@
 
 <br>
 
-| `Icon`                                                                                 | `Code/Name`                                   | `Description`                                                                                                                                                          | `SIZE` |
-| -------------------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| <img src="./public/github/images/logos/ai-data-id.png" alt="AI Data Id" width="80%" /> | [AI Data Id](https://github.com/bastndev/ATM) | Lets you `Ctrl + C` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB   |
+| `Icon`                                                                                 | `Code/Name`                                | `Description`                                                                                          | `SIZE` |
+| -------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ------ |
+| <img src="./public/github/images/logos/ai-data-id.png" alt="AI Data Id" width="80%" /> | [AI Data](https://github.com/bastndev/ATM) | Monitorea y muestra el consumo de datos de la IA (Antigravity) con tooltip informativo en tiempo real. | 12KB   |
 
 <details>
 <summary>Tutorial GIF</summary>
@@ -29,9 +29,9 @@
 
 </details>
 
-|                                                                                  |                                               |                                                                                                                                                                       |      |
-| -------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Code Spell" width="95%" /> | [Code Spell](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                  |                                               |                                                                                                                               |      |
+| -------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Code Spell" width="95%" /> | [Code Spell](https://github.com/bastndev/ATM) | Corrector ortografico para codigo con diccionario en ingles, terminos tecnicos, acciones rapidas y exclusiones configurables. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -40,20 +40,9 @@
 
 </details>
 
-|                                                                                 |                                              |                                                                                                                                                                       |      |
-| ------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Color Box" width="95%" /> | [Color Box](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
-
-<details>
-<summary>Tutorial VIDEO</summary>
-
-<video controls autoplay muted loop src="./public/github/video/v-color-box.mp4" width="100%"></video>
-
-</details>
-
-|                                                                                       |                                                    |                                                                                                                                                                       |      |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Color Debugging" width="95%" /> | [Color Debugging](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                       |                                                    |                                                                                                        |      |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Color Debugging" width="95%" /> | [Color Debugging](https://github.com/bastndev/ATM) | Herramientas de depuracion visual de colores con gestion de estado y controles desde la barra inferior | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -62,9 +51,9 @@
 
 </details>
 
-|                                                                                     |                                                  |                                                                                                                                                                       |      |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Comments Code" width="95%" /> | [Comments Code](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                     |                                                  |                                                                                                              |      |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Comments Code" width="95%" /> | [Comments Code](https://github.com/bastndev/ATM) | Mejora la lectura de comentarios con decoraciones visuales, control por lenguaje y actualizacion optimizada. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -73,9 +62,9 @@
 
 </details>
 
-|                                                                                |                                             |                                                                                                                                                                       |      |
-| ------------------------------------------------------------------------------ | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Env Lens" width="95%" /> | [Env Lens](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                |                                             |                                                                                                                 |      |
+| ------------------------------------------------------------------------------ | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Env Lens" width="95%" /> | [Env Lens](https://github.com/bastndev/ATM) | Parsea archivos .env y oculta valores con BLUR seguro (ocultar/mostrar temporal) mediante decoraciones y hover. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -84,9 +73,9 @@
 
 </details>
 
-|                                                                                  |                                               |                                                                                                                                                                       |      |
-| -------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Error Lens" width="95%" /> | [Error Lens](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                  |                                               |                                                                                                               |      |
+| -------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Error Lens" width="95%" /> | [Error Lens](https://github.com/bastndev/ATM) | Muestra errores y advertencias directamente en linea para acelerar la deteccion y correccion de diagnosticos. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -95,9 +84,9 @@
 
 </details>
 
-|                                                                                  |                                               |                                                                                                                                                                       |      |
-| -------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Git Better" width="95%" /> | [Git Better](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                  |                                               |                                                                                                   |      |
+| -------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Git Better" width="95%" /> | [Git Better](https://github.com/bastndev/ATM) | Panel Git mejorado con vista mini-blame y herramientas visuales para revisar historial y cambios. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -106,9 +95,9 @@
 
 </details>
 
-|                                                                                     |                                                  |                                                                                                                                                                       |      |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Image Preview" width="95%" /> | [Image Preview](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                     |                                                  |                                                                                        |      |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Image Preview" width="95%" /> | [Image Preview](https://github.com/bastndev/ATM) | Previsualiza imagenes con datos de tamaño peso en el codigo directamente en el editor. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -117,9 +106,9 @@
 
 </details>
 
-|                                                                                    |                                                 |                                                                                                                                                                       |      |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Markdown MDX" width="95%" /> | [Markdown MDX](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                    |                                                 |                                                                                                                            |      |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Markdown MDX" width="95%" /> | [Markdown MDX](https://github.com/bastndev/ATM) | Soporte MDX con sintaxis y vista previa en vivo usando compilacion React/esbuild, con acceso rapido por `Shift + Alt + M`. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -128,9 +117,9 @@
 
 </details>
 
-|                                                                                     |                                                  |                                                                                                                                                                       |      |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Markdown Text" width="95%" /> | [Markdown Text](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                     |                                                  |                                                                                                                                                                      |      |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Markdown Text" width="95%" /> | [Markdown Text](https://github.com/bastndev/ATM) | Mejora markdown le agrega esteroides lo hace mas inteligente y se implementa nuchas funcones nuevas y modernas como previsualizacion de diagramas Mermaid integrada. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -139,9 +128,9 @@
 
 </details>
 
-|                                                                                       |                                                    |                                                                                                                                                                       |      |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Screenshot Code" width="95%" /> | [Screenshot Code](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                       |                                                    |                                                                                            |      |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Screenshot Code" width="95%" /> | [Screenshot Code](https://github.com/bastndev/ATM) | Genera capturas de fragmentos de codigo con estilos de presentacion listos para compartir. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -150,9 +139,9 @@
 
 </details>
 
-|                                                                                  |                                               |                                                                                                                                                                       |      |
-| -------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="SVG Better" width="95%" /> | [SVG Better](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                  |                                               |                                                                                          |      |
+| -------------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="SVG Better" width="95%" /> | [SVG Better](https://github.com/bastndev/ATM) | Mejora el trabajo con SVG mediante vista dividida automatica y optimizacion de archivos. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -161,9 +150,9 @@
 
 </details>
 
-|                                                                                     |                                                  |                                                                                                                                                                       |      |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Translate Doc" width="95%" /> | [Translate Doc](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                     |                                                  |                                                                                                                                |      |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Translate Doc" width="95%" /> | [Translate Doc](https://github.com/bastndev/ATM) | Traduce documentacion y notas de version para mantener contenido tecnico en varios idiomas, con atajos `Ctrl + Shift + Space`. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -172,9 +161,9 @@
 
 </details>
 
-|                                                                                       |                                                    |                                                                                                                                                                       |      |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Version Package" width="95%" /> | [Version Package](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB |
+|                                                                                       |                                                    |                                                                                                              |      |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Version Package" width="95%" /> | [Version Package](https://github.com/bastndev/ATM) | Gestiona versiones en package.json con parser semantico, decoraciones y ayuda contextual al pasar el cursor. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -183,10 +172,21 @@
 
 </details>
 
-|                                                                                 |                                              |                                                                                                                                                                       |       |
-| ------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| <img src="./public/github/images/logos/test.png" alt="Voice TTS" width="95%" /> | [Voice TTS](https://github.com/bastndev/ATM) | Lets you `Alt + R` code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. | 12KB  |
-| TOTAL                                                                           | -                                            | -                                                                                                                                                                     | `1MB` |
+|                                                                                 |                                              |                                                                                                                                                                                    |      |
+| ------------------------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| <img src="./public/github/images/logos/test.png" alt="Voice TTS" width="95%" /> | [Voice TTS](https://github.com/bastndev/ATM) | Convierte texto a voz dentro de (tu editor preferido) con activacion, estado e interfaz de control, usando `Shift + Space` para leer y `Shift + Alt + Space` para seleccionar voz. | 12KB |
+
+<details>
+<summary>Tutorial VIDEO</summary>
+
+<video controls autoplay muted loop src="./public/github/video/v-color-box.mp4" width="100%"></video>
+
+</details>
+
+|                                                                                 |                                              |                                                                                                              |       |
+| ------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----- |
+| <img src="./public/github/images/logos/test.png" alt="Color Box" width="95%" /> | [Color Box](https://github.com/bastndev/ATM) | Detecta y resalta colores inline en el editor para multiples formatos y lenguajes con renderizado eficiente. | 12KB  |
+| TOTAL                                                                           | -                                            | -                                                                                                            | `1MB` |
 
 ---
 
