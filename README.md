@@ -27,7 +27,7 @@
   </thead>
   <tbody>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-0.png" alt="AI Data Id" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-0.png" alt="AI Data Id" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
       <td>Monitorea y muestra el consumo de datos de la IA (Antigravity) con tooltip informativo en tiempo real.</td>
       <td align="center"><b>56KB</b></td>
@@ -42,7 +42,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-1.png" alt="Code Spell" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-1.png" alt="Code Spell" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Code Spell</b></a></td>
       <td>Corrector ortografico para codigo con diccionario en ingles, terminos tecnicos, acciones rapidas y exclusiones configurables.</td>
       <td align="center"><b>156KB</b></td>
@@ -57,7 +57,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-t.png" alt="Color Debugging" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-t.png" alt="Color Debugging" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Color Debugging</b></a></td>
       <td>Herramientas de depuracion visual de colores con gestion de estado y controles desde la barra inferior</td>
       <td align="center"><b>28KB</b></td>
@@ -72,7 +72,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-3.png" alt="Comments Code" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-3.png" alt="Comments Code" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Comments Code</b></a></td>
       <td>Mejora la lectura de comentarios con decoraciones visuales, control por lenguaje y actualizacion optimizada.</td>
       <td align="center"><b>44KB</b></td>
@@ -87,7 +87,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-4.png" alt="Env Lens" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-4.png" alt="Env Lens" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Env Lens</b></a></td>
       <td>Parsea archivos .env y oculta valores con BLUR seguro (ocultar/mostrar temporal) mediante decoraciones y hover.</td>
       <td align="center"><b>32KB</b></td>
@@ -102,7 +102,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-5.png" alt="Error Lens" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-5.png" alt="Error Lens" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Error Lens</b></a></td>
       <td>Muestra errores y advertencias directamente en linea para acelerar la deteccion y correccion de diagnosticos.</td>
       <td align="center"><b>28KB</b></td>
@@ -117,7 +117,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-6.png" alt="Git Better" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-6.png" alt="Git Better" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Git Better</b></a></td>
       <td>Panel Git mejorado con vista mini-blame y herramientas visuales para revisar historial y cambios.</td>
       <td align="center"><b>368KB</b></td>
@@ -132,7 +132,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-7.png" alt="Image Preview" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-7.png" alt="Image Preview" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Image Preview</b></a></td>
       <td>Previsualiza imagenes con datos de tamaño peso en el codigo directamente en el editor.</td>
       <td align="center"><b>56KB</b></td>
@@ -147,7 +147,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-8.png" alt="Markdown Text" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-8.png" alt="Markdown Text" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Markdown Text</b></a></td>
       <td>Mejora markdown le agrega esteroides lo hace mas inteligente y se implementa nuchas funcones nuevas y modernas como previsualizacion de diagramas Mermaid integrada.</td>
       <td align="center"><b>52KB</b></td>
@@ -162,7 +162,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-9.png" alt="Markdown MDX" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-9.png" alt="Markdown MDX" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Markdown MDX</b></a></td>
       <td>Soporte MDX con sintaxis y vista previa en vivo usando compilacion React/esbuild, con acceso rapido por <code>Shift + Alt + M</code>.</td>
       <td align="center"><b>400KB</b></td>
@@ -177,7 +177,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-10.png" alt="Screenshot Code" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-10.png" alt="Screenshot Code" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Screenshot Code</b></a></td>
       <td>Genera capturas de fragmentos de codigo con estilos de presentacion listos para compartir.</td>
       <td align="center"><b>100KB</b></td>
@@ -192,7 +192,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-11.png" alt="SVG Better" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-11.png" alt="SVG Better" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>SVG Better</b></a></td>
       <td>Mejora el trabajo con SVG mediante vista dividida automatica y optimizacion de archivos.</td>
       <td align="center"><b>12KB</b></td>
@@ -207,7 +207,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-12.png" alt="Translate Doc" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-12.png" alt="Translate Doc" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Translate Doc</b></a></td>
       <td>Traduce documentacion y notas de version para mantener contenido tecnico en varios idiomas, con atajos <code>Ctrl + Shift + Space</code>.</td>
       <td align="center"><b>56KB</b></td>
@@ -222,7 +222,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-13.png" alt="Version Package" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-13.png" alt="Version Package" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Version Package</b></a></td>
       <td>Gestiona versiones en package.json con parser semantico, decoraciones y ayuda contextual al pasar el cursor.</td>
       <td align="center"><b>56KB</b></td>
@@ -237,7 +237,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-14.png" alt="Voice TTS" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-14.png" alt="Voice TTS" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Voice TTS</b></a></td>
       <td>Convierte texto a voz dentro de (tu editor preferido) con activacion, estado e interfaz de control, usando <code>Shift + Space</code> para leer y <code>Shift + Alt + Space</code> para seleccionar voz.</td>
       <td align="center"><b>80KB</b></td>
@@ -252,7 +252,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="./public/github/images/update/t-15.png" alt="Color Box" width="60" /></td>
+      <td align="center"><img src="./public/github/images/update/t-15.png" alt="Color Box" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Color Box</b></a></td>
       <td>Detecta y resalta colores inline en el editor para multiples formatos y lenguajes con renderizado eficiente.</td>
       <td align="center"><b>20KB</b></td>
