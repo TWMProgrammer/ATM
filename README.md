@@ -363,10 +363,8 @@ Thank you to everyone who supports this project! Your contributions make updates
 ---
 
 <h2 align="center">
-  🧩 Recommended Extensions
+  🧩 Complement Extensions
 </h2>
-
-Boost your productivity even further with these recommended tools crafted by the same author:
 
 | Icon                                                                                                                                                                                                                                     | Extension                                                          | Description                                                                                                                                                         |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
