@@ -314,7 +314,7 @@ You can customize ATM's behavior directly via your VS Code settings. Tweak the e
 |                     **[Gohit X](https://gohit.xyz)**                      |
 |                          _Creator & Maintainer_                           |
 
-- 📸 **[Instagram](https://instagram.com/gohitx)** - Follow for exclusive previews and dev stories.
+- **[🌱 IG](https://instagram.com/gohitx)** : **`new`** - Follow for exclusive previews and dev stories.
 - 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** - Code deep-dives, software architecture, and development insights.
 - 💼 **[LinkedIn](https://www.linkedin.com/in/gohitx)** - Let's connect professionally!
 
@@ -359,8 +359,6 @@ Thank you to everyone who supports this project! Your contributions make updates
 </div>
 
 <br>
-
----
 
 <h2 align="center">
   🧩 Complement Extensions
