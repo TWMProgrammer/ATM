@@ -15,7 +15,7 @@
 </p>
 
 <div align="center">
-  <h3>🏧 16 extensions. 1 install. Zero bloat.</h3>
+  <h3>🏧 +16 extensions & configurations ready.</h3>
   <p>
     <strong>ATM</strong> is an all-in-one VS Code extension that replaces 16 separate tools with one cohesive, beautifully designed package. From inline spell checking and intelligent <code>.env</code> security to gorgeous code screenshots and advanced Git tools — everything you need, nothing you don't.
   </p>
@@ -27,7 +27,7 @@
   <thead>
     <tr>
       <th width="15%" align="center">Icon</th>
-      <th width="15%" align="center">Code / Name</th>
+      <th width="15%" align="center">Name</th>
       <th width="60%">Description</th>
       <th width="10%" align="center">Size</th>
     </tr>
