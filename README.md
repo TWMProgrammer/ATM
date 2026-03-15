@@ -19,7 +19,7 @@
 
 | `Icon`                                                                                 | `Code/Name`                                | `Description`                                                                                          | `SIZE` |
 | -------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ------ |
-| <img src="./public/github/images/logos/ai-data-id.png" alt="AI Data Id" width="80%" /> | [AI Data](https://github.com/bastndev/ATM) | Monitorea y muestra el consumo de datos de la IA (Antigravity) con tooltip informativo en tiempo real. | 12KB   |
+| <img src="./public/github/images/logos/icon-3.png" alt="AI Data Id" width="80%" /> | [AI Data](https://github.com/bastndev/ATM) | Monitorea y muestra el consumo de datos de la IA (Antigravity) con tooltip informativo en tiempo real. | 12KB   |
 
 <details>
 <summary>Tutorial GIF</summary>
@@ -30,7 +30,7 @@
 
 |                                                                                  |                                               |                                                                                                                               |      |
 | -------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Code Spell" width="95%" /> | [Code Spell](https://github.com/bastndev/ATM) | Corrector ortografico para codigo con diccionario en ingles, terminos tecnicos, acciones rapidas y exclusiones configurables. | 12KB |
+| <img src="./public/github/images/logos/icon-3.png" alt="Code Spell" width="95%" /> | [Code Spell](https://github.com/bastndev/ATM) | Corrector ortografico para codigo con diccionario en ingles, terminos tecnicos, acciones rapidas y exclusiones configurables. | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
@@ -41,7 +41,7 @@
 
 |                                                                                       |                                                    |                                                                                                        |      |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---- |
-| <img src="./public/github/images/logos/test.png" alt="Color Debugging" width="95%" /> | [Color Debugging](https://github.com/bastndev/ATM) | Herramientas de depuracion visual de colores con gestion de estado y controles desde la barra inferior | 12KB |
+| <img src="./public/github/images/logos/icon-3.png" alt="Color Debugging" width="95%" /> | [Color Debugging](https://github.com/bastndev/ATM) | Herramientas de depuracion visual de colores con gestion de estado y controles desde la barra inferior | 12KB |
 
 <details>
 <summary>Tutorial VIDEO</summary>
