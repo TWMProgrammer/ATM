@@ -15,6 +15,17 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 <br>
 <!-- --- -->
 
+---
+
+## [0.1.2] - 2025-03-13
+
+### Improved
+
+- Enhanced the README with better structure, clear descriptions, and modern design.
+- Added images and videos to the documentation for a more visual and engaging experience.
+
+---
+
 ## [0.1.1] - 2025-03-13
 
 ### Added
