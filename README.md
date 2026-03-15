@@ -5,9 +5,9 @@
 <br>
 
 <p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=bastndev.atm"><img src="https://vsmarketplacebadges.dev/version-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=VERSION" alt="Version"></a>&nbsp;
-  <a href="https://marketplace.visualstudio.com/items?itemName=bastndev.atm"><img src="https://vsmarketplacebadges.dev/downloads-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=Downloads" alt="Downloads"></a>&nbsp;
-  <a href="https://marketplace.visualstudio.com/items?itemName=bastndev.atm"><img src="https://vsmarketplacebadges.dev/rating-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=RATING" alt="Rating"></a>&nbsp;
+  <img src="https://vsmarketplacebadges.dev/version-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=VERSION" alt="Version">&nbsp;
+  <img src="https://vsmarketplacebadges.dev/downloads-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=Downloads" alt="Downloads">&nbsp;
+  <img src="https://vsmarketplacebadges.dev/rating-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=RATING" alt="Rating">&nbsp;
   <a href="https://github.com/bastndev/ATM"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/star.png" width="26.6px" alt="Github Star ⭐️"></a>
 </p>
 
