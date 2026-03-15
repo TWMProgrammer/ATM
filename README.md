@@ -14,9 +14,12 @@
   <a href="./public/docs/README_ZH.md">中文 🇨🇳</a>
 </p>
 
-<p align="center">
-  <strong>ATM</strong> is an ultimate all-in-one VS Code extension designed to supercharge your development workflow. From inline spell checking and intelligent <code>.env</code> security to gorgeous code screenshots and advanced Git tools, ATM brings everything you need into one cohesive, beautifully designed package.
-</p>
+<div align="center">
+  <h3>🏧 16 extensions. 1 install. Zero bloat.</h3>
+  <p>
+    <strong>ATM</strong> is an all-in-one VS Code extension that replaces 16 separate tools with one cohesive, beautifully designed package. From inline spell checking and intelligent <code>.env</code> security to gorgeous code screenshots and advanced Git tools — everything you need, nothing you don't.
+  </p>
+</div>
 
 <br>
 
@@ -270,11 +273,11 @@
   </tbody>
 </table>
 
-<br>
-
 ---
 
-## ⚙️ Configuration
+<br>
+
+## [+] Settings disable or enable
 
 You can customize ATM's behavior directly via your VS Code settings. Tweak the experience to your exact liking:
 
@@ -284,28 +287,25 @@ You can customize ATM's behavior directly via your VS Code settings. Tweak the e
 
 > 💡 **Pro Tip:** Keep the extension updated regularly to ensure you have the latest features, performance improvements, and security patches.
 
-<br>
-
----
-
-## 🚀 Installation
-
-1. Launch **Quick Open**:
-   - <img src="https://www.kernel.org/theme/images/logos/favicon.png" width=14 height=14/> **Linux**: `Ctrl + P`
-   - <img src="https://developer.apple.com/favicon.ico" width=14 height=14/> **macOS**: `⌘ + P`
-   - <img src="https://www.microsoft.com/favicon.ico" width=14 height=14/> **Windows**: `Ctrl + P`
-
-2. Paste the following command and press **Enter**:
-
-   ```bash
-   ext install bastndev.atm
-   ```
-
-3. Reload VS Code and enjoy your new superpowers! ⚡
+> 💡 On macOS, replace `Ctrl` with `⌘` (Cmd).
 
 <br>
 
 ---
+
+## Installation
+
+Launch _Quick Open_
+
+- <img src="https://www.kernel.org/theme/images/logos/favicon.png" width=16 height=16/> Linux `Ctrl+P`
+- <img src="https://developer.apple.com/favicon.ico" width=16 height=16/> macOS `⌘P`
+- <img src="https://www.microsoft.com/favicon.ico" width=16 height=16/> Windows `Ctrl+P`
+
+Paste the following command and press `Enter`:
+
+```
+ext install bastndev.compare-code
+```
 
 ## 🧑‍💻 About Me
 
@@ -376,4 +376,9 @@ Thank you to everyone who supports this project! Your contributions make updates
   
   **Enjoy 🎉 Your (ATM - Extension) are now installed!**  
   *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/atm/issues)*
+
+  <br>
+
+<sub>Made with ❤️ by <a href="https://gohit.xyz">Gohit X</a> · Licensed under <a href="./LICENCE">MIT</a></sub>
+
 </div>
