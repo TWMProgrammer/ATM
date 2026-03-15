@@ -1,8 +1,7 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="ATM Banner">
+  <img src="./public/github/gif/banner.gif" width="50%" alt="ATM Banner">
+  <!-- <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="ATM Banner"> -->
 </div>
-
-<br>
 
 <p align="center">
   <img src="https://vsmarketplacebadges.dev/version-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=VERSION" alt="Version">&nbsp;
