@@ -17,6 +17,14 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 
 ---
 
+## [1.1.1] - 2025-03-13
+
+- Refactor readme, and better Docs, ES & ZH
+- Update icons "Liquid glass
+- Update version v0.1.2 to v1.1.1
+
+---
+
 ## [0.1.2] - 2025-03-13
 
 ### Improved
