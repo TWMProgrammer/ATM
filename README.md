@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="ATM Banner">
+  <img src="./public/github/images/banner-2.webp" width="100%" alt="ATM Banner">
 </div>
 
 <p align="center">
@@ -26,15 +26,16 @@
 <table width="100%">
   <thead>
     <tr>
-      <th width="15%" align="center">Icon</th>
-      <th width="15%" align="center">Name</th>
-      <th width="60%">Description</th>
+      <th width="17%" align="center">Icon</th>
+      <th width="19%" align="center">Name</th>
+      <th width="50%">Description</th>
       <th width="10%" align="center">Size</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-0.png" alt="AI Data Id" width="100" /></td>
+      <!-- <td align="center"><img src="./public/github/images/logos/w1.webp" alt="AI Data Id" width="100" /></td> -->
+      <td align="center"><img src="./public/github/images/logos/atm-1.webp" alt="AI Data Id" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
       <td>Monitors and displays AI (Antigravity) data consumption with real-time informative tooltips.</td>
       <td align="center"><b>56KB</b></td>
@@ -49,7 +50,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-1.png" alt="Code Spell" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-2.webp" alt="Code Spell" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Code Spell</b></a></td>
       <td>Spell checker for code with an English dictionary, technical terms, quick actions, and configurable exclusions.</td>
       <td align="center"><b>156KB</b></td>
@@ -64,7 +65,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-t.png" alt="Color Debugging" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-3.webp" alt="Color Debugging" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Color Debugging</b></a></td>
       <td>Visual color debugging tools with state management and integrated bottom bar controls.</td>
       <td align="center"><b>28KB</b></td>
@@ -79,7 +80,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-3.png" alt="Comments Code" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-4.webp" alt="Comments Code" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Comments Code</b></a></td>
       <td>Enhances comment readability with visual decorations, language control, and optimized rendering.</td>
       <td align="center"><b>44KB</b></td>
@@ -94,7 +95,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-4.png" alt="Env Lens" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-5.webp" alt="Env Lens" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Env Lens</b></a></td>
       <td>Parses <code>.env</code> files securely and hides values with BLUR (hide/show temporarily) using decorators and hover interactions.</td>
       <td align="center"><b>32KB</b></td>
@@ -109,7 +110,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-5.png" alt="Error Lens" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-6.webp" alt="Error Lens" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Error Lens</b></a></td>
       <td>Displays errors and warnings directly inline to accelerate the detection and resolution of diagnostics.</td>
       <td align="center"><b>28KB</b></td>
@@ -124,7 +125,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-6.png" alt="Git Better" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-7.webp" alt="Git Better" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Git Better</b></a></td>
       <td>Enhanced Git panel with a mini-blame view and beautiful visual tools to review repository history and changes.</td>
       <td align="center"><b>368KB</b></td>
@@ -139,7 +140,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-7.png" alt="Image Preview" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-8.webp" alt="Image Preview" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Image Preview</b></a></td>
       <td>Preview images complete with dimensions and file size directly inline within your code editor.</td>
       <td align="center"><b>56KB</b></td>
@@ -154,7 +155,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-8.png" alt="Markdown Text" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-9.webp" alt="Markdown Text" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Markdown Text</b></a></td>
       <td>Supercharges your Markdown, making it smarter with modern features like integrated Mermaid diagram previews.</td>
       <td align="center"><b>52KB</b></td>
@@ -169,7 +170,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-9.png" alt="Markdown MDX" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-10.webp" alt="Markdown MDX" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Markdown MDX</b></a></td>
       <td>Full MDX syntax support and live preview using React/esbuild compilation. Quick access via <code>Shift + Alt + M</code>.</td>
       <td align="center"><b>400KB</b></td>
@@ -184,7 +185,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-10.png" alt="Screenshot Code" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-11.webp" alt="Screenshot Code" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Screenshot Code</b></a></td>
       <td>Generate breathtaking screenshots of your code snippets with presentation styles ready to share on social networks.</td>
       <td align="center"><b>100KB</b></td>
@@ -199,7 +200,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-11.png" alt="SVG Better" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-12.webp" alt="SVG Better" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>SVG Better</b></a></td>
       <td>Elevates your SVG workflow via an automatic split view and built-in file optimization.</td>
       <td align="center"><b>12KB</b></td>
@@ -214,7 +215,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-12.png" alt="Translate Doc" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-13.webp" alt="Translate Doc" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Translate Doc</b></a></td>
       <td>Translates documentation and release notes natively inside your editor using <code>Ctrl + Shift + Space</code>.</td>
       <td align="center"><b>56KB</b></td>
@@ -229,7 +230,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-13.png" alt="Version Package" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-14.webp" alt="Version Package" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Version Package</b></a></td>
       <td>Seamlessly manage package versions in <code>package.json</code> with a semantic parser, hover states, and decorators.</td>
       <td align="center"><b>56KB</b></td>
@@ -244,7 +245,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-14.png" alt="Voice TTS" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-15.webp" alt="Voice TTS" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Voice TTS</b></a></td>
       <td>Reads text back to you directly inside the editor. Use <code>Shift + Space</code> to read and <code>Shift + Alt + Space</code> to select voices.</td>
       <td align="center"><b>80KB</b></td>
@@ -259,7 +260,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/update/t-15.png" alt="Color Box" width="100" /></td>
+      <td align="center"><img src="./public/github/images/logos/atm-16.webp" alt="Color Box" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Color Box</b></a></td>
       <td>Lightning-fast detection and highlighting of inline colors across multiple modern web formats.</td>
       <td align="center"><b>20KB</b></td>
