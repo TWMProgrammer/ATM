@@ -6,8 +6,8 @@ import { deactivateVoiceTts } from './extensions/voice-tts';
 import { deactivateCommentsCode } from './extensions/comments-code';
 import { deactivateTranslateDoc } from './extensions/translate-doc';
 import { deactivateColorDebugging } from './extensions/color-debugging';
-import { taskListPlugin } from './extensions/markdown-text/core/taskListPlugin';
-import { mermaidPlugin } from './extensions/markdown-text/core/mermaidPlugin';
+import { taskListPlugin } from './extensions/markdown-md/core/taskListPlugin';
+import { mermaidPlugin } from './extensions/markdown-md/core/mermaidPlugin';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
