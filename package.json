@@ -130,7 +130,7 @@
     ],
     "markdown.markdownItPlugins": true,
     "markdown.previewStyles": [
-      "./src/extensions/markdown-text/ui/checkboxes.css"
+      "./src/extensions/markdown-md/ui/checkboxes.css"
     ],
     "markdown.previewScripts": [
       "./dist/mermaidPreview.js"
@@ -138,7 +138,7 @@
     "snippets": [
       {
         "language": "markdown",
-        "path": "./src/extensions/markdown-text/snippets/markdown.json"
+        "path": "./src/extensions/markdown-md/snippets/markdown.json"
       }
     ],
     "configuration": {

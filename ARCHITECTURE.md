@@ -17,7 +17,7 @@ src/
 │   ├── git-better/         ← 🔗  Git blame + GitHub tools
 │   ├── image-preview/      ← 🖼️  Gutter previews
 │   ├── markdown-mdx/       ← 📝  MDX support
-│   ├── markdown-text/      ← 📄  Markdown preview enhancements
+│   ├── markdown-md/        ← 📄  Markdown preview enhancements
 │   ├── screenshot-code/    ← 📸  Code screenshots
 │   ├── svg-better/         ← ⚡  SVG optimizer
 │   ├── translate-doc/      ← 🌐  Translation engine

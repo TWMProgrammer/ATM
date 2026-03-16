@@ -101,6 +101,13 @@ class MarkdownImageIconProvider implements vscode.CompletionItemProvider {
  * 🔌 ACTIVATE
  */
 export function activateMarkdownImageIcons(context: vscode.ExtensionContext): void {
+  // Disable VS Code's built-in Markdown path suggestions to avoid duplicates
+  // Our provider shows proper file-type icons; the built-in one shows generic icons.
+  const mdConfig = vscode.workspace.getConfiguration('markdown.suggest.paths');
+  if (mdConfig.get<boolean>('enabled') !== false) {
+    mdConfig.update('enabled', false, vscode.ConfigurationTarget.Global);
+  }
+
   const provider = new MarkdownImageIconProvider();
 
   // Register for both markdown and mdx
