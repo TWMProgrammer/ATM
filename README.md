@@ -315,9 +315,9 @@ ext install bastndev.compare-code
 |                     **[Gohit X](https://gohit.xyz)**                      |
 |                          _Creator & Maintainer_                           |
 
-- 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** - Code ,software Little hardware, and ...
-- 💼 **[LinkedIn](https://www.linkedin.com/in/gohitx)** - Let's connect professionally!
-- **[🌱 IG](https://instagram.com/gohitx)** : **`new`** - Previews projects & life.
+- 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** – Code, software, a bit of hardware, and more.
+- 💼 **[LinkedIn](https://www.linkedin.com/in/gohitx)** – Let's connect professionally anytime.
+- 🌱 **[IG](https://instagram.com/gohitx)** : **`new`** – Project previews & life updates.
 
 <br>
 
