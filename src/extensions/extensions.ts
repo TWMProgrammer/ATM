@@ -15,7 +15,7 @@ import { activateVersionPackage } from './version-package';
 import { activateSvgBetter } from './svg-better';
 import { activateDataId } from './ai-data-id';
 import { activateEnvLens } from './env-lens';
-import { activateMarkdownImageIcons } from './markdown-md/image-icons';
+import { activateMarkdownImageIcons } from './markdown-md/icons-images';
 
 /**
  * Register all sub-extensions here.
