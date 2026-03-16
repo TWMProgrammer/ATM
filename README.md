@@ -288,8 +288,6 @@ You can customize ATM's behavior directly via your VS Code settings. Tweak the e
 
 > 💡 **Pro Tip:** Keep the extension updated regularly to ensure you have the latest features, performance improvements, and security patches.
 
-> 💡 On macOS, replace `Ctrl` with `⌘` (Cmd).
-
 <br>
 
 ---
