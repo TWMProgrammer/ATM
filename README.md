@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="ATM Banner">
+  <img src="./public/github/images/banner-2.webp" width="100%" alt="ATM Banner">
 </div>
 
 <p align="center">
