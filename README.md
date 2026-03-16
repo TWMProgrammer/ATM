@@ -323,7 +323,7 @@ ext install bastndev.compare-code
 
 ---
 
-## Sponsors <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/sponsor.png" alt="Image" width="28px" align="center"/>
+## Sponsors <a href="https://github.com/sponsors/bastndev"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/sponsor.png" alt="Image" width="28px" align="center"/></a>
 
 Thank you to everyone who supports this project! Your contributions make updates and new extensions possible.
 
