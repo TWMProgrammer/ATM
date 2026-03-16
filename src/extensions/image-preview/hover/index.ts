@@ -26,29 +26,30 @@ export class ImageExplorerHoverProvider implements vscode.FileDecorationProvider
         return undefined;
       }
 
-      const infoTokens: string[] = [];
-      if (meta.fileSize) {
-        infoTokens.push(meta.fileSize);
-      }
-      
-      if (meta.dimensions) {
-        // If it's a video and has the 16:9 ar info
-        if (meta.additionalInfo) {
-          infoTokens.push(`${meta.additionalInfo} (${meta.dimensions}px)`);
-        } else {
-          infoTokens.push(`${meta.dimensions}px`);
-        }
-      }
-      
+      // Build structured tooltip with clean plain-text formatting
+      const lines: string[] = [];
+
       if (meta.format) {
-        infoTokens.push(meta.format);
+        lines.push(`⬡ ${meta.format}`);
       }
 
-      const tooltip = infoTokens.join(' | ');
+      if (meta.dimensions) {
+        if (meta.additionalInfo) {
+          lines.push(`⊞ ${meta.additionalInfo} — ${meta.dimensions}px`);
+        } else {
+          lines.push(`⊞ ${meta.dimensions}px`);
+        }
+      }
+
+      if (meta.fileSize) {
+        lines.push(`◉ ${meta.fileSize}`);
+      }
+
+      const tooltip = lines.join('  ·  ');
 
       return new vscode.FileDecoration(
         undefined, // no badge text
-        tooltip,   // custom tooltip text, will be shown in explorer
+        tooltip,   // structured tooltip with metadata
         undefined  // no custom color
       );
     } catch {

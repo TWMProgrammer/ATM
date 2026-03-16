@@ -8,6 +8,7 @@ import {
   pruneMetaCache, pruneResolveCache,
   invalidateMetaCache, invalidateResolveCacheFor,
 } from '../core/utils';
+import type { ImageMeta } from '../core/utils';
 import { ACCEPTED_EXTENSIONS } from '../core/types';
 import type { DecorationEntry, ImageInfo } from '../core/types';
 
@@ -338,6 +339,63 @@ function throttledScan(document: vscode.TextDocument, delay = 500): void {
 // 🖱️ HOVER PROVIDER
 // =========================================================
 
+function buildHoverMarkdown(
+  displayPath: string,
+  imgSizeAttr: string,
+  meta: ImageMeta | undefined,
+  isLocal: boolean,
+  imgPath: string,
+): string {
+  const lines: string[] = [];
+
+  // ── Image preview ──
+  lines.push(`<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`);
+
+  // ── Metadata chips ──
+  if (meta && (meta.dimensions || meta.fileSize || meta.format)) {
+    const chips: string[] = [];
+
+    if (meta.format) {
+      chips.push(`\`${meta.format}\``);
+    }
+    if (meta.dimensions) {
+      chips.push(`📐 ${meta.dimensions}px`);
+    }
+    if (meta.fileSize) {
+      chips.push(`💾 ${meta.fileSize}`);
+    }
+
+    lines.push('');
+    lines.push(chips.join(' &nbsp;·&nbsp; '));
+  }
+
+  // ── Action bar ──
+  if (isLocal) {
+    const fileUri = vscode.Uri.file(imgPath);
+    const args = encodeURIComponent(JSON.stringify([fileUri]));
+
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+
+    const actions: string[] = [
+      `[$(folder) Folder](command:revealFileInOS?${args} "Reveal in OS file manager")`,
+      `[$(file-symlink-directory) Explorer](command:revealInExplorer?${args} "Reveal in VS Code Explorer")`,
+      `[$(link-external) Open](command:vscode.open?${args} "Open in default application")`,
+    ];
+
+    lines.push(actions.join(' &nbsp;&nbsp; '));
+  } else if (!isDataUri(imgPath)) {
+    // Remote URL — show a subtle note
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+    lines.push(`$(globe) &nbsp;Remote Image`);
+  }
+
+  return lines.join('\n');
+}
+
 const hoverProvider: vscode.HoverProvider = {
   async provideHover(document, position) {
     // Markdown already has native link hovers; keep extension hover disabled there.
@@ -352,10 +410,7 @@ const hoverProvider: vscode.HoverProvider = {
     const maxWidth = getConfig(document, 'imagePreviewMaxWidth', -1);
 
     for (const entry of result.decorations) {
-      const match = entry.decorations.find((d) => {
-        return d.range.contains(position);
-      });
-
+      const match = entry.decorations.find((d) => d.range.contains(position));
       if (!match) { continue; }
 
       const imgPath = entry.imagePath;
@@ -371,39 +426,10 @@ const hoverProvider: vscode.HoverProvider = {
         ? vscode.Uri.file(imgPath).toString()
         : imgPath;
 
-      // Build hover using Markdown + minimal HTML (VS Code sanitizes most CSS)
-      let md = '';
-
       // Fetch metadata once (cached)
       const meta = isLocal ? await getImageMeta(imgPath) : undefined;
 
-      // Centered image
-      md += `<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`;
-
-      // Metadata row: dimensions (left) | file size (right)
-      if (meta) {
-        const left = meta.dimensions ?? '';
-        const right = meta.fileSize ?? '';
-        if (left || right) {
-          md += `\n\n<table width="100%"><tr>`;
-          md += `<td align="left">${left}</td>`;
-          md += `<td align="right">${right}</td>`;
-          md += `</tr></table>`;
-        }
-      }
-
-      // Action links row — bottom
-      if (isLocal) {
-        const fileUri = vscode.Uri.file(imgPath);
-        const args = encodeURIComponent(JSON.stringify([fileUri]));
-        md += `\n\n`;
-        md += `[Open Folder](command:revealFileInOS?${args})`;
-        md += ` · `;
-        md += `[View File](command:revealInExplorer?${args})`;
-        md += ` · `;
-        if (meta?.format) { md += `${meta.format} `; }
-        md += `[$(link-external)](command:vscode.open?${args})`;
-      }
+      const md = buildHoverMarkdown(displayPath, imgSizeAttr, meta, isLocal, imgPath);
 
       const contents = new vscode.MarkdownString(md);
       contents.isTrusted = true;
