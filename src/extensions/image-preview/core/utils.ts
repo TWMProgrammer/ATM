@@ -92,6 +92,8 @@ export function invalidateMetaCache(filePath: string): void {
 // 🎬 QUICK MP4 DIMENSION READER
 // =========================================================
 
+const MAX_MP4_SCAN_BYTES = 50 * 1024 * 1024; // 50 MB — bail out on huge files
+
 export async function getMp4Dimensions(filePath: string): Promise<{ width: number; height: number } | undefined> {
   let fd: fs.promises.FileHandle | undefined;
   try {
@@ -102,8 +104,9 @@ export async function getMp4Dimensions(filePath: string): Promise<{ width: numbe
     const buf = Buffer.alloc(8);
     let offset = 0;
     let iterations = 0;
+    const scanLimit = Math.min(stat.size, MAX_MP4_SCAN_BYTES);
 
-    while (offset < stat.size && iterations < 1000) {
+    while (offset < scanLimit && iterations < 1000) {
       iterations++;
       const { bytesRead } = await fd.read(buf, 0, 8, offset);
       if (bytesRead < 8) {break;}
@@ -169,7 +172,15 @@ function getAspectRatioString(width: number, height: number): string {
   return '';
 }
 
-export async function getExplorerFileMeta(filePath: string, extName: string): Promise<ExplorerFileMeta> {
+export interface Cancellable {
+  readonly isCancellationRequested: boolean;
+}
+
+export async function getExplorerFileMeta(
+  filePath: string,
+  extName: string,
+  token?: Cancellable,
+): Promise<ExplorerFileMeta> {
   const now = Date.now();
   const cached = metaCache.get(filePath);
   if (cached && now - cached.ts < META_TTL) { return cached.value; }
@@ -179,12 +190,16 @@ export async function getExplorerFileMeta(filePath: string, extName: string): Pr
     return getImageMeta(filePath);
   }
 
+  if (token?.isCancellationRequested) { return {}; }
+
   const meta: ExplorerFileMeta = {};
   meta.format = extName.replace('.', '').toUpperCase();
 
   try {
     const stat = await fs.promises.stat(filePath);
     meta.fileSize = formatFileSize(stat.size);
+
+    if (token?.isCancellationRequested) { return meta; }
 
     if (extName === '.mp4') {
       const dims = await getMp4Dimensions(filePath);

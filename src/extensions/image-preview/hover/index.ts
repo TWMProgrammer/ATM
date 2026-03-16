@@ -2,6 +2,39 @@ import * as vscode from 'vscode';
 import { getExplorerFileMeta } from '../core/utils';
 import { EXPLORER_ALL_EXTENSIONS } from '../core/types';
 
+// =========================================================
+// 🚦 CONCURRENCY LIMITER
+// Prevents disk saturation when VS Code requests decorations
+// for hundreds of files simultaneously (e.g. expanding a large folder)
+// =========================================================
+
+const MAX_CONCURRENT = 8;
+let activeSlots = 0;
+const pendingQueue: Array<() => void> = [];
+
+function acquireSlot(): Promise<void> {
+  if (activeSlots < MAX_CONCURRENT) {
+    activeSlots++;
+    return Promise.resolve();
+  }
+  return new Promise<void>(resolve => {
+    pendingQueue.push(() => {
+      activeSlots++;
+      resolve();
+    });
+  });
+}
+
+function releaseSlot(): void {
+  activeSlots--;
+  const next = pendingQueue.shift();
+  if (next) { next(); }
+}
+
+// =========================================================
+// 🖼️ FILE DECORATION PROVIDER
+// =========================================================
+
 export class ImageExplorerHoverProvider implements vscode.FileDecorationProvider {
   private readonly _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[] | undefined>();
   public readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
@@ -16,8 +49,14 @@ export class ImageExplorerHoverProvider implements vscode.FileDecorationProvider
       return undefined;
     }
 
+    // Throttle: wait for an available slot before hitting the FS
+    await acquireSlot();
     try {
-      const meta = await getExplorerFileMeta(uri.fsPath, ext);
+      if (token.isCancellationRequested) {
+        return undefined;
+      }
+
+      const meta = await getExplorerFileMeta(uri.fsPath, ext, token);
       if (token.isCancellationRequested) {
         return undefined;
       }
@@ -54,6 +93,8 @@ export class ImageExplorerHoverProvider implements vscode.FileDecorationProvider
       );
     } catch {
       return undefined;
+    } finally {
+      releaseSlot();
     }
   }
 

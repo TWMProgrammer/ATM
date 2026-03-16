@@ -156,7 +156,7 @@ function pruneDecorationTypeCache(): void {
 // 🚀 CORE SCANNING LOGIC
 // =========================================================
 
-function scanDocument(document: vscode.TextDocument): void {
+async function scanDocument(document: vscode.TextDocument): Promise<void> {
   const editors = vscode.window.visibleTextEditors.filter(
     (e) => e.document.uri.toString() === document.uri.toString()
   );
@@ -220,12 +220,14 @@ function scanDocument(document: vscode.TextDocument): void {
       for (const match of matches) {
         // Try resolution cache first
         const cacheKey = `${document.fileName}|${match.url}|${workspaceFolder ?? ''}`;
-        let resolved = getCachedResolution(cacheKey);
-        if (resolved === null) {
-          // Not cached – resolve through mappers
-          resolved = undefined;
+        const cached = getCachedResolution(cacheKey);
+        let resolved: string | undefined;
+        if (cached !== null) {
+          resolved = cached;
+        } else {
+          // Not cached – resolve through async mappers
           for (const mapper of mappers) {
-            resolved = mapper.map(document.fileName, match.url, workspaceFolder);
+            resolved = await mapper.map(document.fileName, match.url, workspaceFolder);
             if (resolved) { break; }
           }
           setCachedResolution(cacheKey, resolved);

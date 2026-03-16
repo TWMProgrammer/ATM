@@ -8,7 +8,7 @@ import type { UrlMapper } from './types';
 // =========================================================
 
 const dataUrlMapper: UrlMapper = {
-  map(_fileName, imagePath) {
+  async map(_fileName, imagePath) {
     return imagePath.startsWith('data:image') ? imagePath : undefined;
   },
 };
@@ -19,15 +19,20 @@ const dataUrlMapper: UrlMapper = {
 // =========================================================
 
 const simpleUrlMapper: UrlMapper = {
-  map(_fileName, imagePath) {
+  async map(_fileName, imagePath) {
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return imagePath;
     }
     if (imagePath.startsWith('//')) {
       return `https:${imagePath}`;
     }
-    if (path.isAbsolute(imagePath) && fs.existsSync(imagePath)) {
-      return imagePath;
+    if (path.isAbsolute(imagePath)) {
+      try {
+        await fs.promises.access(imagePath);
+        return imagePath;
+      } catch {
+        return undefined;
+      }
     }
     return undefined;
   },
@@ -39,9 +44,14 @@ const simpleUrlMapper: UrlMapper = {
 // =========================================================
 
 const relativeToFileMapper: UrlMapper = {
-  map(fileName, imagePath) {
+  async map(fileName, imagePath) {
     const candidate = path.resolve(path.dirname(fileName), imagePath);
-    return fs.existsSync(candidate) ? candidate : undefined;
+    try {
+      await fs.promises.access(candidate);
+      return candidate;
+    } catch {
+      return undefined;
+    }
   },
 };
 
@@ -51,10 +61,15 @@ const relativeToFileMapper: UrlMapper = {
 // =========================================================
 
 const relativeToWorkspaceMapper: UrlMapper = {
-  map(_fileName, imagePath, workspaceFolder) {
+  async map(_fileName, imagePath, workspaceFolder) {
     if (!workspaceFolder) { return undefined; }
     const candidate = path.resolve(workspaceFolder, imagePath);
-    return fs.existsSync(candidate) ? candidate : undefined;
+    try {
+      await fs.promises.access(candidate);
+      return candidate;
+    } catch {
+      return undefined;
+    }
   },
 };
 

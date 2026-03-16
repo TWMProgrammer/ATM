@@ -33,7 +33,7 @@ export interface Recognizer {
 
 /** A mapper resolves a relative/partial image path to an absolute path */
 export interface UrlMapper {
-  map(fileName: string, imagePath: string, workspaceFolder?: string): string | undefined;
+  map(fileName: string, imagePath: string, workspaceFolder?: string): Promise<string | undefined>;
 }
 
 /** Resolved image information ready for decoration */
