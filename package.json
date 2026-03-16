@@ -605,7 +605,10 @@
   },
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",
+    "file-type": "^21.3.3",
+    "get-video-dimensions": "^1.0.0",
     "html-to-image": "^1.11.13",
+    "music-metadata": "^11.12.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",
