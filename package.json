@@ -1,10 +1,9 @@
 {
   "name": "atm",
   "displayName": "ATM",
-  "description": "Supercharge your IDE with 15+ essential tools: Inline Errors, Image/SVG Previews, Env Lens, MDX Support, AI Translation, Git Helpers, Voice TTS, and more.",
-  "version": "0.1.2",
+  "description": "Available now: VSCode • Antigravity • Cursor • Windsurf • Trae.ai • Kiro & (Firebase Studio)... 雨",
+  "version": "1.1.1",
   "publisher": "bastndev",
-  "preview": true,
   "license": "MIT",
   "engines": {
     "vscode": "^1.74.0"
