@@ -43,7 +43,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG</b></summary>
+          <summary><b>View Tutorial - IMG 1</b></summary>
           <br>
           <img src="./public/github/images/tutorial/t-1.jpg" width="100%" alt="AI Data Tutorial" />
         </details>
@@ -58,9 +58,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>▶️ View Tutorial Video</b></summary>
+          <summary><b>View Tutorial - IMG 2</b></summary>
           <br>
-          <video controls autoplay muted loop src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/video/v-test.mp4" width="100%"></video>
+          <img src="./public/github/images/tutorial/t-2.jpg" width="100%" alt="AI Data Tutorial" />
         </details>
       </td>
     </tr>
