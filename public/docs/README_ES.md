@@ -44,7 +44,7 @@
 				<details>
 					<summary><b>Vista previa — AI Data</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-1.jpg" width="100%" alt="Vista previa de AI" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-1.jpg" width="100%" alt="Vista previa de AI" />
 				</details>
 			</td>
 		</tr>
@@ -59,7 +59,7 @@
 				<details>
 					<summary><b>Vista previa — Code Spell</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-2.jpg" width="100%" alt="Vista previa de código" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-2.jpg" width="100%" alt="Vista previa de código" />
 				</details>
 			</td>
 		</tr>
@@ -74,7 +74,7 @@
 				<details>
 					<summary><b>Vista previa — Color Debugging</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-3.jpg" width="100%" alt="Vista previa de color" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-3.jpg" width="100%" alt="Vista previa de color" />
 				</details>
 			</td>
 		</tr>
@@ -89,7 +89,7 @@
 				<details>
 					<summary><b>Vista previa — Comments Code</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-4.jpg" width="100%" alt="Vista previa de comentarios" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-4.jpg" width="100%" alt="Vista previa de comentarios" />
 				</details>
 			</td>
 		</tr>
@@ -104,7 +104,7 @@
 				<details>
 					<summary><b>Vista previa — Env Lens</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-5.jpg" width="100%" alt="Vista previa de env" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-5.jpg" width="100%" alt="Vista previa de env" />
 				</details>
 			</td>
 		</tr>
@@ -119,7 +119,7 @@
 				<details>
 					<summary><b>Vista previa — Error Lens</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-6.jpg" width="100%" alt="Vista previa de error" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-6.jpg" width="100%" alt="Vista previa de error" />
 				</details>
 			</td>
 		</tr>
@@ -134,7 +134,7 @@
 				<details>
 					<summary><b>Vista previa — Git Better</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-7.jpg" width="100%" alt="Vista previa de Git" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-7.jpg" width="100%" alt="Vista previa de Git" />
 				</details>
 			</td>
 		</tr>
@@ -149,7 +149,7 @@
 				<details>
 					<summary><b>Vista previa — Image Preview</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-8.jpg" width="100%" alt="Vista previa de imagen" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-8.jpg" width="100%" alt="Vista previa de imagen" />
 				</details>
 			</td>
 		</tr>
@@ -164,7 +164,7 @@
 				<details>
 					<summary><b>Vista previa — Markdown Text</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-9.jpg" width="100%" alt="Vista previa de Markdown" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-9.jpg" width="100%" alt="Vista previa de Markdown" />
 				</details>
 			</td>
 		</tr>
@@ -179,7 +179,7 @@
 				<details>
 					<summary><b>Vista previa — Markdown MDX</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-10.jpg" width="100%" alt="Vista previa de Markdown" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-10.jpg" width="100%" alt="Vista previa de Markdown" />
 				</details>
 			</td>
 		</tr>
@@ -194,7 +194,7 @@
 				<details>
 					<summary><b>Vista previa — Screenshot Code</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-11.jpg" width="100%" alt="Vista previa de captura" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-11.jpg" width="100%" alt="Vista previa de captura" />
 				</details>
 			</td>
 		</tr>
@@ -209,7 +209,7 @@
 				<details>
 					<summary><b>Vista previa — SVG Better</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-12.jpg" width="100%" alt="Vista previa de SVG" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-12.jpg" width="100%" alt="Vista previa de SVG" />
 				</details>
 			</td>
 		</tr>
@@ -224,7 +224,7 @@
 				<details>
 					<summary><b>Vista previa — Translate Doc</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-13.jpg" width="100%" alt="Vista previa de traducción" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-13.jpg" width="100%" alt="Vista previa de traducción" />
 				</details>
 			</td>
 		</tr>
@@ -239,7 +239,7 @@
 				<details>
 					<summary><b>Vista previa — Version Package</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-14.jpg" width="100%" alt="Vista previa de versión" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-14.jpg" width="100%" alt="Vista previa de versión" />
 				</details>
 			</td>
 		</tr>
@@ -254,7 +254,7 @@
 				<details>
 					<summary><b>Vista previa — Voice TTS</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-15.jpg" width="100%" alt="Vista previa de voz" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-15.jpg" width="100%" alt="Vista previa de voz" />
 				</details>
 			</td>
 		</tr>
@@ -269,7 +269,7 @@
 				<details>
 					<summary><b>Vista previa — Color Box</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-16.jpg" width="100%" alt="Vista previa de color" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-16.jpg" width="100%" alt="Vista previa de color" />
 				</details>
 			</td>
 		</tr>
