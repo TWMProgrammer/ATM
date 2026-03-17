@@ -381,11 +381,11 @@ ext install bastndev.atm
 
 <div align="center">
   
-	**Disfruta 🎉 ATM ya está instalada.**  
-	*Si encuentras errores o tienes feedback, puedes [abrir un issue](https://github.com/bastndev/atm/issues)*
+  **¡Disfruta 🎉 ATM ya está instalado!**  
+  *Si encuentras algún error o tienes comentarios, puedes [abrir un issue](https://github.com/bastndev/atm/issues)*
 
-    <br>
+  <br>
 
-<sub>Hecho con ❤️ por <a href="https://gohit.xyz">Gohit X</a> · Licenciado bajo <a href="../../LICENCE">MIT</a></sub>
+<sub>Hecho con ❤️ por <a href="https://gohit.xyz">Gohit X</a> · Bajo licencia <a href="./LICENCE">MIT</a></sub>
 
 </div>
