@@ -26,16 +26,15 @@
 <table width="100%">
   <thead>
     <tr>
-      <th width="17%" align="center">Icon</th>
-      <th width="19%" align="center">Name</th>
-      <th width="50%">Description</th>
-      <th width="10%" align="center">Size</th>
+      <th width="19%" align="center">Icon</th>
+      <th width="16%" align="center">Name</th>
+      <th width="56%">Description</th>
+      <th width="14%" align="center">Size</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <!-- <td align="center"><img src="./public/github/images/logos/w1.webp" alt="AI Data Id" width="100" /></td> -->
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data Id" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
       <td>Monitors and displays AI (Antigravity) data consumption with real-time informative tooltips.</td>
       <td align="center"><b>56KB</b></td>
@@ -43,9 +42,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 1</b></summary>
+          <summary><b>Preview — AI Data</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-1.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-1.jpg" width="100%" alt="AI Preview" />
         </details>
       </td>
     </tr>
@@ -58,9 +57,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 2</b></summary>
+          <summary><b>Preview — Code Spell</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-2.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-2.jpg" width="100%" alt="Code Preview" />
         </details>
       </td>
     </tr>
@@ -73,9 +72,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 3</b></summary>
+          <summary><b>Preview — Color Debugging</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-3.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-3.jpg" width="100%" alt="Color Preview" />
         </details>
       </td>
     </tr>
@@ -88,9 +87,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 4</b></summary>
+          <summary><b>Preview — Comments Code</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-4.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-4.jpg" width="100%" alt="Comments Preview" />
         </details>
       </td>
     </tr>
@@ -103,9 +102,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 5</b></summary>
+          <summary><b>Preview — Env Lens</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-5.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-5.jpg" width="100%" alt="Env Preview" />
         </details>
       </td>
     </tr>
@@ -118,9 +117,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 6</b></summary>
+          <summary><b>Preview — Error Lens</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-6.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-6.jpg" width="100%" alt="Error Preview" />
         </details>
       </td>
     </tr>
@@ -133,9 +132,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 7</b></summary>
+          <summary><b>Preview — Git Better</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-7.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-7.jpg" width="100%" alt="Git Preview" />
         </details>
       </td>
     </tr>
@@ -148,9 +147,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 8</b></summary>
+          <summary><b>Preview — Image Preview</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-8.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-8.jpg" width="100%" alt="Image Preview" />
         </details>
       </td>
     </tr>
@@ -163,9 +162,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 9</b></summary>
+          <summary><b>Preview — Markdown Text</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-9.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-9.jpg" width="100%" alt="Markdown Preview" />
         </details>
       </td>
     </tr>
@@ -178,9 +177,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 10</b></summary>
+          <summary><b>Preview — Markdown MDX</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-10.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-10.jpg" width="100%" alt="Markdown Preview" />
         </details>
       </td>
     </tr>
@@ -193,9 +192,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 11</b></summary>
+          <summary><b>Preview — Screenshot Code</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-11.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-11.jpg" width="100%" alt="Screenshot Preview" />
         </details>
       </td>
     </tr>
@@ -208,9 +207,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 12</b></summary>
+          <summary><b>Preview — SVG Better</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-12.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-12.jpg" width="100%" alt="SVG Preview" />
         </details>
       </td>
     </tr>
@@ -223,9 +222,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 13</b></summary>
+          <summary><b>Preview — Translate Doc</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-13.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-13.jpg" width="100%" alt="Translate Preview" />
         </details>
       </td>
     </tr>
@@ -238,9 +237,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 14</b></summary>
+          <summary><b>Preview — Version Package</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-14.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-14.jpg" width="100%" alt="Version Preview" />
         </details>
       </td>
     </tr>
@@ -253,9 +252,9 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>View Tutorial - IMG 15</b></summary>
+          <summary><b>Preview — Voice TTS</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-15.jpg" width="100%" alt="AI Data Tutorial" />
+          <img src="./public/github/images/tutorial/t-15.jpg" width="100%" alt="Voice Preview" />
         </details>
       </td>
     </tr>
@@ -266,9 +265,18 @@
       <td align="center"><b>20KB</b></td>
     </tr>
     <tr>
-      <td align="center"><b>TOTAL</b></td>
-      <td align="center">-</td>
-      <td align="center">-</td>
+      <td colspan="4">
+        <details>
+          <summary><b>Preview — Color Box</b></summary>
+          <br>
+          <img src="./public/github/images/tutorial/t-16.jpg" width="100%" alt="Color Preview" />
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">🧩</td>
+      <td align="center"><b>16 extensions</b></td>
+      <td>All bundled in a single, lightweight package — zero bloat.</td>
       <td align="center"><b><code>1.5MB</code></b></td>
     </tr>
   </tbody>
