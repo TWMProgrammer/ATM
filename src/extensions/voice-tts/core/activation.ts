@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getResourcesBasePath, getPiperPath, CONFIG_SECTION, DEFAULT_VOICE, isPlaying, readText, isVoiceInstalled, stopCurrentPlayback, stoppedByUser } from './core';
+import { getResourcesBasePath, getPiperPath, CONFIG_SECTION, DEFAULT_VOICE, isPlaying, readText, isVoiceInstalled, stopCurrentPlayback, wasStoppedByUser } from './core';
 import { createStatusBarItems, setPlayingState, getIsPlaying, disposeStatusBar, showVoiceSelector } from '../ui/ui';
 import { fixSymlinks } from './installer';
 import type { VoiceTtsApi } from './types';
@@ -114,7 +114,7 @@ async function runPlayback(
   api: VoiceTtsApi,
 ): Promise<void> {
   // Use a single source of truth for "playing" state
-  if (isPlaying() || getIsPlaying()) {
+  if (isPlaying()) {
     api.stopPlayback();
     return;
   }
@@ -130,29 +130,46 @@ async function runPlayback(
     ? editor.document.getText(editor.selection).trim() 
     : '';
 
-  // 2. Try to capture selection from the focused panel (AI Chat, Terminal, Webviews)
-  try {
-    await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
-  } catch {
-    // Ignore error
-  }
-
-  const clipboardText = (await vscode.env.clipboard.readText()).trim();
   let text = '';
 
-  // 3. LOGIC:
-  // If clipboard has text AND it's different from the editor selection,
-  // it means the user has something selected in a Webview/Chat.
-  if (clipboardText && clipboardText !== editorText) {
-    text = clipboardText;
-  } 
-  // Otherwise, if the editor has a selection, use that.
-  else if (editorText) {
+  if (editorText) {
+    // If we have an active editor selection, ALWAYS use that immediately.
+    // This avoids messing with clipboard unnecessarily.
     text = editorText;
-  }
-  // Fallback: just use whatever is in the clipboard
-  else if (clipboardText) {
-    text = clipboardText;
+  } else {
+    // 2. No editor selection? We might be in a Webview, Output Panel, AI Chat, etc.
+    // Try to capture text by copying it to the clipboard.
+    
+    // Remember original clipboard
+    const originalClipboard = await vscode.env.clipboard.readText();
+    
+    try {
+      // Simulate "Copy" action
+      await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+      
+      // Give the system a brief moment to update the clipboard
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      const newClipboard = await vscode.env.clipboard.readText();
+      
+      // If clipboard actually changed, it means something new was copied
+      if (newClipboard && newClipboard !== originalClipboard) {
+        text = newClipboard.trim();
+        
+        // Try restoring original clipboard silently so we don't pollute it
+        try {
+          await vscode.env.clipboard.writeText(originalClipboard);
+        } catch {
+          // It's okay if restore fails
+        }
+      } else if (originalClipboard) {
+        // Fallback: Use what was already in the clipboard
+        text = originalClipboard.trim();
+      }
+    } catch {
+      // Fallback: Use what was already in the clipboard
+      text = originalClipboard.trim();
+    }
   }
 
   if (!text) {
@@ -165,7 +182,7 @@ async function runPlayback(
     await api.readText(text);
   } catch (error) {
     // Only show error if it wasn't a manual stop
-    if (!stoppedByUser) {
+    if (!wasStoppedByUser()) {
       vscode.window.showErrorMessage(
         'Error running text-to-speech: ' +
           (error instanceof Error ? error.message : String(error)),

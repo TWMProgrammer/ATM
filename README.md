@@ -269,14 +269,14 @@
         <details>
           <summary><b>Preview — Color Box</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-16.jpg" width="100%" alt="Color Preview" />
+          <img src="./public/github/images/tutorial/t-16.jpg" width="100%" alt="Color  Box Preview" />
         </details>
       </td>
     </tr>
     <tr>
-      <td align="center">🧩</td>
-      <td align="center"><b>16 extensions</b></td>
-      <td>All bundled in a single, lightweight package — zero bloat.</td>
+      <td align="center">16</td>
+      <td align="center"><b>🧩</b></td>
+      <td>All bundled in a single, lightweight package.</td>
       <td align="center"><b><code>1.5MB</code></b></td>
     </tr>
   </tbody>
@@ -311,7 +311,7 @@ Launch _Quick Open_
 Paste the following command and press `Enter`:
 
 ```
-ext install bastndev.compare-code
+ext install bastndev.atm
 ```
 
 ## 🧑‍💻 About Me
