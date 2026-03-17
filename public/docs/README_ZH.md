@@ -44,7 +44,7 @@
 				<details>
 					<summary><b>预览 — AI Data</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-1.jpg" width="100%" alt="AI 预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-1.jpg" width="100%" alt="AI 预览" />
 				</details>
 			</td>
 		</tr>
@@ -59,7 +59,7 @@
 				<details>
 					<summary><b>预览 — Code Spell</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-2.jpg" width="100%" alt="代码预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-2.jpg" width="100%" alt="代码预览" />
 				</details>
 			</td>
 		</tr>
@@ -74,7 +74,7 @@
 				<details>
 					<summary><b>预览 — Color Debugging</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-3.jpg" width="100%" alt="颜色预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-3.jpg" width="100%" alt="颜色预览" />
 				</details>
 			</td>
 		</tr>
@@ -89,7 +89,7 @@
 				<details>
 					<summary><b>预览 — Comments Code</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-4.jpg" width="100%" alt="注释预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-4.jpg" width="100%" alt="注释预览" />
 				</details>
 			</td>
 		</tr>
@@ -104,7 +104,7 @@
 				<details>
 					<summary><b>预览 — Env Lens</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-5.jpg" width="100%" alt="Env 预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-5.jpg" width="100%" alt="Env 预览" />
 				</details>
 			</td>
 		</tr>
@@ -119,7 +119,7 @@
 				<details>
 					<summary><b>预览 — Error Lens</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-6.jpg" width="100%" alt="错误预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-6.jpg" width="100%" alt="错误预览" />
 				</details>
 			</td>
 		</tr>
@@ -134,7 +134,7 @@
 				<details>
 					<summary><b>预览 — Git Better</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-7.jpg" width="100%" alt="Git 预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-7.jpg" width="100%" alt="Git 预览" />
 				</details>
 			</td>
 		</tr>
@@ -149,7 +149,7 @@
 				<details>
 					<summary><b>预览 — Image Preview</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-8.jpg" width="100%" alt="图片预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-8.jpg" width="100%" alt="图片预览" />
 				</details>
 			</td>
 		</tr>
@@ -164,7 +164,7 @@
 				<details>
 					<summary><b>预览 — Markdown Text</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-9.jpg" width="100%" alt="Markdown 预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-9.jpg" width="100%" alt="Markdown 预览" />
 				</details>
 			</td>
 		</tr>
@@ -179,7 +179,7 @@
 				<details>
 					<summary><b>预览 — Markdown MDX</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-10.jpg" width="100%" alt="Markdown 预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-10.jpg" width="100%" alt="Markdown 预览" />
 				</details>
 			</td>
 		</tr>
@@ -194,7 +194,7 @@
 				<details>
 					<summary><b>预览 — Screenshot Code</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-11.jpg" width="100%" alt="截图预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-11.jpg" width="100%" alt="截图预览" />
 				</details>
 			</td>
 		</tr>
@@ -209,7 +209,7 @@
 				<details>
 					<summary><b>预览 — SVG Better</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-12.jpg" width="100%" alt="SVG 预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-12.jpg" width="100%" alt="SVG 预览" />
 				</details>
 			</td>
 		</tr>
@@ -224,7 +224,7 @@
 				<details>
 					<summary><b>预览 — Translate Doc</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-13.jpg" width="100%" alt="翻译预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-13.jpg" width="100%" alt="翻译预览" />
 				</details>
 			</td>
 		</tr>
@@ -239,7 +239,7 @@
 				<details>
 					<summary><b>预览 — Version Package</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-14.jpg" width="100%" alt="版本预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-14.jpg" width="100%" alt="版本预览" />
 				</details>
 			</td>
 		</tr>
@@ -254,7 +254,7 @@
 				<details>
 					<summary><b>预览 — Voice TTS</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-15.jpg" width="100%" alt="语音预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-15.jpg" width="100%" alt="语音预览" />
 				</details>
 			</td>
 		</tr>
@@ -269,7 +269,7 @@
 				<details>
 					<summary><b>预览 — Color Box</b></summary>
 					<br>
-					<img src="../github/images/tutorial/t-16.jpg" width="100%" alt="颜色预览" />
+					<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-16.jpg" width="100%" alt="颜色预览" />
 				</details>
 			</td>
 		</tr>
