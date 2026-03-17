@@ -6,6 +6,18 @@ export const ACCEPTED_EXTENSIONS = [
   '.gif', '.ico', '.webp', '.avif', '.jfif',
 ];
 
+/** Explorer Sidebar Hover specific extensions */
+export const EXPLORER_VIDEO_EXTENSIONS = ['.mp4', '.mkv', '.webm', '.mov', '.avi'];
+export const EXPLORER_AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'];
+export const EXPLORER_FONT_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2'];
+
+export const EXPLORER_ALL_EXTENSIONS = [
+  ...ACCEPTED_EXTENSIONS,
+  ...EXPLORER_VIDEO_EXTENSIONS,
+  ...EXPLORER_AUDIO_EXTENSIONS,
+  ...EXPLORER_FONT_EXTENSIONS
+];
+
 /** Result from a recognizer: a potential image URL found in a line */
 export interface UrlMatch {
   url: string;
@@ -21,7 +33,7 @@ export interface Recognizer {
 
 /** A mapper resolves a relative/partial image path to an absolute path */
 export interface UrlMapper {
-  map(fileName: string, imagePath: string, workspaceFolder?: string): string | undefined;
+  map(fileName: string, imagePath: string, workspaceFolder?: string): Promise<string | undefined>;
 }
 
 /** Resolved image information ready for decoration */

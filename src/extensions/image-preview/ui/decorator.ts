@@ -8,6 +8,7 @@ import {
   pruneMetaCache, pruneResolveCache,
   invalidateMetaCache, invalidateResolveCacheFor,
 } from '../core/utils';
+import type { ImageMeta } from '../core/utils';
 import { ACCEPTED_EXTENSIONS } from '../core/types';
 import type { DecorationEntry, ImageInfo } from '../core/types';
 
@@ -155,7 +156,7 @@ function pruneDecorationTypeCache(): void {
 // 🚀 CORE SCANNING LOGIC
 // =========================================================
 
-function scanDocument(document: vscode.TextDocument): void {
+async function scanDocument(document: vscode.TextDocument): Promise<void> {
   const editors = vscode.window.visibleTextEditors.filter(
     (e) => e.document.uri.toString() === document.uri.toString()
   );
@@ -188,10 +189,10 @@ function scanDocument(document: vscode.TextDocument): void {
     }
   }
 
-  // Cancel previous scan
+  // Cancel previous scan but keep old decorations visible during re-scan
+  const oldDecorations = prev ? [...prev.decorations] : [];
   if (prev) {
     prev.token.cancel();
-    clearDecorations(document, prev.decorations);
   }
 
   const tokenSource = new vscode.CancellationTokenSource();
@@ -219,12 +220,14 @@ function scanDocument(document: vscode.TextDocument): void {
       for (const match of matches) {
         // Try resolution cache first
         const cacheKey = `${document.fileName}|${match.url}|${workspaceFolder ?? ''}`;
-        let resolved = getCachedResolution(cacheKey);
-        if (resolved === null) {
-          // Not cached – resolve through mappers
-          resolved = undefined;
+        const cached = getCachedResolution(cacheKey);
+        let resolved: string | undefined;
+        if (cached !== null) {
+          resolved = cached;
+        } else {
+          // Not cached – resolve through async mappers
           for (const mapper of mappers) {
-            resolved = mapper.map(document.fileName, match.url, workspaceFolder);
+            resolved = await mapper.map(document.fileName, match.url, workspaceFolder);
             if (resolved) { break; }
           }
           setCachedResolution(cacheKey, resolved);
@@ -257,6 +260,8 @@ function scanDocument(document: vscode.TextDocument): void {
   });
 
   // Apply decorations
+  const gutterByType = new Map<vscode.TextEditorDecorationType, vscode.DecorationOptions[]>();
+
   for (const img of unique) {
     const uri = img.imagePath.startsWith('data:')
       ? vscode.Uri.parse(img.imagePath)
@@ -272,12 +277,6 @@ function scanDocument(document: vscode.TextDocument): void {
       hoverMessage: '',
     };
 
-    const gutterDecoration: vscode.DecorationOptions = {
-      // Zero-length anchor keeps one gutter icon even when the URL wraps visually.
-      range: new vscode.Range(img.range.start, img.range.start),
-      hoverMessage: '',
-    };
-
     entry.decorations.push({
       cacheKey,
       type: decorationType,
@@ -287,9 +286,21 @@ function scanDocument(document: vscode.TextDocument): void {
     });
 
     if (showGutter) {
-      for (const editor of editors) {
-        editor.setDecorations(decorationType, [gutterDecoration]);
+      const gutterDecoration: vscode.DecorationOptions = {
+        range: new vscode.Range(img.range.start, img.range.start),
+        hoverMessage: '',
+      };
+      if (!gutterByType.has(decorationType)) {
+        gutterByType.set(decorationType, []);
       }
+      gutterByType.get(decorationType)!.push(gutterDecoration);
+    }
+  }
+
+  // Apply all gutter decorations at once per type
+  for (const [type, decorations] of gutterByType) {
+    for (const editor of editors) {
+      editor.setDecorations(type, decorations);
     }
   }
 
@@ -305,6 +316,17 @@ function scanDocument(document: vscode.TextDocument): void {
     for (const editor of editors) {
       editor.setDecorations(underlineDecorationType, []);
     }
+  }
+
+  // Clean up old decoration types that are no longer active
+  const newCacheKeys = new Set(entry.decorations.map(d => d.cacheKey).filter(Boolean));
+  for (const oldDec of oldDecorations) {
+    if (oldDec.cacheKey && !newCacheKeys.has(oldDec.cacheKey)) {
+      for (const editor of editors) {
+        editor.setDecorations(oldDec.type, []);
+      }
+    }
+    releaseDecorationType(oldDec.cacheKey);
   }
 }
 
@@ -334,9 +356,115 @@ function throttledScan(document: vscode.TextDocument, delay = 500): void {
   }, delay));
 }
 
+/**
+ * Re-apply existing cached decorations to current editor instances immediately.
+ * Used when switching tabs — VS Code may create new editor instances that need
+ * the decorations re-applied without waiting for a full re-scan.
+ */
+function reapplyDecorations(document: vscode.TextDocument): void {
+  const key = document.uri.toString();
+  const prev = scanResults.get(key);
+  if (!prev || prev.decorations.length === 0) { return; }
+
+  const editors = vscode.window.visibleTextEditors.filter(
+    (e) => e.document.uri.toString() === key
+  );
+  if (editors.length === 0) { return; }
+
+  const showGutter = getConfig(document, 'showImagePreviewOnGutter', true);
+  const underline = getConfig(document, 'showUnderline', true);
+
+  // Group gutter decorations by type to apply all at once
+  const gutterByType = new Map<vscode.TextEditorDecorationType, vscode.DecorationOptions[]>();
+  for (const entry of prev.decorations) {
+    if (showGutter && entry.decorations.length > 0) {
+      const gutterDec: vscode.DecorationOptions = {
+        range: new vscode.Range(entry.decorations[0].range.start, entry.decorations[0].range.start),
+        hoverMessage: '',
+      };
+      if (!gutterByType.has(entry.type)) {
+        gutterByType.set(entry.type, []);
+      }
+      gutterByType.get(entry.type)!.push(gutterDec);
+    }
+  }
+
+  for (const [type, decorations] of gutterByType) {
+    for (const editor of editors) {
+      editor.setDecorations(type, decorations);
+    }
+  }
+
+  if (underline) {
+    const underlineDecos: vscode.DecorationOptions[] = prev.decorations
+      .filter(e => e.decorations.length > 0)
+      .map(e => ({ range: e.decorations[0].range, hoverMessage: '' }));
+    for (const editor of editors) {
+      editor.setDecorations(underlineDecorationType, underlineDecos);
+    }
+  }
+}
+
 // =========================================================
 // 🖱️ HOVER PROVIDER
 // =========================================================
+
+function buildHoverMarkdown(
+  displayPath: string,
+  imgSizeAttr: string,
+  meta: ImageMeta | undefined,
+  isLocal: boolean,
+  imgPath: string,
+): string {
+  const lines: string[] = [];
+
+  // ── Image preview ──
+  lines.push(`<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`);
+
+  // ── Metadata chips ──
+  if (meta && (meta.dimensions || meta.fileSize || meta.format)) {
+    const chips: string[] = [];
+
+    if (meta.format) {
+      chips.push(`\`${meta.format}\``);
+    }
+    if (meta.dimensions) {
+      chips.push(`📐 ${meta.dimensions}px`);
+    }
+    if (meta.fileSize) {
+      chips.push(`💾 ${meta.fileSize}`);
+    }
+
+    lines.push('');
+    lines.push(chips.join(' &nbsp;·&nbsp; '));
+  }
+
+  // ── Action bar ──
+  if (isLocal) {
+    const fileUri = vscode.Uri.file(imgPath);
+    const args = encodeURIComponent(JSON.stringify([fileUri]));
+
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+
+    const actions: string[] = [
+      `[$(folder) Folder](command:revealFileInOS?${args} "Reveal in OS file manager")`,
+      `[$(file-symlink-directory) Explorer](command:revealInExplorer?${args} "Reveal in VS Code Explorer")`,
+      `[$(link-external) Open](command:vscode.open?${args} "Open in default application")`,
+    ];
+
+    lines.push(actions.join(' &nbsp;&nbsp; '));
+  } else if (!isDataUri(imgPath)) {
+    // Remote URL — show a subtle note
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+    lines.push(`$(globe) &nbsp;Remote Image`);
+  }
+
+  return lines.join('\n');
+}
 
 const hoverProvider: vscode.HoverProvider = {
   async provideHover(document, position) {
@@ -352,10 +480,7 @@ const hoverProvider: vscode.HoverProvider = {
     const maxWidth = getConfig(document, 'imagePreviewMaxWidth', -1);
 
     for (const entry of result.decorations) {
-      const match = entry.decorations.find((d) => {
-        return d.range.contains(position);
-      });
-
+      const match = entry.decorations.find((d) => d.range.contains(position));
       if (!match) { continue; }
 
       const imgPath = entry.imagePath;
@@ -371,39 +496,10 @@ const hoverProvider: vscode.HoverProvider = {
         ? vscode.Uri.file(imgPath).toString()
         : imgPath;
 
-      // Build hover using Markdown + minimal HTML (VS Code sanitizes most CSS)
-      let md = '';
-
       // Fetch metadata once (cached)
       const meta = isLocal ? await getImageMeta(imgPath) : undefined;
 
-      // Centered image
-      md += `<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`;
-
-      // Metadata row: dimensions (left) | file size (right)
-      if (meta) {
-        const left = meta.dimensions ?? '';
-        const right = meta.fileSize ?? '';
-        if (left || right) {
-          md += `\n\n<table width="100%"><tr>`;
-          md += `<td align="left">${left}</td>`;
-          md += `<td align="right">${right}</td>`;
-          md += `</tr></table>`;
-        }
-      }
-
-      // Action links row — bottom
-      if (isLocal) {
-        const fileUri = vscode.Uri.file(imgPath);
-        const args = encodeURIComponent(JSON.stringify([fileUri]));
-        md += `\n\n`;
-        md += `[Open Folder](command:revealFileInOS?${args})`;
-        md += ` · `;
-        md += `[View File](command:revealInExplorer?${args})`;
-        md += ` · `;
-        if (meta?.format) { md += `${meta.format} `; }
-        md += `[$(link-external)](command:vscode.open?${args})`;
-      }
+      const md = buildHoverMarkdown(displayPath, imgSizeAttr, meta, isLocal, imgPath);
 
       const contents = new vscode.MarkdownString(md);
       contents.isTrusted = true;
@@ -432,7 +528,10 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
       if (e.document) { throttledScan(e.document); }
     }),
     vscode.window.onDidChangeActiveTextEditor((e) => {
-      if (e?.document) { throttledScan(e.document); }
+      if (e?.document) {
+        reapplyDecorations(e.document);
+        throttledScan(e.document);
+      }
     }),
     vscode.window.onDidChangeTextEditorVisibleRanges((e) => {
       if (e.textEditor?.document) { throttledScan(e.textEditor.document, 100); }
