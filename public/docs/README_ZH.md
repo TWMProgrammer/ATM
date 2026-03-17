@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/dev/public/github/images/banner.webp" width="100%" alt="ATM 横幅">
+	<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="ATM 横幅">
 </div>
 
 <p align="center">
@@ -286,7 +286,7 @@
 
 <br>
 
-## [+] 设置开关
+## [+] 启用或禁用设置
 
 你可以直接在 VS Code 设置中自定义 ATM 的行为，按你的偏好精细调整体验：
 
@@ -371,20 +371,20 @@ ext install bastndev.atm
 	🧩 补充扩展
 </h2>
 
-| 图标                                                                                                                                                                                                                                       | 扩展                                                              | 描述                                                                                                                                                                 |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)   | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**      | 专业且时尚的主题包，含 6 种视觉变体（Dark、Light、Night、Ghibli、Coffee、Kiro）并集成图标。                                                                        |
-| [![Lynx Keymap Pro](https://raw.githubusercontent.com/bastndev/Lynx-Keymap-Pro/refs/heads/main/assets/images/logo.png)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap)                                        | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | 统一所有代码编辑器快捷键标准，最大化肌肉记忆并显著提升工作流效率。                                                                                                   |
-| [![Compare Code](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/compare-code/0.1.0/1759529717256/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code) | [Compare Code](https://github.com/bastndev/Compare-Code)          | 让你以专业、快速、清晰的方式比较代码。配合现代直观界面，非常适合希望提升效率的开发者。                                                                                |
+| 图标                                                                                                                                                                                                                                     | 扩展                                                               | 描述                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)   | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**       | 专业且时尚的主题包，含 6 种视觉变体（Dark、Light、Night、Ghibli、Coffee、Kiro）并集成图标。 |
+| [![Lynx Keymap Pro](https://raw.githubusercontent.com/bastndev/Lynx-Keymap-Pro/refs/heads/main/assets/images/logo.png)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap)                                        | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | 统一所有代码编辑器快捷键标准，最大化肌肉记忆并显著提升工作流效率。                          |
+| [![Compare Code](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/compare-code/0.1.0/1759529717256/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code) | [Compare Code](https://github.com/bastndev/Compare-Code)           | 让你以专业、快速、清晰的方式比较代码。配合现代直观界面，非常适合希望提升效率的开发者。      |
 
 <br>
 
 <div align="center">
   
-	**尽情享受 🎉 你的 (ATM - Extension) 已安装完成！**  
+	**尽情享受 🎉 ATM 已安装完成！**  
 	*如果你发现 Bug 或有反馈，欢迎 [提交 issue](https://github.com/bastndev/atm/issues)*
 
-	<br>
+    <br>
 
 <sub>由 <a href="https://gohit.xyz">Gohit X</a> 用 ❤️ 打造 · 采用 <a href="../../LICENCE">MIT</a> 许可</sub>
 

@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/dev/public/github/images/banner.webp" width="100%" alt="ATM Banner">
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="ATM Banner">
 </div>
 
 <p align="center">
@@ -269,7 +269,7 @@
         <details>
           <summary><b>Preview — Color Box</b></summary>
           <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-16.jpg" width="100%" alt="Color  Box Preview" />
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-16.jpg" width="100%" alt="Color Box Preview" />
         </details>
       </td>
     </tr>
@@ -286,7 +286,7 @@
 
 <br>
 
-## [+] Settings disable or enable
+## [+] Enable or Disable Settings
 
 You can customize ATM's behavior directly via your VS Code settings. Tweak the experience to your exact liking:
 
@@ -368,7 +368,7 @@ Thank you to everyone who supports this project! Your contributions make updates
 <br>
 
 <h2 align="center">
-  🧩 Complement Extensions
+  🧩 Complementary Extensions
 </h2>
 
 | Icon                                                                                                                                                                                                                                     | Extension                                                          | Description                                                                                                                                                         |
@@ -381,7 +381,7 @@ Thank you to everyone who supports this project! Your contributions make updates
 
 <div align="center">
   
-  **Enjoy 🎉 Your (ATM - Extension) are now installed!**  
+  **Enjoy 🎉 ATM is now installed!**  
   *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/atm/issues)*
 
   <br>

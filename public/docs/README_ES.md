@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/dev/public/github/images/banner.webp" width="100%" alt="Banner de ATM">
+	<img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="Banner de ATM">
 </div>
 
 <p align="center">
@@ -286,7 +286,7 @@
 
 <br>
 
-## [+] Ajustes para desactivar o activar
+## [+] Activar o desactivar ajustes
 
 Puedes personalizar el comportamiento de ATM directamente desde la configuración de VS Code. Ajusta la experiencia exactamente a tu gusto:
 
@@ -319,7 +319,7 @@ ext install bastndev.atm
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |
 | :-----------------------------------------------------------------------: |
 |                     **[Gohit X](https://gohit.xyz)**                      |
-|                        _Creador y Mantenedor_                             |
+|                          _Creador y Mantenedor_                           |
 
 - 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** – Código, software, un poco de hardware y más.
 - 💼 **[LinkedIn](https://www.linkedin.com/in/gohitx)** – Conectemos profesionalmente cuando quieras.
@@ -371,9 +371,9 @@ ext install bastndev.atm
 	🧩 Extensiones complementarias
 </h2>
 
-| Icono                                                                                                                                                                                                                                      | Extensión                                                          | Descripción                                                                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)   | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**       | Un paquete de temas elegante y profesional con 6 variantes visuales (Dark, Light, Night, Ghibli, Coffee, Kiro) e iconos integrados.                              |
+| Icono                                                                                                                                                                                                                                    | Extensión                                                          | Descripción                                                                                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)   | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**       | Un paquete de temas elegante y profesional con 6 variantes visuales (Dark, Light, Night, Ghibli, Coffee, Kiro) e iconos integrados.                                |
 | [![Lynx Keymap Pro](https://raw.githubusercontent.com/bastndev/Lynx-Keymap-Pro/refs/heads/main/assets/images/logo.png)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap)                                        | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | Estandarización definitiva de atajos en todos los editores de código. Maximiza tu memoria muscular y acelera el flujo de trabajo.                                  |
 | [![Compare Code](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/compare-code/0.1.0/1759529717256/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code) | [Compare Code](https://github.com/bastndev/Compare-Code)           | Te permite comparar código de forma profesional, rápida y clara. Con una interfaz moderna e intuitiva, ideal para desarrolladores que buscan elevar productividad. |
 
@@ -381,10 +381,10 @@ ext install bastndev.atm
 
 <div align="center">
   
-	**Disfruta 🎉 Tu (ATM - Extension) ya está instalada.**  
+	**Disfruta 🎉 ATM ya está instalada.**  
 	*Si encuentras errores o tienes feedback, puedes [abrir un issue](https://github.com/bastndev/atm/issues)*
 
-	<br>
+    <br>
 
 <sub>Hecho con ❤️ por <a href="https://gohit.xyz">Gohit X</a> · Licenciado bajo <a href="../../LICENCE">MIT</a></sub>
 
