@@ -189,10 +189,10 @@ async function scanDocument(document: vscode.TextDocument): Promise<void> {
     }
   }
 
-  // Cancel previous scan
+  // Cancel previous scan but keep old decorations visible during re-scan
+  const oldDecorations = prev ? [...prev.decorations] : [];
   if (prev) {
     prev.token.cancel();
-    clearDecorations(document, prev.decorations);
   }
 
   const tokenSource = new vscode.CancellationTokenSource();
@@ -309,6 +309,17 @@ async function scanDocument(document: vscode.TextDocument): Promise<void> {
       editor.setDecorations(underlineDecorationType, []);
     }
   }
+
+  // Clean up old decoration types that are no longer active
+  const newCacheKeys = new Set(entry.decorations.map(d => d.cacheKey).filter(Boolean));
+  for (const oldDec of oldDecorations) {
+    if (oldDec.cacheKey && !newCacheKeys.has(oldDec.cacheKey)) {
+      for (const editor of editors) {
+        editor.setDecorations(oldDec.type, []);
+      }
+    }
+    releaseDecorationType(oldDec.cacheKey);
+  }
 }
 
 function clearDecorations(document: vscode.TextDocument, decorations: DecorationEntry[]): void {
@@ -335,6 +346,46 @@ function throttledScan(document: vscode.TextDocument, delay = 500): void {
     throttleTimers.delete(key);
     scanDocument(document);
   }, delay));
+}
+
+/**
+ * Re-apply existing cached decorations to current editor instances immediately.
+ * Used when switching tabs — VS Code may create new editor instances that need
+ * the decorations re-applied without waiting for a full re-scan.
+ */
+function reapplyDecorations(document: vscode.TextDocument): void {
+  const key = document.uri.toString();
+  const prev = scanResults.get(key);
+  if (!prev || prev.decorations.length === 0) { return; }
+
+  const editors = vscode.window.visibleTextEditors.filter(
+    (e) => e.document.uri.toString() === key
+  );
+  if (editors.length === 0) { return; }
+
+  const showGutter = getConfig(document, 'showImagePreviewOnGutter', true);
+  const underline = getConfig(document, 'showUnderline', true);
+
+  for (const entry of prev.decorations) {
+    if (showGutter && entry.decorations.length > 0) {
+      const gutterDecoration: vscode.DecorationOptions = {
+        range: new vscode.Range(entry.decorations[0].range.start, entry.decorations[0].range.start),
+        hoverMessage: '',
+      };
+      for (const editor of editors) {
+        editor.setDecorations(entry.type, [gutterDecoration]);
+      }
+    }
+  }
+
+  if (underline) {
+    const underlineDecos: vscode.DecorationOptions[] = prev.decorations
+      .filter(e => e.decorations.length > 0)
+      .map(e => ({ range: e.decorations[0].range, hoverMessage: '' }));
+    for (const editor of editors) {
+      editor.setDecorations(underlineDecorationType, underlineDecos);
+    }
+  }
 }
 
 // =========================================================
@@ -460,7 +511,10 @@ export function activateImagePreview(context: vscode.ExtensionContext): void {
       if (e.document) { throttledScan(e.document); }
     }),
     vscode.window.onDidChangeActiveTextEditor((e) => {
-      if (e?.document) { throttledScan(e.document); }
+      if (e?.document) {
+        reapplyDecorations(e.document);
+        throttledScan(e.document);
+      }
     }),
     vscode.window.onDidChangeTextEditorVisibleRanges((e) => {
       if (e.textEditor?.document) { throttledScan(e.textEditor.document, 100); }
