@@ -269,7 +269,7 @@
         <details>
           <summary><b>Preview — Color Box</b></summary>
           <br>
-          <img src="./public/github/images/tutorial/t-16.jpg" width="100%" alt="Color Preview" />
+          <img src="./public/github/images/tutorial/t-16.jpg" width="100%" alt="Color  Box Preview" />
         </details>
       </td>
     </tr>
@@ -311,7 +311,7 @@ Launch _Quick Open_
 Paste the following command and press `Enter`:
 
 ```
-ext install bastndev.compare-code
+ext install bastndev.atm
 ```
 
 ## 🧑‍💻 About Me
