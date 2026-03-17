@@ -260,6 +260,8 @@ async function scanDocument(document: vscode.TextDocument): Promise<void> {
   });
 
   // Apply decorations
+  const gutterByType = new Map<vscode.TextEditorDecorationType, vscode.DecorationOptions[]>();
+
   for (const img of unique) {
     const uri = img.imagePath.startsWith('data:')
       ? vscode.Uri.parse(img.imagePath)
@@ -275,12 +277,6 @@ async function scanDocument(document: vscode.TextDocument): Promise<void> {
       hoverMessage: '',
     };
 
-    const gutterDecoration: vscode.DecorationOptions = {
-      // Zero-length anchor keeps one gutter icon even when the URL wraps visually.
-      range: new vscode.Range(img.range.start, img.range.start),
-      hoverMessage: '',
-    };
-
     entry.decorations.push({
       cacheKey,
       type: decorationType,
@@ -290,9 +286,21 @@ async function scanDocument(document: vscode.TextDocument): Promise<void> {
     });
 
     if (showGutter) {
-      for (const editor of editors) {
-        editor.setDecorations(decorationType, [gutterDecoration]);
+      const gutterDecoration: vscode.DecorationOptions = {
+        range: new vscode.Range(img.range.start, img.range.start),
+        hoverMessage: '',
+      };
+      if (!gutterByType.has(decorationType)) {
+        gutterByType.set(decorationType, []);
       }
+      gutterByType.get(decorationType)!.push(gutterDecoration);
+    }
+  }
+
+  // Apply all gutter decorations at once per type
+  for (const [type, decorations] of gutterByType) {
+    for (const editor of editors) {
+      editor.setDecorations(type, decorations);
     }
   }
 
@@ -366,15 +374,24 @@ function reapplyDecorations(document: vscode.TextDocument): void {
   const showGutter = getConfig(document, 'showImagePreviewOnGutter', true);
   const underline = getConfig(document, 'showUnderline', true);
 
+  // Group gutter decorations by type to apply all at once
+  const gutterByType = new Map<vscode.TextEditorDecorationType, vscode.DecorationOptions[]>();
   for (const entry of prev.decorations) {
     if (showGutter && entry.decorations.length > 0) {
-      const gutterDecoration: vscode.DecorationOptions = {
+      const gutterDec: vscode.DecorationOptions = {
         range: new vscode.Range(entry.decorations[0].range.start, entry.decorations[0].range.start),
         hoverMessage: '',
       };
-      for (const editor of editors) {
-        editor.setDecorations(entry.type, [gutterDecoration]);
+      if (!gutterByType.has(entry.type)) {
+        gutterByType.set(entry.type, []);
       }
+      gutterByType.get(entry.type)!.push(gutterDec);
+    }
+  }
+
+  for (const [type, decorations] of gutterByType) {
+    for (const editor of editors) {
+      editor.setDecorations(type, decorations);
     }
   }
 
