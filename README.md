@@ -274,9 +274,9 @@
       </td>
     </tr>
     <tr>
-      <td align="center">🧩</td>
-      <td align="center"><b>16 extensions</b></td>
-      <td>All bundled in a single, lightweight package — zero bloat.</td>
+      <td align="center">16</td>
+      <td align="center"><b>🧩</b></td>
+      <td>All bundled in a single, lightweight package.</td>
       <td align="center"><b><code>1.5MB</code></b></td>
     </tr>
   </tbody>
