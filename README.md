@@ -82,15 +82,15 @@
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-4.webp" alt="Comments Code" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Comments Code</b></a></td>
-      <td>Enhances comment readability with visual decorations, language control, and optimized rendering.</td>
+      <td>Enhances comment readability with visual decorations, language control, and optimized rendering.  <code>TODO:</code> /  <code>FIXME:</code> / <code>MARK:</code></td>
       <td align="center"><b>44KB</b></td>
     </tr>
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>▶️ View Tutorial Video</b></summary>
+          <summary><b>View Tutorial - IMG 4</b></summary>
           <br>
-          <video controls autoplay muted loop src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/video/v-test.mp4" width="100%"></video>
+          <img src="./public/github/images/tutorial/t-4.jpg" width="100%" alt="AI Data Tutorial" />
         </details>
       </td>
     </tr>
