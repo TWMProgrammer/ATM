@@ -428,9 +428,8 @@ export async function readText(
   stoppedByUser = false;
 
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
-  const speed = config.get<number>('speed') ?? 1.0;
 
-  const piper = spawn(piperPath, ['--model', voicePath, '--length-scale', String(speed), '--output-raw'], {
+  const piper = spawn(piperPath, ['--model', voicePath, '--output-raw'], {
     cwd: path.dirname(piperPath),
     env: { ...process.env },
     windowsHide: false,
