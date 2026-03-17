@@ -362,7 +362,11 @@ export async function deleteVoiceFiles(
 
 let piperProcess: ChildProcess | undefined;
 let playerProcess: ChildProcess | undefined;
-export let stoppedByUser = false;
+let stoppedByUser = false;
+
+export function wasStoppedByUser(): boolean {
+  return stoppedByUser;
+}
 
 export function stopCurrentPlayback(): void {
   stoppedByUser = true;
@@ -423,7 +427,10 @@ export async function readText(
 
   stoppedByUser = false;
 
-  const piper = spawn(piperPath, ['--model', voicePath, '--output-raw'], {
+  const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
+  const speed = config.get<number>('speed') ?? 1.0;
+
+  const piper = spawn(piperPath, ['--model', voicePath, '--length-scale', String(speed), '--output-raw'], {
     cwd: path.dirname(piperPath),
     env: { ...process.env },
     windowsHide: false,

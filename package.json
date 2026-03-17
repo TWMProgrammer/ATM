@@ -214,6 +214,11 @@
           "default": "en_US-hfc_female-medium",
           "description": "Voice model for ATM Voice TTS. Use Select Voice or Download Voice to change."
         },
+        "atm.voiceTts.speed": {
+          "type": "number",
+          "default": 1.0,
+          "description": "Playback speed. 1.0 is normal, 0.8 is faster, 1.5 is slower."
+        },
         "atm.codeSpell.customWords": {
           "type": "array",
           "items": {
