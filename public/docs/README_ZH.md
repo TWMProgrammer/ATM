@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-	<a href="https://github.com/bastndev/ATM/blob/main/README.md">English 🇺🇸</a> |
+	<a href="https://github.com/bastndev/ATM">English 🇺🇸</a> |
 	<a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ES.md">Español 🇪🇸</a>
 </p>
 
