@@ -25,6 +25,7 @@ const COLOR_HEALTHY = '#4ade80'; // green-400  — quota ≥ 70%
 const COLOR_TEXT_PRIMARY = '#f4f4f5';   // zinc-100
 const COLOR_TEXT_SECONDARY = '#a1a1aa'; // zinc-400
 const COLOR_SEPARATOR = '#3f3f46';      // zinc-700
+const COLOR_ACCENT = '#c4b5fd';         // violet-400 — brand glow
 
 // ── Model display order ──────────────────────────────────────────────
 
@@ -61,7 +62,11 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 	md.supportHtml = true;
 	md.supportThemeIcons = true;
 
-	md.appendMarkdown(`### <span style="color:${COLOR_TEXT_PRIMARY}; font-weight:600;">Antigravity Quota - AI (Data)</span>\n\n`);
+	md.appendMarkdown(
+		`### <span style="color:${COLOR_TEXT_PRIMARY}; font-weight:700;">Antigravity Quota</span>` +
+		`<span style="color:${COLOR_SEPARATOR};"> · </span>` +
+		`<span style="color:${COLOR_ACCENT};">AI (Data)</span>\n\n`
+	);
 	md.appendMarkdown(`${buildTopSummary(snapshot)}\n\n`);
 	md.appendMarkdown(DIVIDER);
 
