@@ -381,11 +381,11 @@ ext install bastndev.atm
 
 <div align="center">
   
-	**尽情享受 🎉 ATM 已安装完成！**  
-	*如果你发现 Bug 或有反馈，欢迎 [提交 issue](https://github.com/bastndev/atm/issues)*
+  **尽情享用 🎉 ATM 已安装完成！**  
+  *如果你发现任何问题或有反馈，可以 [提交 issue](https://github.com/bastndev/atm/issues)*
 
-    <br>
+  <br>
 
-<sub>由 <a href="https://gohit.xyz">Gohit X</a> 用 ❤️ 打造 · 采用 <a href="../../LICENCE">MIT</a> 许可</sub>
+<sub>由 <a href="https://gohit.xyz">Gohit X</a> 用 ❤️ 制作 · 基于 <a href="./LICENCE">MIT</a> 许可证</sub>
 
 </div>
