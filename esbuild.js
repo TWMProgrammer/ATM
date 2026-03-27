@@ -52,7 +52,7 @@ async function main() {
 		sourcesContent: false,
 		platform: 'node',
 		outfile: 'dist/extension.js',
-		external: ['vscode'],
+		external: ['vscode', 'NeteaseCloudMusicApi'],
 		logLevel: 'silent',
 		plugins: [extensionEsbuildProblemMatcherPlugin],
 	});
@@ -82,14 +82,30 @@ async function main() {
 		plugins: [browserEsbuildProblemMatcherPlugin],
 	});
 
+	const focusWebviewCtx = await esbuild.context({
+		entryPoints: ['src/extensions/focus/view/ui/index.ts'],
+		bundle: true,
+		format: 'iife',
+		minify: production,
+		sourcemap: !production,
+		sourcesContent: false,
+		platform: 'browser',
+		outfile: 'dist/atm-music-webview.js',
+		logLevel: 'silent',
+		plugins: [browserEsbuildProblemMatcherPlugin],
+	});
+
 	if (watch) {
 		await extensionCtx.watch();
 		await browserCtx.watch();
+		await focusWebviewCtx.watch();
 	} else {
 		await extensionCtx.rebuild();
 		await extensionCtx.dispose();
 		await browserCtx.rebuild();
 		await browserCtx.dispose();
+		await focusWebviewCtx.rebuild();
+		await focusWebviewCtx.dispose();
 	}
 }
 

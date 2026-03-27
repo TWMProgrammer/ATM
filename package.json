@@ -477,6 +477,14 @@
       ]
     },
     "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "atm-yt-music-view",
+          "name": "ATM + MUSIC ♪ ( TIME ~ GAME ) ",
+          "icon": "$(music)"
+        }
+      ],
       "gitlab-panel": [
         {
           "type": "webview",
@@ -609,6 +617,7 @@
     "get-video-dimensions": "^1.0.0",
     "html-to-image": "^1.11.13",
     "music-metadata": "^11.12.3",
+    "NeteaseCloudMusicApi": "^4.30.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",
