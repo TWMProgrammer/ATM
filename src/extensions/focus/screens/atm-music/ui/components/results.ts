@@ -94,7 +94,7 @@ export class MusicResultsUI {
             if (item.provider === 'netease') {providerName = 'NetEase';}
             if (item.provider === 'jiosaavn') {providerName = 'JioSaavn';}
             
-            const qualityBadge = item.quality ? `<span class="result-badge quality">${item.quality}</span>` : '';
+            const qualityBadge = item.quality ? `<span class="result-badge quality">${escapeHtml(item.quality)}</span>` : '';
             const typeBadge = item.isFullTrack ? '<span class="result-badge full">Full</span>' : '<span class="result-badge preview">30s Preview</span>';
             const providerBadge = `<span class="result-badge provider-${item.provider.replace('_', '-')}">${providerName}</span>`;
 
