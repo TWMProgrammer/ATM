@@ -35,6 +35,25 @@ html, body {
 }
 .back-btn:hover, .share-btn:hover { opacity: 1; }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nickname-btn {
+  color: var(--atom-text);
+  opacity: 0.6;
+  font-size: 11px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.nickname-btn:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .canvas-wrapper {
   flex: 1; overflow: hidden; position: relative;
   background: transparent;
@@ -42,4 +61,92 @@ html, body {
 
 #atomCanvas {
   width: 100%; height: 100%; display: block;
+}
+
+/* --- Nickname Modal --- */
+.modal-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-content {
+  background: rgba(15, 15, 15, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px;
+  position: relative;
+  width: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.nickname-input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+}
+.modal-close:hover { opacity: 1; color: #fff; }
+
+#nickname-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 11px;
+  outline: none;
+  width: 120px;
+  transition: border-color 0.2s, background 0.2s;
+}
+#nickname-input:focus {
+  border-color: var(--atom-accent);
+  background: rgba(0, 0, 0, 0.6);
+}
+#nickname-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.modal-save-btn {
+  background: var(--atom-accent);
+  color: #fff;
+  border: none;
+  height: 25px;
+  width: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+.modal-save-btn:hover {
+  opacity: 1;
 }

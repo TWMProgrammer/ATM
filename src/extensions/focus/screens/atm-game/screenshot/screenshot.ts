@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
-export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: string) {
+export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image: string, nickname: string }) {
   if (currentPanel) {
     // If it already exists, just reveal it
     currentPanel.reveal(vscode.ViewColumn.One);
@@ -27,6 +27,8 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: string) 
     },
     null,
   );
+
+  const nicknameDisplay = payload?.nickname ? `@${payload.nickname}` : 'Atom';
 
   currentPanel.webview.html = `<!DOCTYPE html>
 <html lang="en">
@@ -57,8 +59,8 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: string) 
     </style>
 </head>
 <body>
-    <h1>Hello Atom <span style="font-size: 1.5rem;">🎮</span></h1>
-    ${payload ? `<img src="${payload}" alt="Atom Screenshot" />` : ''}
+    <h1>Hello ${nicknameDisplay} <span style="font-size: 1.5rem;">🎮</span></h1>
+    ${payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : ''}
 </body>
 </html>`;
 }
