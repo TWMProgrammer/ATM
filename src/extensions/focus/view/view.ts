@@ -32,6 +32,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		const styles = [
 			['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-music', 'ui', 'index.css'],
+			['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
 		];
 
 		const styleUris = styles.map(s => webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, ...s)));
@@ -49,6 +50,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 
 		const htmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'view', 'ui', 'index.html');
 		let html = fs.readFileSync(htmlPath, 'utf8');
+
+		const timeHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.html');
+		const timeHtml = fs.readFileSync(timeHtmlPath, 'utf8');
+		html = html.replace('<div id="atm-time-root"></div>', `<div id="atm-time-root">\n${timeHtml}\n</div>`);
 
 		const styleLinks = styleUris.map(uri => `<link rel="stylesheet" href="${uri}">`).join('\n');
 

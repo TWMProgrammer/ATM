@@ -1,7 +1,7 @@
 declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void };
 
 import { createAtmMusicController } from '../../screens/atm-music/ui/index';
-import { timeScreenContent } from '../../screens/atm-time/time';
+import { createAtmTimeController } from '../../screens/atm-time/ui/index';
 import { gameScreenContent } from '../../screens/atm-game/game';
 
 (function () {
@@ -11,15 +11,16 @@ import { gameScreenContent } from '../../screens/atm-game/game';
     const atmTimeRoot = document.querySelector('#atm-time-root') as HTMLElement | null;
     const atmGameRoot = document.querySelector('#atm-game-root') as HTMLElement | null;
 
-    if (atmTimeRoot) {
-        atmTimeRoot.innerHTML = timeScreenContent;
-    }
+
     if (atmGameRoot) {
         atmGameRoot.innerHTML = gameScreenContent;
     }
 
     // Initialize Music Controller (handles search, results, player internally)
     const musicController = createAtmMusicController(vscode);
+
+    // Initialize Time Controller (Pomodoro)
+    const timeController = createAtmTimeController();
 
     // Quick Access buttons (Music / Time / Game)
     const quickAccessButtons = Array.from(document.querySelectorAll('.qa-btn')) as HTMLButtonElement[];
