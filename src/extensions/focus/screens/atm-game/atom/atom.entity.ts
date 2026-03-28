@@ -10,7 +10,8 @@ export class AtomEntity implements GameObject {
   state: PetState = 'IDLE';
 
   private stateTimer: number = Date.now();
-  private codingTimer: number = 0;
+  private lastInputTime: number = Date.now();
+  private cachedAccent: string | null = null;
 
   constructor(startX: number, startY: number) {
     this.x = startX;
@@ -20,14 +21,15 @@ export class AtomEntity implements GameObject {
   }
 
   setState(newState: PetState) {
+    if (this.state === newState) return;
     this.state = newState;
     this.stateTimer = Date.now();
   }
 
-  onMessage(type: string, payload?: any): void {
+  onMessage(type: string): void {
     if (type === 'keystroke' || type === 'fileSaved') {
       this.setState('CODING');
-      this.codingTimer = Date.now();
+      this.lastInputTime = Date.now();
     }
   }
 
@@ -48,44 +50,36 @@ export class AtomEntity implements GameObject {
   }
 
   update(timestamp: number, dpr: number, canvasWidth: number, canvasHeight: number) {
-    this.updateLogic();
-
-    // Smoothed movement towards target (Linear interpolation)
-    this.x += (this.targetX - this.x) * 0.1;
-
-    // Base floating Y based on tick
-    let floatOffset = Math.sin(timestamp / 800) * 10 * dpr;
-    if (this.state === 'SLEEPING') floatOffset = Math.sin(timestamp / 1200) * 5 * dpr;
-    if (this.state === 'CODING') {
-      floatOffset += (Math.random() - 0.5) * 5 * dpr; // Small glitchy movement when coding
-    }
-    
-    // Smooth target Y movement (Center screen)
-    this.targetY += (canvasHeight / 2 - this.targetY) * 0.05; 
-    this.y = this.targetY + floatOffset;
-
-    // Boundary constraints
-    const margin = 20 * dpr;
-    if (this.x < margin) this.x = margin;
-    if (this.x > canvasWidth - margin) this.x = canvasWidth - margin;
-  }
-
-  private updateLogic() {
     const now = Date.now();
-    if (this.state === 'CODING' && now - this.codingTimer > 3000) {
+    
+    // Logic updates
+    if (this.state === 'CODING' && now - this.lastInputTime > 3000) {
       this.setState('IDLE');
     }
     if (this.state === 'IDLE' && now - this.stateTimer > 300000) {
       this.setState('SLEEPING');
     }
-  }
 
-  // --- Rendering ---
-  private cachedAccent: string | null = null;
+    // Physics & Movement
+    this.x += (this.targetX - this.x) * 0.1;
+
+    let floatOffset = Math.sin(timestamp / 800) * 10 * dpr;
+    if (this.state === 'SLEEPING') floatOffset = Math.sin(timestamp / 1200) * 5 * dpr;
+    if (this.state === 'CODING') {
+      floatOffset += (Math.random() - 0.5) * 5 * dpr;
+    }
+    
+    this.targetY += (canvasHeight / 2 - this.targetY) * 0.05; 
+    this.y = this.targetY + floatOffset;
+
+    const margin = 20 * dpr;
+    this.x = Math.max(margin, Math.min(this.x, canvasWidth - margin));
+  }
 
   private getAccent(): string {
     if (!this.cachedAccent) {
-      this.cachedAccent = getComputedStyle(document.documentElement).getPropertyValue('--vscode-button-background').trim() || '#555555';
+      this.cachedAccent = getComputedStyle(document.documentElement)
+        .getPropertyValue('--vscode-button-background').trim() || '#555555';
     }
     return this.cachedAccent;
   }
@@ -93,12 +87,11 @@ export class AtomEntity implements GameObject {
   draw(ctx: CanvasRenderingContext2D, dpr: number, timestamp: number): void {
     const s = dpr;
     const accent = this.getAccent();
-    const cx = this.x;
-    const cy = this.y;
+    const { x: cx, y: cy } = this;
 
     ctx.save();
     
-    // Core glow (Aura)
+    // Core Aura
     ctx.shadowColor = accent;
     ctx.shadowBlur = 15 * s;
     ctx.beginPath();
@@ -106,30 +99,24 @@ export class AtomEntity implements GameObject {
     ctx.fillStyle = '#1c1c1c';
     ctx.fill();
     
-    // Inner light
+    // Inner Light
     ctx.shadowBlur = 0;
     ctx.beginPath();
     ctx.arc(cx, cy, 6 * s, 0, Math.PI * 2);
     ctx.fillStyle = this.state === 'SLEEPING' ? '#555' : accent;
     ctx.fill();
 
-    // Eye / Reaction patterns
+    // Eyes/Reaction
     if (this.state === 'CODING') {
       if (Math.floor(timestamp / 100) % 2 === 0) {
-       ctx.beginPath();
-       ctx.arc(cx, cy, 3 * s, 0, Math.PI * 2);
-       ctx.fillStyle = '#ffffff';
-       ctx.fill();
+        this.drawEye(ctx, cx, cy, 3 * s, '#ffffff');
       }
     } else if (this.state === 'IDLE') {
       if (Math.floor(timestamp / 3000) % 2 === 0 && (timestamp % 3000) < 150) {
         ctx.fillStyle = '#1c1c1c';
         ctx.fillRect(cx - 6 * s, cy - 2 * s, 12 * s, 4 * s);
       } else {
-        ctx.beginPath();
-        ctx.arc(cx + 2 * s, cy - 1 * s, 2 * s, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
+        this.drawEye(ctx, cx + 2 * s, cy - 1 * s, 2 * s, '#ffffff');
       }
     } else if (this.state === 'SLEEPING') {
       ctx.strokeStyle = '#e0e0e0';
@@ -142,4 +129,12 @@ export class AtomEntity implements GameObject {
 
     ctx.restore();
   }
+
+  private drawEye(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
 }
+

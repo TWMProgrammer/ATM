@@ -1,8 +1,5 @@
 import { ArenaRender } from './arena.render';
 
-/**
- * Interface for all game entities in the Arena
- */
 export interface GameObject {
   update(timestamp: number, dpr: number, width: number, height: number): void;
   draw(ctx: CanvasRenderingContext2D, dpr: number, timestamp: number): void;
@@ -19,7 +16,7 @@ export class ArenaEngine {
   private gameObjects: GameObject[] = [];
   private keys: Record<string, boolean> = {};
   private animationFrameId: number = 0;
-  private ro: ResizeObserver | null = null;
+  private resizeObserver: ResizeObserver | null = null;
   private isRunning: boolean = false;
 
   constructor() {
@@ -31,31 +28,21 @@ export class ArenaEngine {
   }
 
   start() {
-    if (!this.canvas) return;
+    if (!this.canvas || this.isRunning) return;
     this.isRunning = true;
 
     this.arenaRender = new ArenaRender(this.canvas);
     this.arenaRender.resize();
 
-    // Handle high-dpi canvas resizing
-    this.ro = new ResizeObserver(() => {
-      if (this.arenaRender) {
-        this.arenaRender.resize();
-        // Propagate dpr changes to objects if needed implicitly via update/draw calls
-      }
+    this.resizeObserver = new ResizeObserver(() => {
+      this.arenaRender?.resize();
     });
 
     if (this.canvas.parentElement) {
-      this.ro.observe(this.canvas.parentElement);
+      this.resizeObserver.observe(this.canvas.parentElement);
     }
 
     this.bindEvents();
-    
-    // Initial sync
-    document.addEventListener('DOMContentLoaded', () => {
-      if (this.arenaRender) this.arenaRender.resize();
-    });
-
     this.loop(0);
   }
 
@@ -79,23 +66,12 @@ export class ArenaEngine {
   private handleKeyUp = (e: KeyboardEvent) => { this.keys[e.key] = false; }
 
   private handleMessage = (e: MessageEvent) => {
-    if (!e.data || !e.data.type) return;
-    for (const obj of this.gameObjects) {
-      if (obj.onMessage) obj.onMessage(e.data.type, e.data);
-    }
+    if (!e.data?.type) return;
+    this.gameObjects.forEach(obj => obj.onMessage?.(e.data.type, e.data));
   }
 
-  private handleBlur = () => {
-    for (const obj of this.gameObjects) {
-      if (obj.onBlur) obj.onBlur();
-    }
-  }
-
-  private handleFocus = () => {
-    for (const obj of this.gameObjects) {
-      if (obj.onFocus) obj.onFocus();
-    }
-  }
+  private handleBlur = () => this.gameObjects.forEach(obj => obj.onBlur?.());
+  private handleFocus = () => this.gameObjects.forEach(obj => obj.onFocus?.());
 
   private loop = (timestamp: number) => {
     if (!this.isRunning) return;
@@ -103,7 +79,6 @@ export class ArenaEngine {
     
     if (!this.arenaRender || !this.canvas) return;
     
-    // Clear canvas
     this.arenaRender.clear();
 
     const dpr = this.arenaRender.dpr;
@@ -111,9 +86,8 @@ export class ArenaEngine {
     const h = this.canvas.height;
     const ctx = this.arenaRender.ctx;
 
-    // Process entities
     for (const obj of this.gameObjects) {
-      if (obj.input) obj.input(this.keys);
+      obj.input?.(this.keys);
       obj.update(timestamp, dpr, w, h);
       obj.draw(ctx, dpr, timestamp);
     }
@@ -123,6 +97,7 @@ export class ArenaEngine {
     this.isRunning = false;
     cancelAnimationFrame(this.animationFrameId);
     this.unbindEvents();
-    if (this.ro) this.ro.disconnect();
+    this.resizeObserver?.disconnect();
   }
 }
+
