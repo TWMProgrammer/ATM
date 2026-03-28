@@ -15,7 +15,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 44px;
 }
 
 .pomodoro-container .back-btn {
@@ -28,7 +27,7 @@
 .pomo-controls-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px; /* Tightened gap between buttons */
 }
 
 #pomo-btn-toggle-mode {
