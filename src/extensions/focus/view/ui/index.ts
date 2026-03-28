@@ -2,7 +2,7 @@ declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void 
 
 import { createAtmMusicController } from '../../screens/atm-music/ui/index';
 import { createAtmTimeController } from '../../screens/atm-time/ui/index';
-import { gameScreenContent } from '../../screens/atm-game/game';
+import { initAtomPet } from '../../screens/atm-game/game';
 
 (function () {
     const vscode = acquireVsCodeApi();
@@ -13,7 +13,7 @@ import { gameScreenContent } from '../../screens/atm-game/game';
 
 
     if (atmGameRoot) {
-        atmGameRoot.innerHTML = gameScreenContent;
+        initAtomPet();
     }
 
     // Initialize Music Controller (handles search, results, player internally)
