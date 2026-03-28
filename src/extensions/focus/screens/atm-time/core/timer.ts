@@ -14,6 +14,7 @@ export class PomodoroTimer {
     private mode: TimerMode = 'focus';
     private isPlaying: boolean = false;
     private callbacks: TimerCallbacks;
+    private endTime: number | null = null;
 
     constructor(callbacks: TimerCallbacks) {
         this.callbacks = callbacks;
@@ -42,21 +43,31 @@ export class PomodoroTimer {
         }
         
         this.isPlaying = true;
+        this.endTime = Date.now() + (this.remainingSeconds * 1000);
         this.callbacks.onStateChange(this.isPlaying, this.mode);
+        
+        // Immediate tick to show starting state
+        this.notifyTick();
+
         this.intervalId = setInterval(() => {
-            this.remainingSeconds--;
+            if (!this.endTime) return;
+            
+            const now = Date.now();
+            this.remainingSeconds = Math.max(0, Math.round((this.endTime - now) / 1000));
+            
             this.notifyTick();
 
             if (this.remainingSeconds <= 0) {
                 this.pause();
                 this.callbacks.onEnd();
             }
-        }, 1000);
+        }, 200); // Check more frequently for higher precision
     }
 
     public pause() {
         if (!this.isPlaying) return;
         this.isPlaying = false;
+        this.endTime = null;
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
@@ -79,3 +90,4 @@ export class PomodoroTimer {
         this.callbacks.onTick(formatted, progress);
     }
 }
+

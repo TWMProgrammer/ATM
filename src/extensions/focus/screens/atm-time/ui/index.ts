@@ -73,10 +73,15 @@ export function createAtmTimeController() {
     updateModeButtonText('focus');
 
     // Spacebar shortcut for Play/Pause (only when Time screen is active)
-    document.addEventListener('keydown', (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
         const timeScreen = document.getElementById('screen-time');
         const isActive = timeScreen && window.getComputedStyle(timeScreen).display !== 'none';
-        const isInputFocused = document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+        
+        // Prevent trigger when typing in inputs or editable areas
+        const isInputFocused = document.activeElement && (
+            ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) || 
+            (document.activeElement as HTMLElement).isContentEditable
+        );
 
         if (e.code === 'Space' && isActive && !isInputFocused) {
             e.preventDefault(); // Prevent default scroll jump
@@ -94,7 +99,20 @@ export function createAtmTimeController() {
                 timer.play();
             }
         }
-    });
+    };
+
+    // Cleanup previous listener if it exists to prevent memory leaks
+    if ((window as any).__atmTimeCleanup) {
+        (window as any).__atmTimeCleanup();
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Store cleanup function
+    (window as any).__atmTimeCleanup = () => {
+        document.removeEventListener('keydown', handleKeyDown);
+    };
 
     return timer;
 }
+
