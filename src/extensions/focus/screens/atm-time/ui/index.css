@@ -59,12 +59,17 @@
     justify-content: center;
     height: 26px;
     min-width: 36px; /* Reduced width */
-    transition: opacity 0.2s;
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+}
+
+#pomo-btn-play:active, #pomo-btn-pause:active,
+#pomo-btn-play.btn-press, #pomo-btn-pause.btn-press {
+    transform: scale(0.85);
 }
 
 #pomo-btn-play svg, #pomo-btn-pause svg {
-    width: 14px;
-    height: 14px;
+    width: 18px; /* Increased icon size */
+    height: 18px;
 }
 
 #pomo-btn-reset {

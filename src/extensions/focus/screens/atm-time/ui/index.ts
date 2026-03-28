@@ -12,6 +12,7 @@ export function createAtmTimeController() {
     const btnToggleMode = root.querySelector('#pomo-btn-toggle-mode') as HTMLButtonElement;
     
     let currentMode: TimerMode = 'focus';
+    let isCurrentlyPlaying = false;
 
     const updateModeButtonText = (mode: TimerMode) => {
         if (btnToggleMode) {
@@ -39,6 +40,7 @@ export function createAtmTimeController() {
             }
         },
         onStateChange: (isPlaying, mode) => {
+            isCurrentlyPlaying = isPlaying;
             if (isPlaying) {
                 if (btnPlay) btnPlay.style.display = 'none';
                 if (btnPause) btnPause.style.display = 'flex';
@@ -69,6 +71,30 @@ export function createAtmTimeController() {
 
     // Init styles based on default focus mode
     updateModeButtonText('focus');
+
+    // Spacebar shortcut for Play/Pause (only when Time screen is active)
+    document.addEventListener('keydown', (e) => {
+        const timeScreen = document.getElementById('screen-time');
+        const isActive = timeScreen && window.getComputedStyle(timeScreen).display !== 'none';
+        const isInputFocused = document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+
+        if (e.code === 'Space' && isActive && !isInputFocused) {
+            e.preventDefault(); // Prevent default scroll jump
+            
+            const targetBtn = isCurrentlyPlaying ? btnPause : btnPlay;
+            
+            // Visual click simulation
+            targetBtn?.classList.add('btn-press');
+            setTimeout(() => targetBtn?.classList.remove('btn-press'), 120);
+
+            // Toggle logic
+            if (isCurrentlyPlaying) {
+                timer.pause();
+            } else {
+                timer.play();
+            }
+        }
+    });
 
     return timer;
 }
