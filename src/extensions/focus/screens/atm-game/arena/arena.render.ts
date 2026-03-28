@@ -1,3 +1,8 @@
+/**
+ * Handles the raw HTML Canvas context.
+ * Responsible for responding to window resizes and clearing the screen frame-by-frame.
+ * Scales correctly for high-DPI displays (Retina).
+ */
 export class ArenaRender {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;

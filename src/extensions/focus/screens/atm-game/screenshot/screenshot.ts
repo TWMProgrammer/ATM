@@ -4,9 +4,9 @@ let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
 export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: string) {
   if (currentPanel) {
-    // Si ya existe, solo la mostramos y actualizamos el contenido (opcional)
+    // If it already exists, just reveal it
     currentPanel.reveal(vscode.ViewColumn.One);
-    // currentPanel.webview.postMessage({ command: 'updateImage', payload }); // Por si a futuro quieres actualizar la vista en vivo
+    // currentPanel.webview.postMessage({ command: 'updateImage', payload }); // Uncomment to support live updating the screenshot
     return;
   }
 
@@ -23,7 +23,7 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: string) 
 
   currentPanel.onDidDispose(
     () => {
-      currentPanel = undefined; // Liberamos la referencia cuando cierran la pestaña
+      currentPanel = undefined; // Free the reference when the tab is closed
     },
     null,
   );
