@@ -94,7 +94,7 @@
     justify-content: center;
     flex: 1; /* Center the timer in the remaining vertical space */
     width: 100%;
-    margin-bottom: 20px; /* Offset visual center up slightly */
+    margin-top: 16px; /* Offset visual center down slightly to separate from top buttons */
 }
 
 #pomo-time-display {
