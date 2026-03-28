@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { handleWebviewMessage } from '../screens/atm-music/music';
+import { openScreenshotPanel } from '../screens/atm-game/screenshot/screenshot';
 
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'atm-yt-music-view';
@@ -23,6 +24,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage((message) => {
+			if (message.type === 'open_screenshot') {
+				openScreenshotPanel(this._extensionUri, message.payload);
+				return;
+			}
 			handleWebviewMessage(webviewView, message);
 		});
 	}

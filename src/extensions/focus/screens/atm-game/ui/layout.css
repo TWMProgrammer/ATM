@@ -23,17 +23,17 @@ html, body {
 
 .game-header {
   height: 28px; min-height: 28px;
-  display: flex; align-items: center; padding: 0 4px;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 4px;
   position: relative; z-index: 10;
 }
 
-.back-btn {
+.back-btn, .share-btn {
   background: none; border: none; color: var(--atom-text);
   cursor: pointer; opacity: 0.6; font-size: 11px;
   display: flex; align-items: center; gap: 4px; padding: 4px 6px;
   transition: opacity 0.2s; font-family: inherit;
 }
-.back-btn:hover { opacity: 1; }
+.back-btn:hover, .share-btn:hover { opacity: 1; }
 
 .canvas-wrapper {
   flex: 1; overflow: hidden; position: relative;

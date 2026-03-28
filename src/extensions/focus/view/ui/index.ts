@@ -14,6 +14,15 @@ import { initAtomPet } from '../../screens/atm-game/game';
 
     if (atmGameRoot) {
         initAtomPet();
+        
+        const shareBtn = document.querySelector('#atom-share-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                const canvas = document.querySelector('#atomCanvas') as HTMLCanvasElement;
+                const dataUri = canvas ? canvas.toDataURL('image/png') : null;
+                vscode.postMessage({ type: 'open_screenshot', payload: dataUri });
+            });
+        }
     }
 
     // Initialize Music Controller (handles search, results, player internally)
