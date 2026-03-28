@@ -27,7 +27,7 @@
 .pomo-controls-header {
     display: flex;
     align-items: center;
-    gap: 6px; /* Tightened gap between buttons */
+    gap: 11px; /* Increased separation between buttons */
 }
 
 #pomo-btn-toggle-mode {
