@@ -1,0 +1,38 @@
+<div class="pomodoro-container">
+    <div class="pomo-header">
+        <button class="back-btn" type="button" data-back-to="search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Back
+        </button>
+
+        <!-- Controls -->
+        <div class="pomo-controls-header">
+            <!-- Toggle Mode Button (25m / 5m) -->
+            <button id="pomo-btn-toggle-mode" title="Switch to Break (5m)">
+                25m
+            </button>
+
+            <!-- Play Button -->
+            <button id="pomo-btn-play" title="Start">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+
+            <!-- Pause Button -->
+            <button id="pomo-btn-pause" style="display: none;" title="Pause">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+
+            <!-- Reset Button -->
+            <button id="pomo-btn-reset" title="Reset">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="pomo-display-wrapper">
+        <div id="pomo-time-display">25:00</div>
+    </div>
+</div>

@@ -116,7 +116,9 @@ export class GitService {
                 }
 
                 if (code !== 0) {
-                    console.error(`Git blame failed for file ${filepath}:`, stderr);
+                    if (!stderr.includes('no such path') && !stderr.includes('not a git repository') && !stderr.includes('unmerged')) {
+                        console.error(`Git blame failed for file ${filepath}:`, stderr);
+                    }
                 } else {
                     this.parseBlamePorcelain(filepath, stdout);
                 }

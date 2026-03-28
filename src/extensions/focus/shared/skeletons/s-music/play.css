@@ -1,0 +1,46 @@
+.play-btn.loading,
+#qa-play-btn.loading {
+	position: relative;
+	pointer-events: none;
+}
+
+.play-btn.loading svg,
+#qa-play-btn.loading svg {
+	opacity: 0;
+}
+
+.play-btn.loading::after,
+#qa-play-btn.loading::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0.10) 25%,
+		rgba(255, 255, 255, 0.32) 50%,
+		rgba(255, 255, 255, 0.10) 75%
+	);
+	background-size: 200% 100%;
+	animation: play-btn-skeleton-shimmer 1.5s linear infinite;
+}
+
+body.vscode-light .play-btn.loading::after,
+body.vscode-light #qa-play-btn.loading::after {
+	background: linear-gradient(
+		90deg,
+		rgba(0, 0, 0, 0.10) 25%,
+		rgba(0, 0, 0, 0.24) 50%,
+		rgba(0, 0, 0, 0.10) 75%
+	);
+	background-size: 200% 100%;
+}
+
+@keyframes play-btn-skeleton-shimmer {
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}

@@ -1,0 +1,148 @@
+/* atm-time simpler styling */
+
+.pomodoro-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: var(--vscode-editor-foreground);
+    box-sizing: border-box;
+}
+
+.pomo-header {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pomodoro-container .back-btn {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.pomo-controls-header {
+    display: flex;
+    align-items: center;
+    gap: 11px; /* Increased separation between buttons */
+}
+
+#pomo-btn-toggle-mode {
+    background: transparent;
+    border: 1px solid var(--vscode-widget-border);
+    color: var(--vscode-editor-foreground);
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    transition: all 0.2s;
+    font-size: 8px;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}
+
+#pomo-btn-play, #pomo-btn-pause {
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 6px; /* Slightly more border radius as requested */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 26px;
+    min-width: 36px; /* Reduced width */
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+}
+
+#pomo-btn-play:active, #pomo-btn-pause:active,
+#pomo-btn-play.btn-press, #pomo-btn-pause.btn-press {
+    transform: scale(0.85);
+}
+
+#pomo-btn-play svg, #pomo-btn-pause svg {
+    width: 18px; /* Increased icon size */
+    height: 18px;
+}
+
+#pomo-btn-reset {
+    background: transparent;
+    border: 1px solid var(--vscode-widget-border);
+    color: var(--vscode-editor-foreground);
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+#pomo-btn-reset svg {
+    width: 12px;
+    height: 12px;
+}
+
+.pomo-display-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1; /* Center the timer in the remaining vertical space */
+    width: 100%;
+    margin-top: 16px; /* Offset visual center down slightly to separate from top buttons */
+    position: relative;
+}
+
+/* Base diffuse glow behind the text */
+#pomo-time-display::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 210px;
+    height: 185px;
+    background: radial-gradient(circle, rgba(55, 148, 255, 0.18) 0%, transparent 80%);
+    filter: blur(24px); /* Soft diffusing */
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 50%;
+    transition: all 0.8s ease;
+}
+
+/* Adjust glow for completion state */
+#pomo-time-display.timer-complete::after {
+    background: radial-gradient(circle, rgba(33, 192, 192, 0.28) 0%, transparent 80%);
+}
+
+#pomo-time-display {
+    font-size: 56px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(to bottom, var(--vscode-editor-foreground) 50%, transparent 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    transition: all 0.8s ease;
+}
+
+#pomo-time-display.timer-complete {
+    background: linear-gradient(to bottom, var(--vscode-charts-blue, #3794ff) 50%, transparent 120%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    filter: drop-shadow(0 0 12px rgba(55, 148, 255, 0.4)) !important;
+}
