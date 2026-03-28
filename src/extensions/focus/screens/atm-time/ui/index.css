@@ -100,6 +100,29 @@
     flex: 1; /* Center the timer in the remaining vertical space */
     width: 100%;
     margin-top: 16px; /* Offset visual center down slightly to separate from top buttons */
+    position: relative;
+}
+
+/* Base diffuse glow behind the text */
+#pomo-time-display::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(55, 148, 255, 0.1) 0%, transparent 80%);
+    filter: blur(25px); /* Soft diffusing */
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 50%;
+    transition: all 0.8s ease;
+}
+
+/* Adjust glow for completion state */
+#pomo-time-display.timer-complete::after {
+    background: radial-gradient(circle, rgba(33, 192, 192, 0.15) 0%, transparent 80%);
 }
 
 #pomo-time-display {
@@ -112,12 +135,14 @@
     color: transparent;
     -webkit-text-fill-color: transparent;
     line-height: 1;
+    position: relative;
+    z-index: 1;
     transition: all 0.8s ease;
 }
 
-.timer-complete {
+#pomo-time-display.timer-complete {
     background: linear-gradient(to bottom, var(--vscode-charts-blue, #3794ff) 50%, transparent 120%) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
-    filter: drop-shadow(0 0 10px rgba(55, 148, 255, 0.3));
+    filter: drop-shadow(0 0 12px rgba(55, 148, 255, 0.4)) !important;
 }
