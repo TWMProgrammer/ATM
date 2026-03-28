@@ -1,18 +1,18 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
 export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image: string, nickname: string }) {
   if (currentPanel) {
-    // If it already exists, just reveal it
     currentPanel.reveal(vscode.ViewColumn.One);
-    // currentPanel.webview.postMessage({ command: 'updateImage', payload }); // Uncomment to support live updating the screenshot
     return;
   }
 
   currentPanel = vscode.window.createWebviewPanel(
     'atomScreenshot',
-    'Atom Screenshot',
+    'Atom Screenshot $(cursor)',
     vscode.ViewColumn.One,
     {
       enableScripts: true,
@@ -20,47 +20,34 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image:
     }
   );
 
-
   currentPanel.onDidDispose(
     () => {
-      currentPanel = undefined; // Free the reference when the tab is closed
+      currentPanel = undefined;
     },
     null,
   );
 
   const nicknameDisplay = payload?.nickname ? `@${payload.nickname}` : 'Atom';
 
-  currentPanel.webview.html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atom Screenshot</title>
-    <style>
-        body { 
-            background: #0a0a0a; 
-            color: #e0e0e0; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-            font-family: Consolas, 'Courier New', monospace;
-            font-size: 2rem;
-        }
-        img {
-            max-width: 80%;
-            max-height: 80%;
-            border: 2px solid #555;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Hello ${nicknameDisplay} <span style="font-size: 1.5rem;">🎮</span></h1>
-    ${payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : ''}
-</body>
-</html>`;
+  // Load UI files
+  const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-game', 'screenshot', 'ui', 'index.html');
+  const cssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-game', 'screenshot', 'ui', 'index.css');
+
+  const htmlTemplate = fs.readFileSync(htmlPath, 'utf8');
+  const css = fs.readFileSync(cssPath, 'utf8');
+
+  // Cursor Icon SVG (VSCode style $(cursor))
+  const cursorIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M13.623 11.649l5.053 10.351-1.802.881-5.053-10.352-3.141 3.142v-13.671l10.352 10.352-5.409-.703z" fill="var(--accent-color)"/>
+  </svg>`;
+
+  const imageTag = payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : '<div style="color: grey; padding: 2rem;">No image captured</div>';
+
+  // Inject content
+  let html = htmlTemplate.replace('</head>', `<style>\n${css}\n</style>\n</head>`);
+  html = html.replace('{{nickname}}', nicknameDisplay);
+  html = html.replace('{{cursorIcon}}', cursorIcon);
+  html = html.replace('{{imageTag}}', imageTag);
+
+  currentPanel.webview.html = html;
 }
