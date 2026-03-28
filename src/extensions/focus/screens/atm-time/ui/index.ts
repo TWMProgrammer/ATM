@@ -31,7 +31,12 @@ export function createAtmTimeController() {
 
     const timer = new PomodoroTimer({
         onTick: (formattedTime, progressPercent) => {
-            if (display) display.textContent = formattedTime;
+            if (display) {
+                if (formattedTime !== '00:00') {
+                    display.classList.remove('timer-complete');
+                }
+                display.textContent = formattedTime;
+            }
         },
         onStateChange: (isPlaying, mode) => {
             if (isPlaying) {
@@ -45,13 +50,9 @@ export function createAtmTimeController() {
             currentMode = mode;
         },
         onEnd: () => {
-            // Simple visual animation when time ends
+            // Smooth natural transition to blue gradient when time ends
             if (display) {
-                const originalColor = display.style.color;
-                display.style.color = 'var(--vscode-charts-green, #89d185)'; 
-                setTimeout(() => {
-                    display.style.color = originalColor;
-                }, 4000);
+                display.classList.add('timer-complete');
             }
         }
     });

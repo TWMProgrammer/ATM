@@ -18,7 +18,7 @@ export class PomodoroTimer {
     constructor(callbacks: TimerCallbacks) {
         this.callbacks = callbacks;
         this.durationMinutes = 25; // default focus
-        this.totalSeconds = this.durationMinutes * 60;
+        this.totalSeconds = 10; // TEST: 10 Seconds
         this.remainingSeconds = this.totalSeconds;
     }
 
@@ -26,7 +26,7 @@ export class PomodoroTimer {
         this.pause();
         this.mode = mode;
         this.durationMinutes = mode === 'focus' ? 25 : 5;
-        this.totalSeconds = this.durationMinutes * 60;
+        this.totalSeconds = 10; // TEST: 10 Seconds
         this.remainingSeconds = this.totalSeconds;
         this.notifyTick();
         this.callbacks.onStateChange(this.isPlaying, this.mode);
