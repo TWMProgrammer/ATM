@@ -71,7 +71,21 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform, opacity;
+  overflow: hidden; /* clip horizontal slide within pill bounds */
+}
+
+/* --- Glow-pulse landing animation --- */
+@keyframes pill-glow-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pill-color-1, #3b82f6) 70%, transparent); }
+  40%  { box-shadow: 0 0 14px 6px color-mix(in srgb, var(--pill-color-1, #3b82f6) 50%, transparent); }
+  100% { box-shadow: 0 8px 20px rgba(0,0,0,0.3),
+                     inset 0 4px 8px rgba(255,255,255,0.2),
+                     inset 0 -4px 10px color-mix(in srgb, var(--pill-color-1) 20%, rgba(255,255,255,0.1)); }
+}
+
+.day-pill.center-pill.pill-land {
+  animation: pill-glow-pulse 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .day-pill.tiny { display: none; } /* removed from html, fallback */
@@ -105,7 +119,6 @@
     inset 0 -4px 10px color-mix(in srgb, var(--pill-color-1) 20%, rgba(255,255,255,0.1));
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .day-pill.theme-time {

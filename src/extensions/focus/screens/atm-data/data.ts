@@ -34,71 +34,111 @@ export function initAtomPet() {
 
   let currentIndex = 1; // Centro empieza en Commits
   const total = stats.length;
+  let isAnimating = false;
 
-  const leftPill = document.getElementById('pill-left');
+  const leftPill  = document.getElementById('pill-left');
   const centerPill = document.getElementById('pill-center');
   const rightPill = document.getElementById('pill-right');
-  const prevBtn = document.getElementById('nav-prev');
-  const nextBtn = document.getElementById('nav-next');
-  
-  const renderPill = (pill: HTMLElement | null, stat: any) => {
+  const prevBtn   = document.getElementById('nav-prev');
+  const nextBtn   = document.getElementById('nav-next');
+
+  // direction: 1 = right button pressed, -1 = left button pressed
+  // Center pill: slides horizontally in the direction of travel.
+  // Side pills : simple scale+fade.
+  const animatePill = (pill: HTMLElement | null, stat: any, isCenter: boolean, direction: number) => {
     if (!pill || !stat) return;
+
+    // direction=1  → exits LEFT, enters from RIGHT
+    // direction=-1 → exits RIGHT, enters from LEFT (mirror)
+    const exitX  = isCenter ? `${direction * -22}px` : '0px';
+    const enterX = isCenter ? `${direction *  18}px` : '0px';
+    const exitScale  = isCenter ? 0.86 : 0.82;
+    const enterScale = isCenter ? 0.90 : 0.90;
+
+    // Phase 1: exit — slide + fade out
+    pill.style.transition = 'opacity 0.13s ease, transform 0.13s ease';
     pill.style.opacity = '0';
-    pill.style.transform = 'scale(0.8)';
-    pill.title = stat.label;
-    
+    pill.style.transform = `translateX(${exitX}) scale(${exitScale})`;
+    pill.classList.remove('pill-land');
+
     setTimeout(() => {
+      // Swap content while invisible
       const circle = pill.querySelector('.day-circle');
-      const value = pill.querySelector('.pill-value');
+      const value  = pill.querySelector('.pill-value');
       if (circle) circle.innerHTML = stat.icon;
-      if (value) {
-        value.textContent = stat.value;
-        value.id = stat.id;
-      }
+      if (value) { value.textContent = stat.value; value.id = stat.id; }
 
-      // Update theme class
-      const currentThemes = Array.from(pill.classList).filter(c => c.startsWith('theme-'));
-      currentThemes.forEach(c => pill.classList.remove(c));
-      const newTheme = stat.id.replace('stat-', 'theme-');
-      pill.classList.add(newTheme);
+      // Theme class swap
+      pill.classList.forEach(c => { if (c.startsWith('theme-')) pill.classList.remove(c); });
+      pill.classList.add(stat.id.replace('stat-', 'theme-'));
+      pill.title = stat.label;
 
+      // Start from opposite side (no transition yet)
+      pill.style.transition = 'none';
+      pill.style.transform = `translateX(${enterX}) scale(${enterScale})`;
+      void (pill as HTMLElement).offsetHeight; // force reflow
+
+      // Phase 2: enter — spring for center, snappy for sides
+      const easing = isCenter
+        ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'  // spring overshoot
+        : 'cubic-bezier(0.25, 0.8, 0.25, 1)';
+      pill.style.transition = `opacity 0.20s ease, transform 0.28s ${easing}`;
       pill.style.opacity = '1';
-      pill.style.transform = 'scale(1)';
-    }, 150);
+      pill.style.transform = 'translateX(0) scale(1)';
+
+      // Extra: glow-pulse on center pill landing
+      if (isCenter) {
+        setTimeout(() => {
+          pill.classList.add('pill-land');
+          setTimeout(() => pill.classList.remove('pill-land'), 500);
+        }, 240);
+      }
+    }, 125);
   };
 
-  const updateCarousel = () => {
-    const leftIndex = (currentIndex - 1 + total) % total;
+  const updateCarousel = (direction: number = 1) => {
+    if (isAnimating) return;
+    isAnimating = true;
+    setTimeout(() => { isAnimating = false; }, 320);
+
+    const leftIndex  = (currentIndex - 1 + total) % total;
     const rightIndex = (currentIndex + 1) % total;
 
-    renderPill(leftPill, stats[leftIndex]);
-    renderPill(centerPill, stats[currentIndex]);
-    renderPill(rightPill, stats[rightIndex]);
+    animatePill(leftPill,   stats[leftIndex],     false, direction);
+    animatePill(centerPill, stats[currentIndex],  true,  direction);
+    animatePill(rightPill,  stats[rightIndex],    false, direction);
   };
 
   if (prevBtn && nextBtn) {
     prevBtn.addEventListener('click', () => {
       currentIndex = (currentIndex - 1 + total) % total;
-      updateCarousel();
+      updateCarousel(-1);
     });
 
     nextBtn.addEventListener('click', () => {
       currentIndex = (currentIndex + 1) % total;
-      updateCarousel();
+      updateCarousel(1);
     });
 
-    // Initial render
-    // Trigger instantly for initial load
-    if (leftPill) { leftPill.style.transition = 'all 0.3s ease'; }
-    if (centerPill) { centerPill.style.transition = 'all 0.3s ease'; }
-    if (rightPill) { rightPill.style.transition = 'all 0.3s ease'; }
-    
-    updateCarousel();
+    // Initial render — instant, no animation
+    const setStatic = (pill: HTMLElement | null, stat: any) => {
+      if (!pill || !stat) return;
+      const circle = pill.querySelector('.day-circle');
+      const value  = pill.querySelector('.pill-value');
+      if (circle) circle.innerHTML = stat.icon;
+      if (value) { value.textContent = stat.value; value.id = stat.id; }
+      pill.classList.forEach(c => { if (c.startsWith('theme-')) pill.classList.remove(c); });
+      pill.classList.add(stat.id.replace('stat-', 'theme-'));
+      pill.title = stat.label;
+      pill.style.opacity = '1';
+      pill.style.transform = 'translateY(0) scale(1)';
+    };
+    setStatic(leftPill,   stats[(currentIndex - 1 + total) % total]);
+    setStatic(centerPill, stats[currentIndex]);
+    setStatic(rightPill,  stats[(currentIndex + 1) % total]);
   }
 
-  // Global teardown mechanism to prevent memory leaks during hot-reloads
-  const oldCleanup = (window as any).__atmGameCleanup;
-  (window as any).__atmGameCleanup = () => {
-    if (oldCleanup) oldCleanup();
-  };
+  // Teardown hook
+  const oldCleanup = (window as any).__atmDataCleanup;
+  (window as any).__atmDataCleanup = () => { if (oldCleanup) oldCleanup(); };
 }
