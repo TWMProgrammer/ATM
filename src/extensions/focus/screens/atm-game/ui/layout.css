@@ -42,6 +42,121 @@
 .data-wrapper {
   flex: 1; overflow: hidden; position: relative;
   background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Dashboard Layout --- */
+.dashboard-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  width: 100%;
+  padding: 0 15px;
+}
+
+/* Activity Streak UI (Image 1) */
+.streak-ui {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.day-pill {
+  border-radius: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.day-pill.tiny { display: none; } /* removed from html, fallback */
+
+.day-pill.medium {
+  width: 42px;
+  height: 56px;
+}
+
+.day-pill.medium.pink {
+  background: linear-gradient(180deg, #CE60E4, #E956AF);
+  box-shadow: 0 4px 10px rgba(233, 86, 175, 0.3);
+}
+
+.day-pill.large.teal {
+  background: linear-gradient(180deg, #4AC8EA, #44DC95);
+  box-shadow: 0 6px 15px rgba(68, 220, 149, 0.4);
+}
+
+.day-pill.large {
+  width: 52px;
+  height: 74px;
+  z-index: 2;
+}
+
+.day-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-top: 2px;
+}
+
+.day-pill.large .day-circle {
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid rgba(255,255,255, 0.8);
+  margin-top: -4px;
+}
+
+
+
+/* Stat Pill Text */
+.pill-value {
+  color: white;
+  font-weight: 700;
+  font-size: 11px;
+  margin-top: 6px;
+  font-family: inherit;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.pill-value.large-val {
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+/* Nav Arrows */
+.nav-arrow {
+  background: var(--vscode-editorWidget-background, rgba(0,0,0,0.3));
+  border: 1px solid var(--vscode-editorWidget-border, rgba(255,255,255,0.1));
+  color: var(--vscode-editor-foreground, rgba(255,255,255,0.6));
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  margin: 0 4px;
+}
+
+.nav-arrow:hover {
+  background: var(--vscode-button-background, rgba(255,255,255,0.2));
+  color: var(--vscode-editor-foreground, #fff);
+  transform: scale(1.1);
+  border-color: var(--vscode-focusBorder, rgba(255,255,255,0.3));
 }
 
 /* --- Nickname Modal --- */
