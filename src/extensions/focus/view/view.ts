@@ -38,7 +38,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 			['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-music', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
-			['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'layout.css'],
+			['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.css'],
 		];
 
 		const styleUris = styles.map(s => webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, ...s)));
@@ -61,7 +61,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		const timeHtml = fs.readFileSync(timeHtmlPath, 'utf8');
 		html = html.replace('<div id="atm-time-root"></div>', `<div id="atm-time-root">\n${timeHtml}\n</div>`);
 
-		const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'layout.html');
+		const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.html');
 		const dataHtml = fs.readFileSync(dataHtmlPath, 'utf8');
 		html = html.replace('<div id="atm-data-root" class="center-screen-message"></div>', `\n${dataHtml}\n`);
 
