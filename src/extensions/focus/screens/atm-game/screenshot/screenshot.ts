@@ -21,7 +21,12 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image:
   );
 
   // Set the panel icon
-  currentPanel.iconPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-game', 'assets', 'cursor.svg');
+  const iconPathDark = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-game', 'assets', 'cursor.svg');
+  const iconPathLight = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-game', 'assets', 'cursor-light.svg');
+  currentPanel.iconPath = {
+    light: iconPathLight,
+    dark: iconPathDark
+  };
 
   currentPanel.onDidDispose(
     () => {
@@ -30,7 +35,10 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image:
     null,
   );
 
-  const nicknameDisplay = payload?.nickname ? `@${payload.nickname}` : 'Atom';
+  let nicknameDisplay = 'Atom';
+  if (payload?.nickname) {
+    nicknameDisplay = payload.nickname.startsWith('@') ? payload.nickname : `@${payload.nickname}`;
+  }
 
   // Load UI files
   const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-game', 'screenshot', 'ui', 'index.html');
