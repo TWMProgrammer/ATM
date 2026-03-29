@@ -88,10 +88,12 @@
   width: 70px;
   height: 74px;
   z-index: 2;
+  --pill-color-1: var(--vscode-button-background, #3b82f6);
+  --pill-color-2: var(--vscode-textLink-foreground, #8b5cf6);
   background: linear-gradient(
     135deg, 
-    color-mix(in srgb, var(--vscode-button-background, #3b82f6) 45%, transparent), 
-    color-mix(in srgb, var(--vscode-textLink-foreground, #8b5cf6) 15%, transparent)
+    color-mix(in srgb, var(--pill-color-1) 45%, transparent), 
+    color-mix(in srgb, var(--pill-color-2) 15%, transparent)
   );
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: 1px solid rgba(255, 255, 255, 0.4);
@@ -99,9 +101,30 @@
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.2),
     inset 0 4px 8px rgba(255, 255, 255, 0.2),
-    inset 0 -4px 10px color-mix(in srgb, var(--vscode-button-background, #3b82f6) 20%, rgba(255,255,255,0.1));
+    inset 0 -4px 10px color-mix(in srgb, var(--pill-color-1) 20%, rgba(255,255,255,0.1));
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.day-pill.theme-time {
+  --pill-color-1: #0ea5e9;
+  --pill-color-2: #0284c7;
+}
+
+.day-pill.theme-commits {
+  --pill-color-1: #10b981;
+  --pill-color-2: #059669;
+}
+
+.day-pill.theme-files {
+  --pill-color-1: #8b5cf6;
+  --pill-color-2: #6d28d9;
+}
+
+.day-pill.theme-streak {
+  --pill-color-1: #f97316;
+  --pill-color-2: #ea580c;
 }
 
 .day-circle {

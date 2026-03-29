@@ -55,6 +55,13 @@ export function initAtomPet() {
         value.textContent = stat.value;
         value.id = stat.id;
       }
+
+      // Update theme class
+      const currentThemes = Array.from(pill.classList).filter(c => c.startsWith('theme-'));
+      currentThemes.forEach(c => pill.classList.remove(c));
+      const newTheme = stat.id.replace('stat-', 'theme-');
+      pill.classList.add(newTheme);
+
       pill.style.opacity = '1';
       pill.style.transform = 'scale(1)';
     }, 150);
