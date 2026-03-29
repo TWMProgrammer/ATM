@@ -85,21 +85,22 @@
 }
 
 .day-pill.center-pill {
-  width: 70px;
-  height: 74px;
+  width: 62px;
+  height: 84px;
+  border-radius: 32px;
   z-index: 2;
   --pill-color-1: var(--vscode-button-background, #3b82f6);
   --pill-color-2: var(--vscode-textLink-foreground, #8b5cf6);
   background: linear-gradient(
-    135deg, 
-    color-mix(in srgb, var(--pill-color-1) 45%, transparent), 
-    color-mix(in srgb, var(--pill-color-2) 15%, transparent)
+    180deg, 
+    color-mix(in srgb, var(--pill-color-1) 85%, transparent), 
+    color-mix(in srgb, var(--pill-color-2) 65%, transparent)
   );
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-top: 1px solid rgba(255, 255, 255, 0.4);
   border-left: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 8px 20px rgba(0, 0, 0, 0.3),
     inset 0 4px 8px rgba(255, 255, 255, 0.2),
     inset 0 -4px 10px color-mix(in srgb, var(--pill-color-1) 20%, rgba(255,255,255,0.1));
   backdrop-filter: blur(12px) saturate(150%);
@@ -144,13 +145,14 @@
 }
 
 .day-pill.center-pill .day-circle {
-  width: 36px;
-  height: 36px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  margin-top: -6px;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  margin-top: 0px;
+  margin-bottom: 6px;
   color: white;
   text-shadow: 0 0 12px rgba(255,255,255,0.6);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* little pop for the circle itself */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 /* Stat Pill Text */
@@ -168,8 +170,8 @@
 }
 
 .pill-value.large-val {
-  font-size: 16px;
-  margin-top: 8px;
+  font-size: 17px;
+  margin-top: 0px;
 }
 
 /* Nav Arrows */
@@ -187,7 +189,7 @@
   padding: 0;
   transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  margin: 0 4px;
+  margin: 0 16px;
 }
 
 .nav-arrow:hover {

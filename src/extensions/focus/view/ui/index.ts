@@ -2,14 +2,14 @@ declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void 
 
 import { createAtmMusicController } from '../../screens/atm-music/ui/index';
 import { createAtmTimeController } from '../../screens/atm-time/ui/index';
-import { initAtomPet } from '../../screens/atm-game/game';
+import { initAtomPet } from '../../screens/atm-data/data';
 
 (function () {
     const vscode = acquireVsCodeApi();
 
     // Mount Time and Game screens
     const atmTimeRoot = document.querySelector('#atm-time-root') as HTMLElement | null;
-    const atmGameRoot = document.querySelector('#atm-game-root') as HTMLElement | null;
+    const atmGameRoot = document.querySelector('#atm-data-root') as HTMLElement | null;
 
 
     if (atmGameRoot) {

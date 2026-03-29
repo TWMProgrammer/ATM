@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { handleWebviewMessage } from '../screens/atm-music/music';
-import { openScreenshotPanel } from '../screens/atm-game/screenshot/screenshot';
+import { openScreenshotPanel } from '../screens/atm-data/screenshot/screenshot';
 
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'atm-yt-music-view';
@@ -38,7 +38,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 			['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-music', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
-			['src', 'extensions', 'focus', 'screens', 'atm-game', 'ui', 'layout.css'],
+			['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'layout.css'],
 		];
 
 		const styleUris = styles.map(s => webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, ...s)));
@@ -61,9 +61,9 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		const timeHtml = fs.readFileSync(timeHtmlPath, 'utf8');
 		html = html.replace('<div id="atm-time-root"></div>', `<div id="atm-time-root">\n${timeHtml}\n</div>`);
 
-		const gameHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-game', 'ui', 'layout.html');
-		const gameHtml = fs.readFileSync(gameHtmlPath, 'utf8');
-		html = html.replace('<div id="atm-game-root" class="center-screen-message"></div>', `\n${gameHtml}\n`);
+		const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'layout.html');
+		const dataHtml = fs.readFileSync(dataHtmlPath, 'utf8');
+		html = html.replace('<div id="atm-data-root" class="center-screen-message"></div>', `\n${dataHtml}\n`);
 
 		const styleLinks = styleUris.map(uri => `<link rel="stylesheet" href="${uri}">`).join('\n');
 

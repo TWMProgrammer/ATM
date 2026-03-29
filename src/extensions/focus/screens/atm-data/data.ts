@@ -1,5 +1,5 @@
 export function initAtomPet() {
-  const root = document.getElementById('atm-game-root');
+  const root = document.getElementById('atm-data-root');
   if (root) {
     console.log('[atm-data] Initialized.');
   }
