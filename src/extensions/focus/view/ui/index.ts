@@ -15,70 +15,14 @@ import { initAtomPet } from '../../screens/atm-game/game';
     if (atmGameRoot) {
         initAtomPet();
         
-        // --- NICKNAME LOGIC ---
-        const nicknameEl = document.querySelector('#atom-nickname') as HTMLElement | null;
-        let currentNickname = localStorage.getItem('atm_game_nickname');
-
-        const updateNicknameUI = (name: string) => {
-            if (nicknameEl) nicknameEl.textContent = `@${name}`;
-        };
-
-        const modal = document.querySelector('#nickname-modal') as HTMLElement | null;
-        const modalInput = document.querySelector('#nickname-input') as HTMLInputElement | null;
-        const modalSaveBtn = document.querySelector('#nickname-save-btn') as HTMLButtonElement | null;
-        const modalCloseBtn = document.querySelector('#nickname-close-btn') as HTMLButtonElement | null;
-
-        const saveAndCloseModal = (rawName: string | null) => {
-            const defaultName = currentNickname || 'Player';
-            // If they cancel or leave empty, fallback to previous or default
-            const safeName = (rawName !== null && rawName.trim() !== '') ? rawName : defaultName;
-            const trimmed = safeName.trim().replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 15) || 'Player';
-            
-            currentNickname = trimmed;
-            localStorage.setItem('atm_game_nickname', currentNickname);
-            updateNicknameUI(currentNickname);
-            
-            if (modal) modal.classList.add('hidden');
-        };
-
-        const showNicknameModal = () => {
-            if (modal && modalInput) {
-                modalInput.value = currentNickname || '';
-                modal.classList.remove('hidden');
-                setTimeout(() => modalInput.focus(), 100);
-            }
-        };
-
-        if (modalSaveBtn && modalInput) {
-            modalSaveBtn.addEventListener('click', () => saveAndCloseModal(modalInput.value));
-            modalInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') saveAndCloseModal(modalInput.value);
-            });
-        }
-        
-        if (modalCloseBtn) {
-            modalCloseBtn.addEventListener('click', () => saveAndCloseModal(null)); // null triggers fallback
-        }
-
-        if (!currentNickname) {
-             // Only ask ONCE on first ever load via Modal
-             showNicknameModal();
-        } else {
-             updateNicknameUI(currentNickname);
-        }
-
-        if (nicknameEl) {
-             nicknameEl.addEventListener('click', showNicknameModal);
-        }
-        
+        // Share Data logic
         const shareBtn = document.querySelector('#atom-share-btn');
         if (shareBtn) {
             shareBtn.addEventListener('click', () => {
-                const canvas = document.querySelector('#atomCanvas') as HTMLCanvasElement;
-                const dataUri = canvas ? canvas.toDataURL('image/png') : null;
+                // Placeholder for future data sharing
                 vscode.postMessage({ 
                     type: 'open_screenshot', 
-                    payload: { image: dataUri, nickname: currentNickname } 
+                    payload: { data: 'hello Data', nickname: '@gohitx' } 
                 });
             });
         }
