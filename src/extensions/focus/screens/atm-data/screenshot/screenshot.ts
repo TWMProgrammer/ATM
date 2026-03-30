@@ -51,11 +51,16 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image:
 
   const imageTag = payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : '<div style="color: grey; padding: 2rem;">No image captured</div>';
 
+  // Make user image accessible
+  const userImgPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'user.jpeg');
+  const userImgUri = currentPanel.webview.asWebviewUri(userImgPath);
+
   // Inject content
   let html = htmlTemplate.replace('</head>', `<style>\n${css}\n</style>\n</head>`);
   html = html.replace('{{nickname}}', nicknameDisplay);
   html = html.split('{{cursorIcon}}').join(cursorIcon);
   html = html.replace('{{imageTag}}', imageTag);
+  html = html.replace('{{userImageUri}}', userImgUri.toString());
 
   currentPanel.webview.html = html;
 }
