@@ -25,7 +25,9 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage((message) => {
 			if (message.type === 'open_screenshot') {
-				openScreenshotPanel(this._extensionUri, message.payload);
+				openScreenshotPanel(this._extensionUri, message.payload, (isOpen: boolean) => {
+					webviewView.webview.postMessage({ type: 'screenshot_state_changed', isOpen });
+				});
 				return;
 			}
 			handleWebviewMessage(webviewView, message);

@@ -4,8 +4,9 @@ import * as path from 'path';
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
-export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image: string, nickname: string }) {
+export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?: string, nickname?: string }, onStateChange?: (isOpen: boolean) => void) {
   if (currentPanel) {
+    updateScreenshotContent(currentPanel, extensionUri, payload);
     currentPanel.reveal(vscode.ViewColumn.One);
     return;
   }
@@ -28,13 +29,20 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image:
     dark: iconPathDark
   };
 
+  if (onStateChange) onStateChange(true);
+
   currentPanel.onDidDispose(
     () => {
       currentPanel = undefined;
+      if (onStateChange) onStateChange(false);
     },
     null,
   );
 
+  updateScreenshotContent(currentPanel, extensionUri, payload);
+}
+
+function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, payload?: { image?: string, nickname?: string }) {
   let nicknameDisplay = 'Atom';
   if (payload?.nickname) {
     nicknameDisplay = payload.nickname.startsWith('@') ? payload.nickname : `@${payload.nickname}`;
@@ -53,7 +61,7 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image:
 
   // Make user image accessible
   const userImgPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'user.jpeg');
-  const userImgUri = currentPanel.webview.asWebviewUri(userImgPath);
+  const userImgUri = panel.webview.asWebviewUri(userImgPath);
 
   // Inject content
   let html = htmlTemplate.replace('</head>', `<style>\n${css}\n</style>\n</head>`);
@@ -62,5 +70,5 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image:
   html = html.replace('{{imageTag}}', imageTag);
   html = html.replace('{{userImageUri}}', userImgUri.toString());
 
-  currentPanel.webview.html = html;
+  panel.webview.html = html;
 }
