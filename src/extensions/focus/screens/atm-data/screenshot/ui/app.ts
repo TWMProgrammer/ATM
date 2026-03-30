@@ -28,38 +28,68 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadBtn.addEventListener('click', async () => {
         if (isTakingSnapshot) return;
 
-        const originalText = downloadBtn.querySelector('span')?.innerText || 'Download Snapshot';
+        // Security & Performance: Use textContent over innerText to avoid forced reflows
+        const originalText = downloadBtn.querySelector('span')?.textContent || 'Download Snapshot';
         const spanNode = downloadBtn.querySelector('span');
 
         try {
             isTakingSnapshot = true;
             downloadBtn.classList.add('loading');
-            if (spanNode) spanNode.innerText = "Capturing...";
+            if (spanNode) spanNode.textContent = "Capturing...";
 
-            // Temporarily reset transforms for capture
+            // Performance: Temporarily reset complex CSS properties for rapid capture
             const prevTransform = containerNode.style.transform;
             const prevTransition = containerNode.style.transition;
+            const prevBackdrop = containerNode.style.backdropFilter;
+            const prevWebkitBackdrop = (containerNode.style as any).webkitBackdropFilter;
+            const prevBackground = containerNode.style.background;
+            const prevBoxShadow = containerNode.style.boxShadow;
+            
+            // Background resolution: get current body background based on VS Code theme
+            const bodyBg = getComputedStyle(document.body).backgroundColor || '#0d1117';
+
             containerNode.style.transition = 'none';
             containerNode.style.transform = 'scale(1) translateY(0)';
             
-            // Wait for paint to reflow correctly without the footer
+            // Removing backdrop-filter and box-shadow makes html-to-image significantly faster
+            containerNode.style.backdropFilter = 'none';
+            (containerNode.style as any).webkitBackdropFilter = 'none';
+            containerNode.style.boxShadow = 'none';
+            containerNode.style.background = 'var(--card-bg, #15191e)';
+            
+            // Wait for paint to reflow correctly
+            await new Promise(r => requestAnimationFrame(r));
             await new Promise(r => setTimeout(r, 80));
 
             const scale = 2; // High resolution rendering
-            const dataUrl = await htmlToImage.toPng(containerNode, {
+            const dataUrl = await htmlToImage.toJpeg(containerNode, {
                 pixelRatio: scale,
+                quality: 0.95,
                 skipFonts: true, // Speeds up capturing
+                backgroundColor: bodyBg, // Fix for transparent exports! Adds solid background
+                style: {
+                    margin: '0',
+                    border: '1px solid #30363d', // Fallback border if CSS vars fail
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.5)' // Static shadow for aesthetic export
+                }
             });
+
+            // Revert DOM state immediately after capture to unblock UI
+            containerNode.style.backdropFilter = prevBackdrop;
+            (containerNode.style as any).webkitBackdropFilter = prevWebkitBackdrop;
+            containerNode.style.background = prevBackground;
+            containerNode.style.boxShadow = prevBoxShadow;
 
             vscode.postMessage({
                 command: 'saveImage',
                 data: dataUrl,
+                extension: 'jpg'
             });
 
-            // Revert state
+            // Revert Button state
             downloadBtn.classList.remove('loading');
             downloadBtn.classList.add('success');
-            if (spanNode) spanNode.innerText = "Saved!";
+            if (spanNode) spanNode.textContent = "Saved!";
             
             // Restore animation/transform
             containerNode.style.transform = prevTransform;
@@ -67,17 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setTimeout(() => {
                 downloadBtn.classList.remove('success');
-                if (spanNode) spanNode.innerText = originalText;
-            }, 2000);
+                if (spanNode) spanNode.textContent = originalText;
+            }, 2500);
 
         } catch (err: any) {
             downloadBtn.classList.remove('loading');
-            if (spanNode) spanNode.innerText = "Failed";
-            vscode.postMessage({ command: 'error', text: err.message });
+            if (spanNode) spanNode.textContent = "Failed";
+            vscode.postMessage({ command: 'error', text: err.hasOwnProperty('message') ? err.message : String(err) });
             
             setTimeout(() => {
-                if (spanNode) spanNode.innerText = originalText;
-            }, 2000);
+                if (spanNode) spanNode.textContent = originalText;
+            }, 2500);
         } finally {
             isTakingSnapshot = false;
         }
