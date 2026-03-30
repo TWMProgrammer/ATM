@@ -15,10 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SHARE LOGIC ---
     shareTwitterBtn.addEventListener('click', () => {
-        // Pre-fill text and hashtags for Twitter/X
-        const text = encodeURIComponent("Check out my coding stats via the Atom VS Code Extension! 🚀💻");
-        const hashtags = "100DaysOfCode,Developers,VSCode";
-        const url = `https://twitter.com/intent/tweet?text=${text}&hashtags=${hashtags}`;
+        const url = `https://x.com/gohitx`;
         
         // Use vscode API to open the URL in the system browser
         vscode.postMessage({
