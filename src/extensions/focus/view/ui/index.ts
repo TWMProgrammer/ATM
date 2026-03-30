@@ -6,6 +6,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
 (function () {
     const vscode = acquireVsCodeApi();
+    (window as any).vscode = vscode;
 
     // Mount Time and Game screens
     const atmTimeRoot = document.querySelector('#atm-time-root') as HTMLElement | null;
