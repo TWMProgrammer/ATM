@@ -1,15 +1,15 @@
 :root {
-    --bg-color: #0d1117;
-    --card-bg: #15191e;
-    --border-color: #30363d;
+    --bg-color: var(--vscode-editor-background, #0d1117);
+    --card-bg: var(--vscode-editorWidget-background, #15191e);
+    --border-color: var(--vscode-editorWidget-border, #30363d);
     --mac-close: #ff5f56;
     --mac-minimize: #ffbd2e;
     --mac-expand: #27c93f;
-    --text-primary: #f0f6fc;
+    --text-primary: var(--vscode-editorWidget-foreground, var(--vscode-foreground, #f0f6fc));
 }
 
 body {
-    background: linear-gradient(135deg, #2d5a57 0%, #15191e 100%);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--bg-color) 60%, #2d5a57), var(--bg-color));
     color: var(--text-primary);
     display: flex;
     justify-content: center;
