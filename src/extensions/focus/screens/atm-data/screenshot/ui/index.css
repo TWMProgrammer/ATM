@@ -1,15 +1,19 @@
 :root {
     --bg-color: var(--vscode-editor-background, #0d1117);
     --card-bg: var(--vscode-editorWidget-background, #15191e);
+    --card-bg-transparent: color-mix(in srgb, var(--card-bg) 60%, transparent);
     --border-color: var(--vscode-editorWidget-border, #30363d);
+    --border-transparent: color-mix(in srgb, var(--border-color) 60%, transparent);
     --mac-close: #ff5f56;
     --mac-minimize: #ffbd2e;
     --mac-expand: #27c93f;
     --text-primary: var(--vscode-editorWidget-foreground, var(--vscode-foreground, #f0f6fc));
+    --accent-color: var(--vscode-textLink-foreground, #3794ff);
+    --bg-gradient-start: color-mix(in srgb, var(--bg-color) 85%, var(--accent-color));
 }
 
 body {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--bg-color) 60%, #2d5a57), var(--bg-color));
+    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-color));
     color: var(--text-primary);
     display: flex;
     justify-content: center;
@@ -18,6 +22,37 @@ body {
     margin: 0;
     font-family: var(--vscode-font-family, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif);
     overflow: hidden;
+    position: relative;
+}
+
+/* Subtle dot grid for a modern developer aesthetic */
+body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(color-mix(in srgb, var(--text-primary) 7%, transparent) 1px, transparent 1px);
+    background-size: 24px 24px;
+    z-index: -2;
+}
+
+/* Central subtle glowing aura */
+body::after {
+    content: '';
+    position: absolute;
+    width: 50vw;
+    height: 50vh;
+    background: var(--accent-color);
+    filter: blur(120px);
+    opacity: 0.05;
+    z-index: -1;
+    border-radius: 50%;
+    animation: pulseGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.9); opacity: 0.03; }
+    100% { transform: scale(1.1); opacity: 0.08; }
 }
 
 .dashboard-container {
@@ -25,10 +60,12 @@ body {
     height: 500px;
     max-width: 95vw;
     max-height: 95vh;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--card-bg-transparent);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-transparent);
     border-radius: 12px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.08);
     display: flex;
     flex-direction: column;
     overflow: hidden;
