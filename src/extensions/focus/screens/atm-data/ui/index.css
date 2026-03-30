@@ -85,8 +85,8 @@
   0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pill-color-1, #3b82f6) 70%, transparent); }
   40%  { box-shadow: 0 0 14px 6px color-mix(in srgb, var(--pill-color-1, #3b82f6) 50%, transparent); }
   100% { box-shadow: 0 8px 20px rgba(0,0,0,0.3),
-                     inset 0 4px 8px rgba(255,255,255,0.2),
-                     inset 0 -4px 10px color-mix(in srgb, var(--pill-color-1) 20%, rgba(255,255,255,0.1)); }
+                     inset 0 4px 8px rgba(255,255,255,0.3),
+                     inset 0 -4px 12px rgba(0,0,0,0.2); }
 }
 
 .day-pill.center-pill.pill-land {
@@ -104,8 +104,8 @@
 }
 
 .day-pill.center-pill {
-  width: 62px;
-  height: 84px;
+  width: 60px;
+  height: 79px;
   border-radius: 32px;
   z-index: 2;
   --pill-color-1: var(--vscode-button-background, #3b82f6);
@@ -115,13 +115,14 @@
     color-mix(in srgb, var(--pill-color-1) 85%, transparent), 
     color-mix(in srgb, var(--pill-color-2) 65%, transparent)
   );
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   border-top: 1px solid rgba(255, 255, 255, 0.4);
   border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 
     0 8px 20px rgba(0, 0, 0, 0.3),
-    inset 0 4px 8px rgba(255, 255, 255, 0.2),
-    inset 0 -4px 10px color-mix(in srgb, var(--pill-color-1) 20%, rgba(255,255,255,0.1));
+    inset 0 4px 8px rgba(255, 255, 255, 0.3),
+    inset 0 -4px 12px rgba(0,0,0,0.2);
   backdrop-filter: blur(12px) saturate(150%);
   -webkit-backdrop-filter: blur(12px) saturate(150%);
 }
@@ -163,11 +164,11 @@
 }
 
 .day-pill.center-pill .day-circle {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border: 1.5px solid rgba(255, 255, 255, 0.6);
   margin-top: 0px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: white;
   text-shadow: 0 0 12px rgba(255,255,255,0.6);
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
