@@ -16,9 +16,14 @@
   background: none; border: none; color: inherit;
   cursor: pointer; opacity: 0.6; font-size: 11px;
   display: flex; align-items: center; gap: 4px; padding: 4px 6px;
-  transition: opacity 0.2s; font-family: inherit;
+  transition: opacity 0.2s, color 0.2s, transform 0.2s; font-family: inherit;
 }
-.back-btn:hover, .share-btn:hover { opacity: 1; }
+.back-btn:hover { opacity: 1; }
+.share-btn:hover { 
+  opacity: 1; 
+  color: var(--vscode-textLink-foreground, #3794ff);
+  transform: scale(1.1);
+}
 
 .header-actions {
   display: flex;
