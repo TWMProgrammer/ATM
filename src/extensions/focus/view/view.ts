@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { handleWebviewMessage } from '../screens/atm-music/music';
+import { openScreenshotPanel } from '../screens/atm-data/screenshot/screenshot';
 
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'atm-yt-music-view';
@@ -23,6 +24,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage((message) => {
+			if (message.type === 'open_screenshot') {
+				openScreenshotPanel(this._extensionUri, message.payload);
+				return;
+			}
 			handleWebviewMessage(webviewView, message);
 		});
 	}
@@ -33,6 +38,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 			['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-music', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
+			['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.css'],
 		];
 
 		const styleUris = styles.map(s => webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, ...s)));
@@ -54,6 +60,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		const timeHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.html');
 		const timeHtml = fs.readFileSync(timeHtmlPath, 'utf8');
 		html = html.replace('<div id="atm-time-root"></div>', `<div id="atm-time-root">\n${timeHtml}\n</div>`);
+
+		const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.html');
+		const dataHtml = fs.readFileSync(dataHtmlPath, 'utf8');
+		html = html.replace('<div id="atm-data-root" class="center-screen-message"></div>', `\n${dataHtml}\n`);
 
 		const styleLinks = styleUris.map(uri => `<link rel="stylesheet" href="${uri}">`).join('\n');
 

@@ -1,0 +1,65 @@
+:root {
+    --bg-color: var(--vscode-editor-background, #0d1117);
+    --card-bg: var(--vscode-editorWidget-background, #15191e);
+    --border-color: var(--vscode-editorWidget-border, #30363d);
+    --mac-close: #ff5f56;
+    --mac-minimize: #ffbd2e;
+    --mac-expand: #27c93f;
+    --text-primary: var(--vscode-editorWidget-foreground, var(--vscode-foreground, #f0f6fc));
+}
+
+body {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--bg-color) 60%, #2d5a57), var(--bg-color));
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: var(--vscode-font-family, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif);
+    overflow: hidden;
+}
+
+.dashboard-container {
+    width: 800px;
+    height: 500px;
+    max-width: 95vw;
+    max-height: 95vh;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mac-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+}
+
+.mac-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
+}
+
+.mac-button.close { background-color: var(--mac-close); }
+.mac-button.minimize { background-color: var(--mac-minimize); }
+.mac-button.expand { background-color: var(--mac-expand); }
+
+.dashboard-content {
+    flex: 1;
+    padding: 0 20px 20px 20px;
+}

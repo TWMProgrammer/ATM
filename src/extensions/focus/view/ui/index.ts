@@ -2,18 +2,30 @@ declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void 
 
 import { createAtmMusicController } from '../../screens/atm-music/ui/index';
 import { createAtmTimeController } from '../../screens/atm-time/ui/index';
-import { gameScreenContent } from '../../screens/atm-game/game';
+import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
 (function () {
     const vscode = acquireVsCodeApi();
 
     // Mount Time and Game screens
     const atmTimeRoot = document.querySelector('#atm-time-root') as HTMLElement | null;
-    const atmGameRoot = document.querySelector('#atm-game-root') as HTMLElement | null;
-
+    const atmGameRoot = document.querySelector('#atm-data-root') as HTMLElement | null;
 
     if (atmGameRoot) {
-        atmGameRoot.innerHTML = gameScreenContent;
+        // Initialize data carousel + nickname (all encapsulated)
+        initDataUI();
+
+        // Share Data logic
+        const shareBtn = document.querySelector('#atom-share-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                const nickname = getNicknameController()?.getNickname() || '@Player';
+                vscode.postMessage({
+                    type: 'open_screenshot',
+                    payload: { data: 'hello Data', nickname }
+                });
+            });
+        }
     }
 
     // Initialize Music Controller (handles search, results, player internally)

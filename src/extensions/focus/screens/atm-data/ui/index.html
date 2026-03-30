@@ -1,0 +1,73 @@
+<div class="game-container" id="atm-data-root">
+  <!-- Header -->
+  <div class="game-header">
+    <button class="back-btn" type="button" data-back-to="search">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Back
+    </button>
+    <div class="header-actions">
+      <span class="nickname-btn" id="atom-nickname" title="User data">@gohitx</span>
+      <button class="share-btn" type="button" title="Share Data" id="atom-share-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" 
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+          stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share-3">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M13 4v4c-6.575 1.028 -9.02 6.788 -10 12c-.037 .206 5.384 -5.962 10 -6v4l8 -7l-8 -7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Data Display -->
+  <div class="data-wrapper">
+    <div class="streak-ui" id="dashboard-stats" title="Interactive Stats Carousel">
+      <button class="nav-arrow left-arrow" id="nav-prev" title="Previous Stat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      
+      <!-- Píldora Izquierda -->
+      <div class="day-pill medium side-pill" id="pill-left">
+        <div class="day-circle"></div>
+        <div class="pill-value"></div>
+      </div>
+
+      <!-- Píldora Central -->
+      <div class="day-pill large active center-pill" id="pill-center">
+        <div class="day-circle"></div>
+        <div class="pill-value large-val"></div>
+      </div>
+
+      <!-- Píldora Derecha -->
+      <div class="day-pill medium side-pill" id="pill-right">
+        <div class="day-circle"></div>
+        <div class="pill-value"></div>
+      </div>
+      
+      <button class="nav-arrow right-arrow" id="nav-next" title="Next Stat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- MARK: Nickname Modal -->
+  <div id="nickname-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="nickname-input-group">
+        <input type="text" id="nickname-input" placeholder="Nickname..." maxlength="15" autocomplete="off" />
+        <button id="nickname-save-btn" class="modal-save-btn" title="Save">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+        <button id="nickname-close-btn" class="modal-close" title="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
