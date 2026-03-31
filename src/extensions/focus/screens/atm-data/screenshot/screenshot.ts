@@ -48,7 +48,7 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
           if (currentPanel) currentPanel.dispose();
           return;
         case 'saveImage':
-          await handleSaveImage(message.data);
+          await handleSaveImage(message.data, message.extension || 'jpg');
           return;
         case 'openExternalBrowser':
           vscode.env.openExternal(vscode.Uri.parse(message.url));
@@ -165,12 +165,31 @@ async function fetchDashboardData(nickname: string) {
             following  = typeof ghData.following  === 'number' ? ghData.following  : 0;
             if (ghData.bio)        bio       = ghData.bio;
             if (ghData.name)       name      = ghData.name;
-            if (ghData.avatar_url) avatarUrl = ghData.avatar_url;
             if (ghData.created_at) {
                 const createdYear = new Date(ghData.created_at).getFullYear();
                 years = Math.max(1, new Date().getFullYear() - createdYear);
             }
             totalCommits = ghData.public_repos ? ghData.public_repos * 15 : 0;
+
+            if (ghData.avatar_url) {
+                // Fetch avatar as ArrayBuffer and convert to Base64 to avoid HTML Canvas CORS issues
+                try {
+                    const avatarBase64 = await new Promise<string>((resolveAvatar, rejectAvatar) => {
+                        https.get(ghData.avatar_url, (avatarRes) => {
+                            const chunks: any[] = [];
+                            avatarRes.on('data', chunk => chunks.push(chunk));
+                            avatarRes.on('end', () => {
+                                const buffer = Buffer.concat(chunks);
+                                resolveAvatar(`data:${avatarRes.headers['content-type']};base64,${buffer.toString('base64')}`);
+                            });
+                        }).on('error', rejectAvatar);
+                    });
+                    avatarUrl = avatarBase64;
+                } catch {
+                    // Fallback to plain URL if base64 conversion fails
+                    avatarUrl = ghData.avatar_url;
+                }
+            }
 
             // Contributions HTML Data
             const levelMatches = html.match(/data-level="(\d+)"/g);
@@ -216,21 +235,28 @@ async function fetchDashboardData(nickname: string) {
     };
 }
 
-async function handleSaveImage(dataBase64: string) {
+async function handleSaveImage(dataBase64: string, ext: string = 'jpg') {
   try {
     const base64Data = dataBase64.replace(/^data:image\/\w+;base64,/, '');
     const now = new Date();
-    const ts = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}-${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
+    // Unique ID based on milliseconds and a random string to prevent any overwrite collisions
+    const ts = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}-${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}_${Math.random().toString(36).substring(2, 7)}`;
     
+    // Automatically determine the Downloads folder
+    const downloadsDir = path.join(os.homedir(), 'Downloads');
+    // Ensure the auto-generated name correctly reflects the format
+    const fileName = `ATM-stats-${ts}.${ext}`;
+    
+    // Prompt the user for exactly where to save, defaulting to Downloads
     const uri = await vscode.window.showSaveDialog({
-      filters: { Images: ['png'] },
-      defaultUri: vscode.Uri.file(path.join(os.homedir(), 'Downloads', `ATM-stats-${ts}.png`)),
+      filters: { Images: [ext] },
+      defaultUri: vscode.Uri.file(path.join(downloadsDir, fileName)),
     });
 
     if (uri) {
       const buffer = Buffer.from(base64Data, 'base64');
       await vscode.workspace.fs.writeFile(uri, buffer);
-      vscode.window.showInformationMessage('Screenshot saved! 📸');
+      vscode.window.showInformationMessage('Screenshot saved successfully! 📸');
     }
   } catch (error) {
     vscode.window.showErrorMessage('Failed to save the screenshot.');
