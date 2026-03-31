@@ -224,6 +224,15 @@ export function initDataUI(): void {
   // Initialize nickname module
   nicknameCtrl = new NicknameController();
 
+  // Initialize vscode API securely
+  if (!(window as any).vscode) {
+      try {
+          (window as any).vscode = acquireVsCodeApi();
+      } catch (e) {
+          console.warn('VS Code API not available or already acquired', e);
+      }
+  }
+
   // Request initial stats from the extension host
   const vscodeApi = (window as any).vscode;
   if (vscodeApi) {

@@ -71,8 +71,9 @@ export class NicknameController {
     this.updateUI(this.currentNickname);
     this.hideModal();
     
-    // Notify VS Code host to update github stats based on the nickname.
-    // We already acquired api in main bundle and saved it to window.vscode
+    if (!(window as any).vscode) {
+        try { (window as any).vscode = acquireVsCodeApi(); } catch (e) {}
+    }
     const vscodeApi = (window as any).vscode;
     if (vscodeApi) {
         vscodeApi.postMessage({ type: 'nickname_updated', nickname: this.currentNickname });

@@ -51,14 +51,16 @@ export class ATMDataProvider {
 
   public setWebview(webviewView: vscode.WebviewView) {
     this.webviewView = webviewView;
-    if (!this.updateInterval) {
-      this.updateInterval = setInterval(() => this.dispatchUpdate(), 60000); // every minute
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
     }
+    // Only update automatically every 5 minutes to avoid rate limiting
+    this.updateInterval = setInterval(() => this.dispatchUpdate(false), 300000); 
   }
 
   public setNickname(nickname: string) {
     this.currentNickname = nickname;
-    this.dispatchUpdate(); // Trigger immediate update with new github stats
+    this.dispatchUpdate(true); // Trigger immediate update with new github stats
   }
 
   private resetDailyStats() {
@@ -75,12 +77,20 @@ export class ATMDataProvider {
   }
 
   private trackActivity() {
-    // Track file edits
+    let saveTimeout: NodeJS.Timeout | null = null;
+    
+    // Track file edits with a Debouncer to save disk IO
     vscode.workspace.onDidChangeTextDocument(e => {
         if (e.document.uri.scheme === 'file') {
             this.filesEditedToday.add(e.document.uri.fsPath);
             this.lastActivityTime = Date.now();
-            this.saveLocalStats();
+            
+            if (!saveTimeout) {
+                saveTimeout = setTimeout(() => {
+                    this.saveLocalStats();
+                    saveTimeout = null;
+                }, 15000); // 15s debounce
+            }
         }
     });
     
@@ -124,12 +134,13 @@ export class ATMDataProvider {
         let data = '';
         res.on('data', chunk => data += chunk);
         res.on('end', () => {
+          if (res.statusCode !== 200) {
+              resolve({ commits: 0, streak: 0 });
+              return;
+          }
           try {
-             // Basic fallback using public profile numbers, since true contributions requires GraphQL API
+             // Basic fallback using public profile numbers
              const parsed = JSON.parse(data);
-             // We return public repos as "streak" placeholder and a derived number for commits if real data isn't easily accessible without auth.
-             // Ideally we'd hit a contributions endpoint. Let's mock the streak / commits based on public data for the demo, 
-             // but keep the architecture ready for a real GraphQL query.
              resolve({ 
                  commits: parsed.public_repos ? parsed.public_repos * 4 : 0, 
                  streak: parsed.public_gists ? parsed.public_gists : 0 
@@ -142,16 +153,25 @@ export class ATMDataProvider {
     });
   }
 
-  public async dispatchUpdate() {
+  public async dispatchUpdate(forceGithubFetch: boolean = true) {
     if (!this.webviewView) return;
 
     let totalCommits = await this.getLocalCommits();
     let streak = 0;
 
     if (this.currentNickname && this.currentNickname.trim() !== '' && this.currentNickname !== 'Player') {
-        const ghStats = await this.fetchGitHubStats(this.currentNickname);
-        totalCommits += ghStats.commits;
-        streak = ghStats.streak;
+        if (forceGithubFetch) {
+            const ghStats = await this.fetchGitHubStats(this.currentNickname);
+            this.context?.globalState.update('atm_last_bg_commits', ghStats.commits);
+            this.context?.globalState.update('atm_last_bg_streak', ghStats.streak);
+            totalCommits += ghStats.commits;
+            streak = ghStats.streak;
+        } else {
+            const cachedCommits = this.context?.globalState.get<number>('atm_last_bg_commits') || 0;
+            const cachedStreak = this.context?.globalState.get<number>('atm_last_bg_streak') || 0;
+            totalCommits += cachedCommits;
+            streak = cachedStreak;
+        }
     }
 
     const stats: ATMStats = {
