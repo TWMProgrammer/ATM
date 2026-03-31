@@ -1,15 +1,36 @@
 :root {
-    --bg-color: var(--vscode-editor-background, #0d1117);
-    --card-bg: var(--vscode-editorWidget-background, #15191e);
-    --card-bg-transparent: color-mix(in srgb, var(--card-bg) 60%, transparent);
-    --border-color: var(--vscode-editorWidget-border, #30363d);
-    --border-transparent: color-mix(in srgb, var(--border-color) 60%, transparent);
+    /* Default to Dark Monochrome */
+    --bg-color: #050505;
+    --bg-gradient-start: #1c1c1c;
+    
+    --card-bg: #121212;
+    --card-bg-transparent: rgba(18, 18, 18, 0.75);
+    
+    --border-color: #2c2c2c;
+    --border-transparent: rgba(44, 44, 44, 0.5);
+    
     --mac-close: #ff5f56;
     --mac-minimize: #ffbd2e;
     --mac-expand: #27c93f;
-    --text-primary: var(--vscode-editorWidget-foreground, var(--vscode-foreground, #f0f6fc));
-    --accent-color: var(--vscode-textLink-foreground, #3794ff);
-    --bg-gradient-start: color-mix(in srgb, var(--bg-color) 85%, var(--accent-color));
+    
+    --text-primary: #f0f0f0;
+    --accent-color: #888888; 
+    --aura-color: rgba(255, 255, 255, 0.03);
+}
+
+body.vscode-light {
+    --bg-color: #f6f6f6;
+    --bg-gradient-start: #e2e2e2;
+    
+    --card-bg: #ffffff;
+    --card-bg-transparent: rgba(255, 255, 255, 0.75);
+    
+    --border-color: #dcdcdc;
+    --border-transparent: rgba(220, 220, 220, 0.5);
+    
+    --text-primary: #121212;
+    --accent-color: #555555; 
+    --aura-color: rgba(0, 0, 0, 0.04);
 }
 
 body {
@@ -42,19 +63,18 @@ body::before {
 body::after {
     content: '';
     position: absolute;
-    width: 50vw;
-    height: 50vh;
-    background: var(--accent-color);
-    filter: blur(120px);
-    opacity: 0.05;
+    width: 60vw;
+    height: 60vh;
+    background: var(--aura-color);
+    filter: blur(100px);
     z-index: -1;
     border-radius: 50%;
     animation: pulseGlow 8s ease-in-out infinite alternate;
 }
 
 @keyframes pulseGlow {
-    0% { transform: scale(0.9); opacity: 0.03; }
-    100% { transform: scale(1.1); opacity: 0.08; }
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.1); opacity: 1.2; }
 }
 
 .dashboard-container {

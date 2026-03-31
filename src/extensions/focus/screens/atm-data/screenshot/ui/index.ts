@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const prevBoxShadow = containerNode.style.boxShadow;
             
             // Background resolution: get current body background based on VS Code theme
-            const bodyBg = getComputedStyle(document.body).backgroundColor || '#0d1117';
+            const bodyBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim() || '#050505';
 
             containerNode.style.transition = 'none';
             containerNode.style.transform = 'scale(1) translateY(0)';
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             containerNode.style.backdropFilter = 'none';
             (containerNode.style as any).webkitBackdropFilter = 'none';
             containerNode.style.boxShadow = 'none';
-            containerNode.style.background = 'var(--card-bg, #15191e)';
+            containerNode.style.background = 'var(--card-bg, #121212)';
             
             // Wait for paint to reflow correctly
             await new Promise(r => requestAnimationFrame(r));
