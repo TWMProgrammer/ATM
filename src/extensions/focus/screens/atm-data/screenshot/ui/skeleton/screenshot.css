@@ -10,6 +10,18 @@
     border-color: transparent !important;
     user-select: none;
     pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Ensure inline elements like spans respect the width */
+span.skeleton, a.skeleton {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Hide actual image while skeleton is active to show the skeleton background */
+img.skeleton {
+    content: url('data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==');
 }
 
 .skeleton.rounded {

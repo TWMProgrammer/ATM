@@ -68,7 +68,7 @@ async function main() {
 			'src/extensions/git-better/gitlab-panel/panels/inspect-right/inspect.ts',
 			'src/extensions/screenshot-code/ui/webview.ts',
 			'src/extensions/screenshot-code/ui/styles.css',
-			'src/extensions/focus/screens/atm-data/screenshot/ui/app.ts'
+			'src/extensions/focus/screens/atm-data/screenshot/ui/index.ts'
 		],
 		bundle: true,
 		format: 'iife',

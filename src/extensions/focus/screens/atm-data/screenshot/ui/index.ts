@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOWNLOAD LOGIC ---
     downloadBtn.addEventListener('click', async () => {
-        if (isTakingSnapshot) return;
+        // Only allow download if we are not already downloading AND the data has fully loaded
+        if (isTakingSnapshot || !downloadBtn.classList.contains('ready')) return;
 
         // Security & Performance: Use textContent over innerText to avoid forced reflows
         const originalText = downloadBtn.querySelector('span')?.textContent || 'Download Snapshot';
@@ -46,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const prevBoxShadow = containerNode.style.boxShadow;
             
             // Background resolution: get current body background based on VS Code theme
-            const bodyBg = getComputedStyle(document.body).backgroundColor || '#0d1117';
+            const bodyBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim() || '#050505';
 
             containerNode.style.transition = 'none';
             containerNode.style.transform = 'scale(1) translateY(0)';
@@ -55,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             containerNode.style.backdropFilter = 'none';
             (containerNode.style as any).webkitBackdropFilter = 'none';
             containerNode.style.boxShadow = 'none';
-            containerNode.style.background = 'var(--card-bg, #15191e)';
+            containerNode.style.background = 'var(--card-bg, #121212)';
             
             // Wait for paint to reflow correctly
             await new Promise(r => requestAnimationFrame(r));
@@ -115,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SKELETON & DATA FETCH LOGIC ---
     const handleEl = document.getElementById('ui-handle');
-    const nicknameStr = handleEl ? handleEl.textContent?.trim() : '';
+    const nicknameStr = handleEl?.textContent?.trim() ?? '';
     vscode.postMessage({ command: 'requestData', nickname: nicknameStr });
 
     window.addEventListener('message', (event) => {
@@ -124,15 +125,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = msg.data;
             const currentYear = new Date().getFullYear().toString();
             
+            if (msg.newNickname) {
+                if (handleEl) handleEl.textContent = msg.newNickname.startsWith('@') ? msg.newNickname : `@${msg.newNickname}`;
+            }
+
+            const currentNickname = handleEl?.textContent?.trim() ?? '';
+            
             const mappings: Record<string, string> = {
+                'ui-name': data.name || currentNickname.replace('@', ''),
                 'ui-followers': data.followers.toString(),
                 'ui-following': data.following.toString(),
-                'ui-bio': data.bio || 'An initiate of programming.',
+                'ui-bio': data.bio || 'Programming enthusiast.',
                 'ui-commits': `${data.totalCommits.toLocaleString()} Commits`,
-                'ui-years': `${data.years} ${data.years === 1 ? 'Year' : 'Years'}`,
+                'ui-years': `Week`,
                 'ui-heat-year': currentYear,
                 'ui-heat-commits': `${data.totalCommitsYear} Commits,`,
-                'ui-heat-days': `139 Days,`, // Static visual placeholder for now
+                'ui-heat-days': `${data.activeDays || 0} Days,`,
                 'ui-heat-streak': `${data.dayStreak} Days`,
                 'ui-stat-time': data.timeLabel,
                 'ui-stat-commits': data.commitsToday.toString(),
@@ -144,11 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.textContent = value;
-                    el.style.width = 'auto'; // Clear out the hardcoded skeleton width
+                    el.style.width = 'auto'; // Clear skeleton width
                 }
             }
 
-            // Also reset name/handle fixed widths
             const nameEl = document.getElementById('ui-name');
             if (nameEl) nameEl.style.width = 'auto';
             if (handleEl) handleEl.style.width = 'auto';
@@ -163,11 +170,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.skeleton').forEach(el => {
                     el.classList.remove('skeleton');
                 });
+                
+                // Add heatmap data
+                if (data.heatmapData && Array.isArray(data.heatmapData)) {
+                    const cells = document.querySelectorAll('.heatmap-cell');
+                    data.heatmapData.forEach((level: number, i: number) => {
+                        if (cells[i]) {
+                            cells[i].className = 'heatmap-cell';
+                            if (level > 0) {
+                                cells[i].classList.add(`level-${level}`);
+                            }
+                        }
+                    });
+                }
+                
+                // Enable download button
+                const dBtn = document.getElementById('downloadBtn');
+                if (dBtn) dBtn.classList.add('ready');
             });
+        } else if (msg.command === 'showSkeletons') {
+            const elsToSkeleton = [
+                'ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio',
+                'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days',
+                'ui-heat-streak', 'ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak'
+            ];
+            elsToSkeleton.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('skeleton');
+            });
+            const heatmapCells = document.querySelectorAll('.heatmap-cell');
+            heatmapCells.forEach(cell => cell.classList.add('skeleton'));
+            const fireIcon = document.querySelector('.heatmap-fire');
+            if (fireIcon) fireIcon.classList.add('skeleton');
+            
+            // Disable download button
+            const dBtn = document.getElementById('downloadBtn');
+            if (dBtn) dBtn.classList.remove('ready');
         }
     });
 
-    // Close window via mac red button
+    // Close window
     const closeBtn = document.querySelector('.mac-button.close');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {

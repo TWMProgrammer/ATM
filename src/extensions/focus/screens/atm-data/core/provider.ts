@@ -56,6 +56,14 @@ export class ATMDataProvider {
     }
     // Only update automatically every 5 minutes to avoid rate limiting
     this.updateInterval = setInterval(() => this.dispatchUpdate(false), 300000); 
+
+    this.webviewView.onDidDispose(() => {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+        this.webviewView = null;
+    });
   }
 
   public setNickname(nickname: string) {
@@ -120,7 +128,7 @@ export class ATMDataProvider {
       todayStart.setHours(0,0,0,0);
       const cwd = workspaceFolders[0].uri.fsPath;
       const { stdout } = await execAsync('git log --since="midnight" --oneline', { cwd });
-      return stdout.trim().split('\\n').filter(Boolean).length;
+      return stdout.trim().split('\n').filter(Boolean).length;
     } catch {
       return 0;
     }
@@ -129,7 +137,10 @@ export class ATMDataProvider {
   private async fetchGitHubStats(username: string): Promise<{ commits: number, streak: number }> {
     return new Promise((resolve) => {
       https.get(`https://api.github.com/users/${username}`, {
-          headers: { 'User-Agent': 'VSCode-ATM-Extension' }
+          headers: { 
+              'User-Agent': 'VSCode-ATM-Extension/1.0',
+              'Accept': 'application/vnd.github.v3+json'
+          }
       }, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);

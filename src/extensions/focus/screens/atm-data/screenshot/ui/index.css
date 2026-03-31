@@ -1,15 +1,36 @@
 :root {
-    --bg-color: var(--vscode-editor-background, #0d1117);
-    --card-bg: var(--vscode-editorWidget-background, #15191e);
-    --card-bg-transparent: color-mix(in srgb, var(--card-bg) 60%, transparent);
-    --border-color: var(--vscode-editorWidget-border, #30363d);
-    --border-transparent: color-mix(in srgb, var(--border-color) 60%, transparent);
+    /* Default to Dark Monochrome */
+    --bg-color: #050505;
+    --bg-gradient-start: #1c1c1c;
+    
+    --card-bg: #121212;
+    --card-bg-transparent: rgba(18, 18, 18, 0.75);
+    
+    --border-color: #2c2c2c;
+    --border-transparent: rgba(44, 44, 44, 0.5);
+    
     --mac-close: #ff5f56;
     --mac-minimize: #ffbd2e;
     --mac-expand: #27c93f;
-    --text-primary: var(--vscode-editorWidget-foreground, var(--vscode-foreground, #f0f6fc));
-    --accent-color: var(--vscode-textLink-foreground, #3794ff);
-    --bg-gradient-start: color-mix(in srgb, var(--bg-color) 85%, var(--accent-color));
+    
+    --text-primary: #f0f0f0;
+    --accent-color: #888888; 
+    --aura-color: rgba(255, 255, 255, 0.03);
+}
+
+body.vscode-light {
+    --bg-color: #f6f6f6;
+    --bg-gradient-start: #e2e2e2;
+    
+    --card-bg: #ffffff;
+    --card-bg-transparent: rgba(255, 255, 255, 0.75);
+    
+    --border-color: #dcdcdc;
+    --border-transparent: rgba(220, 220, 220, 0.5);
+    
+    --text-primary: #121212;
+    --accent-color: #555555; 
+    --aura-color: rgba(0, 0, 0, 0.04);
 }
 
 body {
@@ -42,19 +63,18 @@ body::before {
 body::after {
     content: '';
     position: absolute;
-    width: 50vw;
-    height: 50vh;
-    background: var(--accent-color);
-    filter: blur(120px);
-    opacity: 0.05;
+    width: 60vw;
+    height: 60vh;
+    background: var(--aura-color);
+    filter: blur(100px);
     z-index: -1;
     border-radius: 50%;
     animation: pulseGlow 8s ease-in-out infinite alternate;
 }
 
 @keyframes pulseGlow {
-    0% { transform: scale(0.9); opacity: 0.03; }
-    100% { transform: scale(1.1); opacity: 0.08; }
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.1); opacity: 1.2; }
 }
 
 .dashboard-container {
@@ -81,27 +101,9 @@ body::after {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.mac-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 16px 20px;
-}
-
-.mac-button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
-}
-
-.mac-button.close { background-color: var(--mac-close); }
-.mac-button.minimize { background-color: var(--mac-minimize); }
-.mac-button.expand { background-color: var(--mac-expand); }
-
 .dashboard-content {
     flex: 1;
-    padding: 0 20px 20px 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
 }
@@ -121,8 +123,8 @@ body::after {
 }
 
 .profile-avatar {
-    width: 68px;
-    height: 68px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid var(--border-transparent);
@@ -272,11 +274,11 @@ body::after {
 }
 
 /* Colors for heatmap based on VS Code primary accent */
-/* Fallback to #388bfd if accent color is unreadable/unavailable */
-.heatmap-cell.level-1 { background-color: color-mix(in srgb, var(--accent-color, #388bfd) 30%, transparent); }
-.heatmap-cell.level-2 { background-color: color-mix(in srgb, var(--accent-color, #388bfd) 50%, transparent); }
-.heatmap-cell.level-3 { background-color: color-mix(in srgb, var(--accent-color, #388bfd) 70%, transparent); }
-.heatmap-cell.level-4 { background-color: var(--accent-color, #388bfd); box-shadow: 0 0 6px color-mix(in srgb, var(--accent-color, #388bfd) 50%, transparent); }
+/* Fallback to #3794ff if accent color is unreadable/unavailable */
+.heatmap-cell.level-1 { background-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 30%, transparent); }
+.heatmap-cell.level-2 { background-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 50%, transparent); }
+.heatmap-cell.level-3 { background-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 70%, transparent); }
+.heatmap-cell.level-4 { background-color: var(--vscode-textLink-foreground, #3794ff); box-shadow: 0 0 6px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 50%, transparent); }
 
 /* --- Section Titles --- */
 .section-title-wrapper {
@@ -382,16 +384,25 @@ body::after {
 }
 
 .download-btn {
-    background: var(--accent-color);
+    background: color-mix(in srgb, var(--border-color) 60%, transparent);
+    color: color-mix(in srgb, var(--text-primary) 50%, transparent);
+    box-shadow: none;
+    pointer-events: none;
+    cursor: default;
+}
+.download-btn.ready {
+    background: var(--vscode-textLink-foreground, #3794ff);
     color: #fff;
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color) 40%, transparent);
+    pointer-events: auto;
+    cursor: pointer;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 40%, transparent);
 }
-.download-btn:hover {
+.download-btn.ready:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 60%, transparent);
-    background: color-mix(in srgb, var(--accent-color) 85%, #fff);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 60%, transparent);
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 85%, #fff);
 }
-.download-btn:active {
+.download-btn.ready:active {
     transform: translateY(0);
 }
 
