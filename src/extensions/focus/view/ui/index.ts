@@ -6,6 +6,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
 (function () {
     const vscode = acquireVsCodeApi();
+    (window as any).vscode = vscode;
 
     // Mount Time and Game screens
     const atmTimeRoot = document.querySelector('#atm-time-root') as HTMLElement | null;
@@ -27,6 +28,23 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             });
         }
     }
+
+    // Handle messages from the extension host
+    window.addEventListener('message', event => {
+        const message = event.data;
+        if (message.type === 'screenshot_state_changed') {
+            const shareBtn = document.querySelector('#atom-share-btn');
+            if (shareBtn) {
+                if (message.isOpen) {
+                    shareBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path></svg>`;
+                    shareBtn.setAttribute('title', 'Refresh Data');
+                } else {
+                    shareBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4v4c-6.575 1.028 -9.02 6.788 -10 12c-.037 .206 5.384 -5.962 10 -6v4l8 -7l-8 -7"></path></svg>`;
+                    shareBtn.setAttribute('title', 'Share Data');
+                }
+            }
+        }
+    });
 
     // Initialize Music Controller (handles search, results, player internally)
     const musicController = createAtmMusicController(vscode);

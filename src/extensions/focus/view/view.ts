@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { handleWebviewMessage } from '../screens/atm-music/music';
 import { openScreenshotPanel } from '../screens/atm-data/screenshot/screenshot';
+import { ATMDataProvider } from '../screens/atm-data/core/provider';
 
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'atm-yt-music-view';
@@ -23,9 +24,21 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
+		ATMDataProvider.getInstance().setWebview(webviewView);
+
 		webviewView.webview.onDidReceiveMessage((message) => {
 			if (message.type === 'open_screenshot') {
-				openScreenshotPanel(this._extensionUri, message.payload);
+				openScreenshotPanel(this._extensionUri, message.payload, (isOpen: boolean) => {
+					webviewView.webview.postMessage({ type: 'screenshot_state_changed', isOpen });
+				});
+				return;
+			}
+			if (message.type === 'nickname_updated') {
+				ATMDataProvider.getInstance().setNickname(message.nickname);
+				return;
+			}
+			if (message.type === 'request_stats_update') {
+				ATMDataProvider.getInstance().dispatchUpdate();
 				return;
 			}
 			handleWebviewMessage(webviewView, message);

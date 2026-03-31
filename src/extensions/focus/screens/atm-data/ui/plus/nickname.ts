@@ -6,6 +6,8 @@
 
 import { $ } from '../../../../shared/utils';
 
+declare function acquireVsCodeApi(): any;
+
 const STORAGE_KEY = 'atm_game_nickname';
 const DEFAULT_NAME = 'Player';
 const MAX_LENGTH = 15;
@@ -68,6 +70,16 @@ export class NicknameController {
     localStorage.setItem(STORAGE_KEY, this.currentNickname);
     this.updateUI(this.currentNickname);
     this.hideModal();
+    
+    if (!(window as any).vscode) {
+        try { (window as any).vscode = acquireVsCodeApi(); } catch (e) {}
+    }
+    const vscodeApi = (window as any).vscode;
+    if (vscodeApi) {
+        vscodeApi.postMessage({ type: 'nickname_updated', nickname: this.currentNickname });
+    } else {
+        window.postMessage({ type: 'nickname_updated', nickname: this.currentNickname }, '*'); 
+    }
   }
 
   private updateUI(name: string): void {

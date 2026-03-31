@@ -8,6 +8,8 @@ import { $ } from '../../../shared/utils';
 import { dataState, StatEntry, bindMessageListener } from './plus/state';
 import { NicknameController } from './plus/nickname';
 
+declare function acquireVsCodeApi(): any;
+
 // --- DOM Cache (queried once) ---
 interface PillElements {
   pill: HTMLElement;
@@ -47,8 +49,23 @@ function applyStatToPill(cached: PillElements, stat: StatEntry): void {
   for (let i = classList.length - 1; i >= 0; i--) {
     if (classList[i].startsWith('theme-')) { classList.remove(classList[i]); }
   }
-  classList.add(stat.id.replace('stat-', 'theme-'));
+  const themeClass = stat.id.replace('stat-', 'theme-');
+  classList.add(themeClass);
   cached.pill.title = stat.label;
+  
+  // Sync background orb color if center pill
+  if (cached.pill.classList.contains('center-pill')) {
+     const orbColors: Record<string, string> = {
+         'theme-time': 'rgba(6, 182, 212, 0.15)',
+         'theme-commits': 'rgba(16, 185, 129, 0.15)',
+         'theme-files': 'rgba(168, 85, 247, 0.15)',
+         'theme-streak': 'rgba(249, 115, 22, 0.15)'
+     };
+     const orb = $('.glow-orb');
+     if (orb) {
+         orb.style.setProperty('--orb-color', orbColors[themeClass] || 'rgba(59, 130, 246, 0.15)');
+     }
+  }
 }
 
 /**
@@ -206,6 +223,23 @@ export function initDataUI(): void {
 
   // Initialize nickname module
   nicknameCtrl = new NicknameController();
+
+  // Initialize vscode API securely
+  if (!(window as any).vscode) {
+      try {
+          (window as any).vscode = acquireVsCodeApi();
+      } catch (e) {
+          console.warn('VS Code API not available or already acquired', e);
+      }
+  }
+
+  // Request initial stats from the extension host
+  const vscodeApi = (window as any).vscode;
+  if (vscodeApi) {
+      vscodeApi.postMessage({ type: 'request_stats_update' });
+  } else {
+      window.postMessage({ type: 'request_stats_update' }, '*');
+  }
 }
 
 /** Get the nickname controller (for share button, etc.) */
