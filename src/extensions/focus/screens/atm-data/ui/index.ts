@@ -8,7 +8,7 @@ import { $ } from '../../../shared/utils';
 import { dataState, StatEntry, bindMessageListener } from './plus/state';
 import { NicknameController } from './plus/nickname';
 
-declare function acquireVsCodeApi(): any;
+import { getVsCodeApi } from './plus/vscode-api';
 
 // --- DOM Cache (queried once) ---
 interface PillElements {
@@ -38,9 +38,16 @@ function cachePill(id: string): PillElements | null {
   };
 }
 
+/** Safely inject SVG markup using a sandboxed template element (no XSS risk). */
+function safeSetSVG(element: HTMLElement, svgHtml: string): void {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = svgHtml;
+  element.replaceChildren(tpl.content.cloneNode(true));
+}
+
 /** Apply stat data to a cached pill (no DOM query, direct property set). */
 function applyStatToPill(cached: PillElements, stat: StatEntry): void {
-  cached.circle.innerHTML = stat.icon;
+  safeSetSVG(cached.circle, stat.icon);
   cached.value.textContent = stat.value;
   cached.value.id = stat.id;
 
@@ -224,21 +231,10 @@ export function initDataUI(): void {
   // Initialize nickname module
   nicknameCtrl = new NicknameController();
 
-  // Initialize vscode API securely
-  if (!(window as any).vscode) {
-      try {
-          (window as any).vscode = acquireVsCodeApi();
-      } catch (e) {
-          console.warn('VS Code API not available or already acquired', e);
-      }
-  }
-
   // Request initial stats from the extension host
-  const vscodeApi = (window as any).vscode;
+  const vscodeApi = getVsCodeApi();
   if (vscodeApi) {
       vscodeApi.postMessage({ type: 'request_stats_update' });
-  } else {
-      window.postMessage({ type: 'request_stats_update' }, '*');
   }
 }
 

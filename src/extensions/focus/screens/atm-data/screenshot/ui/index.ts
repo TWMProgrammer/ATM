@@ -11,11 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadBtn = document.getElementById('downloadBtn');
     const shareTwitterBtn = document.getElementById('shareTwitterBtn');
 
-    if (!containerNode || !actionFooter || !downloadBtn || !shareTwitterBtn) return;
+    if (!containerNode || !actionFooter || !downloadBtn || !shareTwitterBtn) {
+        return;
+    }
 
     // --- SHARE LOGIC ---
     shareTwitterBtn.addEventListener('click', () => {
-        const url = `https://x.com/gohitx`;
+        const handle = document.getElementById('ui-handle')?.textContent?.trim()?.replace('@', '') || '';
+        const url = `https://x.com/${handle}`;
         
         // Use vscode API to open the URL in the system browser
         vscode.postMessage({
@@ -27,7 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOWNLOAD LOGIC ---
     downloadBtn.addEventListener('click', async () => {
         // Only allow download if we are not already downloading AND the data has fully loaded
-        if (isTakingSnapshot || !downloadBtn.classList.contains('ready')) return;
+        if (isTakingSnapshot || !downloadBtn.classList.contains('ready')) {
+            return;
+        }
 
         // Security & Performance: Use textContent over innerText to avoid forced reflows
         const originalText = downloadBtn.querySelector('span')?.textContent || 'Download Snapshot';
@@ -36,7 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             isTakingSnapshot = true;
             downloadBtn.classList.add('loading');
-            if (spanNode) spanNode.textContent = "Capturing...";
+            if (spanNode) {
+                spanNode.textContent = "Capturing...";
+            }
 
             // Performance: Temporarily reset complex CSS properties for rapid capture
             const prevTransform = containerNode.style.transform;
@@ -90,7 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Revert Button state
             downloadBtn.classList.remove('loading');
             downloadBtn.classList.add('success');
-            if (spanNode) spanNode.textContent = "Saved!";
+            if (spanNode) {
+                spanNode.textContent = "Saved!";
+            }
             
             // Restore animation/transform
             containerNode.style.transform = prevTransform;
@@ -98,16 +107,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setTimeout(() => {
                 downloadBtn.classList.remove('success');
-                if (spanNode) spanNode.textContent = originalText;
+                if (spanNode) {
+                    spanNode.textContent = originalText;
+                }
             }, 2500);
 
         } catch (err: any) {
             downloadBtn.classList.remove('loading');
-            if (spanNode) spanNode.textContent = "Failed";
+            if (spanNode) {
+                spanNode.textContent = "Failed";
+            }
             vscode.postMessage({ command: 'error', text: err.hasOwnProperty('message') ? err.message : String(err) });
             
             setTimeout(() => {
-                if (spanNode) spanNode.textContent = originalText;
+                if (spanNode) {
+                    spanNode.textContent = originalText;
+                }
             }, 2500);
         } finally {
             isTakingSnapshot = false;
@@ -126,7 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentYear = new Date().getFullYear().toString();
             
             if (msg.newNickname) {
-                if (handleEl) handleEl.textContent = msg.newNickname.startsWith('@') ? msg.newNickname : `@${msg.newNickname}`;
+                if (handleEl) {
+                    handleEl.textContent = msg.newNickname.startsWith('@') ? msg.newNickname : `@${msg.newNickname}`;
+                }
             }
 
             const currentNickname = handleEl?.textContent?.trim() ?? '';
@@ -157,12 +174,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const nameEl = document.getElementById('ui-name');
-            if (nameEl) nameEl.style.width = 'auto';
-            if (handleEl) handleEl.style.width = 'auto';
+            if (nameEl) {
+                nameEl.style.width = 'auto';
+            }
+            if (handleEl) {
+                handleEl.style.width = 'auto';
+            }
 
             if (data.avatarUrl) {
                 const img = document.getElementById('ui-avatar') as HTMLImageElement;
-                if (img) img.src = data.avatarUrl;
+                if (img) {
+                    img.src = data.avatarUrl;
+                }
             }
 
             // Remove skeletons to reveal UI
@@ -186,7 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Enable download button
                 const dBtn = document.getElementById('downloadBtn');
-                if (dBtn) dBtn.classList.add('ready');
+                if (dBtn) {
+                    dBtn.classList.add('ready');
+                }
             });
         } else if (msg.command === 'showSkeletons') {
             const elsToSkeleton = [
@@ -196,24 +221,22 @@ document.addEventListener('DOMContentLoaded', () => {
             ];
             elsToSkeleton.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.classList.add('skeleton');
+                if (el) {
+                    el.classList.add('skeleton');
+                }
             });
             const heatmapCells = document.querySelectorAll('.heatmap-cell');
             heatmapCells.forEach(cell => cell.classList.add('skeleton'));
             const fireIcon = document.querySelector('.heatmap-fire');
-            if (fireIcon) fireIcon.classList.add('skeleton');
+            if (fireIcon) {
+                fireIcon.classList.add('skeleton');
+            }
             
             // Disable download button
             const dBtn = document.getElementById('downloadBtn');
-            if (dBtn) dBtn.classList.remove('ready');
+            if (dBtn) {
+                dBtn.classList.remove('ready');
+            }
         }
     });
-
-    // Close window
-    const closeBtn = document.querySelector('.mac-button.close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            vscode.postMessage({ command: 'closePanel' });
-        });
-    }
 });

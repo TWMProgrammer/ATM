@@ -23,6 +23,8 @@ export class ATMDataProvider {
   
   private updateInterval: NodeJS.Timeout | null = null;
   private lastActivityTime: number = Date.now();
+  private disposables: vscode.Disposable[] = [];
+  private activityInterval: NodeJS.Timeout | null = null;
 
   private constructor() {
     this.trackActivity();
@@ -37,6 +39,7 @@ export class ATMDataProvider {
 
   public init(context: vscode.ExtensionContext) {
     this.context = context;
+    context.subscriptions.push({ dispose: () => this.dispose() });
     // Load local stats
     const today = new Date().toDateString();
     const storedDate = this.context.globalState.get<string>('atm_stats_date');
@@ -78,7 +81,9 @@ export class ATMDataProvider {
   }
 
   private saveLocalStats() {
-    if (!this.context) return;
+    if (!this.context) {
+        return;
+    }
     this.context.globalState.update('atm_stats_date', new Date().toDateString());
     this.context.globalState.update('atm_active_minutes', this.activeMinutesToday);
     this.context.globalState.update('atm_files_edited', Array.from(this.filesEditedToday));
@@ -88,7 +93,7 @@ export class ATMDataProvider {
     let saveTimeout: NodeJS.Timeout | null = null;
     
     // Track file edits with a Debouncer to save disk IO
-    vscode.workspace.onDidChangeTextDocument(e => {
+    const docChangeDisposable = vscode.workspace.onDidChangeTextDocument(e => {
         if (e.document.uri.scheme === 'file') {
             this.filesEditedToday.add(e.document.uri.fsPath);
             this.lastActivityTime = Date.now();
@@ -101,9 +106,10 @@ export class ATMDataProvider {
             }
         }
     });
+    this.disposables.push(docChangeDisposable);
     
     // Track active time (tick every minute if active in the last 5 minutes)
-    setInterval(() => {
+    this.activityInterval = setInterval(() => {
         if (Date.now() - this.lastActivityTime < 5 * 60 * 1000) {
             this.activeMinutesToday += 1;
             this.saveLocalStats();
@@ -113,15 +119,29 @@ export class ATMDataProvider {
   }
 
   private formatTime(minutes: number): string {
-    if (minutes < 60) return `${minutes}m`;
+    if (minutes < 60) {
+        return `${minutes}m`;
+    }
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}h ${m}m`;
   }
 
+  /** Public accessor for formatted active time string. */
+  public getFormattedTime(): string {
+    return this.formatTime(this.activeMinutesToday);
+  }
+
+  /** Public accessor for count of files edited today. */
+  public getFilesEditedCount(): number {
+    return this.filesEditedToday.size;
+  }
+
   private async getLocalCommits(): Promise<number> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) return 0;
+    if (!workspaceFolders) {
+        return 0;
+    }
     
     try {
       const todayStart = new Date();
@@ -136,10 +156,10 @@ export class ATMDataProvider {
 
   private async fetchGitHubStats(username: string): Promise<{ commits: number, streak: number }> {
     return new Promise((resolve) => {
-      https.get(`https://api.github.com/users/${username}`, {
+      https.get(`https://github.com/users/${username}/contributions`, {
           headers: { 
-              'User-Agent': 'VSCode-ATM-Extension/1.0',
-              'Accept': 'application/vnd.github.v3+json'
+              'User-Agent': 'Mozilla/5.0 (compatible; VSCode-ATM-Extension)',
+              'Accept': 'text/html'
           }
       }, (res) => {
         let data = '';
@@ -150,12 +170,27 @@ export class ATMDataProvider {
               return;
           }
           try {
-             // Basic fallback using public profile numbers
-             const parsed = JSON.parse(data);
-             resolve({ 
-                 commits: parsed.public_repos ? parsed.public_repos * 4 : 0, 
-                 streak: parsed.public_gists ? parsed.public_gists : 0 
-             });
+             // Parse real contribution data from GitHub's contributions page
+             let weekCommits = 0;
+             const tooltips = data.match(/<tool-tip[^>]*>([^<]+)<\/tool-tip>/g);
+             if (tooltips) {
+                 const last7 = tooltips.slice(-7);
+                 for (const tt of last7) {
+                     const m = tt.match(/>(\d+)\s+contribution/i);
+                     if (m?.[1]) { weekCommits += parseInt(m[1], 10); }
+                 }
+             }
+
+             let streak = 0;
+             const levelMatches = data.match(/data-level="(\d+)"/g);
+             if (levelMatches) {
+                 const levels = levelMatches.map((s: string) => parseInt(s.replace(/\D/g, ''), 10));
+                 for (let i = levels.length - 1; i >= 0; i--) {
+                     if (levels[i] > 0) { streak++; } else { break; }
+                 }
+             }
+
+             resolve({ commits: weekCommits, streak });
           } catch {
              resolve({ commits: 0, streak: 0 });
           }
@@ -165,7 +200,9 @@ export class ATMDataProvider {
   }
 
   public async dispatchUpdate(forceGithubFetch: boolean = true) {
-    if (!this.webviewView) return;
+    if (!this.webviewView) {
+        return;
+    }
 
     let totalCommits = await this.getLocalCommits();
     let streak = 0;
@@ -196,5 +233,19 @@ export class ATMDataProvider {
         type: 'statsUpdate',
         stats
     });
+  }
+
+  /** Clean up all intervals and listeners to prevent memory leaks. */
+  public dispose() {
+    for (const d of this.disposables) { d.dispose(); }
+    this.disposables = [];
+    if (this.activityInterval) {
+      clearInterval(this.activityInterval);
+      this.activityInterval = null;
+    }
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
   }
 }

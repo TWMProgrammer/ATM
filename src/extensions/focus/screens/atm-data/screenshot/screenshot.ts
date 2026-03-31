@@ -2,7 +2,12 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import * as https from 'https';
+import { exec } from 'child_process';
+import * as util from 'util';
 import { ATMDataProvider } from '../core/provider';
+
+const execAsync = util.promisify(exec);
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
@@ -31,12 +36,16 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
     dark: iconPathDark
   };
 
-  if (onStateChange) onStateChange(true);
+  if (onStateChange) {
+    onStateChange(true);
+  }
 
   currentPanel.onDidDispose(
     () => {
       currentPanel = undefined;
-      if (onStateChange) onStateChange(false);
+      if (onStateChange) {
+        onStateChange(false);
+      }
     },
     null,
   );
@@ -45,7 +54,9 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
     async (message) => {
       switch (message.command) {
         case 'closePanel':
-          if (currentPanel) currentPanel.dispose();
+          if (currentPanel) {
+            currentPanel.dispose();
+          }
           return;
         case 'saveImage':
           await handleSaveImage(message.data, message.extension || 'jpg');
@@ -73,7 +84,9 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
 }
 
 export async function refreshScreenshotPanelData(nickname: string) {
-    if (!currentPanel) return;
+    if (!currentPanel) {
+        return;
+    }
     
     // Tell webview to show skeletons while we load new data
     currentPanel.webview.postMessage({ command: 'showSkeletons' });
@@ -86,10 +99,7 @@ export async function refreshScreenshotPanelData(nickname: string) {
     }
 }
 
-import * as https from 'https';
-import { exec } from 'child_process';
-import * as util from 'util';
-const execAsync = util.promisify(exec);
+
 
 async function fetchDashboardData(nickname: string) {
     let commitsToday = 0;
@@ -108,12 +118,9 @@ async function fetchDashboardData(nickname: string) {
     // --- Real active time + local stats from ATMDataProvider singleton ---
     let timeLabel = "0m";
     try {
-        const provider = ATMDataProvider.getInstance() as any;
-        const minutes: number = provider.activeMinutesToday ?? 0;
-        timeLabel = minutes < 60
-            ? `${minutes}m`
-            : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
-        filesChanged = provider.filesEditedToday?.size ?? 0;
+        const provider = ATMDataProvider.getInstance();
+        timeLabel = provider.getFormattedTime();
+        filesChanged = provider.getFilesEditedCount();
     } catch {}
 
     // Local git commits today
@@ -163,13 +170,17 @@ async function fetchDashboardData(nickname: string) {
             // Profile Data
             followers  = typeof ghData.followers  === 'number' ? ghData.followers  : 0;
             following  = typeof ghData.following  === 'number' ? ghData.following  : 0;
-            if (ghData.bio)        bio       = ghData.bio;
-            if (ghData.name)       name      = ghData.name;
+            if (ghData.bio) {
+                bio = ghData.bio;
+            }
+            if (ghData.name) {
+                name = ghData.name;
+            }
             if (ghData.created_at) {
                 const createdYear = new Date(ghData.created_at).getFullYear();
                 years = Math.max(1, new Date().getFullYear() - createdYear);
             }
-            totalCommits = ghData.public_repos ? ghData.public_repos * 15 : 0;
+
 
             if (ghData.avatar_url) {
                 // Fetch avatar as ArrayBuffer and convert to Base64 to avoid HTML Canvas CORS issues
@@ -223,7 +234,6 @@ async function fetchDashboardData(nickname: string) {
                     }
                 }
             }
-            // Temporarily store weekCommits in totalCommits if you want it returned cleanly
             totalCommits = weekCommits;
 
         } catch (e) {
@@ -291,7 +301,8 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.html');
   const cssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.css');
   const skeletonCssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'skeleton', 'screenshot.css');
-  const iconPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor.svg');
+  const atmIconPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'atm.png');
+  const atmIconUri = panel.webview.asWebviewUri(atmIconPath);
 
   const widgetsDir = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'widgets');
   const profileWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'profile.html'), 'utf8');
@@ -312,7 +323,6 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   } catch (e) {
       console.warn('Skeleton css not found', e);
   }
-  const cursorIcon = fs.readFileSync(iconPath, 'utf8');
 
   const imageTag = payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : '<div style="color: grey; padding: 2rem;">No image captured</div>';
 
@@ -327,7 +337,7 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   let html = htmlTemplate.replace('<head>', `<head>\n${cspMetaTag}`);
   html = html.replace('</head>', `<style>\n${css}\n${skeletonCss}\n</style>\n</head>`);
   html = html.replace('{{nickname}}', nicknameDisplay);
-  html = html.split('{{cursorIcon}}').join(cursorIcon);
+  html = html.replace('{{atmIconUri}}', atmIconUri.toString());
   html = html.replace('{{imageTag}}', imageTag);
   html = html.replace('</body>', `<script src="${appJsUri}"></script></body>`);
 

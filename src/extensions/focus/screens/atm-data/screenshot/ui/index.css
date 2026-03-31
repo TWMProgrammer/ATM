@@ -74,7 +74,7 @@ body::after {
 
 @keyframes pulseGlow {
     0% { transform: scale(0.9); opacity: 0.8; }
-    100% { transform: scale(1.1); opacity: 1.2; }
+    100% { transform: scale(1.1); opacity: 1; }
 }
 
 .dashboard-container {
@@ -447,4 +447,27 @@ body::after {
     box-shadow: 0 4px 12px color-mix(in srgb, #2ea043 40%, transparent);
 }
 
+/* --- Brand Footer --- */
+.atm-brand-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-bottom: 28px;
+    opacity: 0.8;
+}
+
+.atm-brand-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.atm-brand-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--text-primary) 60%, transparent);
+    letter-spacing: 0.5px;
+}
 

@@ -6,7 +6,7 @@
 
 import { $ } from '../../../../shared/utils';
 
-declare function acquireVsCodeApi(): any;
+import { getVsCodeApi } from './vscode-api';
 
 const STORAGE_KEY = 'atm_game_nickname';
 const DEFAULT_NAME = 'Player';
@@ -83,14 +83,9 @@ export class NicknameController {
     this.updateUI(this.currentNickname);
     this.hideModal();
     
-    if (!(window as any).vscode) {
-        try { (window as any).vscode = acquireVsCodeApi(); } catch (e) {}
-    }
-    const vscodeApi = (window as any).vscode;
+    const vscodeApi = getVsCodeApi();
     if (vscodeApi) {
         vscodeApi.postMessage({ type: 'nickname_updated', nickname: this.currentNickname });
-    } else {
-        window.postMessage({ type: 'nickname_updated', nickname: this.currentNickname }, '*'); 
     }
   }
 
@@ -107,7 +102,9 @@ export class NicknameController {
   }
 
   private toggleClearBtn(): void {
-    if (!this.clearBtn || !this.input) return;
+    if (!this.clearBtn || !this.input) {
+      return;
+    }
     if (this.input.value.length > 0) {
       this.clearBtn.classList.remove('hidden');
     } else {
