@@ -71,6 +71,20 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
   updateScreenshotContent(currentPanel, extensionUri, payload);
 }
 
+export async function refreshScreenshotPanelData(nickname: string) {
+    if (!currentPanel) return;
+    
+    // Tell webview to show skeletons while we load new data
+    currentPanel.webview.postMessage({ command: 'showSkeletons' });
+    
+    try {
+        const data = await fetchDashboardData(nickname);
+        currentPanel.webview.postMessage({ command: 'updateData', data, newNickname: nickname });
+    } catch (e) {
+        console.error('Error refreshing screenshot data:', e);
+    }
+}
+
 import * as https from 'https';
 import { exec } from 'child_process';
 import * as util from 'util';

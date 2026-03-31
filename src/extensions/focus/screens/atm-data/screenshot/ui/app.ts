@@ -124,8 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = msg.data;
             const currentYear = new Date().getFullYear().toString();
             
+            if (msg.newNickname) {
+                if (handleEl) handleEl.textContent = msg.newNickname.startsWith('@') ? msg.newNickname : `@${msg.newNickname}`;
+            }
+
+            const currentNickname = handleEl?.textContent?.trim() ?? '';
+            
             const mappings: Record<string, string> = {
-                'ui-name': data.name || nicknameStr.replace('@', ''),
+                'ui-name': data.name || currentNickname.replace('@', ''),
                 'ui-followers': data.followers.toString(),
                 'ui-following': data.following.toString(),
                 'ui-bio': data.bio || 'An initiate of programming.',
@@ -165,6 +171,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.classList.remove('skeleton');
                 });
             });
+        } else if (msg.command === 'showSkeletons') {
+            // Re-add skeleton classes for dynamic updates
+            const elsToSkeleton = [
+                'ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio',
+                'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days',
+                'ui-heat-streak', 'ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak'
+            ];
+            elsToSkeleton.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('skeleton');
+            });
+            const heatmapCells = document.querySelectorAll('.heatmap-cell');
+            heatmapCells.forEach(cell => cell.classList.add('skeleton'));
+            const fireIcon = document.querySelector('.heatmap-fire');
+            if (fireIcon) fireIcon.classList.add('skeleton');
         }
     });
 

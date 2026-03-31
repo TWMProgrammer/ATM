@@ -295,7 +295,13 @@
 .nickname-input-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px; /* Increased gap for better spacing */
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .modal-close {
@@ -316,36 +322,64 @@
   background: var(--vscode-input-background, rgba(0, 0, 0, 0.4));
   border: 1px solid var(--vscode-input-border, rgba(255, 255, 255, 0.1));
   color: var(--vscode-input-foreground, #fff);
-  padding: 6px 10px;
-  border-radius: 5px;
+  padding: 8px 30px 8px 12px; /* Extra padding on right for clear button */
+  border-radius: 6px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px; /* Slightly larger text */
   outline: none;
-  width: 120px;
-  transition: border-color 0.2s, background 0.2s;
+  width: 180px; /* Made the input longer */
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 #nickname-input:focus {
-  border-color: var(--vscode-focusBorder, #555555);
+  border-color: var(--vscode-focusBorder, #3b82f6);
+  box-shadow: 0 0 0 1px var(--vscode-focusBorder, rgba(59, 130, 246, 0.5));
 }
 #nickname-input::placeholder {
   color: var(--vscode-input-placeholderForeground, rgba(255, 255, 255, 0.3));
 }
 
-.modal-save-btn {
-  background: var(--vscode-button-background, #555555);
-  color: var(--vscode-button-foreground, #fff);
+.input-clear-btn {
+  position: absolute;
+  right: 6px;
+  background: none;
   border: none;
-  height: 25px;
-  width: 25px;
+  color: var(--vscode-input-foreground, rgba(255, 255, 255, 0.5));
+  cursor: pointer;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 5px;
+  transition: opacity 0.2s, color 0.2s, transform 0.2s;
+}
+.input-clear-btn.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+.input-clear-btn:hover {
+  opacity: 1;
+  color: #fff;
+}
+
+.modal-save-btn {
+  background: var(--vscode-button-background, #3b82f6);
+  color: var(--vscode-button-foreground, #fff);
+  border: none;
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
   cursor: pointer;
   opacity: 0.9;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
 }
 .modal-save-btn:hover {
-  background: var(--vscode-button-hoverBackground, #666);
+  background: var(--vscode-button-hoverBackground, #2563eb);
   opacity: 1;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--vscode-button-background, #3b82f6) 40%, transparent);
+}
+.modal-save-btn:active {
+  transform: scale(0.95);
 }

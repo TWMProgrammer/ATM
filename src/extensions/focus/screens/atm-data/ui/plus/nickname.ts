@@ -24,6 +24,7 @@ export class NicknameController {
   private input: HTMLInputElement | null;
   private saveBtn: HTMLButtonElement | null;
   private closeBtn: HTMLButtonElement | null;
+  private clearBtn: HTMLButtonElement | null;
 
   constructor() {
     this.nicknameEl = $('#atom-nickname');
@@ -31,6 +32,7 @@ export class NicknameController {
     this.input      = $('#nickname-input') as HTMLInputElement | null;
     this.saveBtn    = $('#nickname-save-btn') as HTMLButtonElement | null;
     this.closeBtn   = $('#nickname-close-btn') as HTMLButtonElement | null;
+    this.clearBtn   = $('#nickname-clear-btn') as HTMLButtonElement | null;
     this.currentNickname = localStorage.getItem(STORAGE_KEY) || '';
 
     this.bindEvents();
@@ -57,7 +59,17 @@ export class NicknameController {
       if (e.key === 'Enter') { this.save(this.input?.value ?? null); }
     });
 
+    this.input?.addEventListener('input', () => this.toggleClearBtn());
+
     this.closeBtn?.addEventListener('click', () => this.save(null));
+
+    this.clearBtn?.addEventListener('click', () => {
+      if (this.input) {
+        this.input.value = '';
+        this.input.focus();
+        this.toggleClearBtn();
+      }
+    });
 
     this.nicknameEl?.addEventListener('click', () => this.showModal());
   }
@@ -89,8 +101,18 @@ export class NicknameController {
   private showModal(): void {
     if (!this.modal || !this.input) { return; }
     this.input.value = this.currentNickname || '';
+    this.toggleClearBtn();
     this.modal.classList.remove('hidden');
     setTimeout(() => this.input?.focus(), 80);
+  }
+
+  private toggleClearBtn(): void {
+    if (!this.clearBtn || !this.input) return;
+    if (this.input.value.length > 0) {
+      this.clearBtn.classList.remove('hidden');
+    } else {
+      this.clearBtn.classList.add('hidden');
+    }
   }
 
   private hideModal(): void {

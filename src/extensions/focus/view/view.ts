@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { handleWebviewMessage } from '../screens/atm-music/music';
-import { openScreenshotPanel } from '../screens/atm-data/screenshot/screenshot';
+import { openScreenshotPanel, refreshScreenshotPanelData } from '../screens/atm-data/screenshot/screenshot';
 import { ATMDataProvider } from '../screens/atm-data/core/provider';
 
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
@@ -35,6 +35,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 			}
 			if (message.type === 'nickname_updated') {
 				ATMDataProvider.getInstance().setNickname(message.nickname);
+				refreshScreenshotPanelData(message.nickname);
 				return;
 			}
 			if (message.type === 'request_stats_update') {
