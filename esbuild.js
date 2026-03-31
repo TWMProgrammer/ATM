@@ -52,7 +52,7 @@ async function main() {
 		sourcesContent: false,
 		platform: 'node',
 		outfile: 'dist/extension.js',
-		external: ['vscode'],
+		external: ['vscode', 'NeteaseCloudMusicApi'],
 		logLevel: 'silent',
 		plugins: [extensionEsbuildProblemMatcherPlugin],
 	});

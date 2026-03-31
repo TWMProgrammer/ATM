@@ -1,6 +1,22 @@
-import { cloudsearch, song_url } from 'NeteaseCloudMusicApi';
 import { Track } from '../../../../shared/types';
 import { IMusicProvider } from './base-provider';
+
+// Lazy-load NeteaseCloudMusicApi to prevent crashing the entire extension
+// when the module is not available (e.g. packaged VSIX without node_modules).
+let neteaseApi: { cloudsearch: any; song_url: any } | null = null;
+let neteaseLoadAttempted = false;
+
+function getNeteaseApi() {
+    if (!neteaseLoadAttempted) {
+        neteaseLoadAttempted = true;
+        try {
+            neteaseApi = require('NeteaseCloudMusicApi');
+        } catch {
+            neteaseApi = null;
+        }
+    }
+    return neteaseApi;
+}
 
 interface NeteaseSong {
     id: number;
@@ -29,12 +45,15 @@ export class NeteaseProvider implements IMusicProvider {
     readonly name = 'netease';
 
     isAvailable(): boolean {
-        return true; // NeteaseCloudMusicApi is bundled
+        return getNeteaseApi() !== null;
     }
 
     async search(query: string, limit = 30): Promise<Track[]> {
+        const api = getNeteaseApi();
+        if (!api) { return []; }
+
         try {
-            const result = await cloudsearch({
+            const result = await api.cloudsearch({
                 keywords: query,
                 type: 1,
                 limit,
@@ -49,7 +68,7 @@ export class NeteaseProvider implements IMusicProvider {
             const songs: NeteaseSong[] = data.result.songs;
             const ids = songs.map(s => String(s.id)).join(',');
 
-            const urlResult = await song_url({ id: ids, br: 320000 });
+            const urlResult = await api.song_url({ id: ids, br: 320000 });
             const urls = (urlResult.body as unknown as NeteaseSongUrlResponse).data;
 
             const urlMap = new Map<number, string>();
@@ -92,8 +111,11 @@ export class NeteaseProvider implements IMusicProvider {
     }
 
     async getStreamUrl(trackId: string): Promise<string | null> {
+        const api = getNeteaseApi();
+        if (!api) { return null; }
+
         try {
-            const urlResult = await song_url({ id: trackId, br: 320000 });
+            const urlResult = await api.song_url({ id: trackId, br: 320000 });
             const urls = (urlResult.body as unknown as NeteaseSongUrlResponse).data;
             const url = urls?.[0]?.url;
             return url ? url.replace(/^http:\/\//i, 'https://') : null;
@@ -102,3 +124,4 @@ export class NeteaseProvider implements IMusicProvider {
         }
     }
 }
+
