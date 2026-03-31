@@ -2,13 +2,7 @@
 .vscode-test/**
 out/**
 node_modules/**
-src/**
-!src/**/*.html
-!src/**/*.css
-!src/**/*.svg
-!src/**/*.png
-!src/**/*.json
-!src/**/*.tmLanguage
+
 .gitignore
 .yarnrc
 .prettierrc
