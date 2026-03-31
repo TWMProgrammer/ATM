@@ -384,16 +384,25 @@ body::after {
 }
 
 .download-btn {
-    background: var(--accent-color);
+    background: color-mix(in srgb, var(--border-color) 60%, transparent);
+    color: color-mix(in srgb, var(--text-primary) 50%, transparent);
+    box-shadow: none;
+    pointer-events: none;
+    cursor: default;
+}
+.download-btn.ready {
+    background: var(--vscode-textLink-foreground, #3794ff);
     color: #fff;
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color) 40%, transparent);
+    pointer-events: auto;
+    cursor: pointer;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 40%, transparent);
 }
-.download-btn:hover {
+.download-btn.ready:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 60%, transparent);
-    background: color-mix(in srgb, var(--accent-color) 85%, #fff);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 60%, transparent);
+    background: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 85%, #fff);
 }
-.download-btn:active {
+.download-btn.ready:active {
     transform: translateY(0);
 }
 

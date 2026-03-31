@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOWNLOAD LOGIC ---
     downloadBtn.addEventListener('click', async () => {
-        if (isTakingSnapshot) return;
+        // Only allow download if we are not already downloading AND the data has fully loaded
+        if (isTakingSnapshot || !downloadBtn.classList.contains('ready')) return;
 
         // Security & Performance: Use textContent over innerText to avoid forced reflows
         const originalText = downloadBtn.querySelector('span')?.textContent || 'Download Snapshot';
@@ -182,6 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                 }
+                
+                // Enable download button
+                const dBtn = document.getElementById('downloadBtn');
+                if (dBtn) dBtn.classList.add('ready');
             });
         } else if (msg.command === 'showSkeletons') {
             const elsToSkeleton = [
@@ -197,6 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
             heatmapCells.forEach(cell => cell.classList.add('skeleton'));
             const fireIcon = document.querySelector('.heatmap-fire');
             if (fireIcon) fireIcon.classList.add('skeleton');
+            
+            // Disable download button
+            const dBtn = document.getElementById('downloadBtn');
+            if (dBtn) dBtn.classList.remove('ready');
         }
     });
 
