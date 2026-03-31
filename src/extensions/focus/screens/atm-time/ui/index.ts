@@ -2,7 +2,9 @@ import { PomodoroTimer, TimerMode } from '../core/timer';
 
 export function createAtmTimeController() {
     const root = document.querySelector('#atm-time-root');
-    if (!root) return null;
+    if (!root) {
+        return null;
+    }
 
     const display = root.querySelector('#pomo-time-display') as HTMLElement;
     
@@ -42,11 +44,19 @@ export function createAtmTimeController() {
         onStateChange: (isPlaying, mode) => {
             isCurrentlyPlaying = isPlaying;
             if (isPlaying) {
-                if (btnPlay) btnPlay.style.display = 'none';
-                if (btnPause) btnPause.style.display = 'flex';
+                if (btnPlay) {
+                    btnPlay.style.display = 'none';
+                }
+                if (btnPause) {
+                    btnPause.style.display = 'flex';
+                }
             } else {
-                if (btnPlay) btnPlay.style.display = 'flex';
-                if (btnPause) btnPause.style.display = 'none';
+                if (btnPlay) {
+                    btnPlay.style.display = 'flex';
+                }
+                if (btnPause) {
+                    btnPause.style.display = 'none';
+                }
             }
             updateModeButtonText(mode);
             currentMode = mode;

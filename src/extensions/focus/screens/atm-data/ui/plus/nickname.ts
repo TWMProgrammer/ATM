@@ -102,7 +102,9 @@ export class NicknameController {
   }
 
   private toggleClearBtn(): void {
-    if (!this.clearBtn || !this.input) return;
+    if (!this.clearBtn || !this.input) {
+      return;
+    }
     if (this.input.value.length > 0) {
       this.clearBtn.classList.remove('hidden');
     } else {

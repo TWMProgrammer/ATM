@@ -50,7 +50,9 @@ export class PomodoroTimer {
         this.notifyTick();
 
         this.intervalId = setInterval(() => {
-            if (!this.endTime) return;
+            if (!this.endTime) {
+                return;
+            }
             
             const now = Date.now();
             this.remainingSeconds = Math.max(0, Math.round((this.endTime - now) / 1000));
@@ -65,7 +67,9 @@ export class PomodoroTimer {
     }
 
     public pause() {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying) {
+            return;
+        }
         this.isPlaying = false;
         this.endTime = null;
         if (this.intervalId) {

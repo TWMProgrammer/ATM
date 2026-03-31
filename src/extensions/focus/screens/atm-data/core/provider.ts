@@ -81,7 +81,9 @@ export class ATMDataProvider {
   }
 
   private saveLocalStats() {
-    if (!this.context) return;
+    if (!this.context) {
+        return;
+    }
     this.context.globalState.update('atm_stats_date', new Date().toDateString());
     this.context.globalState.update('atm_active_minutes', this.activeMinutesToday);
     this.context.globalState.update('atm_files_edited', Array.from(this.filesEditedToday));
@@ -117,7 +119,9 @@ export class ATMDataProvider {
   }
 
   private formatTime(minutes: number): string {
-    if (minutes < 60) return `${minutes}m`;
+    if (minutes < 60) {
+        return `${minutes}m`;
+    }
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}h ${m}m`;
@@ -135,7 +139,9 @@ export class ATMDataProvider {
 
   private async getLocalCommits(): Promise<number> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) return 0;
+    if (!workspaceFolders) {
+        return 0;
+    }
     
     try {
       const todayStart = new Date();
@@ -194,7 +200,9 @@ export class ATMDataProvider {
   }
 
   public async dispatchUpdate(forceGithubFetch: boolean = true) {
-    if (!this.webviewView) return;
+    if (!this.webviewView) {
+        return;
+    }
 
     let totalCommits = await this.getLocalCommits();
     let streak = 0;

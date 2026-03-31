@@ -36,12 +36,16 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
     dark: iconPathDark
   };
 
-  if (onStateChange) onStateChange(true);
+  if (onStateChange) {
+    onStateChange(true);
+  }
 
   currentPanel.onDidDispose(
     () => {
       currentPanel = undefined;
-      if (onStateChange) onStateChange(false);
+      if (onStateChange) {
+        onStateChange(false);
+      }
     },
     null,
   );
@@ -50,7 +54,9 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
     async (message) => {
       switch (message.command) {
         case 'closePanel':
-          if (currentPanel) currentPanel.dispose();
+          if (currentPanel) {
+            currentPanel.dispose();
+          }
           return;
         case 'saveImage':
           await handleSaveImage(message.data, message.extension || 'jpg');
@@ -78,7 +84,9 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
 }
 
 export async function refreshScreenshotPanelData(nickname: string) {
-    if (!currentPanel) return;
+    if (!currentPanel) {
+        return;
+    }
     
     // Tell webview to show skeletons while we load new data
     currentPanel.webview.postMessage({ command: 'showSkeletons' });
@@ -162,8 +170,12 @@ async function fetchDashboardData(nickname: string) {
             // Profile Data
             followers  = typeof ghData.followers  === 'number' ? ghData.followers  : 0;
             following  = typeof ghData.following  === 'number' ? ghData.following  : 0;
-            if (ghData.bio)        bio       = ghData.bio;
-            if (ghData.name)       name      = ghData.name;
+            if (ghData.bio) {
+                bio = ghData.bio;
+            }
+            if (ghData.name) {
+                name = ghData.name;
+            }
             if (ghData.created_at) {
                 const createdYear = new Date(ghData.created_at).getFullYear();
                 years = Math.max(1, new Date().getFullYear() - createdYear);
