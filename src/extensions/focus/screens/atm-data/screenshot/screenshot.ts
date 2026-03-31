@@ -190,10 +190,17 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   // Load UI files
   const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.html');
   const cssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.css');
+  const skeletonCssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'skeleton', 'screenshot.css');
   const iconPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor.svg');
 
   const htmlTemplate = fs.readFileSync(htmlPath, 'utf8');
   const css = fs.readFileSync(cssPath, 'utf8');
+  let skeletonCss = '';
+  try {
+      skeletonCss = fs.readFileSync(skeletonCssPath, 'utf8');
+  } catch (e) {
+      console.warn('Skeleton css not found', e);
+  }
   const cursorIcon = fs.readFileSync(iconPath, 'utf8');
 
   const imageTag = payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : '<div style="color: grey; padding: 2rem;">No image captured</div>';
@@ -211,7 +218,7 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
 
   // Inject content
   let html = htmlTemplate.replace('<head>', `<head>\n${cspMetaTag}`);
-  html = html.replace('</head>', `<style>\n${css}\n</style>\n</head>`);
+  html = html.replace('</head>', `<style>\n${css}\n${skeletonCss}\n</style>\n</head>`);
   html = html.replace('{{nickname}}', nicknameDisplay);
   html = html.split('{{cursorIcon}}').join(cursorIcon);
   html = html.replace('{{imageTag}}', imageTag);
