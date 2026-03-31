@@ -134,12 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ui-name': data.name || currentNickname.replace('@', ''),
                 'ui-followers': data.followers.toString(),
                 'ui-following': data.following.toString(),
-                'ui-bio': data.bio || 'An initiate of programming.',
+                'ui-bio': data.bio || 'Programming enthusiast.',
                 'ui-commits': `${data.totalCommits.toLocaleString()} Commits`,
                 'ui-years': `${data.years} ${data.years === 1 ? 'Year' : 'Years'}`,
                 'ui-heat-year': currentYear,
                 'ui-heat-commits': `${data.totalCommitsYear} Commits,`,
-                'ui-heat-days': `139 Days,`, // Static visual placeholder for now
+                'ui-heat-days': `${data.activeDays || 0} Days,`,
                 'ui-heat-streak': `${data.dayStreak} Days`,
                 'ui-stat-time': data.timeLabel,
                 'ui-stat-commits': data.commitsToday.toString(),
@@ -151,11 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const el = document.getElementById(id);
                 if (el) {
                     el.textContent = value;
-                    el.style.width = 'auto'; // Clear out the hardcoded skeleton width
+                    el.style.width = 'auto'; // Clear skeleton width
                 }
             }
 
-            // Also reset name/handle fixed widths
             const nameEl = document.getElementById('ui-name');
             if (nameEl) nameEl.style.width = 'auto';
             if (handleEl) handleEl.style.width = 'auto';
@@ -176,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cells = document.querySelectorAll('.heatmap-cell');
                     data.heatmapData.forEach((level: number, i: number) => {
                         if (cells[i]) {
-                            // Reset class to just heatmap-cell
                             cells[i].className = 'heatmap-cell';
                             if (level > 0) {
                                 cells[i].classList.add(`level-${level}`);
@@ -186,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         } else if (msg.command === 'showSkeletons') {
-            // Re-add skeleton classes for dynamic updates
             const elsToSkeleton = [
                 'ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio',
                 'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days',
@@ -203,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Close window via mac red button
+    // Close window
     const closeBtn = document.querySelector('.mac-button.close');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {

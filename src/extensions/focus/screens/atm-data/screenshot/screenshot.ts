@@ -99,7 +99,7 @@ async function fetchDashboardData(nickname: string) {
     let following = 0;
     let years = 1;
     let dayStreak = 0;
-    let bio = "An initiate of programming.";
+    let bio = "Programming enthusiast.";
     let totalCommitsYear = 0;
     let avatarUrl = "";
     let name = "";
@@ -201,6 +201,8 @@ async function fetchDashboardData(nickname: string) {
         }
     }
 
+    const activeDays = heatmapData.filter(level => level > 0).length;
+
     return {
         name,
         followers,
@@ -214,7 +216,8 @@ async function fetchDashboardData(nickname: string) {
         filesChanged,
         timeLabel,
         avatarUrl,
-        heatmapData
+        heatmapData,
+        activeDays
     };
 }
 
@@ -253,7 +256,18 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   const skeletonCssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'skeleton', 'screenshot.css');
   const iconPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor.svg');
 
-  const htmlTemplate = fs.readFileSync(htmlPath, 'utf8');
+  const widgetsDir = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'widgets');
+  const profileWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'profile.html'), 'utf8');
+  const heatmapWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'heatmap.html'), 'utf8');
+  const todayWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'today.html'), 'utf8');
+  const actionsWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'actions.html'), 'utf8');
+
+  let htmlTemplate = fs.readFileSync(htmlPath, 'utf8');
+  htmlTemplate = htmlTemplate.replace('{{profileWidget}}', profileWidgetHtml);
+  htmlTemplate = htmlTemplate.replace('{{heatmapWidget}}', heatmapWidgetHtml);
+  htmlTemplate = htmlTemplate.replace('{{todayWidget}}', todayWidgetHtml);
+  htmlTemplate = htmlTemplate.replace('{{actionsWidget}}', actionsWidgetHtml);
+
   const css = fs.readFileSync(cssPath, 'utf8');
   let skeletonCss = '';
   try {
