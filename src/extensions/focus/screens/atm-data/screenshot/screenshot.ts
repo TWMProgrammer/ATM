@@ -126,26 +126,41 @@ async function fetchDashboardData(nickname: string) {
         } catch {}
     }
 
-    // --- GitHub User API ---
+    // --- GitHub User API & Contributions ---
     const cleanNick = nickname.replace('@', '').trim();
     if (cleanNick && cleanNick !== 'Player' && cleanNick !== 'Atom') {
-        // Fetch user profile
-        try {
-            const ghData: any = await new Promise((resolve, reject) => {
-                https.get(`https://api.github.com/users/${cleanNick}`, {
-                    headers: {
-                        'User-Agent': 'VSCode-ATM-Extension/1.0',
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                }, (res) => {
-                    let body = '';
-                    res.on('data', chunk => body += chunk);
-                    res.on('end', () => {
-                        try { resolve(JSON.parse(body)); } catch { resolve({}); }
-                    });
-                }).on('error', reject);
-            });
+        const fetchProfile = new Promise<any>((resolve, reject) => {
+            https.get(`https://api.github.com/users/${cleanNick}`, {
+                headers: {
+                    'User-Agent': 'VSCode-ATM-Extension/1.0',
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }, (res) => {
+                let body = '';
+                res.on('data', chunk => body += chunk);
+                res.on('end', () => {
+                    try { resolve(JSON.parse(body)); } catch { resolve({}); }
+                });
+            }).on('error', reject);
+        });
 
+        const fetchContributions = new Promise<string>((resolve, reject) => {
+            https.get(`https://github.com/users/${cleanNick}/contributions`, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (compatible; VSCode-ATM-Extension)',
+                    'Accept': 'text/html'
+                }
+            }, (res) => {
+                let body = '';
+                res.on('data', d => body += d);
+                res.on('end', () => resolve(body));
+            }).on('error', reject);
+        });
+
+        try {
+            const [ghData, html] = await Promise.all([fetchProfile, fetchContributions]);
+
+            // Profile Data
             followers  = typeof ghData.followers  === 'number' ? ghData.followers  : 0;
             following  = typeof ghData.following  === 'number' ? ghData.following  : 0;
             if (ghData.bio)        bio       = ghData.bio;
@@ -156,39 +171,19 @@ async function fetchDashboardData(nickname: string) {
                 years = Math.max(1, new Date().getFullYear() - createdYear);
             }
             totalCommits = ghData.public_repos ? ghData.public_repos * 15 : 0;
-        } catch (e) {
-            console.error('[ATM Screenshot] GitHub API error:', e);
-        }
 
-        // --- GitHub Contributions Page → heatmap + yearly total + streak ---
-        try {
-            const html: string = await new Promise((resolve, reject) => {
-                https.get(`https://github.com/users/${cleanNick}/contributions`, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (compatible; VSCode-ATM-Extension)',
-                        'Accept': 'text/html'
-                    }
-                }, (res) => {
-                    let body = '';
-                    res.on('data', d => body += d);
-                    res.on('end', () => resolve(body));
-                }).on('error', reject);
-            });
-
-            // Heatmap levels (data-level="0..4")
+            // Contributions HTML Data
             const levelMatches = html.match(/data-level="(\d+)"/g);
             if (levelMatches) {
-                const levels = levelMatches.map(m => parseInt(m.replace(/\D/g, ''), 10));
+                const levels = levelMatches.map((m: string) => parseInt(m.replace(/\D/g, ''), 10));
                 heatmapData = levels.slice(-364);
             }
 
-            // Total contributions in the last year
             const yearlyMatch = html.match(/([\d,]+)\s+contributions?\s+in\s+the\s+last\s+year/i);
             if (yearlyMatch) {
                 totalCommitsYear = parseInt(yearlyMatch[1].replace(/,/g, ''), 10);
             }
 
-            // Current streak: consecutive active days counting backwards from today
             if (heatmapData.length > 0) {
                 let streak = 0;
                 for (let i = heatmapData.length - 1; i >= 0; i--) {
@@ -197,7 +192,7 @@ async function fetchDashboardData(nickname: string) {
                 dayStreak = streak;
             }
         } catch (e) {
-            console.error('[ATM Screenshot] Contributions fetch error:', e);
+            console.error('[ATM Screenshot] Fetch error:', e);
         }
     }
 
@@ -279,13 +274,9 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
 
   const imageTag = payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : '<div style="color: grey; padding: 2rem;">No image captured</div>';
 
-  // Make app.js accessible
-  const appJsPath = vscode.Uri.joinPath(extensionUri, 'dist', 'app.js');
+  // Make index.js accessible
+  const appJsPath = vscode.Uri.joinPath(extensionUri, 'dist', 'index.js');
   const appJsUri = panel.webview.asWebviewUri(appJsPath);
-
-  // Make user image accessible
-  const userImgPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'user.jpeg');
-  const userImgUri = panel.webview.asWebviewUri(userImgPath);
 
   const cspSource = panel.webview.cspSource;
   const cspMetaTag = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} data: blob: https:; style-src ${cspSource} 'unsafe-inline'; script-src ${cspSource} 'unsafe-eval' 'unsafe-inline'; font-src ${cspSource} data:; connect-src ${cspSource} data: blob:;">`;
@@ -296,7 +287,6 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   html = html.replace('{{nickname}}', nicknameDisplay);
   html = html.split('{{cursorIcon}}').join(cursorIcon);
   html = html.replace('{{imageTag}}', imageTag);
-  html = html.replace('{{userImageUri}}', userImgUri.toString());
   html = html.replace('</body>', `<script src="${appJsUri}"></script></body>`);
 
   panel.webview.html = html;
