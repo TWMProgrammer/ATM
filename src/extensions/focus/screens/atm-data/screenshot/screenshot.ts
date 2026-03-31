@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { ATMDataProvider } from '../core/provider';
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
@@ -102,59 +103,103 @@ async function fetchDashboardData(nickname: string) {
     let totalCommitsYear = 0;
     let avatarUrl = "";
     let name = "";
+    let heatmapData: number[] = [];
 
-    // Local Stats
+    // --- Real active time + local stats from ATMDataProvider singleton ---
+    let timeLabel = "0m";
+    try {
+        const provider = ATMDataProvider.getInstance() as any;
+        const minutes: number = provider.activeMinutesToday ?? 0;
+        timeLabel = minutes < 60
+            ? `${minutes}m`
+            : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+        filesChanged = provider.filesEditedToday?.size ?? 0;
+    } catch {}
+
+    // Local git commits today
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders) {
         try {
             const cwd = workspaceFolders[0].uri.fsPath;
             const { stdout } = await execAsync('git log --since="midnight" --oneline', { cwd });
             commitsToday = stdout.trim().split('\n').filter(Boolean).length;
-            const { stdout: diffOut } = await execAsync('git diff --name-only', { cwd });
-            filesChanged = diffOut.trim().split('\n').filter(Boolean).length;
         } catch {}
     }
 
-    // Github Stats
-    const cleanNick = nickname.replace('@', '');
-    if (cleanNick && cleanNick !== 'Player') {
+    // --- GitHub User API ---
+    const cleanNick = nickname.replace('@', '').trim();
+    if (cleanNick && cleanNick !== 'Player' && cleanNick !== 'Atom') {
+        // Fetch user profile
         try {
             const ghData: any = await new Promise((resolve, reject) => {
                 https.get(`https://api.github.com/users/${cleanNick}`, {
-                    headers: { 'User-Agent': 'VSCode-ATM-Extension' }
+                    headers: {
+                        'User-Agent': 'VSCode-ATM-Extension/1.0',
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 }, (res) => {
                     let body = '';
                     res.on('data', chunk => body += chunk);
                     res.on('end', () => {
-                        if (res.statusCode === 200) resolve(JSON.parse(body));
-                        else resolve({}); // Graceful fallback
+                        try { resolve(JSON.parse(body)); } catch { resolve({}); }
                     });
                 }).on('error', reject);
             });
 
-            followers = ghData.followers || 0;
-            following = ghData.following || 0;
-            if (ghData.bio) bio = ghData.bio;
-            if (ghData.name) name = ghData.name;
+            followers  = typeof ghData.followers  === 'number' ? ghData.followers  : 0;
+            following  = typeof ghData.following  === 'number' ? ghData.following  : 0;
+            if (ghData.bio)        bio       = ghData.bio;
+            if (ghData.name)       name      = ghData.name;
+            if (ghData.avatar_url) avatarUrl = ghData.avatar_url;
             if (ghData.created_at) {
                 const createdYear = new Date(ghData.created_at).getFullYear();
                 years = Math.max(1, new Date().getFullYear() - createdYear);
             }
-            if (ghData.avatar_url) {
-                avatarUrl = ghData.avatar_url;
-            }
-            
-            totalCommits = ghData.public_repos ? ghData.public_repos * 15 : 120; // Mock total
-            totalCommitsYear = ghData.public_repos ? ghData.public_repos * 5 : 45; // Mock year
-            dayStreak = ghData.public_gists ? ghData.public_gists : 0; // Mock streak
+            totalCommits = ghData.public_repos ? ghData.public_repos * 15 : 0;
         } catch (e) {
-            console.error('Failed fetching github stats', e);
+            console.error('[ATM Screenshot] GitHub API error:', e);
+        }
+
+        // --- GitHub Contributions Page → heatmap + yearly total + streak ---
+        try {
+            const html: string = await new Promise((resolve, reject) => {
+                https.get(`https://github.com/users/${cleanNick}/contributions`, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (compatible; VSCode-ATM-Extension)',
+                        'Accept': 'text/html'
+                    }
+                }, (res) => {
+                    let body = '';
+                    res.on('data', d => body += d);
+                    res.on('end', () => resolve(body));
+                }).on('error', reject);
+            });
+
+            // Heatmap levels (data-level="0..4")
+            const levelMatches = html.match(/data-level="(\d+)"/g);
+            if (levelMatches) {
+                const levels = levelMatches.map(m => parseInt(m.replace(/\D/g, ''), 10));
+                heatmapData = levels.slice(-364);
+            }
+
+            // Total contributions in the last year
+            const yearlyMatch = html.match(/([\d,]+)\s+contributions?\s+in\s+the\s+last\s+year/i);
+            if (yearlyMatch) {
+                totalCommitsYear = parseInt(yearlyMatch[1].replace(/,/g, ''), 10);
+            }
+
+            // Current streak: consecutive active days counting backwards from today
+            if (heatmapData.length > 0) {
+                let streak = 0;
+                for (let i = heatmapData.length - 1; i >= 0; i--) {
+                    if (heatmapData[i] > 0) { streak++; } else { break; }
+                }
+                dayStreak = streak;
+            }
+        } catch (e) {
+            console.error('[ATM Screenshot] Contributions fetch error:', e);
         }
     }
-
-    // Read local ATM context active time if possible (we can mock active time here since it's just visual for now)
-    // In production, we should call ATMDataProvider.getInstance() to get real activeMinutes.
-    let timeLabel = "1h 30m";
 
     return {
         name,
@@ -168,7 +213,8 @@ async function fetchDashboardData(nickname: string) {
         commitsToday,
         filesChanged,
         timeLabel,
-        avatarUrl
+        avatarUrl,
+        heatmapData
     };
 }
 

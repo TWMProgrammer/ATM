@@ -170,6 +170,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.skeleton').forEach(el => {
                     el.classList.remove('skeleton');
                 });
+                
+                // Add heatmap data
+                if (data.heatmapData && Array.isArray(data.heatmapData)) {
+                    const cells = document.querySelectorAll('.heatmap-cell');
+                    data.heatmapData.forEach((level: number, i: number) => {
+                        if (cells[i]) {
+                            // Reset class to just heatmap-cell
+                            cells[i].className = 'heatmap-cell';
+                            if (level > 0) {
+                                cells[i].classList.add(`level-${level}`);
+                            }
+                        }
+                    });
+                }
             });
         } else if (msg.command === 'showSkeletons') {
             // Re-add skeleton classes for dynamic updates
