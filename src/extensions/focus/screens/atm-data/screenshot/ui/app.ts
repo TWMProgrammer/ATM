@@ -113,6 +113,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- SKELETON & DATA FETCH LOGIC ---
+    const handleEl = document.getElementById('ui-handle');
+    const nicknameStr = handleEl ? handleEl.textContent?.trim() : '';
+    vscode.postMessage({ command: 'requestData', nickname: nicknameStr });
+
+    window.addEventListener('message', (event) => {
+        const msg = event.data;
+        if (msg.command === 'updateData') {
+            const data = msg.data;
+            const currentYear = new Date().getFullYear().toString();
+            
+            const mappings: Record<string, string> = {
+                'ui-followers': data.followers.toString(),
+                'ui-following': data.following.toString(),
+                'ui-bio': data.bio || 'An initiate of programming.',
+                'ui-commits': `${data.totalCommits.toLocaleString()} Commits`,
+                'ui-years': `${data.years} ${data.years === 1 ? 'Year' : 'Years'}`,
+                'ui-heat-year': currentYear,
+                'ui-heat-commits': `${data.totalCommitsYear} Commits,`,
+                'ui-heat-days': `139 Days,`, // Static visual placeholder for now
+                'ui-heat-streak': `${data.dayStreak} Days`,
+                'ui-stat-time': data.timeLabel,
+                'ui-stat-commits': data.commitsToday.toString(),
+                'ui-stat-files': data.filesChanged.toString(),
+                'ui-stat-streak': data.dayStreak.toString()
+            };
+
+            for (const [id, value] of Object.entries(mappings)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value;
+                    el.style.width = 'auto'; // Clear out the hardcoded skeleton width
+                }
+            }
+
+            // Also reset name/handle fixed widths
+            const nameEl = document.getElementById('ui-name');
+            if (nameEl) nameEl.style.width = 'auto';
+            if (handleEl) handleEl.style.width = 'auto';
+
+            if (data.avatarUrl) {
+                const img = document.getElementById('ui-avatar') as HTMLImageElement;
+                if (img) img.src = data.avatarUrl;
+            }
+
+            // Remove skeletons to reveal UI
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.skeleton').forEach(el => {
+                    el.classList.remove('skeleton');
+                });
+            });
+        }
+    });
+
     // Close window via mac red button
     const closeBtn = document.querySelector('.mac-button.close');
     if (closeBtn) {

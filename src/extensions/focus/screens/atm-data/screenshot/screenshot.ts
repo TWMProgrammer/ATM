@@ -40,7 +40,7 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
     null,
   );
 
-  currentPanel.webview.onDidReceiveMessage(
+    currentPanel.webview.onDidReceiveMessage(
     async (message) => {
       switch (message.command) {
         case 'closePanel':
@@ -55,12 +55,107 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
         case 'error':
           vscode.window.showErrorMessage(`Screenshot Error: ${message.text}`);
           return;
+        case 'requestData':
+          try {
+            const data = await fetchDashboardData(message.nickname);
+            currentPanel?.webview.postMessage({ command: 'updateData', data });
+          } catch (e) {
+            console.error(e);
+          }
+          return;
       }
     },
     undefined,
   );
 
   updateScreenshotContent(currentPanel, extensionUri, payload);
+}
+
+import * as https from 'https';
+import { exec } from 'child_process';
+import * as util from 'util';
+const execAsync = util.promisify(exec);
+
+async function fetchDashboardData(nickname: string) {
+    // 1. Minimum 1-second delay to show the nice skeleton animation
+    await new Promise(r => setTimeout(r, 1000));
+
+    let commitsToday = 0;
+    let filesChanged = 0;
+    let totalCommits = 0;
+    let followers = 0;
+    let following = 0;
+    let years = 1;
+    let dayStreak = 0;
+    let bio = "An initiate of programming.";
+    let totalCommitsYear = 0;
+    let avatarUrl = "";
+
+    // Local Stats
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders) {
+        try {
+            const cwd = workspaceFolders[0].uri.fsPath;
+            const { stdout } = await execAsync('git log --since="midnight" --oneline', { cwd });
+            commitsToday = stdout.trim().split('\\n').filter(Boolean).length;
+            const { stdout: diffOut } = await execAsync('git diff --name-only', { cwd });
+            filesChanged = diffOut.trim().split('\\n').filter(Boolean).length;
+        } catch {}
+    }
+
+    // Github Stats
+    const cleanNick = nickname.replace('@', '');
+    if (cleanNick && cleanNick !== 'Player') {
+        try {
+            const ghData: any = await new Promise((resolve, reject) => {
+                https.get(`https://api.github.com/users/${cleanNick}`, {
+                    headers: { 'User-Agent': 'VSCode-ATM-Extension' }
+                }, (res) => {
+                    let body = '';
+                    res.on('data', chunk => body += chunk);
+                    res.on('end', () => {
+                        if (res.statusCode === 200) resolve(JSON.parse(body));
+                        else resolve({}); // Graceful fallback
+                    });
+                }).on('error', reject);
+            });
+
+            followers = ghData.followers || 0;
+            following = ghData.following || 0;
+            if (ghData.bio) bio = ghData.bio;
+            if (ghData.created_at) {
+                const createdYear = new Date(ghData.created_at).getFullYear();
+                years = Math.max(1, new Date().getFullYear() - createdYear);
+            }
+            if (ghData.avatar_url) {
+                avatarUrl = ghData.avatar_url;
+            }
+            
+            totalCommits = ghData.public_repos ? ghData.public_repos * 15 : 120; // Mock total
+            totalCommitsYear = ghData.public_repos ? ghData.public_repos * 5 : 45; // Mock year
+            dayStreak = ghData.public_gists ? ghData.public_gists : 0; // Mock streak
+        } catch (e) {
+            console.error('Failed fetching github stats', e);
+        }
+    }
+
+    // Read local ATM context active time if possible (we can mock active time here since it's just visual for now)
+    // In production, we should call ATMDataProvider.getInstance() to get real activeMinutes.
+    let timeLabel = "1h 30m";
+
+    return {
+        followers,
+        following,
+        bio,
+        totalCommits,
+        years,
+        totalCommitsYear,
+        dayStreak,
+        commitsToday,
+        filesChanged,
+        timeLabel,
+        avatarUrl
+    };
 }
 
 async function handleSaveImage(dataBase64: string) {
