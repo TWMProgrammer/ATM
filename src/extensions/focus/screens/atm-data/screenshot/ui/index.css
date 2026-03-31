@@ -121,8 +121,8 @@ body::after {
 }
 
 .profile-avatar {
-    width: 68px;
-    height: 68px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid var(--border-transparent);

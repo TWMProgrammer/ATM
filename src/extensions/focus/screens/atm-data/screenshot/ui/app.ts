@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SKELETON & DATA FETCH LOGIC ---
     const handleEl = document.getElementById('ui-handle');
-    const nicknameStr = handleEl ? handleEl.textContent?.trim() : '';
+    const nicknameStr = handleEl?.textContent?.trim() ?? '';
     vscode.postMessage({ command: 'requestData', nickname: nicknameStr });
 
     window.addEventListener('message', (event) => {
@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentYear = new Date().getFullYear().toString();
             
             const mappings: Record<string, string> = {
+                'ui-name': data.name || nicknameStr.replace('@', ''),
                 'ui-followers': data.followers.toString(),
                 'ui-following': data.following.toString(),
                 'ui-bio': data.bio || 'An initiate of programming.',

@@ -77,9 +77,6 @@ import * as util from 'util';
 const execAsync = util.promisify(exec);
 
 async function fetchDashboardData(nickname: string) {
-    // 1. Minimum 1-second delay to show the nice skeleton animation
-    await new Promise(r => setTimeout(r, 1000));
-
     let commitsToday = 0;
     let filesChanged = 0;
     let totalCommits = 0;
@@ -90,6 +87,7 @@ async function fetchDashboardData(nickname: string) {
     let bio = "An initiate of programming.";
     let totalCommitsYear = 0;
     let avatarUrl = "";
+    let name = "";
 
     // Local Stats
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -97,9 +95,9 @@ async function fetchDashboardData(nickname: string) {
         try {
             const cwd = workspaceFolders[0].uri.fsPath;
             const { stdout } = await execAsync('git log --since="midnight" --oneline', { cwd });
-            commitsToday = stdout.trim().split('\\n').filter(Boolean).length;
+            commitsToday = stdout.trim().split('\n').filter(Boolean).length;
             const { stdout: diffOut } = await execAsync('git diff --name-only', { cwd });
-            filesChanged = diffOut.trim().split('\\n').filter(Boolean).length;
+            filesChanged = diffOut.trim().split('\n').filter(Boolean).length;
         } catch {}
     }
 
@@ -123,6 +121,7 @@ async function fetchDashboardData(nickname: string) {
             followers = ghData.followers || 0;
             following = ghData.following || 0;
             if (ghData.bio) bio = ghData.bio;
+            if (ghData.name) name = ghData.name;
             if (ghData.created_at) {
                 const createdYear = new Date(ghData.created_at).getFullYear();
                 years = Math.max(1, new Date().getFullYear() - createdYear);
@@ -144,6 +143,7 @@ async function fetchDashboardData(nickname: string) {
     let timeLabel = "1h 30m";
 
     return {
+        name,
         followers,
         following,
         bio,
