@@ -2,7 +2,12 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import * as https from 'https';
+import { exec } from 'child_process';
+import * as util from 'util';
 import { ATMDataProvider } from '../core/provider';
+
+const execAsync = util.promisify(exec);
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
@@ -86,10 +91,7 @@ export async function refreshScreenshotPanelData(nickname: string) {
     }
 }
 
-import * as https from 'https';
-import { exec } from 'child_process';
-import * as util from 'util';
-const execAsync = util.promisify(exec);
+
 
 async function fetchDashboardData(nickname: string) {
     let commitsToday = 0;
@@ -108,12 +110,9 @@ async function fetchDashboardData(nickname: string) {
     // --- Real active time + local stats from ATMDataProvider singleton ---
     let timeLabel = "0m";
     try {
-        const provider = ATMDataProvider.getInstance() as any;
-        const minutes: number = provider.activeMinutesToday ?? 0;
-        timeLabel = minutes < 60
-            ? `${minutes}m`
-            : `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
-        filesChanged = provider.filesEditedToday?.size ?? 0;
+        const provider = ATMDataProvider.getInstance();
+        timeLabel = provider.getFormattedTime();
+        filesChanged = provider.getFilesEditedCount();
     } catch {}
 
     // Local git commits today
@@ -169,7 +168,7 @@ async function fetchDashboardData(nickname: string) {
                 const createdYear = new Date(ghData.created_at).getFullYear();
                 years = Math.max(1, new Date().getFullYear() - createdYear);
             }
-            totalCommits = ghData.public_repos ? ghData.public_repos * 15 : 0;
+
 
             if (ghData.avatar_url) {
                 // Fetch avatar as ArrayBuffer and convert to Base64 to avoid HTML Canvas CORS issues
@@ -223,7 +222,6 @@ async function fetchDashboardData(nickname: string) {
                     }
                 }
             }
-            // Temporarily store weekCommits in totalCommits if you want it returned cleanly
             totalCommits = weekCommits;
 
         } catch (e) {

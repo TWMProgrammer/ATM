@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SHARE LOGIC ---
     shareTwitterBtn.addEventListener('click', () => {
-        const url = `https://x.com/gohitx`;
+        const handle = document.getElementById('ui-handle')?.textContent?.trim()?.replace('@', '') || '';
+        const url = `https://x.com/${handle}`;
         
         // Use vscode API to open the URL in the system browser
         vscode.postMessage({
@@ -208,12 +209,4 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dBtn) dBtn.classList.remove('ready');
         }
     });
-
-    // Close window
-    const closeBtn = document.querySelector('.mac-button.close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            vscode.postMessage({ command: 'closePanel' });
-        });
-    }
 });
