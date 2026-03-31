@@ -291,7 +291,8 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.html');
   const cssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.css');
   const skeletonCssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'skeleton', 'screenshot.css');
-  const iconPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor.svg');
+  const atmIconPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'atm.png');
+  const atmIconUri = panel.webview.asWebviewUri(atmIconPath);
 
   const widgetsDir = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'widgets');
   const profileWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'profile.html'), 'utf8');
@@ -312,7 +313,6 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   } catch (e) {
       console.warn('Skeleton css not found', e);
   }
-  const cursorIcon = fs.readFileSync(iconPath, 'utf8');
 
   const imageTag = payload?.image ? `<img src="${payload.image}" alt="Atom Screenshot" />` : '<div style="color: grey; padding: 2rem;">No image captured</div>';
 
@@ -327,7 +327,7 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   let html = htmlTemplate.replace('<head>', `<head>\n${cspMetaTag}`);
   html = html.replace('</head>', `<style>\n${css}\n${skeletonCss}\n</style>\n</head>`);
   html = html.replace('{{nickname}}', nicknameDisplay);
-  html = html.split('{{cursorIcon}}').join(cursorIcon);
+  html = html.replace('{{atmIconUri}}', atmIconUri.toString());
   html = html.replace('{{imageTag}}', imageTag);
   html = html.replace('</body>', `<script src="${appJsUri}"></script></body>`);
 
