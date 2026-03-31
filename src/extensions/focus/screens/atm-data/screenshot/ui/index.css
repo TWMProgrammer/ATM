@@ -274,11 +274,11 @@ body::after {
 }
 
 /* Colors for heatmap based on VS Code primary accent */
-/* Fallback to #388bfd if accent color is unreadable/unavailable */
-.heatmap-cell.level-1 { background-color: color-mix(in srgb, var(--accent-color, #388bfd) 30%, transparent); }
-.heatmap-cell.level-2 { background-color: color-mix(in srgb, var(--accent-color, #388bfd) 50%, transparent); }
-.heatmap-cell.level-3 { background-color: color-mix(in srgb, var(--accent-color, #388bfd) 70%, transparent); }
-.heatmap-cell.level-4 { background-color: var(--accent-color, #388bfd); box-shadow: 0 0 6px color-mix(in srgb, var(--accent-color, #388bfd) 50%, transparent); }
+/* Fallback to #3794ff if accent color is unreadable/unavailable */
+.heatmap-cell.level-1 { background-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 30%, transparent); }
+.heatmap-cell.level-2 { background-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 50%, transparent); }
+.heatmap-cell.level-3 { background-color: color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 70%, transparent); }
+.heatmap-cell.level-4 { background-color: var(--vscode-textLink-foreground, #3794ff); box-shadow: 0 0 6px color-mix(in srgb, var(--vscode-textLink-foreground, #3794ff) 50%, transparent); }
 
 /* --- Section Titles --- */
 .section-title-wrapper {
