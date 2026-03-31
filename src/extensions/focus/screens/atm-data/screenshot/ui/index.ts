@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ui-following': data.following.toString(),
                 'ui-bio': data.bio || 'Programming enthusiast.',
                 'ui-commits': `${data.totalCommits.toLocaleString()} Commits`,
-                'ui-years': `${data.years} ${data.years === 1 ? 'Year' : 'Years'}`,
+                'ui-years': `Week`,
                 'ui-heat-year': currentYear,
                 'ui-heat-commits': `${data.totalCommitsYear} Commits,`,
                 'ui-heat-days': `${data.activeDays || 0} Days,`,

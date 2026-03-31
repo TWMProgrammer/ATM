@@ -210,6 +210,22 @@ async function fetchDashboardData(nickname: string) {
                 }
                 dayStreak = streak;
             }
+
+            // Parse exact commits from the last 7 days using tool-tips
+            let weekCommits = 0;
+            const tooltips = html.match(/<tool-tip[^>]*>([^<]+)<\/tool-tip>/g);
+            if (tooltips) {
+                const last7Days = tooltips.slice(-7);
+                for (const tt of last7Days) {
+                    const innerMatch = tt.match(/>(\d+)\s+contribution/i);
+                    if (innerMatch && innerMatch[1]) {
+                        weekCommits += parseInt(innerMatch[1], 10);
+                    }
+                }
+            }
+            // Temporarily store weekCommits in totalCommits if you want it returned cleanly
+            totalCommits = weekCommits;
+
         } catch (e) {
             console.error('[ATM Screenshot] Fetch error:', e);
         }
