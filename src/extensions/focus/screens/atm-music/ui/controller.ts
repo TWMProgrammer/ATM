@@ -199,4 +199,11 @@ export class AtmMusicController {
         const canGo = (this.currentIndex > -1 || this.hasCachedSearch);
         this.musicLabelEl.classList.toggle('is-linkable', canGo);
     }
+
+    public getCurrentTrack(): Track | null {
+        if (this.currentIndex > -1 && this.currentIndex < this.tracks.length) {
+            return this.tracks[this.currentIndex];
+        }
+        return null;
+    }
 }

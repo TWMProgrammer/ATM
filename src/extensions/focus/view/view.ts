@@ -34,7 +34,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 				return;
 			}
 			if (message.type === 'refresh_screenshot') {
-				refreshScreenshotPanelData(message.nickname);
+				refreshScreenshotPanelData(message.payload);
 				return;
 			}
 			if (message.type === 'nickname_updated') {

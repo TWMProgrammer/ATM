@@ -156,14 +156,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ui-commits': `${data.totalCommits.toLocaleString()} Commits`,
                 'ui-years': `Week`,
                 'ui-heat-year': currentYear,
-                'ui-heat-commits': `${data.totalCommitsYear.toLocaleString()} Commits,`,
-                'ui-heat-days': `${data.activeDays || 0} Days,`,
-                'ui-heat-streak': `${data.dayStreak} Days`,
+                'ui-heat-commits': `${data.totalCommitsYear.toLocaleString()} Commits`,
                 'ui-stat-time': data.timeLabel,
                 'ui-stat-commits': data.commitsToday.toString(),
                 'ui-stat-files': data.filesChanged.toString(),
-                'ui-stat-streak': data.dayStreak.toString()
+                'ui-stat-streak-full': `${data.dayStreak} Days`,
+                'ui-stat-active-days': (data.activeDays || 0).toString(),
+                'ui-stat-pomodoro': (data.pomodoros || 0).toString(),
             };
+
+            const musicText = data.song && data.song.length > 0 ? data.song : 'No track loaded';
+            const musicEl = document.getElementById('ui-stat-music');
+            if (musicEl) {
+                musicEl.textContent = musicText;
+                musicEl.style.width = 'auto';
+                musicEl.style.height = 'auto';
+            }
 
             // Update Month Labels dynamically
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -221,12 +229,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Row 1: Profile details
                     ['ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio'],
                     // Row 2: Heatmap stats
-                    ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days', 'ui-heat-streak', '.heatmap-fire'],
+                    ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits'],
                     // Row 3: The actual heatmap grid (we'll just use a special string to denote it)
                     ['HEATMAP'],
                     // Row 4: Today stats cards
-                    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak'],
-                    // Row 5: Footer Actions
+                    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-pomodoro', 'ui-stat-files', 'ui-stat-streak-full', 'ui-stat-active-days'],
+                    // Row 5: Music Widget
+                    ['ui-stat-music', '.bento-icon-wrapper', '.music-waves'],
+                    // Row 6: Footer Actions
                     ['downloadBtn']
                 ];
 
@@ -315,8 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const elsToSkeleton = [
                 'ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio',
-                'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days',
-                'ui-heat-streak', 'ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak'
+                'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits',
+                'ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak-full',
+                'ui-stat-active-days', 'ui-stat-pomodoro', 'ui-stat-music'
             ];
             elsToSkeleton.forEach(id => {
                 const el = document.getElementById(id);

@@ -10,8 +10,11 @@ import { ATMDataProvider } from '../core/provider';
 const execAsync = util.promisify(exec);
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
+let currentPayload: { nickname?: string, song?: string | null, pomodoros?: number } = {};
 
-export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?: string, nickname?: string }, onStateChange?: (isOpen: boolean) => void) {
+export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?: string, nickname?: string, song?: string | null, pomodoros?: number }, onStateChange?: (isOpen: boolean) => void) {
+  if (payload) { currentPayload = { ...currentPayload, ...payload }; }
+  
   if (currentPanel) {
     updateScreenshotContent(currentPanel, extensionUri, payload);
     currentPanel.reveal(vscode.ViewColumn.One);
@@ -69,7 +72,9 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
           return;
         case 'requestData':
           try {
-            const data = await fetchDashboardData(message.nickname);
+            const data: any = await fetchDashboardData(message.nickname);
+            data.song = currentPayload.song;
+            data.pomodoros = currentPayload.pomodoros;
             currentPanel?.webview.postMessage({ command: 'updateData', data });
           } catch (e) {
             console.error(e);
@@ -83,7 +88,9 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
   updateScreenshotContent(currentPanel, extensionUri, payload);
 }
 
-export async function refreshScreenshotPanelData(nickname: string) {
+export async function refreshScreenshotPanelData(payload: { nickname?: string, song?: string | null, pomodoros?: number }) {
+    if (payload) { currentPayload = { ...currentPayload, ...payload }; }
+
     if (!currentPanel) {
         return;
     }
@@ -92,8 +99,12 @@ export async function refreshScreenshotPanelData(nickname: string) {
     currentPanel.webview.postMessage({ command: 'showSkeletons' });
     
     try {
-        const data = await fetchDashboardData(nickname);
-        currentPanel.webview.postMessage({ command: 'updateData', data, newNickname: nickname });
+        const nicknameToUse = payload.nickname || currentPayload.nickname || 'Player';
+        const data: any = await fetchDashboardData(nicknameToUse);
+        data.song = currentPayload.song;
+        data.pomodoros = currentPayload.pomodoros;
+        
+        currentPanel.webview.postMessage({ command: 'updateData', data, newNickname: nicknameToUse });
     } catch (e) {
         console.error('Error refreshing screenshot data:', e);
     }

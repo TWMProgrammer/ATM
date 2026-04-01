@@ -15,6 +15,7 @@ export function createAtmTimeController() {
     
     let currentMode: TimerMode = 'focus';
     let isCurrentlyPlaying = false;
+    let pomodorosCompleted = 0;
 
     const updateModeButtonText = (mode: TimerMode) => {
         if (btnToggleMode) {
@@ -62,12 +63,17 @@ export function createAtmTimeController() {
             currentMode = mode;
         },
         onEnd: () => {
+            if (currentMode === 'focus') {
+                pomodorosCompleted++;
+            }
             // Smooth natural transition to blue gradient when time ends
             if (display) {
                 display.classList.add('timer-complete');
             }
         }
     });
+
+    (timer as any).getCompletedPomodoros = () => pomodorosCompleted;
 
     // Event Listeners
     btnPlay?.addEventListener('click', () => timer.play());

@@ -23,17 +23,27 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         if (shareBtn) {
             shareBtn.addEventListener('click', () => {
                 const nickname = getNicknameController()?.getNickname() || '@Player';
+                const currentTrack = musicController.getCurrentTrack();
+                const song = currentTrack ? `${currentTrack.artist} - ${currentTrack.title}` : null;
+                const pomodoros = (timeController as any)?.getCompletedPomodoros ? (timeController as any).getCompletedPomodoros() : 0;
+                
+                const payloadContent = {
+                    nickname: nickname,
+                    song: song,
+                    pomodoros: pomodoros
+                };
+
                 if (isScreenshotOpen) {
                     // Trigger a specific dynamic refresh
                     vscode.postMessage({
                         type: 'refresh_screenshot',
-                        nickname: nickname
+                        payload: payloadContent
                     });
                 } else {
                     // Open the panel for the first time
                     vscode.postMessage({
                         type: 'open_screenshot',
-                        payload: { data: 'hello Data', nickname }
+                        payload: payloadContent
                     });
                 }
             });
