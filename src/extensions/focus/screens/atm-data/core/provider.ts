@@ -144,7 +144,7 @@ export class ATMDataProvider {
 
   private async getLocalCommits(): Promise<number> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) {
+    if (!workspaceFolders || workspaceFolders.length === 0) {
         return 0;
     }
 
@@ -153,18 +153,24 @@ export class ATMDataProvider {
         return this.gitCache.commits;
     }
     
-    try {
-      const todayStart = new Date();
-      todayStart.setHours(0,0,0,0);
-      const cwd = workspaceFolders[0].uri.fsPath;
-      const { stdout } = await execAsync('git log --since="midnight" --oneline', { cwd });
-      const count = stdout.trim().split('\n').filter(Boolean).length;
-      
-      this.gitCache = { commits: count, timestamp: now };
-      return count;
-    } catch {
-      return this.gitCache ? this.gitCache.commits : 0;
+    let totalCount = 0;
+    
+    for (const folder of workspaceFolders) {
+        try {
+            const cwd = folder.uri.fsPath;
+            // Use rev-list --count to avoid maxBuffer errors in large repos with many commits
+            const { stdout } = await execAsync('git rev-list --count --since="midnight" HEAD', { cwd });
+            const count = parseInt(stdout.trim(), 10);
+            if (!isNaN(count)) {
+                totalCount += count;
+            }
+        } catch {
+            // Likely not a git repository or zero valid commits, skip safely
+        }
     }
+    
+    this.gitCache = { commits: totalCount, timestamp: now };
+    return totalCount;
   }
 
   private async fetchGitHubStats(username: string): Promise<{ commits: number, streak: number }> {

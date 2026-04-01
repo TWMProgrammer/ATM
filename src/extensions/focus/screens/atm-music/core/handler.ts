@@ -79,6 +79,13 @@ export function startAudioServer(): Promise<number> {
 
                     res.writeHead(streamRes.statusCode || 200, outHeaders);
                     streamRes.pipe(res);
+
+                    // Prevent memory/network stream leak if VS Code client disconnects early
+                    req.on('close', () => {
+                        if (!res.writableEnded) {
+                            streamRes.destroy();
+                        }
+                    });
                 }).on('error', (e) => {
                     console.error('[ATM Music] Pipe error:', e);
                     if (!res.headersSent) {
