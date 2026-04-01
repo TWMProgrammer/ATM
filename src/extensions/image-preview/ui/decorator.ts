@@ -422,12 +422,9 @@ function buildHoverMarkdown(
   lines.push(`<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`);
 
   // ── Metadata chips ──
-  if (meta && (meta.dimensions || meta.fileSize || meta.format)) {
+  if (meta && (meta.dimensions || meta.fileSize)) {
     const chips: string[] = [];
 
-    if (meta.format) {
-      chips.push(`\`${meta.format}\``);
-    }
     if (meta.dimensions) {
       chips.push(`📐 ${meta.dimensions}px`);
     }
@@ -448,10 +445,11 @@ function buildHoverMarkdown(
     lines.push('---');
     lines.push('');
 
+    const formatText = meta?.format || 'Open';
     const actions: string[] = [
       `[$(folder) Folder](command:revealFileInOS?${args} "Reveal in OS file manager")`,
       `[$(file-symlink-directory) Explorer](command:revealInExplorer?${args} "Reveal in VS Code Explorer")`,
-      `[$(link-external) Open](command:vscode.open?${args} "Open in default application")`,
+      `[$(link-external) ${formatText}](command:vscode.open?${args} "Open in default application")`,
     ];
 
     lines.push(actions.join(' &nbsp;&nbsp; '));
