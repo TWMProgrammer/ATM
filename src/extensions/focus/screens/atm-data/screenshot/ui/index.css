@@ -456,12 +456,15 @@ body::after {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
 }
 
 .music-media-content {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+    flex: 1;
 }
 
 .bento-music .bento-icon-wrapper {
@@ -479,6 +482,8 @@ body::after {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
+    flex: 1;
 }
 
 .music-title {
@@ -488,7 +493,8 @@ body::after {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 380px;
+    width: 100%;
+    max-width: 100%;
 }
 
 .music-waves {
@@ -496,6 +502,8 @@ body::after {
     align-items: center;
     gap: 3px;
     height: 16px;
+    flex-shrink: 0;
+    margin-left: 8px;
 }
 
 .music-waves span {
