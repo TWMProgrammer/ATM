@@ -145,6 +145,11 @@ export class CommentsCodeController {
     for (const lineNum of toDelete) {
       this.lineCache.delete(lineNum);
     }
+    
+    // Prevent infinite growth on massive files
+    if (this.lineCache.size > 5000) {
+      this.lineCache.clear();
+    }
   }
 
   /* =========================================================
@@ -169,11 +174,7 @@ export class CommentsCodeController {
       this.cachedDocUri = docUri;
     }
 
-    const tags = defaultTags;
     const rangesToDecorate = new Map<string, vscode.DecorationOptions[]>();
-    for (const tag of tags) {
-      rangesToDecorate.set(tag.text, []);
-    }
 
     const extraLines = 50;
 
@@ -201,7 +202,11 @@ export class CommentsCodeController {
           cached.inBlockAtStart === inBlock
         ) {
           for (const [tagText, ranges] of cached.ranges) {
-            rangesToDecorate.get(tagText)?.push(...ranges);
+            if (ranges.length > 0) {
+              let arr = rangesToDecorate.get(tagText);
+              if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
+              arr.push(...ranges);
+            }
           }
           inBlock = cached.inBlockAtEnd;
           continue;
@@ -209,9 +214,6 @@ export class CommentsCodeController {
 
         // Fresh parse
         const lineRanges = new Map<string, vscode.DecorationOptions[]>();
-        for (const tag of tags) {
-          lineRanges.set(tag.text, []);
-        }
 
         const inBlockAtStart = inBlock;
         inBlock = this.processLine(i, text, langConfig, inBlock, lineRanges);
@@ -225,7 +227,11 @@ export class CommentsCodeController {
         });
 
         for (const [tagText, ranges] of lineRanges) {
-          rangesToDecorate.get(tagText)?.push(...ranges);
+          if (ranges.length > 0) {
+            let arr = rangesToDecorate.get(tagText);
+            if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
+            arr.push(...ranges);
+          }
         }
       }
     }
@@ -326,7 +332,9 @@ export class CommentsCodeController {
           const tag = this.tagByText.get(lineMatch[0]);
           if (tag?.type === 'line') {
             const startChar = slIdx;
-            lineRanges.get(tag.text)?.push({
+            let arr = lineRanges.get(tag.text);
+            if (!arr) { arr = []; lineRanges.set(tag.text, arr); }
+            arr.push({
               range: new vscode.Range(
                 new vscode.Position(lineIndex, startChar),
                 new vscode.Position(lineIndex, text.length),
@@ -356,7 +364,9 @@ export class CommentsCodeController {
         const tag = this.tagByText.get(lineMatch[0]);
         if (tag?.type === 'line') {
           const startChar = region.spanStart;
-          lineRanges.get(tag.text)?.push({
+          let arr = lineRanges.get(tag.text);
+          if (!arr) { arr = []; lineRanges.set(tag.text, arr); }
+          arr.push({
             range: new vscode.Range(
               new vscode.Position(lineIndex, startChar),
               new vscode.Position(lineIndex, region.spanEnd),
@@ -403,7 +413,9 @@ export class CommentsCodeController {
       }
 
       const absIdx = offset + matchIdx;
-      lineRanges.get(matchText)?.push({
+      let arr = lineRanges.get(matchText);
+      if (!arr) { arr = []; lineRanges.set(matchText, arr); }
+      arr.push({
         range: new vscode.Range(
           new vscode.Position(lineIndex, absIdx),
           new vscode.Position(lineIndex, absIdx + matchText.length),
@@ -429,8 +441,8 @@ export class CommentsCodeController {
       return false;
     }
 
-    // Walk backwards through the cache to find the closest known state
-    for (let i = lineIndex - 1; i >= Math.max(0, lineIndex - 300); i--) {
+    // Walk backwards through the cache to find the closest known state (up to 2500 lines)
+    for (let i = lineIndex - 1; i >= Math.max(0, lineIndex - 2500); i--) {
       const cached = this.lineCache.get(i);
       if (cached) {
         // Start from cached inBlockAtEnd and scan forward to lineIndex
@@ -447,8 +459,8 @@ export class CommentsCodeController {
       }
     }
 
-    // No cache: bounded scan from at most 300 lines back
-    const scanFrom = Math.max(0, lineIndex - 300);
+    // No cache: bounded scan from at most 2500 lines back to ensure block capturing
+    const scanFrom = Math.max(0, lineIndex - 2500);
     let state = false;
     for (let i = scanFrom; i < lineIndex; i++) {
       state = this.stepBlockState(
