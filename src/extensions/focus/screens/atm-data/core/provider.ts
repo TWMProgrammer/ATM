@@ -25,6 +25,11 @@ export class ATMDataProvider {
   private lastActivityTime: number = Date.now();
   private disposables: vscode.Disposable[] = [];
   private activityInterval: NodeJS.Timeout | null = null;
+  
+  // --- Memory Caches to prevent CPU/Network Abuse ---
+  private gitCache: { commits: number, timestamp: number } | null = null;
+  private ghCache: { data: { commits: number, streak: number }, timestamp: number } | null = null;
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
   private constructor() {
     this.trackActivity();
@@ -142,19 +147,32 @@ export class ATMDataProvider {
     if (!workspaceFolders) {
         return 0;
     }
+
+    const now = Date.now();
+    if (this.gitCache && (now - this.gitCache.timestamp < this.CACHE_TTL_MS)) {
+        return this.gitCache.commits;
+    }
     
     try {
       const todayStart = new Date();
       todayStart.setHours(0,0,0,0);
       const cwd = workspaceFolders[0].uri.fsPath;
       const { stdout } = await execAsync('git log --since="midnight" --oneline', { cwd });
-      return stdout.trim().split('\n').filter(Boolean).length;
+      const count = stdout.trim().split('\n').filter(Boolean).length;
+      
+      this.gitCache = { commits: count, timestamp: now };
+      return count;
     } catch {
-      return 0;
+      return this.gitCache ? this.gitCache.commits : 0;
     }
   }
 
   private async fetchGitHubStats(username: string): Promise<{ commits: number, streak: number }> {
+    const now = Date.now();
+    if (this.ghCache && (now - this.ghCache.timestamp < this.CACHE_TTL_MS)) {
+        return this.ghCache.data;
+    }
+
     return new Promise((resolve) => {
       https.get(`https://github.com/users/${username}/contributions`, {
           headers: { 
@@ -170,7 +188,6 @@ export class ATMDataProvider {
               return;
           }
           try {
-             // Parse real contribution data from GitHub's contributions page
              let weekCommits = 0;
              const tooltips = data.match(/<tool-tip[^>]*>([^<]+)<\/tool-tip>/g);
              if (tooltips) {
@@ -190,7 +207,9 @@ export class ATMDataProvider {
                  }
              }
 
-             resolve({ commits: weekCommits, streak });
+             const result = { commits: weekCommits, streak };
+             this.ghCache = { data: result, timestamp: Date.now() };
+             resolve(result);
           } catch {
              resolve({ commits: 0, streak: 0 });
           }

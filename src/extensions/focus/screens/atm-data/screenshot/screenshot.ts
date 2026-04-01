@@ -101,6 +101,15 @@ export async function refreshScreenshotPanelData(nickname: string) {
 
 
 
+// Cache to avoid hitting Github API limits on rapid refreshes
+const GH_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+let githubCache: { 
+    nickname: string;
+    profile: any;
+    html: string;
+    timestamp: number;
+} | null = null;
+
 async function fetchDashboardData(nickname: string) {
     let commitsToday = 0;
     let filesChanged = 0;
@@ -114,6 +123,8 @@ async function fetchDashboardData(nickname: string) {
     let avatarUrl = "";
     let name = "";
     let heatmapData: number[] = [];
+    let heatmapGrid: number[] = []; // Padded grid with -1 for empty slots
+    let heatmapMonthPositions: { month: number; col: number }[] = [];
 
     // --- Real active time + local stats from ATMDataProvider singleton ---
     let timeLabel = "0m";
@@ -164,8 +175,31 @@ async function fetchDashboardData(nickname: string) {
             }).on('error', reject);
         });
 
-        try {
-            const [ghData, html] = await Promise.all([fetchProfile, fetchContributions]);
+        // Check Memory Cache First
+        if (githubCache && githubCache.nickname === cleanNick && (Date.now() - githubCache.timestamp < GH_CACHE_TTL)) {
+            // Re-use cached data directly
+            try {
+                processGithubData(githubCache.profile, githubCache.html);
+            } catch (e) {
+                console.error('[ATM Screenshot] Cache processing error:', e);
+            }
+        } else {
+            // Fresh Fetch
+            try {
+                const [ghData, html] = await Promise.all([fetchProfile, fetchContributions]);
+                githubCache = {
+                    nickname: cleanNick,
+                    profile: ghData,
+                    html: html,
+                    timestamp: Date.now()
+                };
+                await processGithubData(ghData, html);
+            } catch (e) {
+                console.error('[ATM Screenshot] Fetch error:', e);
+            }
+        }
+
+        async function processGithubData(ghData: any, html: string) {
 
             // Profile Data
             followers  = typeof ghData.followers  === 'number' ? ghData.followers  : 0;
@@ -202,11 +236,80 @@ async function fetchDashboardData(nickname: string) {
                 }
             }
 
-            // Contributions HTML Data
-            const levelMatches = html.match(/data-level="(\d+)"/g);
-            if (levelMatches) {
-                const levels = levelMatches.map((m: string) => parseInt(m.replace(/\D/g, ''), 10));
-                heatmapData = levels.slice(-364);
+            // Contributions HTML Data - Parse the full grid structure
+            // GitHub's HTML contains <td> elements with data-date and data-level attributes
+            // organized in week columns (Sunday through Saturday)
+            const cellRegex = /data-date="(\d{4}-\d{2}-\d{2})"[^>]*data-level="(\d+)"/g;
+            let cellMatch;
+            const allCells: { date: string; level: number }[] = [];
+            while ((cellMatch = cellRegex.exec(html)) !== null) {
+                allCells.push({ date: cellMatch[1], level: parseInt(cellMatch[2], 10) });
+            }
+
+            // Fallback: if data-date comes after data-level in HTML
+            if (allCells.length === 0) {
+                const altRegex = /data-level="(\d+)"[^>]*data-date="(\d{4}-\d{2}-\d{2})"/g;
+                let altMatch;
+                while ((altMatch = altRegex.exec(html)) !== null) {
+                    allCells.push({ date: altMatch[2], level: parseInt(altMatch[1], 10) });
+                }
+            }
+
+            if (allCells.length > 0) {
+                // Sort cells chronologically to handle any HTML ordering
+                allCells.sort((a, b) => a.date.localeCompare(b.date));
+                heatmapData = allCells.map(c => c.level);
+
+                // Calculate week index for each cell based on the earliest date
+                const startDate = new Date(allCells[0].date + 'T00:00:00');
+                const startDay = startDate.getDay(); // Day of week of first date (0=Sun)
+                // The first week column starts on the Sunday at or before the start date
+                const weekStartMs = startDate.getTime() - (startDay * 86400000);
+
+                // Build a map of (weekIndex, dayOfWeek) -> level
+                const cellMap = new Map<string, number>();
+                let maxWeekIdx = 0;
+                for (const cell of allCells) {
+                    const cellDate = new Date(cell.date + 'T00:00:00');
+                    const daysSinceWeekStart = Math.round((cellDate.getTime() - weekStartMs) / 86400000);
+                    const weekIdx = Math.floor(daysSinceWeekStart / 7);
+                    const dow = cellDate.getDay();
+                    cellMap.set(`${weekIdx}_${dow}`, cell.level);
+                    if (weekIdx > maxWeekIdx) { maxWeekIdx = weekIdx; }
+                }
+
+                // Calculate month label positions: first week where each month appears
+                const monthPositions: { month: number; col: number }[] = [];
+                let lastMonth = -1;
+                for (const cell of allCells) {
+                    const cellDate = new Date(cell.date + 'T00:00:00');
+                    const m = cellDate.getMonth();
+                    if (m !== lastMonth) {
+                        const daysSinceWeekStart = Math.round((cellDate.getTime() - weekStartMs) / 86400000);
+                        const weekIdx = Math.floor(daysSinceWeekStart / 7);
+                        monthPositions.push({ month: m, col: weekIdx });
+                        lastMonth = m;
+                    }
+                }
+                heatmapMonthPositions = monthPositions;
+
+                // Build the full padded grid: totalWeeks × 7 days
+                // The grid flows column-first with CSS grid-auto-flow: column
+                // So data order is: week0_Sun, week0_Mon, ..., week0_Sat, week1_Sun, ...
+                const paddedGrid: number[] = [];
+                for (let w = 0; w <= maxWeekIdx; w++) {
+                    for (let d = 0; d < 7; d++) {
+                        const key = `${w}_${d}`;
+                        paddedGrid.push(cellMap.has(key) ? cellMap.get(key)! : -1);
+                    }
+                }
+                heatmapGrid = paddedGrid;
+            } else {
+                // Final fallback: use simple level matching
+                const levelMatches = html.match(/data-level="(\d+)"/g);
+                if (levelMatches) {
+                    heatmapData = levelMatches.map((m: string) => parseInt(m.replace(/\D/g, ''), 10));
+                }
             }
 
             const yearlyMatch = html.match(/([\d,]+)\s+contributions?\s+in\s+the\s+last\s+year/i);
@@ -236,8 +339,6 @@ async function fetchDashboardData(nickname: string) {
             }
             totalCommits = weekCommits;
 
-        } catch (e) {
-            console.error('[ATM Screenshot] Fetch error:', e);
         }
     }
 
@@ -257,6 +358,8 @@ async function fetchDashboardData(nickname: string) {
         timeLabel,
         avatarUrl,
         heatmapData,
+        heatmapGrid,
+        heatmapMonthPositions,
         activeDays
     };
 }

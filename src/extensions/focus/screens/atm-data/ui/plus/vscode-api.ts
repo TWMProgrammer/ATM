@@ -11,6 +11,14 @@ let cachedApi: any = null;
 /** Get the VS Code webview API (lazy-initialized, singleton). */
 export function getVsCodeApi(): any | null {
     if (cachedApi) { return cachedApi; }
+    
+    // Webviews crash if acquireVsCodeApi() is called twice on the same page.
+    // If the main layout (view/ui/index.ts) initialized it, safely reuse it.
+    if (typeof window !== 'undefined' && (window as any).vscode) {
+        cachedApi = (window as any).vscode;
+        return cachedApi;
+    }
+
     try {
         cachedApi = acquireVsCodeApi();
         return cachedApi;

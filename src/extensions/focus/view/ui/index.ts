@@ -12,6 +12,8 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     const atmTimeRoot = document.querySelector('#atm-time-root') as HTMLElement | null;
     const atmGameRoot = document.querySelector('#atm-data-root') as HTMLElement | null;
 
+    let isScreenshotOpen = false;
+
     if (atmGameRoot) {
         // Initialize data carousel + nickname (all encapsulated)
         initDataUI();
@@ -21,10 +23,19 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         if (shareBtn) {
             shareBtn.addEventListener('click', () => {
                 const nickname = getNicknameController()?.getNickname() || '@Player';
-                vscode.postMessage({
-                    type: 'open_screenshot',
-                    payload: { data: 'hello Data', nickname }
-                });
+                if (isScreenshotOpen) {
+                    // Trigger a specific dynamic refresh
+                    vscode.postMessage({
+                        type: 'refresh_screenshot',
+                        nickname: nickname
+                    });
+                } else {
+                    // Open the panel for the first time
+                    vscode.postMessage({
+                        type: 'open_screenshot',
+                        payload: { data: 'hello Data', nickname }
+                    });
+                }
             });
         }
     }
@@ -33,6 +44,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     window.addEventListener('message', event => {
         const message = event.data;
         if (message.type === 'screenshot_state_changed') {
+            isScreenshotOpen = message.isOpen;
             const shareBtn = document.querySelector('#atom-share-btn');
             if (shareBtn) {
                 if (message.isOpen) {

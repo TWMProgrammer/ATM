@@ -33,6 +33,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 				});
 				return;
 			}
+			if (message.type === 'refresh_screenshot') {
+				refreshScreenshotPanelData(message.nickname);
+				return;
+			}
 			if (message.type === 'nickname_updated') {
 				ATMDataProvider.getInstance().setNickname(message.nickname);
 				refreshScreenshotPanelData(message.nickname);

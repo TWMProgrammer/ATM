@@ -22,19 +22,16 @@
     <!-- Action Footer -->
     {{actionsWidget}}
     <script>
-        // Generate Heatmap squares
+        // Generate Heatmap skeleton squares - max 53 weeks × 7 days
         const grid = document.getElementById('heatmapGrid');
         const fragment = document.createDocumentFragment();
-        // 52 cols * 7 rows
-        const cols = 52;
+        const cols = 53;
         const rows = 7;
         const total = cols * rows;
         
-        // Pattern logic to spell "gohitx" (approximate/random logic)
         for (let i = 0; i < total; i++) {
             const cell = document.createElement('div');
-            cell.className = 'heatmap-cell skeleton'; // Added skeleton by default
-            cell.style.animationDelay = `${Math.random() * 0.5}s`; // Staggered pulse
+            cell.className = 'heatmap-cell skeleton';
             fragment.appendChild(cell);
         }
         grid.appendChild(fragment);
