@@ -19,7 +19,7 @@ export function createAtmTimeController() {
 
     const updateModeButtonText = (mode: TimerMode) => {
         if (btnToggleMode) {
-            btnToggleMode.textContent = mode === 'focus' ? '25m' : '5m';
+            btnToggleMode.textContent = mode === 'focus' ? '5m' : '25m';
             btnToggleMode.title = mode === 'focus' ? 'Switch to Break (5m)' : 'Switch to Focus (25m)';
             
             // Highlight color in break mode to differentiate
