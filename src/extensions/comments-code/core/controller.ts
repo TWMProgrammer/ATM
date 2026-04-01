@@ -244,6 +244,29 @@ export class CommentsCodeController {
    * Process one line, returns updated inBlock state
    * ========================================================= */
 
+  private isInsideString(text: string, pos: number): boolean {
+    let inSingle = false;
+    let inDouble = false;
+    let inTemplate = false;
+    let escape = false;
+
+    for (let i = 0; i < pos; i++) {
+      const c = text[i];
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (c === '\\') {
+        escape = true;
+        continue;
+      }
+      if (c === "'" && !inDouble && !inTemplate) inSingle = !inSingle;
+      else if (c === '"' && !inSingle && !inTemplate) inDouble = !inDouble;
+      else if (c === '`' && !inSingle && !inDouble) inTemplate = !inTemplate;
+    }
+    return inSingle || inDouble || inTemplate;
+  }
+
   private processLine(
     lineIndex: number,
     text: string,
@@ -284,7 +307,11 @@ export class CommentsCodeController {
 
       // Scan for new block comments opening on this line
       while (pos < text.length) {
-        const bsIdx = text.indexOf(bs, pos);
+        let bsIdx = text.indexOf(bs, pos);
+        // Ignore block starts if they are inside strings
+        while (bsIdx !== -1 && this.isInsideString(text, bsIdx)) {
+           bsIdx = text.indexOf(bs, bsIdx + bs.length);
+        }
         if (bsIdx === -1) {
           break;
         }
@@ -319,10 +346,22 @@ export class CommentsCodeController {
 
     // Step 2 — single-line comment
     if (langConfig.singleLine) {
-      const slIdx = text.indexOf(langConfig.singleLine);
-      if (slIdx !== -1 && !isInBlock(slIdx)) {
+      const slStr = langConfig.singleLine;
+      let slIdx = text.indexOf(slStr);
+      let isValidSingleLine = false;
+
+      while (slIdx !== -1) {
+        // Must not be in block comment, not inside string on this line, and not part of a URL (://)
+        if (!isInBlock(slIdx) && !this.isInsideString(text, slIdx) && !(slIdx > 0 && text[slIdx - 1] === ':')) {
+          isValidSingleLine = true;
+          break;
+        }
+        slIdx = text.indexOf(slStr, Math.max(slIdx + 1, slIdx + slStr.length));
+      }
+
+      if (isValidSingleLine) {
         const afterMarker = text.substring(
-          slIdx + langConfig.singleLine.length,
+          slIdx + slStr.length,
         );
         const trimmed = afterMarker.trimStart();
 
