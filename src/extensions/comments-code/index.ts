@@ -58,16 +58,6 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
   );
 
   /* =========================================================
-   * 🔍 GLOBAL ANNOTATIONS LIST
-   * Command to manually list all TODOs/FIXMEs
-   * ========================================================= */
-  context.subscriptions.push(
-    vscode.commands.registerCommand('commentsCode.listAnnotations', () => {
-      controller?.listAnnotations();
-    }),
-  );
-
-  /* =========================================================
    * 🚀 INITIAL ACTIVATION
    * Fast-pass update if an editor is already open
    * ========================================================= */

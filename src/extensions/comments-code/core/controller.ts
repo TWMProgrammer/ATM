@@ -40,14 +40,12 @@ export class CommentsCodeController {
 
   // P2: per-line cache
   private lineCache = new Map<number, LineCacheEntry>();
-  private cachedDocVersion = -1;
   private cachedDocUri = ''; // R5: track active document URI
 
   // P3: compiled tag index
   private lineTagRegex: RegExp | null = null;
   private wordTagRegex: RegExp | null = null; // R2: compiled word tag regex
   private tagByText = new Map<string, CommentTag>();
-  private wordTags: CommentTag[] = []; // R4: pre-filtered word tags
 
   constructor() {
     this.decorator = new Decorator();
@@ -76,10 +74,10 @@ export class CommentsCodeController {
         : null;
 
     // R4: Pre-filter word tags into separate array
-    this.wordTags = tags.filter((t) => t.type === 'word');
+    const wordTags = tags.filter((t) => t.type === 'word');
 
     // R2: Compiled word tag regex for single-pass scanning
-    const wordTexts = this.wordTags
+    const wordTexts = wordTags
       .map((t) => t.text)
       .sort((a, b) => b.length - a.length);
     this.wordTagRegex =
@@ -170,8 +168,6 @@ export class CommentsCodeController {
       this.lineCache.clear();
       this.cachedDocUri = docUri;
     }
-    // R1: Version tracked for reference (partial invalidation handled by handleContentChanges)
-    this.cachedDocVersion = document.version;
 
     const tags = defaultTags;
     const rangesToDecorate = new Map<string, vscode.DecorationOptions[]>();
@@ -323,7 +319,6 @@ export class CommentsCodeController {
           slIdx + langConfig.singleLine.length,
         );
         const trimmed = afterMarker.trimStart();
-        const trimOffset = afterMarker.length - trimmed.length;
 
         // P3: compiled regex for line-type tags
         const lineMatch = this.lineTagRegex?.exec(trimmed);
@@ -354,7 +349,6 @@ export class CommentsCodeController {
     for (const region of blockRegions) {
       const content = text.substring(region.contentStart, region.contentEnd);
       const trimmed = content.trimStart();
-      const trimOffset = content.length - trimmed.length;
 
       // Line-type tag inside block comment
       const lineMatch = this.lineTagRegex?.exec(trimmed);
@@ -498,12 +492,6 @@ export class CommentsCodeController {
   /* =========================================================
    * ⚙️ COMMANDS & LIFECYCLE
    * ========================================================= */
-
-  public listAnnotations() {
-    vscode.window.showInformationMessage(
-      'List annotations command executing! (Placeholder for global workspace search)',
-    );
-  }
 
   public dispose() {
     if (this.editTimeout) {
