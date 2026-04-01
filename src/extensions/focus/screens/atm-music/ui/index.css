@@ -325,6 +325,10 @@
     transform-origin: bottom center;
     transition: opacity 2s ease-in-out;
     opacity: 0;
+    
+    /* Hardware acceleration rendering hints */
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 /* Layer 1: Broader, deeper wave (Mountain Peak) */

@@ -15,6 +15,25 @@ export class MusicPlayerUI {
     private pendingTrack: Track | null = null;
     private currentTrackDuration = 0;
 
+    // --- Performance Cache ---
+    private cachedEls: Record<string, Element | null> = {};
+    private lastCurTimeStr = '';
+    private lastTotTimeStr = '';
+
+    private $c<T extends Element = HTMLElement>(selector: string): T | null {
+        if (!(selector in this.cachedEls)) {
+            // Document query cache avoiding constant DOM traversals
+            this.cachedEls[selector] = $(selector) || document.querySelector(selector);
+        }
+        return this.cachedEls[selector] as T | null;
+    }
+
+    private clearDomCache() {
+        this.cachedEls = {};
+        this.lastCurTimeStr = '';
+        this.lastTotTimeStr = '';
+    }
+
     constructor(
         private readonly onNext: () => void,
         private readonly onPrev: () => void,
@@ -183,6 +202,7 @@ export class MusicPlayerUI {
     }
 
     private render(track: Track, hasPrev: boolean, hasNext: boolean) {
+        this.clearDomCache();
         if (!this.container) {return;}
         this.container.innerHTML = `
             <div class="player-content">
@@ -245,27 +265,37 @@ export class MusicPlayerUI {
     }
 
     private updateTimeDisplay() {
-        const curEl = $('#current-time');
-        const totEl = $('#total-time');
+        const curEl = this.$c('#current-time');
+        const totEl = this.$c('#total-time');
         if (!curEl || !totEl) {return;}
 
         const cur = this.audioPlayer.currentTime || 0;
         const dur = this.audioPlayer.duration || 0;
 
+        let curStr = '';
         if (this.isRemainingMode && dur > 0) {
-            curEl.textContent = '-' + formatDuration(Math.max(0, Math.floor(dur - cur)));
+            curStr = '-' + formatDuration(Math.max(0, Math.floor(dur - cur)));
         } else {
-            curEl.textContent = formatDuration(Math.floor(cur));
+            curStr = formatDuration(Math.floor(cur));
         }
         
+        if (curStr !== this.lastCurTimeStr) {
+            curEl.textContent = curStr;
+            this.lastCurTimeStr = curStr;
+        }
+
         if (dur > 0) {
-            totEl.textContent = formatDuration(Math.floor(dur));
+            const totStr = formatDuration(Math.floor(dur));
+            if (totStr !== this.lastTotTimeStr) {
+                totEl.textContent = totStr;
+                this.lastTotTimeStr = totStr;
+            }
         }
     }
 
     /** Custom progress bar drag/click handling — never disabled by loading states */
     private setupProgressBarEvents() {
-        const track = $('#progress-track');
+        const track = this.$c('#progress-track');
         if (!track) {return;}
 
         const seekToPosition = (clientX: number) => {
@@ -358,9 +388,11 @@ export class MusicPlayerUI {
 
     /** Update the visual fill + thumb position without touching the audio element */
     private updateProgressVisual(ratio: number) {
-        const fill = $('#progress-fill');
-        const thumb = $('#progress-thumb');
-        const pct = Math.max(0, Math.min(100, ratio * 100));
+        const fill = this.$c('#progress-fill') as HTMLElement | null;
+        const thumb = this.$c('#progress-thumb') as HTMLElement | null;
+        if (!fill && !thumb) {return;}
+        
+        const pct = Math.max(0, Math.min(100, ratio * 100)).toFixed(2);
         if (fill) {fill.style.width = `${pct}%`;}
         if (thumb) {thumb.style.left = `${pct}%`;}
     }
@@ -394,19 +426,19 @@ export class MusicPlayerUI {
     private setLoading(loading: boolean) {
         this.isLoadingState = loading;
         
-        const btn = $('#play-pause-btn');
+        const btn = this.$c('#play-pause-btn');
         if (btn) {
             btn.classList.toggle('loading', loading);
             (btn as HTMLButtonElement).disabled = loading;
         }
 
-        const qaBtn = $('#qa-play-btn');
+        const qaBtn = this.$c('#qa-play-btn');
         if (qaBtn) {
             qaBtn.classList.toggle('loading', loading);
             (qaBtn as HTMLButtonElement).disabled = loading;
         }
 
-        const track = $('#progress-track');
+        const track = this.$c('#progress-track');
         if (track) {
             track.classList.toggle('loading', loading);
         }
@@ -416,23 +448,23 @@ export class MusicPlayerUI {
     }
 
     private updateWaveState() {
-        document.getElementById('screen-player')?.classList.toggle('is-playing', this.isPlaying && !this.isLoadingState);
+        this.$c('#screen-player')?.classList.toggle('is-playing', this.isPlaying && !this.isLoadingState);
     }
 
     private updateIcons() {
         const playIconD = this.isPlaying ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z' : 'M8 5v14l11-7z';
-        const playPath = $('#play-path');
+        const playPath = this.$c('#play-path');
         playPath?.setAttribute('d', playIconD);
 
-        const qaPath = $('#qa-play-path');
+        const qaPath = this.$c('#qa-play-path');
         qaPath?.setAttribute('d', playIconD);
 
         // Toggle glow pulse on the player screen only if not loading
         this.updateWaveState();
 
-        const volPath = $('#vol-path');
+        const volPath = this.$c('#vol-path');
         volPath?.setAttribute('d', this.isMuted ? 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3z' : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
-        const volumeBtn = $('#volume-btn');
+        const volumeBtn = this.$c('#volume-btn');
         volumeBtn?.classList.toggle('active', this.isMuted);
         volumeBtn?.setAttribute('aria-pressed', this.isMuted ? 'true' : 'false');
     }
