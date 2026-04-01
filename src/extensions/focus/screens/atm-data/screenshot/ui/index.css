@@ -434,6 +434,40 @@ body::after {
     box-shadow: none;
     pointer-events: none;
     cursor: default;
+    position: relative;
+    overflow: hidden;
+}
+
+.download-btn > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Premium Shimmer Wave Effect */
+.download-btn:not(.ready)::before,
+.download-btn.loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(
+        90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.05) 20%, 
+        rgba(255, 255, 255, 0.25) 50%, 
+        rgba(255, 255, 255, 0.05) 80%, 
+        transparent 100%
+    );
+    filter: blur(2px);
+    animation: btnShimmerSweep 1.8s infinite ease-in-out;
+    z-index: 1;
+}
+
+@keyframes btnShimmerSweep {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(250%); }
 }
 .download-btn.ready {
     background: var(--vscode-textLink-foreground, #3794ff);
