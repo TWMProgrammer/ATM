@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ui-commits': `${data.totalCommits.toLocaleString()} Commits`,
                 'ui-years': `Week`,
                 'ui-heat-year': currentYear,
-                'ui-heat-commits': `${data.totalCommitsYear} Commits,`,
+                'ui-heat-commits': `${data.totalCommitsYear.toLocaleString()} Commits,`,
                 'ui-heat-days': `${data.activeDays || 0} Days,`,
                 'ui-heat-streak': `${data.dayStreak} Days`,
                 'ui-stat-time': data.timeLabel,
@@ -164,6 +164,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ui-stat-files': data.filesChanged.toString(),
                 'ui-stat-streak': data.dayStreak.toString()
             };
+
+            // Update Month Labels dynamically
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const heatmapMonths = document.querySelector('.heatmap-months');
+            const gridEl = document.getElementById('heatmapGrid');
+
+            // Use heatmapMonthPositions if available, otherwise fallback
+            if (heatmapMonths) {
+                heatmapMonths.innerHTML = '';
+                if (data.heatmapMonthPositions && data.heatmapMonthPositions.length > 0) {
+                    // Show only the distinct months from the data in order
+                    for (const pos of data.heatmapMonthPositions) {
+                        const span = document.createElement('span');
+                        span.textContent = monthNames[pos.month];
+                        heatmapMonths.appendChild(span);
+                    }
+                } else {
+                    // Fallback: 12 months starting from next month
+                    const curMonth = new Date().getMonth();
+                    for (let i = 1; i <= 12; i++) {
+                        const span = document.createElement('span');
+                        span.textContent = monthNames[(curMonth + i) % 12];
+                        heatmapMonths.appendChild(span);
+                    }
+                }
+            }
 
             for (const [id, value] of Object.entries(mappings)) {
                 const el = document.getElementById(id);
@@ -194,8 +220,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.classList.remove('skeleton');
                 });
                 
-                // Add heatmap data
-                if (data.heatmapData && Array.isArray(data.heatmapData)) {
+                // Add heatmap data using the padded grid format (handles partial weeks correctly)
+                if (gridEl && data.heatmapGrid && data.heatmapGrid.length > 0) {
+                    const gridData = data.heatmapGrid as number[];
+                    
+                    // Rebuild grid with exact number of cells matching the data
+                    gridEl.innerHTML = '';
+                    const frag = document.createDocumentFragment();
+                    for (let i = 0; i < gridData.length; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'heatmap-cell';
+                        if (gridData[i] === -1) {
+                            cell.classList.add('hidden');
+                        } else if (gridData[i] > 0) {
+                            cell.classList.add(`level-${gridData[i]}`);
+                        }
+                        frag.appendChild(cell);
+                    }
+                    gridEl.appendChild(frag);
+                } else if (data.heatmapData && Array.isArray(data.heatmapData)) {
+                    // Fallback: old format - apply levels to existing skeleton cells
                     const cells = document.querySelectorAll('.heatmap-cell');
                     data.heatmapData.forEach((level: number, i: number) => {
                         if (cells[i]) {
