@@ -235,14 +235,10 @@ async function scanDocument(document: vscode.TextDocument): Promise<void> {
 
         if (!resolved) { continue; }
 
-        // For markdown, only accept obvious image paths/data URIs.
-        if (isMarkdown && !hasAcceptedImageExtension(resolved) && !isKnownMarkdownImageUrl(resolved)) { continue; }
-
-        // Validate extension for non-data/non-http images
-        if (!isDataUri(resolved) && isLocalFile(resolved)) {
-          const ext = resolved.substring(resolved.lastIndexOf('.')).toLowerCase();
-          if (!ACCEPTED_EXTENSIONS.includes(ext)) { continue; }
-        }
+        // Strict filter: ALL URLs (local & remote) must have an accepted
+        // image extension or come from a known image service. Only data URIs
+        // are exempt (they are images by definition).
+        if (!isDataUri(resolved) && !hasAcceptedImageExtension(resolved) && !isKnownMarkdownImageUrl(resolved)) { continue; }
 
         const range = new vscode.Range(lineIndex, match.start, lineIndex, match.end);
         images.push({ originalImagePath: resolved, imagePath: resolved, range });
