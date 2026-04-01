@@ -318,42 +318,39 @@
     content: "";
     position: absolute;
     bottom: -15px;
-    left: -15%;
-    right: -15%;
+    left: 5%;    /* Moderated width: 5% safe margin from edges */
+    right: 5%;   /* Moderated width: 5% safe margin from edges */
     z-index: -1;
     pointer-events: none;
     transform-origin: bottom center;
     transition: opacity 2s ease-in-out;
     opacity: 0;
-    /* Smoothly fade out the left and right edges for a perfect gradient falloff */
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 35%, black 65%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, black 35%, black 65%, transparent 100%);
 }
 
-/* Layer 1: Broader, deeper wave */
+/* Layer 1: Broader, deeper wave (Mountain Peak) */
 .player-content::before {
     height: 90px;
-    background: linear-gradient(to top, color-mix(in srgb, var(--vscode-focusBorder) 45%, transparent) 0%, transparent 100%);
-    filter: blur(20px);
+    background: radial-gradient(ellipse 80% 100% at bottom center, color-mix(in srgb, var(--vscode-focusBorder) 50%, transparent) 0%, transparent 100%);
+    filter: blur(25px);
     animation: audioWavePrimary 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate paused;
 }
 
-/* Layer 2: Sharper, shorter pulse */
+/* Layer 2: Sharper, shorter pulse (Inner Core) */
 .player-content::after {
     height: 60px;
-    background: linear-gradient(to top, color-mix(in srgb, var(--vscode-focusBorder) 55%, transparent) 0%, transparent 100%);
+    background: radial-gradient(ellipse 60% 100% at bottom center, color-mix(in srgb, var(--vscode-focusBorder) 60%, transparent) 0%, transparent 100%);
     filter: blur(14px);
     animation: audioWaveSecondary 1.9s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate-reverse paused;
 }
 
 /* Playing state: Trigger overlapping waves to simulate a living audio spectrum */
 #screen-player.is-playing .player-content::before {
-    opacity: 0.7;
+    opacity: 0.6;
     animation-play-state: running;
 }
 
 #screen-player.is-playing .player-content::after {
-    opacity: 0.9;
+    opacity: 0.8;
     animation-play-state: running;
 }
 
