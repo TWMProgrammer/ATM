@@ -48,11 +48,18 @@ export class Decorator {
         options.fontStyle = tag.fontStyle;
       }
 
-      // Add overview ruler markers on the scrollbar
+      // OPTION 2: "Word" highlighted tags (Badges)
+      if (tag.type === 'word') {
+        options.borderRadius = '3px';
+      }
+
+      // Add overview ruler markers on the scrollbar (scroll line)
       if (tag.type === 'word' && tag.backgroundColor) {
-        options.overviewRulerLane = vscode.OverviewRulerLane.Right;
+        // Use 'Full' lane for word tags (TODO, FIXME, MARK) to make them more striking!
+        options.overviewRulerLane = vscode.OverviewRulerLane.Full;
         options.overviewRulerColor = tag.backgroundColor;
       } else if (tag.type === 'line' && tag.color) {
+        // Normal lane (Right) for line annotations (~, !, etc.)
         options.overviewRulerLane = vscode.OverviewRulerLane.Right;
         options.overviewRulerColor = tag.color;
       }
