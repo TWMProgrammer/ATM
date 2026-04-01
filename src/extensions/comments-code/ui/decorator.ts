@@ -11,8 +11,10 @@ function getSvgDataUri(iconType: string | undefined, color: string | undefined):
         d = "M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zM7.5 11h1v1h-1v-1zM7.5 5h1v5h-1V5z";
         break;
     case 'todo':
+        d = "M13.4 5.4l-5.4 5.4-5.4-5.4 1.4-1.4 4 4 4-4 1.4 1.4z"; // Chevron down (⌄)
+        break;
     case 'note':
-        d = "M13.71 4.71L12.3 3.3l-5.65 5.66-2.95-2.95-1.41 1.41 4.36 4.36 7.06-7.07z"; 
+        d = "M13.71 4.71L12.3 3.3l-5.65 5.66-2.95-2.95-1.41 1.41 4.36 4.36 7.06-7.07z"; // Checkmark
         break;
     case 'mark':
         d = "M3 2v13l5-3.33L13 15V2H3zm1 1h8v9.75l-4-2.67-4 2.67V3z";
