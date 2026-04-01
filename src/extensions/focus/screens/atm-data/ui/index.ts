@@ -40,9 +40,14 @@ function cachePill(id: string): PillElements | null {
 
 /** Safely inject SVG markup using a sandboxed template element (no XSS risk). */
 function safeSetSVG(element: HTMLElement, svgHtml: string): void {
+  // Performance: Avoid re-parsing and GC churn if the SVG is already set
+  if ((element as any)._cachedSvg === svgHtml) { return; }
+  
   const tpl = document.createElement('template');
   tpl.innerHTML = svgHtml;
   element.replaceChildren(tpl.content.cloneNode(true));
+  
+  (element as any)._cachedSvg = svgHtml;
 }
 
 /** Apply stat data to a cached pill (no DOM query, direct property set). */

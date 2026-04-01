@@ -101,6 +101,15 @@ export async function refreshScreenshotPanelData(nickname: string) {
 
 
 
+// Cache to avoid hitting Github API limits on rapid refreshes
+const GH_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+let githubCache: { 
+    nickname: string;
+    profile: any;
+    html: string;
+    timestamp: number;
+} | null = null;
+
 async function fetchDashboardData(nickname: string) {
     let commitsToday = 0;
     let filesChanged = 0;
@@ -164,8 +173,31 @@ async function fetchDashboardData(nickname: string) {
             }).on('error', reject);
         });
 
-        try {
-            const [ghData, html] = await Promise.all([fetchProfile, fetchContributions]);
+        // Check Memory Cache First
+        if (githubCache && githubCache.nickname === cleanNick && (Date.now() - githubCache.timestamp < GH_CACHE_TTL)) {
+            // Re-use cached data directly
+            try {
+                processGithubData(githubCache.profile, githubCache.html);
+            } catch (e) {
+                console.error('[ATM Screenshot] Cache processing error:', e);
+            }
+        } else {
+            // Fresh Fetch
+            try {
+                const [ghData, html] = await Promise.all([fetchProfile, fetchContributions]);
+                githubCache = {
+                    nickname: cleanNick,
+                    profile: ghData,
+                    html: html,
+                    timestamp: Date.now()
+                };
+                await processGithubData(ghData, html);
+            } catch (e) {
+                console.error('[ATM Screenshot] Fetch error:', e);
+            }
+        }
+
+        async function processGithubData(ghData: any, html: string) {
 
             // Profile Data
             followers  = typeof ghData.followers  === 'number' ? ghData.followers  : 0;
@@ -236,8 +268,6 @@ async function fetchDashboardData(nickname: string) {
             }
             totalCommits = weekCommits;
 
-        } catch (e) {
-            console.error('[ATM Screenshot] Fetch error:', e);
         }
     }
 
