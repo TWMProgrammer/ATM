@@ -20,6 +20,22 @@ export class Decorator {
         backgroundColor: tag.backgroundColor,
       };
 
+      // OPTION 1: "Whole Line" highlighted
+      if (tag.type === 'line') {
+        options.isWholeLine = true;
+        
+        // If it doesn't have an explicit backgroundColor, derive from main color
+        if (!options.backgroundColor && tag.color) {
+          let baseColor = tag.color;
+          // If color has alpha channel (e.g. #3297fbff), strip it
+          if (baseColor.length === 9) {
+            baseColor = baseColor.slice(0, 7);
+          }
+          // Add highly transparent alpha channel (e.g., 22 = ~13% opacity)
+          options.backgroundColor = baseColor + '22';
+        }
+      }
+
       if (tag.strikethrough) {
         options.textDecoration = 'line-through';
       }
