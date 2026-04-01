@@ -9,6 +9,7 @@ export interface CommentTag {
   strikethrough?: boolean;
   fontWeight?: string; // bold?
   fontStyle?: string; // italic?
+  gutterIcon?: 'alert' | 'question' | 'todo' | 'fixme' | 'note' | 'mark';
 }
 
 /* =========================================================
@@ -16,10 +17,10 @@ export interface CommentTag {
  * ========================================================= */
 export const defaultTags: CommentTag[] = [
   // Colorful Line Comments (colors the whole line from the tag onwards)
-  { text: '!', type: 'line', color: '#FF3333', fontStyle: 'italic' },     // Alert / Error    → Red
-  { text: '?', type: 'line', color: '#3297fbff', fontStyle: 'italic' },   // Question         → Blue
+  { text: '!', type: 'line', color: '#FF3333', fontStyle: 'italic', gutterIcon: 'alert' },     // Alert / Error    → Red
+  { text: '?', type: 'line', color: '#3297fbff', fontStyle: 'italic', gutterIcon: 'question' },   // Question         → Blue
   { text: '*', type: 'line', color: '#464646', fontStyle: 'italic' },   // Highlight        → Purple
-  { text: '^', type: 'line', color: '#FFD602', fontStyle: 'italic' },     // Warning          → Yellow
+  { text: '^', type: 'line', color: '#FFD602', fontStyle: 'italic', gutterIcon: 'fixme' },     // Warning          → Yellow
   { text: '#', type: 'line', color: '#ff7a27', fontStyle: 'italic' },     // Section / Header → Orange
   { text: '$', type: 'line', color: '#4ae4fc', fontStyle: 'italic' },   // Resource / Value → Sky Blue
   { text: '%', type: 'line', color: '#ffffff', fontStyle: 'italic' },     // Ratio / Percent  → Amber
@@ -35,6 +36,7 @@ export const defaultTags: CommentTag[] = [
     color: '#1a1a1a',
     backgroundColor: '#FFD602',
     fontWeight: 'bold',
+    gutterIcon: 'todo',
   },
   {
     text: 'FIXME:',
@@ -42,6 +44,7 @@ export const defaultTags: CommentTag[] = [
     color: '#ffffff',
     backgroundColor: '#ff3366ff',
     fontWeight: 'bold',
+    gutterIcon: 'fixme',
   },
   {
     text: 'NOTE:',
@@ -49,6 +52,7 @@ export const defaultTags: CommentTag[] = [
     color: '#ffffff',
     backgroundColor: '#23D18B',
     fontWeight: 'bold',
+    gutterIcon: 'note',
   },
   {
     text: 'MARK:',
@@ -56,5 +60,6 @@ export const defaultTags: CommentTag[] = [
     color: '#ffffff',
     backgroundColor: '#5A6A85',
     fontWeight: 'bold',
+    gutterIcon: 'mark',
   },
 ];
