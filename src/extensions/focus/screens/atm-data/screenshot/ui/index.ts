@@ -308,7 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Enable download button
                 const dBtn = document.getElementById('downloadBtn');
-                if (dBtn) dBtn.classList.add('ready');
+                if (dBtn) {
+                    dBtn.classList.add('ready');
+                }
             });
         } else if (msg.command === 'showSkeletons') {
             // Remove lingering animations
@@ -319,9 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Apply skeletons using the unified rows 
             UI_ROW_GROUPS.flat().forEach(selector => {
-                if (selector === 'HEATMAP' || selector === 'downloadBtn' || selector.startsWith('.')) return;
+                if (selector === 'HEATMAP' || selector === 'downloadBtn' || selector.startsWith('.')) {
+                    return;
+                }
                 const el = document.getElementById(selector);
-                if (el) el.classList.add('skeleton');
+                if (el) {
+                    el.classList.add('skeleton');
+                }
             });
             const heatmapCells = document.querySelectorAll('.heatmap-cell');
             heatmapCells.forEach(cell => cell.classList.add('skeleton'));
