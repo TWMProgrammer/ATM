@@ -215,14 +215,21 @@ body::after {
 }
 
 .stat-main {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--text-primary);
 }
 
 .stat-sub {
-    font-size: 12px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: color-mix(in srgb, var(--text-primary) 60%, transparent);
+    background: color-mix(in srgb, var(--border-color) 30%, transparent);
+    padding: 3px 6px;
+    border-radius: 6px;
+    margin-top: 2px;
 }
 
 /* --- 2. Heatmap Section --- */
@@ -351,14 +358,16 @@ body::after {
 .bento-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-gap: 12px;
+    grid-template-rows: 1fr 1fr auto;
+    grid-gap: 16px;
+    flex: 1; /* Stretches the grid to fill empty space at the bottom */
 }
 
 .bento-card {
     background: color-mix(in srgb, var(--card-bg) 45%, transparent);
     border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 14px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -382,6 +391,7 @@ body::after {
 }
 
 .bento-card.col-2 { grid-column: span 2; }
+.bento-card.col-3 { grid-column: span 3; }
 .bento-card.col-4 { grid-column: span 4; }
 
 .bento-header {
