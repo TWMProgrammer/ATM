@@ -5,6 +5,16 @@ const vscode = acquireVsCodeApi();
 
 let isTakingSnapshot = false;
 
+// Unified semantic groups to prevent missing skeletons when adding UI elements
+const UI_ROW_GROUPS = [
+    ['ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio'], // Row 1: Profile details
+    ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits'],                   // Row 2: Heatmap stats
+    ['HEATMAP'],                                                                     // Row 3: Heatmap grid
+    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-pomodoro', 'ui-stat-files', 'ui-stat-streak-full', 'ui-stat-active-days'], // Row 4: Cards
+    ['ui-stat-music', '.bento-icon-wrapper', '.music-waves'],                        // Row 5: Music Widget
+    ['downloadBtn']                                                                  // Row 6: Footer Actions
+];
+
 document.addEventListener('DOMContentLoaded', () => {
     const containerNode = document.querySelector('.dashboard-container') as HTMLElement | null;
     const actionFooter = document.getElementById('actionFooter') as HTMLElement | null;
@@ -224,26 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Remove skeletons to reveal UI with staggered top-to-bottom animation
             requestAnimationFrame(() => {
-                // Group UI elements roughly by semantic rows
-                const rowGroups = [
-                    // Row 1: Profile details
-                    ['ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio'],
-                    // Row 2: Heatmap stats
-                    ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits'],
-                    // Row 3: The actual heatmap grid (we'll just use a special string to denote it)
-                    ['HEATMAP'],
-                    // Row 4: Today stats cards
-                    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-pomodoro', 'ui-stat-files', 'ui-stat-streak-full', 'ui-stat-active-days'],
-                    // Row 5: Music Widget
-                    ['ui-stat-music', '.bento-icon-wrapper', '.music-waves'],
-                    // Row 6: Footer Actions
-                    ['downloadBtn']
-                ];
-
                 let heatmapDelay = 0;
 
                 // Animate elements row by row
-                rowGroups.forEach((group, rowIndex) => {
+                UI_ROW_GROUPS.forEach((group, rowIndex) => {
                     const delay = rowIndex * 0.1; // 100ms per row wave
 
                     group.forEach(selector => {
@@ -323,17 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 (el as HTMLElement).style.animationDelay = '';
             });
 
-            const elsToSkeleton = [
-                'ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio',
-                'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits',
-                'ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak-full',
-                'ui-stat-active-days', 'ui-stat-pomodoro', 'ui-stat-music'
-            ];
-            elsToSkeleton.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.classList.add('skeleton');
-                }
+            // Apply skeletons using the unified rows 
+            UI_ROW_GROUPS.flat().forEach(selector => {
+                if (selector === 'HEATMAP' || selector === 'downloadBtn' || selector.startsWith('.')) return;
+                const el = document.getElementById(selector);
+                if (el) el.classList.add('skeleton');
             });
             const heatmapCells = document.querySelectorAll('.heatmap-cell');
             heatmapCells.forEach(cell => cell.classList.add('skeleton'));
