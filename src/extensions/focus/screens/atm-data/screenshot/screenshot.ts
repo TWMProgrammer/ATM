@@ -125,7 +125,6 @@ async function fetchDashboardData(nickname: string) {
     let heatmapData: number[] = [];
     let heatmapGrid: number[] = []; // Padded grid with -1 for empty slots
     let heatmapMonthPositions: { month: number; col: number }[] = [];
-    let totalWeeks = 52;
 
     // --- Real active time + local stats from ATMDataProvider singleton ---
     let timeLabel = "0m";
@@ -278,7 +277,6 @@ async function fetchDashboardData(nickname: string) {
                     cellMap.set(`${weekIdx}_${dow}`, cell.level);
                     if (weekIdx > maxWeekIdx) { maxWeekIdx = weekIdx; }
                 }
-                totalWeeks = maxWeekIdx + 1;
 
                 // Calculate month label positions: first week where each month appears
                 const monthPositions: { month: number; col: number }[] = [];
@@ -362,7 +360,6 @@ async function fetchDashboardData(nickname: string) {
         heatmapData,
         heatmapGrid,
         heatmapMonthPositions,
-        totalWeeks,
         activeDays
     };
 }
