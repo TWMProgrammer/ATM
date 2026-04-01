@@ -26,7 +26,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 
 		ATMDataProvider.getInstance().setWebview(webviewView);
 
-		webviewView.webview.onDidReceiveMessage((message) => {
+		webviewView.webview.onDidReceiveMessage(async (message) => {
 			if (message.type === 'open_screenshot') {
 				openScreenshotPanel(this._extensionUri, message.payload, (isOpen: boolean) => {
 					webviewView.webview.postMessage({ type: 'screenshot_state_changed', isOpen });
@@ -34,12 +34,17 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 				return;
 			}
 			if (message.type === 'refresh_screenshot') {
-				refreshScreenshotPanelData(message.nickname);
+				const refreshed = await refreshScreenshotPanelData(message.payload);
+				if (!refreshed) {
+					openScreenshotPanel(this._extensionUri, message.payload, (isOpen: boolean) => {
+						webviewView.webview.postMessage({ type: 'screenshot_state_changed', isOpen });
+					});
+				}
 				return;
 			}
 			if (message.type === 'nickname_updated') {
 				ATMDataProvider.getInstance().setNickname(message.nickname);
-				refreshScreenshotPanelData(message.nickname);
+				refreshScreenshotPanelData({ nickname: message.nickname });
 				return;
 			}
 			if (message.type === 'request_stats_update') {

@@ -10,13 +10,16 @@ import { ATMDataProvider } from '../core/provider';
 const execAsync = util.promisify(exec);
 
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
+let currentPayload: { nickname?: string, song?: string | null, pomodoros?: number } = {};
 
-export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?: string, nickname?: string }, onStateChange?: (isOpen: boolean) => void) {
-  if (currentPanel) {
-    updateScreenshotContent(currentPanel, extensionUri, payload);
-    currentPanel.reveal(vscode.ViewColumn.One);
-    return;
-  }
+export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?: string, nickname?: string, song?: string | null, pomodoros?: number }, onStateChange?: (isOpen: boolean) => void) {
+  if (payload) { currentPayload = { ...currentPayload, ...payload }; }
+  
+    if (currentPanel) {
+        updateScreenshotContent(currentPanel, extensionUri, payload ?? currentPayload);
+        currentPanel.reveal(vscode.ViewColumn.One);
+        return;
+    }
 
   currentPanel = vscode.window.createWebviewPanel(
     'atomScreenshot',
@@ -69,7 +72,9 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
           return;
         case 'requestData':
           try {
-            const data = await fetchDashboardData(message.nickname);
+            const data: any = await fetchDashboardData(message.nickname);
+            data.song = currentPayload.song;
+            data.pomodoros = currentPayload.pomodoros;
             currentPanel?.webview.postMessage({ command: 'updateData', data });
           } catch (e) {
             console.error(e);
@@ -80,23 +85,31 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
     undefined,
   );
 
-  updateScreenshotContent(currentPanel, extensionUri, payload);
+    updateScreenshotContent(currentPanel, extensionUri, payload ?? currentPayload);
 }
 
-export async function refreshScreenshotPanelData(nickname: string) {
+export async function refreshScreenshotPanelData(payload: { nickname?: string, song?: string | null, pomodoros?: number }) {
+    if (payload) { currentPayload = { ...currentPayload, ...payload }; }
+
     if (!currentPanel) {
-        return;
+        return false;
     }
     
     // Tell webview to show skeletons while we load new data
     currentPanel.webview.postMessage({ command: 'showSkeletons' });
     
     try {
-        const data = await fetchDashboardData(nickname);
-        currentPanel.webview.postMessage({ command: 'updateData', data, newNickname: nickname });
+        const nicknameToUse = payload.nickname || currentPayload.nickname || 'Player';
+        const data: any = await fetchDashboardData(nicknameToUse);
+        data.song = currentPayload.song;
+        data.pomodoros = currentPayload.pomodoros;
+        
+        currentPanel.webview.postMessage({ command: 'updateData', data, newNickname: nicknameToUse });
     } catch (e) {
         console.error('Error refreshing screenshot data:', e);
     }
+
+    return true;
 }
 
 
@@ -179,7 +192,7 @@ async function fetchDashboardData(nickname: string) {
         if (githubCache && githubCache.nickname === cleanNick && (Date.now() - githubCache.timestamp < GH_CACHE_TTL)) {
             // Re-use cached data directly
             try {
-                processGithubData(githubCache.profile, githubCache.html);
+                await processGithubData(githubCache.profile, githubCache.html);
             } catch (e) {
                 console.error('[ATM Screenshot] Cache processing error:', e);
             }
@@ -196,6 +209,14 @@ async function fetchDashboardData(nickname: string) {
                 await processGithubData(ghData, html);
             } catch (e) {
                 console.error('[ATM Screenshot] Fetch error:', e);
+                // If a fresh fetch fails (network/rate-limit), keep UI useful with stale cache.
+                if (githubCache && githubCache.nickname === cleanNick) {
+                    try {
+                        await processGithubData(githubCache.profile, githubCache.html);
+                    } catch (cacheErr) {
+                        console.error('[ATM Screenshot] Stale cache processing error:', cacheErr);
+                    }
+                }
             }
         }
 
@@ -239,19 +260,52 @@ async function fetchDashboardData(nickname: string) {
             // Contributions HTML Data - Parse the full grid structure
             // GitHub's HTML contains <td> elements with data-date and data-level attributes
             // organized in week columns (Sunday through Saturday)
-            const cellRegex = /data-date="(\d{4}-\d{2}-\d{2})"[^>]*data-level="(\d+)"/g;
-            let cellMatch;
-            const allCells: { date: string; level: number }[] = [];
-            while ((cellMatch = cellRegex.exec(html)) !== null) {
-                allCells.push({ date: cellMatch[1], level: parseInt(cellMatch[2], 10) });
+            const dayTagRegex = /<td[^>]*data-date="(\d{4}-\d{2}-\d{2})"[^>]*>/g;
+            let dayMatch;
+            const allCells: { date: string; level: number; count: number | null }[] = [];
+            while ((dayMatch = dayTagRegex.exec(html)) !== null) {
+                const date = dayMatch[1];
+                const tag = dayMatch[0];
+
+                const levelMatch = tag.match(/data-level="(\d+)"/i);
+                const level = levelMatch ? parseInt(levelMatch[1], 10) : 0;
+
+                let count: number | null = null;
+                const dataCountMatch = tag.match(/data-count="(\d+)"/i);
+                if (dataCountMatch) {
+                    count = parseInt(dataCountMatch[1], 10);
+                }
+
+                if (count === null) {
+                    const ariaMatch = tag.match(/aria-label="([^"]+)"/i);
+                    if (ariaMatch && ariaMatch[1]) {
+                        const label = ariaMatch[1];
+                        const countMatch = label.match(/(\d[\d,]*)\s+contributions?/i);
+                        if (countMatch) {
+                            count = parseInt(countMatch[1].replace(/,/g, ''), 10);
+                        } else if (/no\s+contributions?/i.test(label)) {
+                            count = 0;
+                        }
+                    }
+                }
+
+                allCells.push({ date, level, count });
             }
 
-            // Fallback: if data-date comes after data-level in HTML
+            // Fallback: if <td> matching fails, parse loose attribute patterns
             if (allCells.length === 0) {
-                const altRegex = /data-level="(\d+)"[^>]*data-date="(\d{4}-\d{2}-\d{2})"/g;
-                let altMatch;
-                while ((altMatch = altRegex.exec(html)) !== null) {
-                    allCells.push({ date: altMatch[2], level: parseInt(altMatch[1], 10) });
+                const cellRegex = /data-date="(\d{4}-\d{2}-\d{2})"[^>]*data-level="(\d+)"/g;
+                let cellMatch;
+                while ((cellMatch = cellRegex.exec(html)) !== null) {
+                    allCells.push({ date: cellMatch[1], level: parseInt(cellMatch[2], 10), count: null });
+                }
+
+                if (allCells.length === 0) {
+                    const altRegex = /data-level="(\d+)"[^>]*data-date="(\d{4}-\d{2}-\d{2})"/g;
+                    let altMatch;
+                    while ((altMatch = altRegex.exec(html)) !== null) {
+                        allCells.push({ date: altMatch[2], level: parseInt(altMatch[1], 10), count: null });
+                    }
                 }
             }
 
@@ -259,6 +313,15 @@ async function fetchDashboardData(nickname: string) {
                 // Sort cells chronologically to handle any HTML ordering
                 allCells.sort((a, b) => a.date.localeCompare(b.date));
                 heatmapData = allCells.map(c => c.level);
+
+                // Preferred source for exact values: per-day contribution counts in aria/data-count.
+                const dayCounts = allCells
+                    .map(c => c.count)
+                    .filter((count): count is number => typeof count === 'number');
+                if (dayCounts.length > 0) {
+                    totalCommitsYear = dayCounts.reduce((sum, count) => sum + count, 0);
+                    totalCommits = dayCounts.slice(-7).reduce((sum, count) => sum + count, 0);
+                }
 
                 // Calculate week index for each cell based on the earliest date
                 const startDate = new Date(allCells[0].date + 'T00:00:00');
@@ -312,9 +375,18 @@ async function fetchDashboardData(nickname: string) {
                 }
             }
 
-            const yearlyMatch = html.match(/([\d,]+)\s+contributions?\s+in\s+the\s+last\s+year/i);
-            if (yearlyMatch) {
-                totalCommitsYear = parseInt(yearlyMatch[1].replace(/,/g, ''), 10);
+            if (totalCommitsYear === 0) {
+                const yearlyPatterns = [
+                    /([\d,]+)\s+contributions?\s+in\s+the\s+last\s+year/i,
+                    /([\d,]+)\s+contributions?\s+in\s+\d{4}/i,
+                ];
+                for (const pattern of yearlyPatterns) {
+                    const yearlyMatch = html.match(pattern);
+                    if (yearlyMatch && yearlyMatch[1]) {
+                        totalCommitsYear = parseInt(yearlyMatch[1].replace(/,/g, ''), 10);
+                        break;
+                    }
+                }
             }
 
             if (heatmapData.length > 0) {
@@ -325,19 +397,21 @@ async function fetchDashboardData(nickname: string) {
                 dayStreak = streak;
             }
 
-            // Parse exact commits from the last 7 days using tool-tips
-            let weekCommits = 0;
-            const tooltips = html.match(/<tool-tip[^>]*>([^<]+)<\/tool-tip>/g);
-            if (tooltips) {
-                const last7Days = tooltips.slice(-7);
-                for (const tt of last7Days) {
-                    const innerMatch = tt.match(/>(\d+)\s+contribution/i);
-                    if (innerMatch && innerMatch[1]) {
-                        weekCommits += parseInt(innerMatch[1], 10);
+            // Fallback for weekly commits when per-day counts are not available.
+            if (totalCommits === 0) {
+                let weekCommits = 0;
+                const tooltips = html.match(/<tool-tip[^>]*>([^<]+)<\/tool-tip>/g);
+                if (tooltips) {
+                    const last7Days = tooltips.slice(-7);
+                    for (const tt of last7Days) {
+                        const innerMatch = tt.match(/>(\d[\d,]*)\s+contribution/i);
+                        if (innerMatch && innerMatch[1]) {
+                            weekCommits += parseInt(innerMatch[1].replace(/,/g, ''), 10);
+                        }
                     }
                 }
+                totalCommits = weekCommits;
             }
-            totalCommits = weekCommits;
 
         }
     }
@@ -396,9 +470,11 @@ async function handleSaveImage(dataBase64: string, ext: string = 'jpg') {
 
 function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, payload?: { image?: string, nickname?: string }) {
   let nicknameDisplay = 'Atom';
-  if (payload?.nickname) {
-    nicknameDisplay = payload.nickname.startsWith('@') ? payload.nickname : `@${payload.nickname}`;
-  }
+    if (payload?.nickname) {
+        nicknameDisplay = payload.nickname.startsWith('@') ? payload.nickname : `@${payload.nickname}`;
+    } else if (currentPayload.nickname) {
+        nicknameDisplay = currentPayload.nickname.startsWith('@') ? currentPayload.nickname : `@${currentPayload.nickname}`;
+    }
 
   // Load UI files
   const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.html');

@@ -5,6 +5,16 @@ const vscode = acquireVsCodeApi();
 
 let isTakingSnapshot = false;
 
+// Unified semantic groups to prevent missing skeletons when adding UI elements
+const UI_ROW_GROUPS = [
+    ['ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio'], // Row 1: Profile details
+    ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits'],                   // Row 2: Heatmap stats
+    ['HEATMAP'],                                                                     // Row 3: Heatmap grid
+    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-pomodoro', 'ui-stat-files', 'ui-stat-streak-full', 'ui-stat-active-days'], // Row 4: Cards
+    ['ui-stat-music', '.bento-icon-wrapper', '.music-waves'],                        // Row 5: Music Widget
+    ['downloadBtn']                                                                  // Row 6: Footer Actions
+];
+
 document.addEventListener('DOMContentLoaded', () => {
     const containerNode = document.querySelector('.dashboard-container') as HTMLElement | null;
     const actionFooter = document.getElementById('actionFooter') as HTMLElement | null;
@@ -156,14 +166,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ui-commits': `${data.totalCommits.toLocaleString()} Commits`,
                 'ui-years': `Week`,
                 'ui-heat-year': currentYear,
-                'ui-heat-commits': `${data.totalCommitsYear.toLocaleString()} Commits,`,
-                'ui-heat-days': `${data.activeDays || 0} Days,`,
-                'ui-heat-streak': `${data.dayStreak} Days`,
+                'ui-heat-commits': `${data.totalCommitsYear.toLocaleString()} Commits`,
                 'ui-stat-time': data.timeLabel,
                 'ui-stat-commits': data.commitsToday.toString(),
                 'ui-stat-files': data.filesChanged.toString(),
-                'ui-stat-streak': data.dayStreak.toString()
+                'ui-stat-streak-full': `${data.dayStreak} Days`,
+                'ui-stat-active-days': (data.activeDays || 0).toString(),
+                'ui-stat-pomodoro': (data.pomodoros || 0).toString(),
             };
+
+            const musicText = data.song && data.song.length > 0 ? data.song : 'No track loaded';
+            const musicEl = document.getElementById('ui-stat-music');
+            if (musicEl) {
+                musicEl.textContent = musicText;
+                musicEl.style.width = 'auto';
+                musicEl.style.height = 'auto';
+            }
 
             // Update Month Labels dynamically
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -216,24 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Remove skeletons to reveal UI with staggered top-to-bottom animation
             requestAnimationFrame(() => {
-                // Group UI elements roughly by semantic rows
-                const rowGroups = [
-                    // Row 1: Profile details
-                    ['ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio'],
-                    // Row 2: Heatmap stats
-                    ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days', 'ui-heat-streak', '.heatmap-fire'],
-                    // Row 3: The actual heatmap grid (we'll just use a special string to denote it)
-                    ['HEATMAP'],
-                    // Row 4: Today stats cards
-                    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak'],
-                    // Row 5: Footer Actions
-                    ['downloadBtn']
-                ];
-
                 let heatmapDelay = 0;
 
                 // Animate elements row by row
-                rowGroups.forEach((group, rowIndex) => {
+                UI_ROW_GROUPS.forEach((group, rowIndex) => {
                     const delay = rowIndex * 0.1; // 100ms per row wave
 
                     group.forEach(selector => {
@@ -304,7 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Enable download button
                 const dBtn = document.getElementById('downloadBtn');
-                if (dBtn) dBtn.classList.add('ready');
+                if (dBtn) {
+                    dBtn.classList.add('ready');
+                }
             });
         } else if (msg.command === 'showSkeletons') {
             // Remove lingering animations
@@ -313,13 +319,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 (el as HTMLElement).style.animationDelay = '';
             });
 
-            const elsToSkeleton = [
-                'ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio',
-                'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days',
-                'ui-heat-streak', 'ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak'
-            ];
-            elsToSkeleton.forEach(id => {
-                const el = document.getElementById(id);
+            // Apply skeletons using the unified rows 
+            UI_ROW_GROUPS.flat().forEach(selector => {
+                if (selector === 'HEATMAP' || selector === 'downloadBtn' || selector.startsWith('.')) {
+                    return;
+                }
+                const el = document.getElementById(selector);
                 if (el) {
                     el.classList.add('skeleton');
                 }

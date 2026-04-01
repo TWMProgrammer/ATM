@@ -63,7 +63,7 @@ export class PomodoroTimer {
                 this.pause();
                 this.callbacks.onEnd();
             }
-        }, 200); // Check more frequently for higher precision
+        }, 1000); // 1000ms (1s) saves CPU wake-ups in the renderer
     }
 
     public pause() {

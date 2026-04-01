@@ -15,10 +15,11 @@ export function createAtmTimeController() {
     
     let currentMode: TimerMode = 'focus';
     let isCurrentlyPlaying = false;
+    let pomodorosCompleted = 0;
 
     const updateModeButtonText = (mode: TimerMode) => {
         if (btnToggleMode) {
-            btnToggleMode.textContent = mode === 'focus' ? '25m' : '5m';
+            btnToggleMode.textContent = mode === 'focus' ? '5m' : '25m';
             btnToggleMode.title = mode === 'focus' ? 'Switch to Break (5m)' : 'Switch to Focus (25m)';
             
             // Highlight color in break mode to differentiate
@@ -62,12 +63,17 @@ export function createAtmTimeController() {
             currentMode = mode;
         },
         onEnd: () => {
+            if (currentMode === 'focus') {
+                pomodorosCompleted++;
+            }
             // Smooth natural transition to blue gradient when time ends
             if (display) {
                 display.classList.add('timer-complete');
             }
         }
     });
+
+    (timer as any).getCompletedPomodoros = () => pomodorosCompleted;
 
     // Event Listeners
     btnPlay?.addEventListener('click', () => timer.play());

@@ -492,17 +492,24 @@ export class MusicPlayerUI {
             if (e.code === 'Space') {
                 // Do not trigger if user is typing in an input or textarea
                 const activeTag = document.activeElement?.tagName;
-                if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+                const isContentEditable = (document.activeElement as HTMLElement)?.isContentEditable;
+                if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || isContentEditable) {
                     return;
                 }
                 
-                // Only trigger if we are actively viewing the player screen
-                const playerScreen = document.getElementById('screen-player');
-                if (playerScreen && playerScreen.classList.contains('active')) {
-                    e.preventDefault(); // Prevent scrolling or clicking other focused buttons
+                // EXCEPTION: Let the Time (Pomodoro) screen handle spacebar for its own timer
+                const timeScreen = document.getElementById('screen-time');
+                if (timeScreen && timeScreen.classList.contains('active')) {
+                    return;
+                }
+                
+                // If there is an active track loaded, hijack Space to toggle music playback globally
+                if (this.audioPlayer && this.audioPlayer.src) {
+                    e.preventDefault(); // Prevent scrolling
+                    e.stopImmediatePropagation(); // Absolute priority over anything else
                     this.togglePlayback();
                 }
             }
-        });
+        }, true); // Use capture phase to catch the event before other modules
     }
 }
