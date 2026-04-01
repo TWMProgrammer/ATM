@@ -423,17 +423,17 @@ function buildHoverMarkdown(
 
   // ── Metadata chips ──
   if (meta && (meta.dimensions || meta.fileSize)) {
-    const chips: string[] = [];
-
-    if (meta.dimensions) {
-      chips.push(`📐 ${meta.dimensions}px`);
-    }
-    if (meta.fileSize) {
-      chips.push(`💾 ${meta.fileSize}`);
-    }
+    const formattedDims = meta.dimensions ? meta.dimensions.replace(/x/gi, ' x ') + 'px' : '';
+    const fileSize = meta.fileSize ? meta.fileSize : '';
 
     lines.push('');
-    lines.push(chips.join(' &nbsp;·&nbsp; '));
+    
+    // Use an HTML table to perfectly align left and right without hardcoded spaces
+    if (formattedDims && fileSize) {
+      lines.push(`<table width="100%"><tr><td align="left">${formattedDims}</td><td align="right">${fileSize}</td></tr></table>`);
+    } else {
+      lines.push(formattedDims || fileSize);
+    }
   }
 
   // ── Action bar ──
