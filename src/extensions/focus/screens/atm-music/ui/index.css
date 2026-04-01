@@ -278,6 +278,33 @@
     color: var(--vscode-descriptionForeground);
 }
 
+/* Glow orb on the full player screen — covers header + controls like atm-data */
+#screen-player {
+    position: relative;
+}
+
+#screen-player::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(55, 148, 255, 0.15) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(40px);
+    transition: background 0.5s ease;
+    animation: floatOrb 6s ease-in-out infinite alternate;
+}
+
+#screen-player > .screen-header,
+#screen-player > .player-container {
+    position: relative;
+    z-index: 1;
+}
+
 .player-container {
     flex: 1;
     display: flex;
@@ -296,6 +323,13 @@
     text-align: center;
     gap: 2px;
     animation: playerFadeIn 0.25s ease;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes floatOrb {
+    0% { transform: translate(-50%, -46%) scale(1); }
+    100% { transform: translate(-50%, -54%) scale(1.05); }
 }
 
 @keyframes playerFadeIn {
@@ -391,6 +425,8 @@
     gap: 4px;
     margin-top: 7px;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
 .control-btn {
