@@ -214,12 +214,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Remove skeletons to reveal UI
+            // Remove skeletons to reveal UI with staggered top-to-bottom animation
             requestAnimationFrame(() => {
+                // Group UI elements roughly by semantic rows
+                const rowGroups = [
+                    // Row 1: Profile details
+                    ['ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio'],
+                    // Row 2: Heatmap stats
+                    ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days', 'ui-heat-streak', '.heatmap-fire'],
+                    // Row 3: The actual heatmap grid (we'll just use a special string to denote it)
+                    ['HEATMAP'],
+                    // Row 4: Today stats cards
+                    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-files', 'ui-stat-streak'],
+                    // Row 5: Footer Actions
+                    ['downloadBtn']
+                ];
+
+                let heatmapDelay = 0;
+
+                // Animate elements row by row
+                rowGroups.forEach((group, rowIndex) => {
+                    const delay = rowIndex * 0.1; // 100ms per row wave
+
+                    group.forEach(selector => {
+                        if (selector === 'HEATMAP') {
+                            heatmapDelay = delay;
+                            if (heatmapMonths) {
+                                heatmapMonths.querySelectorAll('span').forEach(el => {
+                                    el.classList.add('reveal-anim');
+                                    (el as HTMLElement).style.animationDelay = `${delay}s`;
+                                });
+                            }
+                            return;
+                        }
+
+                        // Try finding by ID first, then fallback to classes
+                        const elements = document.getElementById(selector) 
+                            ? [document.getElementById(selector)]
+                            : Array.from(document.querySelectorAll(selector.startsWith('.') ? selector : `.${selector}`));
+
+                        elements.forEach(el => {
+                            if (el) {
+                                el.classList.remove('skeleton');
+                                el.classList.add('reveal-anim');
+                                (el as HTMLElement).style.animationDelay = `${delay}s`;
+                            }
+                        });
+                    });
+                });
+
+                // Clear any other leftover skeletons (just in case they weren't in a group)
                 document.querySelectorAll('.skeleton').forEach(el => {
                     el.classList.remove('skeleton');
                 });
-                
+
                 // Add heatmap data using the padded grid format (handles partial weeks correctly)
                 if (gridEl && data.heatmapGrid && data.heatmapGrid.length > 0) {
                     const gridData = data.heatmapGrid as number[];
@@ -229,7 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const frag = document.createDocumentFragment();
                     for (let i = 0; i < gridData.length; i++) {
                         const cell = document.createElement('div');
-                        cell.className = 'heatmap-cell';
+                        cell.className = 'heatmap-cell reveal-anim';
+                        cell.style.animationDelay = `${heatmapDelay}s`;
+                        
                         if (gridData[i] === -1) {
                             cell.classList.add('hidden');
                         } else if (gridData[i] > 0) {
@@ -243,7 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cells = document.querySelectorAll('.heatmap-cell');
                     data.heatmapData.forEach((level: number, i: number) => {
                         if (cells[i]) {
-                            cells[i].className = 'heatmap-cell';
+                            cells[i].className = 'heatmap-cell reveal-anim';
+                            (cells[i] as HTMLElement).style.animationDelay = `${heatmapDelay}s`;
                             if (level > 0) {
                                 cells[i].classList.add(`level-${level}`);
                             }
@@ -253,11 +304,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Enable download button
                 const dBtn = document.getElementById('downloadBtn');
-                if (dBtn) {
-                    dBtn.classList.add('ready');
-                }
+                if (dBtn) dBtn.classList.add('ready');
             });
         } else if (msg.command === 'showSkeletons') {
+            // Remove lingering animations
+            document.querySelectorAll('.reveal-anim').forEach(el => {
+                el.classList.remove('reveal-anim');
+                (el as HTMLElement).style.animationDelay = '';
+            });
+
             const elsToSkeleton = [
                 'ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio',
                 'ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits', 'ui-heat-days',
