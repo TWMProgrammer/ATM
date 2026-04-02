@@ -356,9 +356,12 @@ function formatTimestamp(date: Date): string {
  */
 function getModelBaseColor(label: string): string {
 	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
-		return '#60a5fa'; // vibrant blue
+		return '#3b82f6'; // modern deeper electric blue
 	}
-	if (label.includes('Claude') || label.includes('GPT-OSS')) {
+	if (label.includes('GPT-OSS')) {
+		return '#fb923c'; // soft orange to differentiate from Claude
+	}
+	if (label.includes('Claude')) {
 		return '#ecb6a4'; // peach / skin color
 	}
 	return COLOR_HEALTHY; // default flash green
