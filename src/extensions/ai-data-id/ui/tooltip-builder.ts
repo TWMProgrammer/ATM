@@ -355,37 +355,38 @@ function formatTimestamp(date: Date): string {
 }
 
 /**
- * Returns a specific branding color for a model family.
- *  - Gemini Pro: Blue
- *  - Gemini Flash: Default Green
- *  - Claude/Third-Party: Skin/Peach color matching Anthropic's style
- */
-function getModelBaseColor(label: string): string {
-	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
-		return '#3b82f6'; // modern deeper electric blue
-	}
-	if (label.includes('GPT-OSS')) {
-		return '#fb923c'; // soft orange to differentiate from Claude
-	}
-	if (label.includes('Claude')) {
-		return '#ecb6a4'; // peach / skin color
-	}
-	return COLOR_HEALTHY; // default flash green
-}
-
-/**
- * Maps a remaining-percentage value to a status color, overriding healthy with brand colors.
- *
- * | Range     | Color        | Meaning |
- * |-----------|--------------|---------|
- * | 0–14%     | Red          | Danger  |
- * | 15–39%    | Yellow       | Warning |
- * | 40–100%   | Brand Color  | Healthy |
+ * Returns a dynamic branding color that degrades as the percentage drops.
+ * Each AI family has its own unique color degradation palette.
  */
 export function getModelStatusColor(label: string, percentage: number): string {
+	// Critical exhaustion is universally Danger Red
 	if (percentage < 15) { return COLOR_DANGER; }
-	if (percentage < 40) { return COLOR_WARNING; }
-	return getModelBaseColor(label);
+
+	// Gemini Pro (Blue -> Cyan -> Purple)
+	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
+		if (percentage >= 80) return '#3b82f6'; // Electric Blue
+		if (percentage >= 50) return '#06b6d4'; // Cyan / Celeste
+		return '#a855f7'; // Purple warning
+	}
+	
+	// GPT-OSS (Orange -> Rose -> Yellow)
+	if (label.includes('GPT-OSS')) {
+		if (percentage >= 80) return '#fb923c'; // Orange
+		if (percentage >= 50) return '#f43f5e'; // Rose / Pink-Red
+		return COLOR_WARNING; // Golden Yellow
+	}
+	
+	// Claude (Peach -> Lilac -> Yellow)
+	if (label.includes('Claude')) {
+		if (percentage >= 80) return '#ecb6a4'; // Peach / Skin
+		if (percentage >= 50) return '#c084fc'; // Soft Lilac / Purple
+		return COLOR_WARNING; // Golden Yellow
+	}
+	
+	// Default / Gemini Flash (Green -> Lime -> Yellow)
+	if (percentage >= 80) return COLOR_HEALTHY; // Healthy Green
+	if (percentage >= 50) return '#84cc16'; // Lime Green
+	return COLOR_WARNING; // Golden Yellow
 }
 
 /**
