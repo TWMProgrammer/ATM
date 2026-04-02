@@ -144,21 +144,26 @@ function buildPlanBadge(teamsTier: string | undefined, planName: string | undefi
 	return `<span style="color:${color};">AI (${tierLabel})</span>`;
 }
 
-interface SimulatedCredits {
-	available: number;
-	monthly: number;
-	percentage: number;
-}
+type EngineeredCreditsResult = 
+	| { type: 'measured'; available: number; monthly: number; percentage: number }
+	| { type: 'unlimited' };
 
 /**
- * Engineers a realistic credit score based on the actual model quotas.
- * Since global credits often fall back to dummy 500/50000, we derive
- * a dynamic 5000/5000 score by assigning weighted values to model buckets.
+ * Engineers a realistic credit score based on the actual model quotas and plan tier.
+ *  - FREE: 5,000 max
+ *  - PRO: 50,000 max
+ *  - ULTRA: Unlimited (∞)
  */
-function computeEngineeredCredits(models: QuotaSnapshot['models']): SimulatedCredits {
-	const MONTHLY_FLASH = 3000;
-	const MONTHLY_PRO = 1000;
-	const MONTHLY_THIRD_PARTY = 1000;
+function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 'FREE' | 'PRO' | 'ULTRA'): EngineeredCreditsResult {
+	if (tier === 'ULTRA') {
+		return { type: 'unlimited' };
+	}
+
+	// PRO gets 10x the base 5000 budget
+	const multiplier = tier === 'PRO' ? 10 : 1;
+	const MONTHLY_FLASH = 3000 * multiplier;
+	const MONTHLY_PRO = 1000 * multiplier;
+	const MONTHLY_THIRD_PARTY = 1000 * multiplier;
 
 	// Extract percentages for each family (default to 1.0 if not found/unlimited)
 	const getPct = (matchers: string[]) => {
@@ -183,7 +188,7 @@ function computeEngineeredCredits(models: QuotaSnapshot['models']): SimulatedCre
 	const monthly = MONTHLY_FLASH + MONTHLY_PRO + MONTHLY_THIRD_PARTY;
 	const percentage = (available / monthly) * 100;
 
-	return { available, monthly, percentage };
+	return { type: 'measured', available, monthly, percentage };
 }
 
 /** Renders the summary line with credits, health, and alert counts. */
@@ -193,15 +198,26 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 	const exhausted = measured.filter(m => m.isExhausted).length;
 	const critical = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
 	
-	const engineered = computeEngineeredCredits(snapshot.models);
+	const tier = resolvePlanTier(snapshot.teamsTier, snapshot.planName);
+	const engineered = computeEngineeredCredits(snapshot.models, tier);
 
 	const parts: string[] = [];
 	
-	// Injecting our engineered credits logic
-	parts.push(
-		`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${engineered.available}/${engineered.monthly}**</span>`,
-		`$(pulse) <span style="color:${getStatusColor(Math.round(engineered.percentage))};">${Math.round(engineered.percentage)}% left</span>`
-	);
+	// Format dynamic engineered credits based on user tier
+	if (engineered.type === 'unlimited') {
+		parts.push(
+			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_PLAN_ULTRA};">**∞ Unlimited**</span>`,
+			`$(pass) <span style="color:${COLOR_HEALTHY};">Ultra Access</span>`
+		);
+	} else {
+		// Display raw numbers without comma separators as requested
+		const fmtAvail = engineered.available.toString();
+		const fmtMonth = engineered.monthly.toString();
+		parts.push(
+			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${fmtAvail}/${fmtMonth}**</span>`,
+			`$(pulse) <span style="color:${getStatusColor(Math.round(engineered.percentage))};">${Math.round(engineered.percentage)}% left</span>`
+		);
+	}
 
 	if (totalMeasured === 0) {
 		parts.push(`*<span style="color:${COLOR_TEXT_SECONDARY};">Discovering available models...</span>*`);
