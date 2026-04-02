@@ -3,10 +3,6 @@ import { defaultTags, CommentTag } from '../ui/styles';
 import { Decorator } from '../ui/decorator';
 import { getLanguageConfig, LanguageConfig } from './languages';
 
-/* =========================================================
- * 🛠️ HELPERS
- * ========================================================= */
-
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -36,15 +32,14 @@ interface LineCacheEntry {
 export class CommentsCodeController {
   private editTimeout: NodeJS.Timeout | undefined;
   private scrollTimeout: NodeJS.Timeout | undefined;
+  // Gutter icons and styles
   private decorator: Decorator;
 
-  // P2: per-line cache
+  // Cache and indexing
   private lineCache = new Map<number, LineCacheEntry>();
-  private cachedDocUri = ''; // R5: track active document URI
-
-  // P3: compiled tag index
+  private cachedDocUri = ''; 
   private lineTagRegex: RegExp | null = null;
-  private wordTagRegex: RegExp | null = null; // R2: compiled word tag regex
+  private wordTagRegex: RegExp | null = null; 
   private tagByText = new Map<string, CommentTag>();
 
   constructor() {
@@ -53,10 +48,9 @@ export class CommentsCodeController {
     this.buildTagIndex(defaultTags);
   }
 
-  /* =========================================================
-   * ⚡ INDEX BUILDER
-   * Build compiled regex + O(1) lookup map
-   * ========================================================= */
+  /**
+   * Compiles tag patterns into efficient regex for scanning.
+   */
   private buildTagIndex(tags: CommentTag[]) {
     this.tagByText.clear();
     for (const tag of tags) {
@@ -185,7 +179,7 @@ export class CommentsCodeController {
         visibleRange.end.line + extraLines,
       );
 
-      // P4: Determine block-comment state just before startLine
+      // Determine block-comment state before start line
       let inBlock =
         langConfig.blockStart && langConfig.blockEnd
           ? this.getBlockStateAt(document, startLine, langConfig)
@@ -194,7 +188,7 @@ export class CommentsCodeController {
       for (let i = startLine; i <= endLine; i++) {
         const { text } = document.lineAt(i);
 
-        // P2: Cache hit?
+        // Cache lookup
         const cached = this.lineCache.get(i);
         if (
           cached &&
@@ -202,23 +196,25 @@ export class CommentsCodeController {
           cached.inBlockAtStart === inBlock
         ) {
           for (const [tagText, ranges] of cached.ranges) {
-            if (ranges.length > 0) {
-              let arr = rangesToDecorate.get(tagText);
-              if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
-              arr.push(...ranges);
-            }
+            let arr = rangesToDecorate.get(tagText);
+            if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
+            arr.push(...ranges);
           }
           inBlock = cached.inBlockAtEnd;
           continue;
         }
 
-        // Fresh parse
         const lineRanges = new Map<string, vscode.DecorationOptions[]>();
-
         const inBlockAtStart = inBlock;
-        inBlock = this.processLine(i, text, langConfig, inBlock, lineRanges);
 
-        // P2: Store in cache
+        // Performance: Skip deep parsing for extremely long lines
+        if (text.length > 500) {
+          inBlock = this.stepBlockState(text, inBlock, langConfig.blockStart || '', langConfig.blockEnd || '');
+        } else {
+          inBlock = this.processLine(i, text, langConfig, inBlock, lineRanges);
+        }
+
+        // Update cache
         this.lineCache.set(i, {
           text,
           inBlockAtStart,
@@ -239,11 +235,9 @@ export class CommentsCodeController {
     this.decorator.applyDecorations(activeEditor, rangesToDecorate);
   }
 
-  /* =========================================================
-   * 🧩 LINE PROCESSOR
-   * Process one line, returns updated inBlock state
-   * ========================================================= */
-
+  /**
+   * Checks if a position is within template literals or strings.
+   */
   private isInsideString(text: string, pos: number): boolean {
     let inSingle = false;
     let inDouble = false;
@@ -519,20 +513,17 @@ export class CommentsCodeController {
     blockStart: string,
     blockEnd: string,
   ): boolean {
+    if (!blockStart || !blockEnd) return inBlock;
     let pos = 0;
     while (pos < text.length) {
       if (!inBlock) {
         const bsIdx = text.indexOf(blockStart, pos);
-        if (bsIdx === -1) {
-          break;
-        }
+        if (bsIdx === -1) break;
         inBlock = true;
         pos = bsIdx + blockStart.length;
       } else {
         const beIdx = text.indexOf(blockEnd, pos);
-        if (beIdx === -1) {
-          break;
-        }
+        if (beIdx === -1) break;
         inBlock = false;
         pos = beIdx + blockEnd.length;
       }

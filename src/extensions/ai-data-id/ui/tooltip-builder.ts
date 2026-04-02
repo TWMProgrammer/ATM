@@ -25,7 +25,16 @@ const COLOR_HEALTHY = '#4ade80'; // green-400  — quota ≥ 70%
 const COLOR_TEXT_PRIMARY = '#f4f4f5';   // zinc-100
 const COLOR_TEXT_SECONDARY = '#a1a1aa'; // zinc-400
 const COLOR_SEPARATOR = '#3f3f46';      // zinc-700
-const COLOR_ACCENT = '#c4b5fd';         // violet-400 — brand glow
+const COLOR_ACCENT = '#c4b5fd';         // violet-400 — brand / FREE plan
+
+// ── Plan tier colors ─────────────────────────────────────────────────
+
+/** FREE plan: brand violet */
+const COLOR_PLAN_FREE = '#c4b5fd';   // violet-400
+/** PRO plan: deep Google Blue (matches pricing page) */
+const COLOR_PLAN_PRO = '#4285f4';    // google-blue
+/** ULTRA plan: premium amber-gold */
+const COLOR_PLAN_ULTRA = '#fbbf24';  // amber-400
 
 // ── Model display order ──────────────────────────────────────────────
 
@@ -65,7 +74,7 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 	md.appendMarkdown(
 		`### <span style="color:${COLOR_TEXT_PRIMARY}; font-weight:700;">Antigravity Quota</span>` +
 		`<span style="color:${COLOR_SEPARATOR};"> · </span>` +
-		`<span style="color:${COLOR_ACCENT};">AI (Data)</span>\n\n`
+		`${buildPlanBadge(snapshot.teamsTier, snapshot.planName)}\n\n`
 	);
 	md.appendMarkdown(`${buildTopSummary(snapshot)}\n\n`);
 	md.appendMarkdown(DIVIDER);
@@ -89,19 +98,124 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 
 // ── Internal builders ────────────────────────────────────────────────
 
+/**
+ * Resolves the plan tier from the most reliable source available.
+ *
+ * Priority:
+ *  1. `teamsTier` — raw field from planInfo, usually "CONSUMER", "PRO", "ULTRA"
+ *  2. `planName`  — human-readable fallback, regex-matched to avoid "profile" triggering "pro"
+ *  3. Default to FREE if neither matches.
+ */
+export function resolvePlanTier(teamsTier: string | undefined, planName: string | undefined): 'FREE' | 'PRO' | 'ULTRA' {
+	// teamsTier is the most direct signal — check it first
+	if (teamsTier) {
+		const rawTier = teamsTier.toUpperCase();
+		if (rawTier.includes('ULTRA')) { return 'ULTRA'; }
+		if (/\bPRO\b/.test(rawTier)) { return 'PRO'; }
+		// CONSUMER / INDIVIDUAL / FREE / etc. → FREE
+		return 'FREE';
+	}
+	// Fallback: word-boundary match the human-readable plan name
+	if (planName) {
+		const lower = planName.toLowerCase();
+		if (lower.includes('ultra')) { return 'ULTRA'; }
+		// \b ensures we only match the actual word "pro", not "profile" or "product"
+		if (/\bpro\b/.test(lower)) { return 'PRO'; }
+	}
+	return 'FREE';
+}
+
+/**
+ * Builds the colored plan tier badge for the tooltip header.
+ * Format: "AI (Free)" — whole phrase shares one color per tier.
+ *
+ *  FREE  → violet  #c4b5fd
+ *  PRO   → blue    #60a5fa
+ *  ULTRA → amber   #fbbf24
+ */
+function buildPlanBadge(teamsTier: string | undefined, planName: string | undefined): string {
+	const tier = resolvePlanTier(teamsTier, planName);
+	const tierLabel = tier === 'ULTRA' ? 'Ultra' : tier === 'PRO' ? 'Pro' : 'Free';
+	const color =
+		tier === 'ULTRA' ? COLOR_PLAN_ULTRA
+		: tier === 'PRO'  ? COLOR_PLAN_PRO
+		: COLOR_PLAN_FREE;
+	// Entire "AI (Free/Pro/Ultra)" is one unified color
+	return `<span style="color:${color};">AI (${tierLabel})</span>`;
+}
+
+export type EngineeredCreditsResult = 
+	| { type: 'measured'; available: number; monthly: number; percentage: number }
+	| { type: 'unlimited' };
+
+/**
+ * Engineers a realistic credit score based on the actual model quotas and plan tier.
+ *  - FREE: 5,000 max
+ *  - PRO: 50,000 max
+ *  - ULTRA: Unlimited (∞)
+ */
+export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 'FREE' | 'PRO' | 'ULTRA'): EngineeredCreditsResult {
+	if (tier === 'ULTRA') {
+		return { type: 'unlimited' };
+	}
+
+	// PRO gets 10x the base 5000 budget
+	const multiplier = tier === 'PRO' ? 10 : 1;
+	const MONTHLY_FLASH = 3000 * multiplier;
+	const MONTHLY_PRO = 1000 * multiplier;
+	const MONTHLY_THIRD_PARTY = 1000 * multiplier;
+
+	// Extract percentages for each family (default to 1.0 if not found/unlimited)
+	const getPct = (matchers: string[]) => {
+		const matched = models.filter(m => matchers.some(matcher => m.label.includes(matcher)));
+		if (matched.length === 0) return 1.0;
+		// Use the first one since they share quota
+		const first = matched[0];
+		if (first.isExhausted) return 0.0;
+		return first.remainingPercentage !== undefined ? first.remainingPercentage / 100 : 1.0;
+	};
+
+	const pctFlash = getPct(['Flash']);
+	const pctPro = getPct(['Pro (High)', 'Pro (Low)']);
+	const pctThirdParty = getPct(['Claude', 'GPT-OSS']);
+
+	const available = Math.round(
+		(pctFlash * MONTHLY_FLASH) +
+		(pctPro * MONTHLY_PRO) +
+		(pctThirdParty * MONTHLY_THIRD_PARTY)
+	);
+	
+	const monthly = MONTHLY_FLASH + MONTHLY_PRO + MONTHLY_THIRD_PARTY;
+	const percentage = (available / monthly) * 100;
+
+	return { type: 'measured', available, monthly, percentage };
+}
+
 /** Renders the summary line with credits, health, and alert counts. */
 function buildTopSummary(snapshot: QuotaSnapshot): string {
 	const measured = snapshot.models.filter(m => m.remainingPercentage !== undefined);
 	const totalMeasured = measured.length;
 	const exhausted = measured.filter(m => m.isExhausted).length;
 	const critical = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
-	const credits = snapshot.promptCredits;
+	
+	const tier = resolvePlanTier(snapshot.teamsTier, snapshot.planName);
+	const engineered = computeEngineeredCredits(snapshot.models, tier);
 
 	const parts: string[] = [];
-	if (credits) {
+	
+	// Format dynamic engineered credits based on user tier
+	if (engineered.type === 'unlimited') {
 		parts.push(
-			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${credits.available}/${credits.monthly}**</span>`,
-			`$(pulse) <span style="color:${getStatusColor(Math.round(credits.remainingPercentage))};">${Math.round(credits.remainingPercentage)}% left</span>`
+			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_PLAN_ULTRA};">**∞ Unlimited**</span>`,
+			`$(pass) <span style="color:${COLOR_HEALTHY};">Ultra Access</span>`
+		);
+	} else {
+		// Display raw numbers without comma separators as requested
+		const fmtAvail = engineered.available.toString();
+		const fmtMonth = engineered.monthly.toString();
+		parts.push(
+			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${fmtAvail}/${fmtMonth}**</span>`,
+			`$(pulse) <span style="color:${getStatusColor(Math.round(engineered.percentage))};">${Math.round(engineered.percentage)}% left</span>`
 		);
 	}
 
@@ -156,14 +270,20 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 	}
 
 	const pct = Math.round(model.remainingPercentage!);
-	const pctColor = getStatusColor(pct);
+	const pctColor = getModelStatusColor(model.label, pct);
 	const bar = generateModernBar(pct, pctColor);
 
 	const resetText = `$(history) <span style="color:${COLOR_TEXT_SECONDARY};">${model.timeUntilResetFormatted}</span>`;
 
+	// Pad the percentage so it always takes up the same horizontal space as "100" (3 digits).
+	// We use &ensp; (en-space) because it accurately matches the width of standard numerical digits.
+	const numDigits = pct.toString().length;
+	const padding = '&ensp;'.repeat(Math.max(0, 3 - numDigits));
+	const pctText = `${padding}${pct}%`;
+
 	return (
 		`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
-		`${bar} &nbsp;&nbsp; <span style="color:${pctColor};">**${pct}%**</span> &nbsp;&nbsp;` +
+		`${bar} &nbsp;&nbsp; <span style="color:${pctColor};">**${pctText}**</span> &nbsp;&nbsp;` +
 		`<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; ${resetText}\n\n`
 	);
 }
@@ -235,14 +355,42 @@ function formatTimestamp(date: Date): string {
 }
 
 /**
- * Maps a remaining-percentage value to a status color.
- *
- * | Range     | Color   | Meaning |
- * |-----------|---------|---------|
- * | 0–14%     | Red     | Danger  |
- * | 15–39%    | Yellow  | Warning |
- * | 40–69%    | Cyan    | Info    |
- * | 70–100%   | Green   | Healthy |
+ * Returns a dynamic branding color that degrades as the percentage drops.
+ * Each AI family has its own unique color degradation palette.
+ */
+export function getModelStatusColor(label: string, percentage: number): string {
+	// Critical exhaustion is universally Danger Red
+	if (percentage < 15) { return COLOR_DANGER; }
+
+	// Gemini Pro (Blue -> Cyan -> Purple)
+	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
+		if (percentage >= 80) return '#3b82f6'; // Electric Blue
+		if (percentage >= 50) return '#06b6d4'; // Cyan / Celeste
+		return '#a855f7'; // Purple warning
+	}
+	
+	// GPT-OSS (Orange -> Rose -> Yellow)
+	if (label.includes('GPT-OSS')) {
+		if (percentage >= 80) return '#fb923c'; // Orange
+		if (percentage >= 50) return '#f43f5e'; // Rose / Pink-Red
+		return COLOR_WARNING; // Golden Yellow
+	}
+	
+	// Claude (Peach -> Lilac -> Yellow)
+	if (label.includes('Claude')) {
+		if (percentage >= 80) return '#ecb6a4'; // Peach / Skin
+		if (percentage >= 50) return '#c084fc'; // Soft Lilac / Purple
+		return COLOR_WARNING; // Golden Yellow
+	}
+	
+	// Default / Gemini Flash (Green -> Lime -> Yellow)
+	if (percentage >= 80) return COLOR_HEALTHY; // Healthy Green
+	if (percentage >= 50) return '#84cc16'; // Lime Green
+	return COLOR_WARNING; // Golden Yellow
+}
+
+/**
+ * Standard status coloration for system-wide metrics (top overview).
  */
 export function getStatusColor(percentage: number): string {
 	if (percentage < 15) { return COLOR_DANGER; }
