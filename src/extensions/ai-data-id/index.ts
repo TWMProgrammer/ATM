@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { ProcessFinder } from './core/process-finder';
 import { QuotaManager } from './core/quota-manager';
 import { QuotaSnapshot } from './core/types';
-import { buildTooltip } from './ui/tooltip-builder';
+import { buildTooltip, computeEngineeredCredits, resolvePlanTier } from './ui/tooltip-builder';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -113,10 +113,16 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 				if (measuredModels.length === 0) {
 					statusBarItem.text = `${ICON_DEFAULT} AI Data`;
 				} else {
-					const minRemaining = Math.round(
-						Math.min(...measuredModels.map(m => m.remainingPercentage ?? 100))
-					);
-					statusBarItem.text = `${getStatusBarIcon(minRemaining)} AI ${minRemaining}%`;
+					// Use the new, robust global engineered algorithm!
+					const tier = resolvePlanTier(snapshot.teamsTier, snapshot.planName);
+					const engineered = computeEngineeredCredits(snapshot.models, tier);
+					
+					if (engineered.type === 'unlimited') {
+						statusBarItem.text = `✨ AI ∞%`;
+					} else {
+						const globalPct = Math.round(engineered.percentage);
+						statusBarItem.text = `${getStatusBarIcon(globalPct)} AI ${globalPct}%`;
+					}
 				}
 			}
 

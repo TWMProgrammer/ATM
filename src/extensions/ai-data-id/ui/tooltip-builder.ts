@@ -106,7 +106,7 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
  *  2. `planName`  — human-readable fallback, regex-matched to avoid "profile" triggering "pro"
  *  3. Default to FREE if neither matches.
  */
-function resolvePlanTier(teamsTier: string | undefined, planName: string | undefined): 'FREE' | 'PRO' | 'ULTRA' {
+export function resolvePlanTier(teamsTier: string | undefined, planName: string | undefined): 'FREE' | 'PRO' | 'ULTRA' {
 	// teamsTier is the most direct signal — check it first
 	if (teamsTier) {
 		const rawTier = teamsTier.toUpperCase();
@@ -144,7 +144,7 @@ function buildPlanBadge(teamsTier: string | undefined, planName: string | undefi
 	return `<span style="color:${color};">AI (${tierLabel})</span>`;
 }
 
-type EngineeredCreditsResult = 
+export type EngineeredCreditsResult = 
 	| { type: 'measured'; available: number; monthly: number; percentage: number }
 	| { type: 'unlimited' };
 
@@ -154,7 +154,7 @@ type EngineeredCreditsResult =
  *  - PRO: 50,000 max
  *  - ULTRA: Unlimited (∞)
  */
-function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 'FREE' | 'PRO' | 'ULTRA'): EngineeredCreditsResult {
+export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 'FREE' | 'PRO' | 'ULTRA'): EngineeredCreditsResult {
 	if (tier === 'ULTRA') {
 		return { type: 'unlimited' };
 	}
