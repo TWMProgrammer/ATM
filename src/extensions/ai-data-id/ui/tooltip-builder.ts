@@ -270,7 +270,7 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 	}
 
 	const pct = Math.round(model.remainingPercentage!);
-	const pctColor = getStatusColor(pct);
+	const pctColor = getModelStatusColor(model.label, pct);
 	const bar = generateModernBar(pct, pctColor);
 
 	const resetText = `$(history) <span style="color:${COLOR_TEXT_SECONDARY};">${model.timeUntilResetFormatted}</span>`;
@@ -349,14 +349,38 @@ function formatTimestamp(date: Date): string {
 }
 
 /**
- * Maps a remaining-percentage value to a status color.
+ * Returns a specific branding color for a model family.
+ *  - Gemini Pro: Blue
+ *  - Gemini Flash: Default Green
+ *  - Claude/Third-Party: Skin/Peach color matching Anthropic's style
+ */
+function getModelBaseColor(label: string): string {
+	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
+		return '#60a5fa'; // vibrant blue
+	}
+	if (label.includes('Claude') || label.includes('GPT-OSS')) {
+		return '#ecb6a4'; // peach / skin color
+	}
+	return COLOR_HEALTHY; // default flash green
+}
+
+/**
+ * Maps a remaining-percentage value to a status color, overriding healthy with brand colors.
  *
- * | Range     | Color   | Meaning |
- * |-----------|---------|---------|
- * | 0–14%     | Red     | Danger  |
- * | 15–39%    | Yellow  | Warning |
- * | 40–69%    | Cyan    | Info    |
- * | 70–100%   | Green   | Healthy |
+ * | Range     | Color        | Meaning |
+ * |-----------|--------------|---------|
+ * | 0–14%     | Red          | Danger  |
+ * | 15–39%    | Yellow       | Warning |
+ * | 40–100%   | Brand Color  | Healthy |
+ */
+export function getModelStatusColor(label: string, percentage: number): string {
+	if (percentage < 15) { return COLOR_DANGER; }
+	if (percentage < 40) { return COLOR_WARNING; }
+	return getModelBaseColor(label);
+}
+
+/**
+ * Standard status coloration for system-wide metrics (top overview).
  */
 export function getStatusColor(percentage: number): string {
 	if (percentage < 15) { return COLOR_DANGER; }
