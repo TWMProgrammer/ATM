@@ -275,9 +275,15 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 
 	const resetText = `$(history) <span style="color:${COLOR_TEXT_SECONDARY};">${model.timeUntilResetFormatted}</span>`;
 
+	// Pad the percentage so it always takes up the same horizontal space as "100" (3 digits).
+	// We use &ensp; (en-space) because it accurately matches the width of standard numerical digits.
+	const numDigits = pct.toString().length;
+	const padding = '&ensp;'.repeat(Math.max(0, 3 - numDigits));
+	const pctText = `${padding}${pct}%`;
+
 	return (
 		`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
-		`${bar} &nbsp;&nbsp; <span style="color:${pctColor};">**${pct}%**</span> &nbsp;&nbsp;` +
+		`${bar} &nbsp;&nbsp; <span style="color:${pctColor};">**${pctText}**</span> &nbsp;&nbsp;` +
 		`<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; ${resetText}\n\n`
 	);
 }
