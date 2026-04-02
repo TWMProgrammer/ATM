@@ -7,6 +7,17 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
   controller = new CommentsCodeController();
 
   /* =========================================================
+   * 🗺️ MINIMAP SECTION HEADERS
+   * Automatically support TODO, FIXME, MARK in the minimap
+   * and show only the keyword (excluding the rest of the comment)
+   * ========================================================= */
+  const minimapConfig = vscode.workspace.getConfiguration('editor.minimap');
+  const sectionRegex = '^[ \\t]*(?:\\/\\/|#|<!--|;|\\/\\*)[ \\t]*(MARK|TODO|FIXME):';
+  minimapConfig.update('sectionHeaderDetectionRegExp', sectionRegex, true).then(undefined, (err) => {
+    console.error('[Comments Code] Failed to update minimap regex:', err);
+  });
+
+  /* =========================================================
    * 🔄 DEBOUNCE CACHE INVALIDATION
    * Partial cache invalidation + debounced decoration update
    * ========================================================= */
@@ -43,16 +54,6 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
       ) {
         controller?.triggerScrollUpdate(event.textEditor.document);
       }
-    }),
-  );
-
-  /* =========================================================
-   * 🔍 GLOBAL ANNOTATIONS LIST
-   * Command to manually list all TODOs/FIXMEs
-   * ========================================================= */
-  context.subscriptions.push(
-    vscode.commands.registerCommand('commentsCode.listAnnotations', () => {
-      controller?.listAnnotations();
     }),
   );
 

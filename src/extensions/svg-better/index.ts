@@ -1,16 +1,58 @@
 import * as vscode from 'vscode';
 
-let isProcessingSvg = false;
+/**
+ * State machine to prevent concurrent split-view handling and
+ * to suppress split-view during file operations (rename, move, delete).
+ */
+const state = {
+  processing: false,
+  suppressed: false,
+  suppressTimer: undefined as ReturnType<typeof setTimeout> | undefined,
+};
 
 /**
  * Activates the SVG Better extension features.
  * Provides auto-split view for SVGs and an SVGO optimization command.
  */
 export function activateSvgBetter(context: vscode.ExtensionContext) {
-  const splitViewDisposable = setupSplitView();
-  const optimizeDisposable = setupOptimizeCommand();
+  context.subscriptions.push(
+    ...setupFileOperationGuards(),
+    setupSplitView(),
+    setupOptimizeCommand()
+  );
+}
 
-  context.subscriptions.push(splitViewDisposable, optimizeDisposable);
+/* =========================================================
+ * 🛡️ FILE OPERATION GUARDS
+ * ========================================================= */
+
+/**
+ * Suppresses the split-view logic during file rename/move/delete/create.
+ *
+ * Why: When the user presses F2 (rename) in the explorer, VS Code re-opens
+ * the renamed file which fires `onDidChangeTabs`. Without this guard the
+ * split-view handler steals focus from the explorer inline-rename input.
+ *
+ * `onWillRenameFiles` fires **before** the rename starts (covers the
+ * period while the user is typing the new name).
+ * `onDidRenameFiles` fires **after** the rename completes (covers the
+ * re-opening of the file under its new URI).
+ */
+function setupFileOperationGuards(): vscode.Disposable[] {
+  const suppress = () => {
+    state.suppressed = true;
+    clearTimeout(state.suppressTimer);
+    state.suppressTimer = setTimeout(() => {
+      state.suppressed = false;
+    }, 800);
+  };
+
+  return [
+    vscode.workspace.onWillRenameFiles(suppress),
+    vscode.workspace.onDidRenameFiles(suppress),
+    vscode.workspace.onDidCreateFiles(suppress),
+    vscode.workspace.onDidDeleteFiles(suppress),
+  ];
 }
 
 /* =========================================================
@@ -18,79 +60,93 @@ export function activateSvgBetter(context: vscode.ExtensionContext) {
  * ========================================================= */
 
 /**
- * Registers the tab open event and triggers auto-split view for SVG files.
+ * Registers the tab-open event and triggers auto-split view for SVG files.
+ *
+ * Rules:
+ *  1. Skip if already processing, suppressed by a file-op guard, or no tabs opened.
+ *  2. All editor opens use preserveFocus: true so the explorer keeps focus (F2 rename works).
+ *  3. Only process one SVG per event batch (break after first match).
  */
 function setupSplitView(): vscode.Disposable {
   return vscode.window.tabGroups.onDidChangeTabs(async (e) => {
-    // If we're already handling a split, or no tabs were opened, we ignore
-    if (isProcessingSvg || e.opened.length === 0) {
+    if (state.processing || state.suppressed || e.opened.length === 0) {
       return;
     }
 
     for (const tab of e.opened) {
-      let uri: vscode.Uri | undefined;
-      let isTextEditor = false;
 
-      if (tab.input instanceof vscode.TabInputText) {
-        uri = tab.input.uri;
-        isTextEditor = true;
-      } else if (tab.input instanceof vscode.TabInputCustom) {
-        uri = tab.input.uri;
-      }
+      const { uri, isText } = extractTabUri(tab);
 
       if (uri && isSvgFile(uri)) {
-        isProcessingSvg = true;
+        state.processing = true;
 
         try {
-          await handleSvgSplitView(tab, uri, isTextEditor);
+          await handleSvgSplitView(tab, uri, isText);
         } catch (error) {
           console.error('[SVG Better] Failed to auto-split view:', error);
         } finally {
           setTimeout(() => {
-            isProcessingSvg = false;
+            state.processing = false;
           }, 300);
         }
-        
-        break; // Only process one SVG at a time to prevent concurrency issues
+
+        break;
       }
     }
   });
 }
 
 /**
- * Internal handler to split the view into text document & side-by-side image preview.
+ * Extracts the URI and editor-type from a tab input.
+ */
+function extractTabUri(tab: vscode.Tab): { uri: vscode.Uri | undefined; isText: boolean } {
+  if (tab.input instanceof vscode.TabInputText) {
+    return { uri: tab.input.uri, isText: true };
+  }
+  if (tab.input instanceof vscode.TabInputCustom) {
+    return { uri: tab.input.uri, isText: false };
+  }
+  return { uri: undefined, isText: false };
+}
+
+/**
+ * Opens a side-by-side view: text editor on the left, image preview on the right.
+ *
+ * Skips if both the text tab and the custom (image) tab already exist for this URI.
  */
 async function handleSvgSplitView(
   tab: vscode.Tab,
   uri: vscode.Uri,
   isTextEditor: boolean
 ): Promise<void> {
+  const uriStr = uri.toString();
   const allTabs = vscode.window.tabGroups.all.flatMap((g) => g.tabs);
 
   const hasTextTab = allTabs.some(
-    (t) => t.input instanceof vscode.TabInputText && t.input.uri.toString() === uri.toString()
+    (t) => t.input instanceof vscode.TabInputText && t.input.uri.toString() === uriStr
   );
 
   const hasCustomTab = allTabs.some(
-    (t) => t.input instanceof vscode.TabInputCustom && t.input.uri.toString() === uri.toString()
+    (t) => t.input instanceof vscode.TabInputCustom && t.input.uri.toString() === uriStr
   );
 
-  // If both text and image are already open for this SVG, do nothing
+  // Both sides of the split are already present — nothing to do.
   if (hasTextTab && hasCustomTab) {
     return;
   }
 
   if (isTextEditor) {
-    // Code is active (left). Open image to the right.
+    // Text editor is active (left). Open image preview beside it.
     await vscode.commands.executeCommand('vscode.openWith', uri, 'imagePreview.previewEditor', {
       viewColumn: vscode.ViewColumn.Beside,
       preserveFocus: true,
     });
   } else {
-    // Image is active. We want Code on left, Image on right.
+    // Image preview is active. Rearrange: Code on left, Image on right.
+    // preserveFocus: true — never steal focus from explorer (allows F2 rename).
     await vscode.window.showTextDocument(uri, {
       viewColumn: vscode.ViewColumn.Active,
-      preserveFocus: false, // Focus the code so the next open targets beside it
+      preserveFocus: true,
     });
 
     await vscode.commands.executeCommand('vscode.openWith', uri, 'imagePreview.previewEditor', {
@@ -98,7 +154,7 @@ async function handleSvgSplitView(
       preserveFocus: true,
     });
 
-    // Close the original image tab that was on the left
+    // Remove the original image tab that was on the left.
     await vscode.window.tabGroups.close(tab);
   }
 }
@@ -170,7 +226,7 @@ async function optimizeSvg(content: string): Promise<string | null> {
 }
 
 /**
- * Applies the optimized SVG content efficiently as a full range workspace edit.
+ * Applies the optimized SVG content as a full-document workspace edit.
  */
 async function applyOptimization(document: vscode.TextDocument, optimizedContent: string): Promise<void> {
   const edit = new vscode.WorkspaceEdit();
@@ -184,37 +240,27 @@ async function applyOptimization(document: vscode.TextDocument, optimizedContent
 }
 
 /**
- * Compares the original and optimized strings and notifies user about saved space.
+ * Compares original vs. optimized size and notifies the user.
  */
 function showOptimizationResult(originalContent: string, optimizedContent: string): void {
-  const originalSize = getByteSize(originalContent);
-  const optimizedSize = getByteSize(optimizedContent);
+  const originalSize = Buffer.byteLength(originalContent, 'utf8');
+  const optimizedSize = Buffer.byteLength(optimizedContent, 'utf8');
 
-  const savingPercent = calculateSavingPercent(originalSize, optimizedSize);
-  const originalSizeKB = formatSizeKB(originalSize);
-  const optimizedSizeKB = formatSizeKB(optimizedSize);
+  const savingPercent = originalSize === 0
+    ? '0.00'
+    : (((originalSize - optimizedSize) / originalSize) * 100).toFixed(2);
+
+  const originalKB = (originalSize / 1024).toFixed(2);
+  const optimizedKB = (optimizedSize / 1024).toFixed(2);
 
   vscode.window.showInformationMessage(
-    `SVG optimized. Reduced from ${originalSizeKB} KB to ${optimizedSizeKB} KB (${savingPercent}% saved)`
+    `SVG optimized. Reduced from ${originalKB} KB to ${optimizedKB} KB (${savingPercent}% saved)`
   );
 }
 
 /* =========================================================
  * 🛠️ UTILITIES
  * ========================================================= */
-
-function getByteSize(content: string): number {
-  return Buffer.byteLength(content, 'utf8');
-}
-
-function formatSizeKB(bytes: number): string {
-  return (bytes / 1024).toFixed(2);
-}
-
-function calculateSavingPercent(originalSize: number, optimizedSize: number): string {
-  if (originalSize === 0) {return '0.00';}
-  return (((originalSize - optimizedSize) / originalSize) * 100).toFixed(2);
-}
 
 function isSvgFile(uri: vscode.Uri): boolean {
   return uri.path.toLowerCase().endsWith('.svg');

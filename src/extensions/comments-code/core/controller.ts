@@ -40,14 +40,12 @@ export class CommentsCodeController {
 
   // P2: per-line cache
   private lineCache = new Map<number, LineCacheEntry>();
-  private cachedDocVersion = -1;
   private cachedDocUri = ''; // R5: track active document URI
 
   // P3: compiled tag index
   private lineTagRegex: RegExp | null = null;
   private wordTagRegex: RegExp | null = null; // R2: compiled word tag regex
   private tagByText = new Map<string, CommentTag>();
-  private wordTags: CommentTag[] = []; // R4: pre-filtered word tags
 
   constructor() {
     this.decorator = new Decorator();
@@ -76,10 +74,10 @@ export class CommentsCodeController {
         : null;
 
     // R4: Pre-filter word tags into separate array
-    this.wordTags = tags.filter((t) => t.type === 'word');
+    const wordTags = tags.filter((t) => t.type === 'word');
 
     // R2: Compiled word tag regex for single-pass scanning
-    const wordTexts = this.wordTags
+    const wordTexts = wordTags
       .map((t) => t.text)
       .sort((a, b) => b.length - a.length);
     this.wordTagRegex =
@@ -147,6 +145,11 @@ export class CommentsCodeController {
     for (const lineNum of toDelete) {
       this.lineCache.delete(lineNum);
     }
+    
+    // Prevent infinite growth on massive files
+    if (this.lineCache.size > 5000) {
+      this.lineCache.clear();
+    }
   }
 
   /* =========================================================
@@ -170,14 +173,8 @@ export class CommentsCodeController {
       this.lineCache.clear();
       this.cachedDocUri = docUri;
     }
-    // R1: Version tracked for reference (partial invalidation handled by handleContentChanges)
-    this.cachedDocVersion = document.version;
 
-    const tags = defaultTags;
     const rangesToDecorate = new Map<string, vscode.DecorationOptions[]>();
-    for (const tag of tags) {
-      rangesToDecorate.set(tag.text, []);
-    }
 
     const extraLines = 50;
 
@@ -205,7 +202,11 @@ export class CommentsCodeController {
           cached.inBlockAtStart === inBlock
         ) {
           for (const [tagText, ranges] of cached.ranges) {
-            rangesToDecorate.get(tagText)?.push(...ranges);
+            if (ranges.length > 0) {
+              let arr = rangesToDecorate.get(tagText);
+              if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
+              arr.push(...ranges);
+            }
           }
           inBlock = cached.inBlockAtEnd;
           continue;
@@ -213,9 +214,6 @@ export class CommentsCodeController {
 
         // Fresh parse
         const lineRanges = new Map<string, vscode.DecorationOptions[]>();
-        for (const tag of tags) {
-          lineRanges.set(tag.text, []);
-        }
 
         const inBlockAtStart = inBlock;
         inBlock = this.processLine(i, text, langConfig, inBlock, lineRanges);
@@ -229,7 +227,11 @@ export class CommentsCodeController {
         });
 
         for (const [tagText, ranges] of lineRanges) {
-          rangesToDecorate.get(tagText)?.push(...ranges);
+          if (ranges.length > 0) {
+            let arr = rangesToDecorate.get(tagText);
+            if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
+            arr.push(...ranges);
+          }
         }
       }
     }
@@ -241,6 +243,29 @@ export class CommentsCodeController {
    * 🧩 LINE PROCESSOR
    * Process one line, returns updated inBlock state
    * ========================================================= */
+
+  private isInsideString(text: string, pos: number): boolean {
+    let inSingle = false;
+    let inDouble = false;
+    let inTemplate = false;
+    let escape = false;
+
+    for (let i = 0; i < pos; i++) {
+      const c = text[i];
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (c === '\\') {
+        escape = true;
+        continue;
+      }
+      if (c === "'" && !inDouble && !inTemplate) inSingle = !inSingle;
+      else if (c === '"' && !inSingle && !inTemplate) inDouble = !inDouble;
+      else if (c === '`' && !inSingle && !inDouble) inTemplate = !inTemplate;
+    }
+    return inSingle || inDouble || inTemplate;
+  }
 
   private processLine(
     lineIndex: number,
@@ -282,7 +307,11 @@ export class CommentsCodeController {
 
       // Scan for new block comments opening on this line
       while (pos < text.length) {
-        const bsIdx = text.indexOf(bs, pos);
+        let bsIdx = text.indexOf(bs, pos);
+        // Ignore block starts if they are inside strings
+        while (bsIdx !== -1 && this.isInsideString(text, bsIdx)) {
+           bsIdx = text.indexOf(bs, bsIdx + bs.length);
+        }
         if (bsIdx === -1) {
           break;
         }
@@ -317,13 +346,24 @@ export class CommentsCodeController {
 
     // Step 2 — single-line comment
     if (langConfig.singleLine) {
-      const slIdx = text.indexOf(langConfig.singleLine);
-      if (slIdx !== -1 && !isInBlock(slIdx)) {
+      const slStr = langConfig.singleLine;
+      let slIdx = text.indexOf(slStr);
+      let isValidSingleLine = false;
+
+      while (slIdx !== -1) {
+        // Must not be in block comment, not inside string on this line, and not part of a URL (://)
+        if (!isInBlock(slIdx) && !this.isInsideString(text, slIdx) && !(slIdx > 0 && text[slIdx - 1] === ':')) {
+          isValidSingleLine = true;
+          break;
+        }
+        slIdx = text.indexOf(slStr, Math.max(slIdx + 1, slIdx + slStr.length));
+      }
+
+      if (isValidSingleLine) {
         const afterMarker = text.substring(
-          slIdx + langConfig.singleLine.length,
+          slIdx + slStr.length,
         );
         const trimmed = afterMarker.trimStart();
-        const trimOffset = afterMarker.length - trimmed.length;
 
         // P3: compiled regex for line-type tags
         const lineMatch = this.lineTagRegex?.exec(trimmed);
@@ -331,7 +371,9 @@ export class CommentsCodeController {
           const tag = this.tagByText.get(lineMatch[0]);
           if (tag?.type === 'line') {
             const startChar = slIdx;
-            lineRanges.get(tag.text)?.push({
+            let arr = lineRanges.get(tag.text);
+            if (!arr) { arr = []; lineRanges.set(tag.text, arr); }
+            arr.push({
               range: new vscode.Range(
                 new vscode.Position(lineIndex, startChar),
                 new vscode.Position(lineIndex, text.length),
@@ -354,7 +396,6 @@ export class CommentsCodeController {
     for (const region of blockRegions) {
       const content = text.substring(region.contentStart, region.contentEnd);
       const trimmed = content.trimStart();
-      const trimOffset = content.length - trimmed.length;
 
       // Line-type tag inside block comment
       const lineMatch = this.lineTagRegex?.exec(trimmed);
@@ -362,7 +403,9 @@ export class CommentsCodeController {
         const tag = this.tagByText.get(lineMatch[0]);
         if (tag?.type === 'line') {
           const startChar = region.spanStart;
-          lineRanges.get(tag.text)?.push({
+          let arr = lineRanges.get(tag.text);
+          if (!arr) { arr = []; lineRanges.set(tag.text, arr); }
+          arr.push({
             range: new vscode.Range(
               new vscode.Position(lineIndex, startChar),
               new vscode.Position(lineIndex, region.spanEnd),
@@ -409,7 +452,9 @@ export class CommentsCodeController {
       }
 
       const absIdx = offset + matchIdx;
-      lineRanges.get(matchText)?.push({
+      let arr = lineRanges.get(matchText);
+      if (!arr) { arr = []; lineRanges.set(matchText, arr); }
+      arr.push({
         range: new vscode.Range(
           new vscode.Position(lineIndex, absIdx),
           new vscode.Position(lineIndex, absIdx + matchText.length),
@@ -435,8 +480,8 @@ export class CommentsCodeController {
       return false;
     }
 
-    // Walk backwards through the cache to find the closest known state
-    for (let i = lineIndex - 1; i >= Math.max(0, lineIndex - 300); i--) {
+    // Walk backwards through the cache to find the closest known state (up to 2500 lines)
+    for (let i = lineIndex - 1; i >= Math.max(0, lineIndex - 2500); i--) {
       const cached = this.lineCache.get(i);
       if (cached) {
         // Start from cached inBlockAtEnd and scan forward to lineIndex
@@ -453,8 +498,8 @@ export class CommentsCodeController {
       }
     }
 
-    // No cache: bounded scan from at most 300 lines back
-    const scanFrom = Math.max(0, lineIndex - 300);
+    // No cache: bounded scan from at most 2500 lines back to ensure block capturing
+    const scanFrom = Math.max(0, lineIndex - 2500);
     let state = false;
     for (let i = scanFrom; i < lineIndex; i++) {
       state = this.stepBlockState(
@@ -498,12 +543,6 @@ export class CommentsCodeController {
   /* =========================================================
    * ⚙️ COMMANDS & LIFECYCLE
    * ========================================================= */
-
-  public listAnnotations() {
-    vscode.window.showInformationMessage(
-      'List annotations command executing! (Placeholder for global workspace search)',
-    );
-  }
 
   public dispose() {
     if (this.editTimeout) {

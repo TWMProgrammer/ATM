@@ -235,14 +235,10 @@ async function scanDocument(document: vscode.TextDocument): Promise<void> {
 
         if (!resolved) { continue; }
 
-        // For markdown, only accept obvious image paths/data URIs.
-        if (isMarkdown && !hasAcceptedImageExtension(resolved) && !isKnownMarkdownImageUrl(resolved)) { continue; }
-
-        // Validate extension for non-data/non-http images
-        if (!isDataUri(resolved) && isLocalFile(resolved)) {
-          const ext = resolved.substring(resolved.lastIndexOf('.')).toLowerCase();
-          if (!ACCEPTED_EXTENSIONS.includes(ext)) { continue; }
-        }
+        // Strict filter: ALL URLs (local & remote) must have an accepted
+        // image extension or come from a known image service. Only data URIs
+        // are exempt (they are images by definition).
+        if (!isDataUri(resolved) && !hasAcceptedImageExtension(resolved) && !isKnownMarkdownImageUrl(resolved)) { continue; }
 
         const range = new vscode.Range(lineIndex, match.start, lineIndex, match.end);
         images.push({ originalImagePath: resolved, imagePath: resolved, range });
@@ -422,21 +418,18 @@ function buildHoverMarkdown(
   lines.push(`<p align="center"><img src="${displayPath}" ${imgSizeAttr}/></p>`);
 
   // ── Metadata chips ──
-  if (meta && (meta.dimensions || meta.fileSize || meta.format)) {
-    const chips: string[] = [];
-
-    if (meta.format) {
-      chips.push(`\`${meta.format}\``);
-    }
-    if (meta.dimensions) {
-      chips.push(`📐 ${meta.dimensions}px`);
-    }
-    if (meta.fileSize) {
-      chips.push(`💾 ${meta.fileSize}`);
-    }
+  if (meta && (meta.dimensions || meta.fileSize)) {
+    const formattedDims = meta.dimensions ? meta.dimensions.replace(/x/gi, ' x ') + 'px' : '';
+    const fileSize = meta.fileSize ? meta.fileSize : '';
 
     lines.push('');
-    lines.push(chips.join(' &nbsp;·&nbsp; '));
+    
+    // Use an HTML table to perfectly align left and right without hardcoded spaces
+    if (formattedDims && fileSize) {
+      lines.push(`<table width="100%"><tr><td align="left">${formattedDims}</td><td align="right">${fileSize}</td></tr></table>`);
+    } else {
+      lines.push(formattedDims || fileSize);
+    }
   }
 
   // ── Action bar ──
@@ -448,10 +441,11 @@ function buildHoverMarkdown(
     lines.push('---');
     lines.push('');
 
+    const formatText = meta?.format || 'Open';
     const actions: string[] = [
       `[$(folder) Folder](command:revealFileInOS?${args} "Reveal in OS file manager")`,
       `[$(file-symlink-directory) Explorer](command:revealInExplorer?${args} "Reveal in VS Code Explorer")`,
-      `[$(link-external) Open](command:vscode.open?${args} "Open in default application")`,
+      `[$(link-external) ${formatText}](command:vscode.open?${args} "Open in default application")`,
     ];
 
     lines.push(actions.join(' &nbsp;&nbsp; '));
