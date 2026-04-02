@@ -144,21 +144,64 @@ function buildPlanBadge(teamsTier: string | undefined, planName: string | undefi
 	return `<span style="color:${color};">AI (${tierLabel})</span>`;
 }
 
+interface SimulatedCredits {
+	available: number;
+	monthly: number;
+	percentage: number;
+}
+
+/**
+ * Engineers a realistic credit score based on the actual model quotas.
+ * Since global credits often fall back to dummy 500/50000, we derive
+ * a dynamic 5000/5000 score by assigning weighted values to model buckets.
+ */
+function computeEngineeredCredits(models: QuotaSnapshot['models']): SimulatedCredits {
+	const MONTHLY_FLASH = 3000;
+	const MONTHLY_PRO = 1000;
+	const MONTHLY_THIRD_PARTY = 1000;
+
+	// Extract percentages for each family (default to 1.0 if not found/unlimited)
+	const getPct = (matchers: string[]) => {
+		const matched = models.filter(m => matchers.some(matcher => m.label.includes(matcher)));
+		if (matched.length === 0) return 1.0;
+		// Use the first one since they share quota
+		const first = matched[0];
+		if (first.isExhausted) return 0.0;
+		return first.remainingPercentage !== undefined ? first.remainingPercentage / 100 : 1.0;
+	};
+
+	const pctFlash = getPct(['Flash']);
+	const pctPro = getPct(['Pro (High)', 'Pro (Low)']);
+	const pctThirdParty = getPct(['Claude', 'GPT-OSS']);
+
+	const available = Math.round(
+		(pctFlash * MONTHLY_FLASH) +
+		(pctPro * MONTHLY_PRO) +
+		(pctThirdParty * MONTHLY_THIRD_PARTY)
+	);
+	
+	const monthly = MONTHLY_FLASH + MONTHLY_PRO + MONTHLY_THIRD_PARTY;
+	const percentage = (available / monthly) * 100;
+
+	return { available, monthly, percentage };
+}
+
 /** Renders the summary line with credits, health, and alert counts. */
 function buildTopSummary(snapshot: QuotaSnapshot): string {
 	const measured = snapshot.models.filter(m => m.remainingPercentage !== undefined);
 	const totalMeasured = measured.length;
 	const exhausted = measured.filter(m => m.isExhausted).length;
 	const critical = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
-	const credits = snapshot.promptCredits;
+	
+	const engineered = computeEngineeredCredits(snapshot.models);
 
 	const parts: string[] = [];
-	if (credits) {
-		parts.push(
-			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${credits.available}/${credits.monthly}**</span>`,
-			`$(pulse) <span style="color:${getStatusColor(Math.round(credits.remainingPercentage))};">${Math.round(credits.remainingPercentage)}% left</span>`
-		);
-	}
+	
+	// Injecting our engineered credits logic
+	parts.push(
+		`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${engineered.available}/${engineered.monthly}**</span>`,
+		`$(pulse) <span style="color:${getStatusColor(Math.round(engineered.percentage))};">${Math.round(engineered.percentage)}% left</span>`
+	);
 
 	if (totalMeasured === 0) {
 		parts.push(`*<span style="color:${COLOR_TEXT_SECONDARY};">Discovering available models...</span>*`);
