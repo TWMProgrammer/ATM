@@ -3,10 +3,6 @@ import { defaultTags, CommentTag } from '../ui/styles';
 import { Decorator } from '../ui/decorator';
 import { getLanguageConfig, LanguageConfig } from './languages';
 
-/* =========================================================
- * 🛠️ HELPERS
- * ========================================================= */
-
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -36,15 +32,14 @@ interface LineCacheEntry {
 export class CommentsCodeController {
   private editTimeout: NodeJS.Timeout | undefined;
   private scrollTimeout: NodeJS.Timeout | undefined;
+  // Gutter icons and styles
   private decorator: Decorator;
 
-  // P2: per-line cache
+  // Cache and indexing
   private lineCache = new Map<number, LineCacheEntry>();
-  private cachedDocUri = ''; // R5: track active document URI
-
-  // P3: compiled tag index
+  private cachedDocUri = ''; 
   private lineTagRegex: RegExp | null = null;
-  private wordTagRegex: RegExp | null = null; // R2: compiled word tag regex
+  private wordTagRegex: RegExp | null = null; 
   private tagByText = new Map<string, CommentTag>();
 
   constructor() {
@@ -53,10 +48,9 @@ export class CommentsCodeController {
     this.buildTagIndex(defaultTags);
   }
 
-  /* =========================================================
-   * ⚡ INDEX BUILDER
-   * Build compiled regex + O(1) lookup map
-   * ========================================================= */
+  /**
+   * Compiles tag patterns into efficient regex for scanning.
+   */
   private buildTagIndex(tags: CommentTag[]) {
     this.tagByText.clear();
     for (const tag of tags) {
@@ -185,7 +179,7 @@ export class CommentsCodeController {
         visibleRange.end.line + extraLines,
       );
 
-      // P4: Determine block-comment state just before startLine
+      // Determine block-comment state before start line
       let inBlock =
         langConfig.blockStart && langConfig.blockEnd
           ? this.getBlockStateAt(document, startLine, langConfig)
@@ -194,7 +188,7 @@ export class CommentsCodeController {
       for (let i = startLine; i <= endLine; i++) {
         const { text } = document.lineAt(i);
 
-        // P2: Cache hit?
+        // Cache lookup
         const cached = this.lineCache.get(i);
         if (
           cached &&
@@ -210,19 +204,17 @@ export class CommentsCodeController {
           continue;
         }
 
-        // Fresh parse
         const lineRanges = new Map<string, vscode.DecorationOptions[]>();
         const inBlockAtStart = inBlock;
 
-        // 🚀 Optimización: Si la línea es absurdamente larga, la tratamos como texto plano
-        // para evitar que el motor de Regex congele el editor.
+        // Performance: Skip deep parsing for extremely long lines
         if (text.length > 500) {
           inBlock = this.stepBlockState(text, inBlock, langConfig.blockStart || '', langConfig.blockEnd || '');
         } else {
           inBlock = this.processLine(i, text, langConfig, inBlock, lineRanges);
         }
 
-        // P2: Store in cache
+        // Update cache
         this.lineCache.set(i, {
           text,
           inBlockAtStart,
@@ -243,11 +235,9 @@ export class CommentsCodeController {
     this.decorator.applyDecorations(activeEditor, rangesToDecorate);
   }
 
-  /* =========================================================
-   * 🧩 LINE PROCESSOR
-   * Process one line, returns updated inBlock state
-   * ========================================================= */
-
+  /**
+   * Checks if a position is within template literals or strings.
+   */
   private isInsideString(text: string, pos: number): boolean {
     let inSingle = false;
     let inDouble = false;
