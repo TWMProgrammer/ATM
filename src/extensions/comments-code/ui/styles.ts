@@ -20,7 +20,7 @@ export const defaultTags: CommentTag[] = [
   { text: '!', type: 'line', color: '#FF3333', fontStyle: 'italic' },     // Alert / Error    → Red
   { text: '?', type: 'line', color: '#3297fbff', fontStyle: 'italic', gutterIcon: 'question' },   // Question         → Blue
   { text: '*', type: 'line', color: '#464646', fontStyle: 'italic' },   // Highlight        → Purple
-  { text: '^', type: 'line', color: '#FFD602', fontStyle: 'italic', gutterIcon: 'fixme' },     // Warning          → Yellow
+  { text: '^', type: 'line', color: '#FFD602', fontStyle: 'italic' },     // Warning          → Yellow
   { text: '#', type: 'line', color: '#ff7a27', fontStyle: 'italic' },     // Section / Header → Orange
   { text: '$', type: 'line', color: '#4ae4fc', fontStyle: 'italic' },   // Resource / Value → Sky Blue
   { text: '%', type: 'line', color: '#ffffff', fontStyle: 'italic' },     // Ratio / Percent  → Amber

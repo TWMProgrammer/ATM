@@ -202,11 +202,9 @@ export class CommentsCodeController {
           cached.inBlockAtStart === inBlock
         ) {
           for (const [tagText, ranges] of cached.ranges) {
-            if (ranges.length > 0) {
-              let arr = rangesToDecorate.get(tagText);
-              if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
-              arr.push(...ranges);
-            }
+            let arr = rangesToDecorate.get(tagText);
+            if (!arr) { arr = []; rangesToDecorate.set(tagText, arr); }
+            arr.push(...ranges);
           }
           inBlock = cached.inBlockAtEnd;
           continue;
@@ -214,9 +212,15 @@ export class CommentsCodeController {
 
         // Fresh parse
         const lineRanges = new Map<string, vscode.DecorationOptions[]>();
-
         const inBlockAtStart = inBlock;
-        inBlock = this.processLine(i, text, langConfig, inBlock, lineRanges);
+
+        // 🚀 Optimización: Si la línea es absurdamente larga, la tratamos como texto plano
+        // para evitar que el motor de Regex congele el editor.
+        if (text.length > 500) {
+          inBlock = this.stepBlockState(text, inBlock, langConfig.blockStart || '', langConfig.blockEnd || '');
+        } else {
+          inBlock = this.processLine(i, text, langConfig, inBlock, lineRanges);
+        }
 
         // P2: Store in cache
         this.lineCache.set(i, {
@@ -519,20 +523,17 @@ export class CommentsCodeController {
     blockStart: string,
     blockEnd: string,
   ): boolean {
+    if (!blockStart || !blockEnd) return inBlock;
     let pos = 0;
     while (pos < text.length) {
       if (!inBlock) {
         const bsIdx = text.indexOf(blockStart, pos);
-        if (bsIdx === -1) {
-          break;
-        }
+        if (bsIdx === -1) break;
         inBlock = true;
         pos = bsIdx + blockStart.length;
       } else {
         const beIdx = text.indexOf(blockEnd, pos);
-        if (beIdx === -1) {
-          break;
-        }
+        if (beIdx === -1) break;
         inBlock = false;
         pos = beIdx + blockEnd.length;
       }
