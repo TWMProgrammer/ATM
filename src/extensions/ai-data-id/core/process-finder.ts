@@ -17,6 +17,9 @@ const RETRY_DELAY_MS = 500;
 /** Default maximum number of retries for process detection. */
 const DEFAULT_MAX_RETRIES = 2;
 
+/** Unified, robust regex for capturing the Antigravity CSRF token across all OS environments. */
+const CSRF_TOKEN_REGEX = /--csrf_token[=\s]+([a-zA-Z0-9\-]+)/i;
+
 // ── Platform-specific process names ──────────────────────────────────
 
 const PROCESS_NAMES: Record<string, string> = {
@@ -98,7 +101,7 @@ export class ProcessFinder {
 			}
 
 			const commandLine = data.CommandLine || '';
-			const tokenMatch = commandLine.match(/--csrf_token[=\s]+([a-f0-9\-]+)/i);
+			const tokenMatch = commandLine.match(CSRF_TOKEN_REGEX);
 			if (!tokenMatch) { return null; }
 
 			return { pid: data.ProcessId, csrfToken: tokenMatch[1] };
@@ -117,7 +120,7 @@ export class ProcessFinder {
 				const parts = line.trim().split(/\s+/);
 				const pid = parseInt(parts[0], 10);
 				if (!Number.isFinite(pid)) { continue; }
-				const tokenMatch = line.match(/--csrf_token[=\s]+([a-zA-Z0-9\-]+)/);
+				const tokenMatch = line.match(CSRF_TOKEN_REGEX);
 
 				if (tokenMatch) {
 					return { pid, csrfToken: tokenMatch[1] };
