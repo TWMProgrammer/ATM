@@ -31,8 +31,8 @@ const COLOR_ACCENT = '#c4b5fd';         // violet-400 — brand / FREE plan
 
 /** FREE plan: brand violet */
 const COLOR_PLAN_FREE = '#c4b5fd';   // violet-400
-/** PRO plan: electric blue */
-const COLOR_PLAN_PRO = '#60a5fa';    // blue-400
+/** PRO plan: deep Google Blue (matches pricing page) */
+const COLOR_PLAN_PRO = '#4285f4';    // google-blue
 /** ULTRA plan: premium amber-gold */
 const COLOR_PLAN_ULTRA = '#fbbf24';  // amber-400
 
@@ -103,7 +103,7 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
  *
  * Priority:
  *  1. `teamsTier` — raw field from planInfo, usually "CONSUMER", "PRO", "ULTRA"
- *  2. `planName`  — human-readable fallback, substring-matched
+ *  2. `planName`  — human-readable fallback, regex-matched to avoid "profile" triggering "pro"
  *  3. Default to FREE if neither matches.
  */
 function resolvePlanTier(teamsTier: string | undefined, planName: string | undefined): 'FREE' | 'PRO' | 'ULTRA' {
@@ -111,15 +111,16 @@ function resolvePlanTier(teamsTier: string | undefined, planName: string | undef
 	if (teamsTier) {
 		const rawTier = teamsTier.toUpperCase();
 		if (rawTier.includes('ULTRA')) { return 'ULTRA'; }
-		if (rawTier.includes('PRO')) { return 'PRO'; }
+		if (/\bPRO\b/.test(rawTier)) { return 'PRO'; }
 		// CONSUMER / INDIVIDUAL / FREE / etc. → FREE
 		return 'FREE';
 	}
-	// Fallback: substring-match the human-readable plan name
+	// Fallback: word-boundary match the human-readable plan name
 	if (planName) {
 		const lower = planName.toLowerCase();
 		if (lower.includes('ultra')) { return 'ULTRA'; }
-		if (lower.includes('pro')) { return 'PRO'; }
+		// \b ensures we only match the actual word "pro", not "profile" or "product"
+		if (/\bpro\b/.test(lower)) { return 'PRO'; }
 	}
 	return 'FREE';
 }
