@@ -46,6 +46,10 @@ export interface QuotaSnapshot {
 	timestamp: Date;
 	/** Prompt credit info, if available in the plan */
 	promptCredits?: PromptCreditsInfo;
+	/** User's current plan name as returned by the server (e.g. "Google AI Pro") */
+	planName?: string;
+	/** Raw teams tier string from planInfo (e.g. "CONSUMER", "PRO", "ULTRA") */
+	teamsTier?: string;
 	/** Per-model quota information */
 	models: ModelQuotaInfo[];
 }

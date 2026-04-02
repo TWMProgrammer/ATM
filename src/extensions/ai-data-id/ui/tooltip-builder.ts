@@ -25,7 +25,16 @@ const COLOR_HEALTHY = '#4ade80'; // green-400  — quota ≥ 70%
 const COLOR_TEXT_PRIMARY = '#f4f4f5';   // zinc-100
 const COLOR_TEXT_SECONDARY = '#a1a1aa'; // zinc-400
 const COLOR_SEPARATOR = '#3f3f46';      // zinc-700
-const COLOR_ACCENT = '#c4b5fd';         // violet-400 — brand glow
+const COLOR_ACCENT = '#c4b5fd';         // violet-400 — brand / FREE plan
+
+// ── Plan tier colors ─────────────────────────────────────────────────
+
+/** FREE plan: brand violet */
+const COLOR_PLAN_FREE = '#c4b5fd';   // violet-400
+/** PRO plan: electric blue */
+const COLOR_PLAN_PRO = '#60a5fa';    // blue-400
+/** ULTRA plan: premium amber-gold */
+const COLOR_PLAN_ULTRA = '#fbbf24';  // amber-400
 
 // ── Model display order ──────────────────────────────────────────────
 
@@ -65,7 +74,7 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 	md.appendMarkdown(
 		`### <span style="color:${COLOR_TEXT_PRIMARY}; font-weight:700;">Antigravity Quota</span>` +
 		`<span style="color:${COLOR_SEPARATOR};"> · </span>` +
-		`<span style="color:${COLOR_ACCENT};">AI (Data)</span>\n\n`
+		`${buildPlanBadge(snapshot.teamsTier, snapshot.planName)}\n\n`
 	);
 	md.appendMarkdown(`${buildTopSummary(snapshot)}\n\n`);
 	md.appendMarkdown(DIVIDER);
@@ -88,6 +97,51 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 }
 
 // ── Internal builders ────────────────────────────────────────────────
+
+/**
+ * Resolves the plan tier from the most reliable source available.
+ *
+ * Priority:
+ *  1. `teamsTier` — raw field from planInfo, usually "CONSUMER", "PRO", "ULTRA"
+ *  2. `planName`  — human-readable fallback, substring-matched
+ *  3. Default to FREE if neither matches.
+ */
+function resolvePlanTier(teamsTier: string | undefined, planName: string | undefined): 'FREE' | 'PRO' | 'ULTRA' {
+	// teamsTier is the most direct signal — check it first
+	if (teamsTier) {
+		const rawTier = teamsTier.toUpperCase();
+		if (rawTier.includes('ULTRA')) { return 'ULTRA'; }
+		if (rawTier.includes('PRO')) { return 'PRO'; }
+		// CONSUMER / INDIVIDUAL / FREE / etc. → FREE
+		return 'FREE';
+	}
+	// Fallback: substring-match the human-readable plan name
+	if (planName) {
+		const lower = planName.toLowerCase();
+		if (lower.includes('ultra')) { return 'ULTRA'; }
+		if (lower.includes('pro')) { return 'PRO'; }
+	}
+	return 'FREE';
+}
+
+/**
+ * Builds the colored plan tier badge for the tooltip header.
+ * Format: "AI (Free)" — whole phrase shares one color per tier.
+ *
+ *  FREE  → violet  #c4b5fd
+ *  PRO   → blue    #60a5fa
+ *  ULTRA → amber   #fbbf24
+ */
+function buildPlanBadge(teamsTier: string | undefined, planName: string | undefined): string {
+	const tier = resolvePlanTier(teamsTier, planName);
+	const tierLabel = tier === 'ULTRA' ? 'Ultra' : tier === 'PRO' ? 'Pro' : 'Free';
+	const color =
+		tier === 'ULTRA' ? COLOR_PLAN_ULTRA
+		: tier === 'PRO'  ? COLOR_PLAN_PRO
+		: COLOR_PLAN_FREE;
+	// Entire "AI (Free/Pro/Ultra)" is one unified color
+	return `<span style="color:${color};">AI (${tierLabel})</span>`;
+}
 
 /** Renders the summary line with credits, health, and alert counts. */
 function buildTopSummary(snapshot: QuotaSnapshot): string {

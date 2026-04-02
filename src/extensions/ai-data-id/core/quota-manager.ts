@@ -137,9 +137,13 @@ export class QuotaManager {
 
 	private parseResponse(data: ServerUserStatusResponse): QuotaSnapshot {
 		const { userStatus } = data;
+		const planName = userStatus?.planStatus?.planInfo?.planName;
+		const teamsTier = userStatus?.planStatus?.planInfo?.teamsTier;
 		if (!userStatus?.cascadeModelConfigData) {
 			return {
 				timestamp: new Date(),
+				planName,
+				teamsTier,
 				promptCredits: this.parsePromptCredits(data),
 				models: [],
 			};
@@ -176,6 +180,8 @@ export class QuotaManager {
 
 		return {
 			timestamp: new Date(),
+			planName,
+			teamsTier,
 			promptCredits: this.parsePromptCredits(data),
 			models,
 		};
