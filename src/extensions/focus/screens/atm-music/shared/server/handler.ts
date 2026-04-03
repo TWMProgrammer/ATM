@@ -220,7 +220,6 @@ function proxyRadioStream(
 
     const upstreamHeaders: Record<string, string> = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Icy-MetaData': '1',
         'Connection': 'keep-alive',
     };
 

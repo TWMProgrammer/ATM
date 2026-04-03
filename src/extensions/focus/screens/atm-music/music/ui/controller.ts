@@ -18,6 +18,12 @@ export class AtmMusicController {
     private hasCachedSearch = false;
     private musicLabelEl: HTMLElement | null = null;
     private radioReconnectTimer: number | null = null;
+    private radioRetryDecayTimer: number | null = null;
+    private radioRetryCount = 0;
+    private readonly radioRetryBaseDelayMs = 1000;
+    private readonly radioRetryMaxDelayMs = 15000;
+    private readonly radioRetryResetWindowMs = 20000;
+    private readonly radioRetryMaxAttempts = 8;
 
     constructor(private readonly vscode: VSCodeApi) {
         this.musicLabelEl = $('#qa-music-label');
@@ -118,11 +124,7 @@ export class AtmMusicController {
 
         // Live radio mode: reconnect same stream if it ends.
         if (currentTrack && this.isRadioTrack(currentTrack) && this.tracks.length === 1) {
-            if (silent) {
-                this.playerUI.skipToTrack(currentTrack, false, false);
-            } else {
-                this.selectTrack(this.currentIndex);
-            }
+            this.retryRadioStream(currentTrack);
             return;
         }
 
@@ -233,6 +235,7 @@ export class AtmMusicController {
 
         this.clearError();
         this.clearRadioReconnectTimer();
+        this.resetRadioRetryState();
         this.tracks = [radioTrack];
         this.hasCachedSearch = false;
         this.currentIndex = 0;
@@ -246,12 +249,30 @@ export class AtmMusicController {
     }
 
     private retryRadioStream(track: Track): void {
-        this.clearError();
         this.clearRadioReconnectTimer();
+        this.clearRadioRetryDecayTimer();
+
+        if (this.radioRetryCount >= this.radioRetryMaxAttempts) {
+            this.showError('Radio stream unstable. Tap the station to retry.');
+            return;
+        }
+
+        this.radioRetryCount += 1;
+        const delay = Math.min(
+            this.radioRetryBaseDelayMs * Math.pow(2, this.radioRetryCount - 1),
+            this.radioRetryMaxDelayMs,
+        );
 
         this.radioReconnectTimer = window.setTimeout(() => {
+            this.clearError();
             this.playerUI.skipToTrack(track, false, false);
-        }, 500);
+        }, delay);
+
+        // If stream stays up for a while, allow fast retries again.
+        this.radioRetryDecayTimer = window.setTimeout(() => {
+            this.radioRetryCount = 0;
+            this.radioRetryDecayTimer = null;
+        }, this.radioRetryResetWindowMs);
     }
 
     private clearRadioReconnectTimer(): void {
@@ -259,6 +280,18 @@ export class AtmMusicController {
             window.clearTimeout(this.radioReconnectTimer);
             this.radioReconnectTimer = null;
         }
+    }
+
+    private clearRadioRetryDecayTimer(): void {
+        if (this.radioRetryDecayTimer !== null) {
+            window.clearTimeout(this.radioRetryDecayTimer);
+            this.radioRetryDecayTimer = null;
+        }
+    }
+
+    private resetRadioRetryState(): void {
+        this.radioRetryCount = 0;
+        this.clearRadioRetryDecayTimer();
     }
 
     /** Navigate to player (if a track is loaded) or results (if a search was made). */
