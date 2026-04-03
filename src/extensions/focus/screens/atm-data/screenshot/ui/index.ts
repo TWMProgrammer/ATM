@@ -10,9 +10,10 @@ const UI_ROW_GROUPS = [
     ['ui-avatar', 'ui-name', 'ui-handle', 'ui-followers', 'ui-following', 'ui-bio'], // Row 1: Profile details
     ['ui-commits', 'ui-years', 'ui-heat-year', 'ui-heat-commits'],                   // Row 2: Heatmap stats
     ['HEATMAP'],                                                                     // Row 3: Heatmap grid
-    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-pomodoro', 'ui-stat-files', 'ui-stat-streak-full', 'ui-stat-active-days'], // Row 4: Cards
-    ['ui-stat-music', '.bento-icon-wrapper', '.music-waves'],                        // Row 5: Music Widget
-    ['downloadBtn']                                                                  // Row 6: Footer Actions
+    ['ui-stat-time', 'ui-stat-commits', 'ui-stat-files'],                            // Row 4: Bento Row 1
+    ['ui-stat-streak-full'],                                                         // Row 5: Bento Row 2
+    ['ui-stat-music', 'ui-stat-pomodoro'],                                           // Row 6: Bento Row 3
+    ['downloadBtn']                                                                  // Row 7: Footer Actions
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -170,8 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ui-stat-time': data.timeLabel,
                 'ui-stat-commits': data.commitsToday.toString(),
                 'ui-stat-files': data.filesChanged.toString(),
-                'ui-stat-streak-full': `${data.dayStreak} Days`,
-                'ui-stat-active-days': (data.activeDays || 0).toString(),
+                'ui-stat-streak-full': `${data.dayStreak} ${data.dayStreak === 1 ? 'Day' : 'Days'}`,
                 'ui-stat-pomodoro': (data.pomodoros || 0).toString(),
             };
 

@@ -99,7 +99,7 @@ export async function refreshScreenshotPanelData(payload: { nickname?: string, s
     currentPanel.webview.postMessage({ command: 'showSkeletons' });
     
     try {
-        const nicknameToUse = payload.nickname || currentPayload.nickname || 'Player';
+        const nicknameToUse = payload.nickname || currentPayload.nickname || 'username';
         const data: any = await fetchDashboardData(nicknameToUse);
         data.song = currentPayload.song;
         data.pomodoros = currentPayload.pomodoros;
@@ -145,6 +145,7 @@ async function fetchDashboardData(nickname: string) {
         const provider = ATMDataProvider.getInstance();
         timeLabel = provider.getFormattedTime();
         filesChanged = provider.getFilesEditedCount();
+        dayStreak = provider.getLocalStreak(); // Local streak — instant, no network
     } catch {}
 
     // Local git commits today
@@ -159,7 +160,7 @@ async function fetchDashboardData(nickname: string) {
 
     // --- GitHub User API & Contributions ---
     const cleanNick = nickname.replace('@', '').trim();
-    if (cleanNick && cleanNick !== 'Player' && cleanNick !== 'Atom') {
+    if (cleanNick && cleanNick !== 'username' && cleanNick !== 'Player' && cleanNick !== 'Atom') {
         const fetchProfile = new Promise<any>((resolve, reject) => {
             https.get(`https://api.github.com/users/${cleanNick}`, {
                 headers: {
@@ -389,13 +390,8 @@ async function fetchDashboardData(nickname: string) {
                 }
             }
 
-            if (heatmapData.length > 0) {
-                let streak = 0;
-                for (let i = heatmapData.length - 1; i >= 0; i--) {
-                    if (heatmapData[i] > 0) { streak++; } else { break; }
-                }
-                dayStreak = streak;
-            }
+            // Note: dayStreak is already set from provider.getLocalStreak() above.
+            // We no longer derive it from GitHub heatmap data (unreliable & overrides local).
 
             // Fallback for weekly commits when per-day counts are not available.
             if (totalCommits === 0) {
@@ -416,8 +412,6 @@ async function fetchDashboardData(nickname: string) {
         }
     }
 
-    const activeDays = heatmapData.filter(level => level > 0).length;
-
     return {
         name,
         followers,
@@ -434,7 +428,6 @@ async function fetchDashboardData(nickname: string) {
         heatmapData,
         heatmapGrid,
         heatmapMonthPositions,
-        activeDays
     };
 }
 
