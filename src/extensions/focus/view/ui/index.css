@@ -290,7 +290,13 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .qa-tab-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 0;
+    transition: padding-left 0.28s cubic-bezier(0.16, 1, 0.3, 1), padding-right 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qa-tab-btn.has-clear-api {
+    padding-left: 8px;
+    padding-right: 12px;
 }
 
 .qa-clear-api-btn {
@@ -315,11 +321,20 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .qa-tab-btn.has-clear-api:focus-within .qa-clear-api-btn {
     width: 18px;
     max-width: 18px;
-    margin-right: 2px;
+    margin-right: 4px;
     opacity: 0.9;
     transform: translateX(0);
     pointer-events: auto;
     cursor: pointer;
+}
+
+.qa-tab-btn.has-clear-api:hover,
+.qa-tab-btn.has-clear-api:focus-within {
+    padding-left: 12px;
+}
+
+#qa-play-btn {
+    margin-left: 6px;
 }
 
 .qa-tab-btn.has-clear-api .qa-clear-api-btn:hover,
