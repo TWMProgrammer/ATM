@@ -86,6 +86,11 @@ export class AtmMusicController {
                     this.setLockState(true);
                 }
             } else if (msg.type === 'apiKeyValidationResult') {
+                if (msg.apiKey === '') {
+                    this.searchUI.resetApiValidationFeedback();
+                    this.setLockState(true);
+                    return;
+                }
                 void this.handleApiKeyValidationResult(Boolean(msg.isValid));
             } else if (msg.type === 'searchResults') {
                 this.tracks = msg.results || [];
@@ -120,6 +125,7 @@ export class AtmMusicController {
 
     private performSearch(query: string) {
         if (this.isLocked) {
+            this.clearError();
             this.searchUI.startApiValidationLoading();
             this.vscode.postMessage({ type: 'validateAndSaveApi', apiKey: query });
             return;

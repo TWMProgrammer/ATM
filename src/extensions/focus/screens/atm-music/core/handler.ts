@@ -169,32 +169,77 @@ async function handleSearch(webviewView: vscode.WebviewView, query: string) {
 
 async function handleValidateApiKey(webviewView: vscode.WebviewView, apiKey: string) {
     try {
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=test&key=${apiKey}`;
-        
-        const isValid = await new Promise<boolean>((resolve) => {
-            https.get(url, (res) => {
-                if (res.statusCode === 200) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            }).on('error', () => {
-                resolve(false);
-            });
-        });
+        const key = (apiKey || '').trim();
+        if (!key) {
+            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false } as WebviewMessage);
+            return;
+        }
 
-        if (isValid) {
-            await vscode.workspace.getConfiguration('atm').update('youtubeApiKey', apiKey, vscode.ConfigurationTarget.Global);
-            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: true, apiKey } as WebviewMessage);
+        const validation = await validateYoutubeApiKey(key);
+
+        if (validation.isValid) {
+            await vscode.workspace.getConfiguration('atm').update('youtubeApiKey', key, vscode.ConfigurationTarget.Global);
+            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: true, apiKey: key } as WebviewMessage);
             vscode.window.showInformationMessage('✅ YouTube API Key saved successfully!');
         } else {
             webviewView.webview.postMessage({
-                type: 'error',
-                message: 'Invalid YouTube API Key. Please ensure the key has access to the YouTube Data API v3.'
+                type: 'apiKeyValidationResult',
+                isValid: false,
+                message: validation.message || 'Invalid YouTube API key or unavailable key.'
             } as WebviewMessage);
-            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false } as WebviewMessage);
         }
     } catch (e) {
         webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false } as WebviewMessage);
     }
+}
+
+async function validateYoutubeApiKey(apiKey: string): Promise<{ isValid: boolean; message?: string }> {
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=id&id=dQw4w9WgXcQ&key=${encodeURIComponent(apiKey)}`;
+
+    return new Promise((resolve) => {
+        const req = https.get(url, (res) => {
+            let raw = '';
+
+            res.on('data', (chunk) => {
+                raw += chunk.toString();
+            });
+
+            res.on('end', () => {
+                const status = res.statusCode || 0;
+                let parsed: any = null;
+
+                if (raw) {
+                    try {
+                        parsed = JSON.parse(raw);
+                    } catch {
+                        parsed = null;
+                    }
+                }
+
+                if (status === 200 && !parsed?.error) {
+                    resolve({ isValid: true });
+                    return;
+                }
+
+                const backendMessage = typeof parsed?.error?.message === 'string' ? parsed.error.message : '';
+                const fallbackMessage = status === 403
+                    ? 'API key rejected (permissions or quota).'
+                    : status === 400
+                        ? 'API key format is invalid.'
+                        : status > 0
+                            ? `API validation failed (${status}).`
+                            : 'API validation failed.';
+
+                resolve({ isValid: false, message: backendMessage || fallbackMessage });
+            });
+        });
+
+        req.setTimeout(8000, () => {
+            req.destroy(new Error('timeout'));
+        });
+
+        req.on('error', () => {
+            resolve({ isValid: false, message: 'Network error while validating API key.' });
+        });
+    });
 }
