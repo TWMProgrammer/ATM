@@ -221,6 +221,7 @@ function proxyRadioStream(
     const upstreamHeaders: Record<string, string> = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Icy-MetaData': '1',
+        'Connection': 'keep-alive',
     };
 
     const protocol = parsed.protocol === 'https:' ? https : http;
@@ -231,16 +232,20 @@ function proxyRadioStream(
             return proxyRadioStream(nextUrl, req, res, redirectDepth + 1);
         }
 
+        // Radio is treated as a live stream. Avoid range/length headers to
+        // prevent short segmented responses from being interpreted as finite tracks.
         const outHeaders: Record<string, string | string[]> = {
             'Content-Type': streamRes.headers['content-type'] || 'audio/mpeg',
-            'Accept-Ranges': 'bytes',
+            'Cache-Control': 'no-store',
+            'Pragma': 'no-cache',
+            'Connection': 'keep-alive',
         };
 
-        if (streamRes.headers['content-length']) {
-            outHeaders['Content-Length'] = streamRes.headers['content-length'];
+        if (streamRes.headers['icy-br']) {
+            outHeaders['icy-br'] = streamRes.headers['icy-br'];
         }
-        if (streamRes.headers['content-range']) {
-            outHeaders['Content-Range'] = streamRes.headers['content-range'];
+        if (streamRes.headers['ice-audio-info']) {
+            outHeaders['ice-audio-info'] = streamRes.headers['ice-audio-info'];
         }
 
         res.writeHead(streamRes.statusCode || 200, outHeaders);

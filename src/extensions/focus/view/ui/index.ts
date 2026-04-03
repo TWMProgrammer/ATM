@@ -113,17 +113,29 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         });
     };
 
+    const radioStationMap: Record<string, { title: string; streamUrl: string }> = {
+        'fm-111': {
+            title: 'FM - 111',
+            streamUrl: FM_111_STREAM_URL,
+        },
+        'lofi-2026': {
+            title: 'LoFi 2026',
+            streamUrl: LOFI_2026_STREAM_URL,
+        },
+        'podcast': {
+            title: 'Podcast',
+            streamUrl: PODCAST_STREAM_URL,
+        },
+    };
+
     radioButtons.forEach((button) => {
         button.addEventListener('click', () => {
             setActiveRadioButton(button);
 
             const station = button.dataset.radioStation || '';
-            if (station === 'fm-111') {
-                musicController.playRadioStream('FM - 111', FM_111_STREAM_URL);
-            } else if (station === 'lofi-2026') {
-                musicController.playRadioStream('LoFi 2026', LOFI_2026_STREAM_URL);
-            } else if (station === 'podcast') {
-                musicController.playRadioStream('Podcast', PODCAST_STREAM_URL);
+            const selectedStation = radioStationMap[station];
+            if (selectedStation) {
+                musicController.playRadioStream(selectedStation.title, selectedStation.streamUrl);
             }
         });
     });
