@@ -317,6 +317,17 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     user-select: none;
 }
 
+.qa-clear-api-btn svg {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    display: block;
+}
+
 .qa-tab-btn.has-clear-api:hover .qa-clear-api-btn,
 .qa-tab-btn.has-clear-api:focus-within .qa-clear-api-btn {
     width: 18px;
