@@ -129,7 +129,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     if (musicLabel) {
         musicLabel.addEventListener('click', (e) => {
             e.stopPropagation(); // don't bubble to the outer qa-btn
-            musicController.goToMusic();
+            musicController.goToMusic(e);
         });
     }
 

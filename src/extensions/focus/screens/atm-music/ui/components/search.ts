@@ -8,6 +8,7 @@ export class MusicSearchUI {
     private lastSearchQuery = '';
     private canForward = false;
     private mode: SearchButtonMode = 'disabled';
+    private isLocked = false;
 
     constructor(
         private readonly onSearch: (query: string) => void,
@@ -69,12 +70,21 @@ export class MusicSearchUI {
         }
     }
 
+    public setLocked(isLocked: boolean) {
+        this.isLocked = isLocked;
+        if (this.searchInput) {
+            this.searchInput.placeholder = isLocked ? '🔑 Paste your YouTube API key here...' : 'BETA - Search for music...';
+            if (isLocked) {this.searchInput.value = '';}
+        }
+        this.updateState();
+    }
+
     private updateState() {
         if (!this.searchBtn) {return;}
 
         const currentQuery = this.getQuery();
         const isUnchanged = currentQuery === this.lastSearchQuery && currentQuery.length > 0;
-        const isForward = this.canForward && isUnchanged;
+        const isForward = this.canForward && isUnchanged && !this.isLocked;
 
         if (currentQuery.length === 0) {
             this.mode = 'disabled';
@@ -90,10 +100,17 @@ export class MusicSearchUI {
 
         if (this.mode === 'forward') {
             this.searchBtn.setAttribute('aria-label', 'Go forward to results');
+            this.searchBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
         } else if (this.mode === 'search') {
-            this.searchBtn.setAttribute('aria-label', 'Search');
+            this.searchBtn.setAttribute('aria-label', this.isLocked ? 'Save API Key' : 'Search');
+            this.searchBtn.innerHTML = this.isLocked ? 
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : 
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
         } else {
             this.searchBtn.setAttribute('aria-label', 'Empty search');
+            this.searchBtn.innerHTML = this.isLocked ? 
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : 
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
         }
     }
 }

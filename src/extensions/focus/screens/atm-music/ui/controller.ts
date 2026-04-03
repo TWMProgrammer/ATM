@@ -17,6 +17,7 @@ export class AtmMusicController {
     private currentIndex = -1;
     private hasCachedSearch = false;
     private musicLabelEl: HTMLElement | null = null;
+    private isLocked = false;
 
     constructor(private readonly vscode: VSCodeApi) {
         this.musicLabelEl = $('#qa-music-label');
@@ -73,8 +74,22 @@ export class AtmMusicController {
     private bindGlobalMessages() {
         window.addEventListener('message', (event: MessageEvent) => {
             const msg = event.data as WebviewMessage;
-            if (msg.type === 'config' && msg.streamPort) {
-                window.STREAM_PORT = msg.streamPort;
+            if (msg.type === 'config') {
+                if (msg.streamPort) {window.STREAM_PORT = msg.streamPort;}
+                
+                // Set lock state based on API key validity config
+                if (msg.apiKey && msg.apiKey.trim().length > 0) {
+                    this.setLockState(false);
+                } else {
+                    this.setLockState(true);
+                }
+            } else if (msg.type === 'apiKeyValidationResult') {
+                this.searchUI.setLocked(false); // remove the specific UI lock for a moment or handle it
+                if (msg.isValid) {
+                    this.setLockState(false);
+                } else {
+                    this.setLockState(true);
+                }
             } else if (msg.type === 'searchResults') {
                 this.tracks = msg.results || [];
                 this.hasCachedSearch = true;
@@ -91,6 +106,10 @@ export class AtmMusicController {
     }
 
     private performSearch(query: string) {
+        if (this.isLocked) {
+            this.vscode.postMessage({ type: 'validateAndSaveApi', apiKey: query });
+            return;
+        }
         this.tracks = [];
         this.hasCachedSearch = false;
         this.clearError();
@@ -184,8 +203,28 @@ export class AtmMusicController {
     // Public API for external integration
     public search(query: string) { this.searchUI.setQuery(query); this.performSearch(query); }
 
+    private setLockState(locked: boolean) {
+        this.isLocked = locked;
+        this.searchUI.setLocked(locked);
+        if (this.musicLabelEl) {
+            this.musicLabelEl.textContent = locked ? '☁️ Get API' : 'Music';
+        }
+        this.updateMusicLabelState();
+    }
+
     /** Navigate to player (if a track is loaded) or results (if a search was made). */
-    public goToMusic() {
+    public goToMusic(e?: Event) {
+        if (this.isLocked) {
+            this.vscode.postMessage({ type: 'openUrl', url: 'https://console.cloud.google.com/apis/library/youtube.googleapis.com?project=donoferta' });
+            return;
+        }
+
+        // Shift + Click to clear API setup when empty
+        if (e && (e as MouseEvent).shiftKey && this.searchUI.getQuery().trim().length === 0) {
+            this.vscode.postMessage({ type: 'clearApiKey' });
+            return;
+        }
+
         if (this.currentIndex > -1) {
             this.showScreen('player');
         } else if (this.hasCachedSearch) {
@@ -196,7 +235,7 @@ export class AtmMusicController {
 
     private updateMusicLabelState() {
         if (!this.musicLabelEl) {return;}
-        const canGo = (this.currentIndex > -1 || this.hasCachedSearch);
+        const canGo = (this.isLocked) || (this.currentIndex > -1 || this.hasCachedSearch);
         this.musicLabelEl.classList.toggle('is-linkable', canGo);
     }
 

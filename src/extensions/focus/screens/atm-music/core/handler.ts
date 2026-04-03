@@ -120,12 +120,21 @@ export async function handleWebviewMessage(
 ) {
     if (message.type === 'ready') {
         const port = await startAudioServer();
+        const apiKey = vscode.workspace.getConfiguration('atm').get<string>('youtubeApiKey') || '';
         webviewView.webview.postMessage({
             type: 'config',
-            streamPort: port
+            streamPort: port,
+            apiKey
         } as WebviewMessage);
     } else if (message.type === 'search' && message.query) {
         handleSearch(webviewView, message.query);
+    } else if (message.type === 'validateAndSaveApi' && message.apiKey) {
+        handleValidateApiKey(webviewView, message.apiKey);
+    } else if (message.type === 'openUrl' && message.url) {
+        vscode.env.openExternal(vscode.Uri.parse(message.url));
+    } else if (message.type === 'clearApiKey') {
+        await vscode.workspace.getConfiguration('atm').update('youtubeApiKey', '', vscode.ConfigurationTarget.Global);
+        webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false, apiKey: '' } as WebviewMessage);
     }
 }
 
@@ -155,5 +164,37 @@ async function handleSearch(webviewView: vscode.WebviewView, query: string) {
             type: 'error',
             message: 'Failed to search. Check your connection.',
         } as WebviewMessage);
+    }
+}
+
+async function handleValidateApiKey(webviewView: vscode.WebviewView, apiKey: string) {
+    try {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=test&key=${apiKey}`;
+        
+        const isValid = await new Promise<boolean>((resolve) => {
+            https.get(url, (res) => {
+                if (res.statusCode === 200) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            }).on('error', () => {
+                resolve(false);
+            });
+        });
+
+        if (isValid) {
+            await vscode.workspace.getConfiguration('atm').update('youtubeApiKey', apiKey, vscode.ConfigurationTarget.Global);
+            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: true, apiKey } as WebviewMessage);
+            vscode.window.showInformationMessage('✅ YouTube API Key saved successfully!');
+        } else {
+            webviewView.webview.postMessage({
+                type: 'error',
+                message: 'Invalid YouTube API Key. Please ensure the key has access to the YouTube Data API v3.'
+            } as WebviewMessage);
+            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false } as WebviewMessage);
+        }
+    } catch (e) {
+        webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false } as WebviewMessage);
     }
 }

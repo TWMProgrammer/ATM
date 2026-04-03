@@ -29,7 +29,11 @@ export type WebviewMessageType =
     | 'error' 
     | 'info'
     | 'ready'
-    | 'config';
+    | 'config'
+    | 'validateAndSaveApi'
+    | 'openUrl'
+    | 'clearApiKey'
+    | 'apiKeyValidationResult';
 
 export interface WebviewMessage {
     type: WebviewMessageType;
@@ -37,4 +41,7 @@ export interface WebviewMessage {
     results?: Track[];
     message?: string;
     streamPort?: number;
+    url?: string;
+    apiKey?: string;
+    isValid?: boolean;
 }
