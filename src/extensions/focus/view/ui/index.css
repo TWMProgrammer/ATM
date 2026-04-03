@@ -311,28 +311,38 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     margin-right: 0;
     overflow: hidden;
     transform: translateX(-10px);
-    transition: max-width 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.26s ease, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), margin-right 0.32s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+    transition: max-width 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.26s ease, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), margin-right 0.32s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
     pointer-events: none;
     cursor: default;
     user-select: none;
+    border-radius: 999px;
+    background: transparent;
+    color: color-mix(in srgb, var(--vscode-button-foreground) 80%, #c8dcff 20%);
 }
 
 .qa-clear-api-btn svg {
-    width: 12px;
-    height: 12px;
+    width: 15px;
+    height: 15px;
+    display: block;
+}
+
+.qa-clear-api-btn .cloud-fill {
+    fill: currentColor;
+}
+
+.qa-clear-api-btn .cloud-slash {
     stroke: currentColor;
     fill: none;
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
-    display: block;
 }
 
 .qa-tab-btn.has-clear-api:hover .qa-clear-api-btn,
 .qa-tab-btn.has-clear-api:focus-within .qa-clear-api-btn {
-    width: 18px;
-    max-width: 18px;
-    margin-right: 4px;
+    width: 16px;
+    max-width: 16px;
+    margin-right: 1px;
     opacity: 0.9;
     transform: translateX(0);
     pointer-events: auto;
@@ -341,7 +351,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 
 .qa-tab-btn.has-clear-api:hover,
 .qa-tab-btn.has-clear-api:focus-within {
-    padding-left: 12px;
+    padding-left: 9px;
 }
 
 #qa-play-btn {
@@ -351,7 +361,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .qa-tab-btn.has-clear-api .qa-clear-api-btn:hover,
 .qa-tab-btn.has-clear-api .qa-clear-api-btn:focus-visible {
     opacity: 1;
-    filter: brightness(1.15);
+    color: #ff3f9f;
     outline: none;
 }
 
