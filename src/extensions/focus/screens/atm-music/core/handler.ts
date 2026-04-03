@@ -180,7 +180,6 @@ async function handleValidateApiKey(webviewView: vscode.WebviewView, apiKey: str
         if (validation.isValid) {
             await vscode.workspace.getConfiguration('atm').update('youtubeApiKey', key, vscode.ConfigurationTarget.Global);
             webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: true, apiKey: key } as WebviewMessage);
-            vscode.window.showInformationMessage('✅ YouTube API Key saved successfully!');
         } else {
             webviewView.webview.postMessage({
                 type: 'apiKeyValidationResult',

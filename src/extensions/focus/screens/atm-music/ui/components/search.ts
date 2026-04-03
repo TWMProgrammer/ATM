@@ -12,7 +12,6 @@ export class MusicSearchUI {
     private isLocked = false;
     private isApiValidationLoading = false;
     private apiValidationFailed = false;
-    private apiValidationStartAt = 0;
     private apiValidationToken = 0;
 
     constructor(
@@ -30,7 +29,6 @@ export class MusicSearchUI {
         if (!this.isLocked || this.isApiValidationLoading) {return;}
         this.isApiValidationLoading = true;
         this.apiValidationFailed = false;
-        this.apiValidationStartAt = Date.now();
         this.apiValidationToken++;
         this.searchContainer?.classList.add('api-loading');
         if (this.searchInput) {
@@ -42,9 +40,7 @@ export class MusicSearchUI {
 
     public finishApiValidationLoading(isSuccess: boolean): Promise<void> {
         const token = this.apiValidationToken;
-        const minDurationMs = 2000;
-        const elapsed = Date.now() - this.apiValidationStartAt;
-        const waitMs = this.isApiValidationLoading ? Math.max(0, minDurationMs - elapsed) : 0;
+        const waitMs = 0;
 
         return new Promise((resolve) => {
             window.setTimeout(() => {
