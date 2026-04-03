@@ -237,6 +237,7 @@ export class AtmMusicController {
         this.searchUI.setLocked(locked);
         if (this.musicLabelEl) {
             this.musicLabelEl.textContent = locked ? '☁️ Get API' : 'Music';
+            this.musicLabelEl.classList.toggle('is-get-api', locked);
         }
         this.musicTabBtn?.classList.toggle('has-clear-api', !locked);
         this.updateMusicLabelState();

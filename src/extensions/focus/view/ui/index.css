@@ -339,6 +339,10 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     cursor: default;
 }
 
+#qa-music-label.is-get-api {
+    cursor: pointer;
+}
+
 #qa-music-label.is-linkable:hover {
     opacity: 0.75;
 }
