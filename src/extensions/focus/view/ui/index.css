@@ -361,7 +361,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .qa-tab-btn.has-clear-api .qa-clear-api-btn:hover,
 .qa-tab-btn.has-clear-api .qa-clear-api-btn:focus-visible {
     opacity: 1;
-    color: #ff335cd4;
+    color: #ff333dd4;
     filter: drop-shadow(0 0 4px rgba(255, 36, 79, 0.45));
     outline: none;
 }
