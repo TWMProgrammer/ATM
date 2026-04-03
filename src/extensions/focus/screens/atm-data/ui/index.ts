@@ -68,7 +68,7 @@ function applyStatToPill(cached: PillElements, stat: StatEntry): void {
   // Sync background orb color if center pill
   if (cached.pill.classList.contains('center-pill')) {
      const orbColors: Record<string, string> = {
-         'theme-time': 'rgba(6, 182, 212, 0.15)',
+         'theme-time': 'color-mix(in srgb, var(--vscode-button-background, #06b6d4) 15%, transparent)',
          'theme-commits': 'rgba(16, 185, 129, 0.15)',
          'theme-files': 'rgba(168, 85, 247, 0.15)',
          'theme-streak': 'rgba(249, 115, 22, 0.15)'

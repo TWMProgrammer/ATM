@@ -158,8 +158,8 @@
 }
 
 .day-pill.theme-time {
-  --pill-color-1: #06b6d4;
-  --pill-color-2: #3b82f6;
+  --pill-color-1: var(--vscode-button-background, #06b6d4);
+  --pill-color-2: var(--vscode-textLink-foreground, #3b82f6);
 }
 
 .day-pill.theme-commits {
