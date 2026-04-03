@@ -106,6 +106,8 @@ export async function activateVoiceTts(
   return api;
 }
 
+let currentlyReadingText = '';
+
 /**
  * Common logic for detecting text and starting/stopping playback
  */
@@ -113,14 +115,12 @@ async function runPlayback(
   context: vscode.ExtensionContext,
   api: VoiceTtsApi,
 ): Promise<void> {
-  // Use a single source of truth for "playing" state
-  if (isPlaying()) {
-    api.stopPlayback();
-    return;
-  }
-
   const hasVoice = await ensureVoiceForPlayback(context);
   if (!hasVoice) {
+    if (isPlaying()) {
+      api.stopPlayback();
+      currentlyReadingText = '';
+    }
     return;
   }
 
@@ -130,39 +130,45 @@ async function runPlayback(
 
   try {
     // 1. Try to capture text from whatever is currently focused (Webview, AI Chat, Editor)
-    // by using the system Copy command. This ensures the *focused* selection wins over an
-    // inactive editor selection. We use a dummy text to see if the copy actually succeeds.
     await vscode.env.clipboard.writeText(DUMMY_TEXT);
     
-    // Simulate "Copy" action (this captures from the active UI element)
     await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
     
-    // Give the system a brief moment to update the clipboard (Webview IPC takes a few ms)
     await new Promise(resolve => setTimeout(resolve, 100));
     
     const newClipboard = await vscode.env.clipboard.readText();
     
-    // If the clipboard changed from DUMMY_TEXT, it means we successfully copied something new
     if (newClipboard && newClipboard !== DUMMY_TEXT) {
-      text = newClipboard.trim();
+      const isEmptyLineCopy = (() => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor || !editor.selection.isEmpty) {
+          return false;
+        }
+        try {
+          const currentLineText = editor.document.lineAt(editor.selection.active.line).text;
+          return newClipboard.trim() === currentLineText.trim();
+        } catch {
+          return false;
+        }
+      })();
+
+      if (!isEmptyLineCopy) {
+        text = newClipboard.trim();
+      }
     }
     
-    // Try restoring original clipboard silently so we don't pollute it
     try {
       if (originalClipboard) {
         await vscode.env.clipboard.writeText(originalClipboard);
       } else {
         await vscode.env.clipboard.writeText('');
       }
-    } catch {
-      // Ignored
-    }
+    } catch {}
   } catch (error) {
     console.error('[voice-tts] Clipboard copy approach failed:', error);
   }
 
-  // 2. If no text was actively selected in the focused element, 
-  // fallback to the active editor's selection.
+  // 2. If no text was actively selected in the focused element, fallback to active editor selection
   if (!text) {
     const editor = vscode.window.activeTextEditor;
     if (editor && !editor.selection.isEmpty) {
@@ -170,22 +176,44 @@ async function runPlayback(
     }
   }
 
-  // 3. Fallback to whatever was originally in the clipboard if still no text.
-  // This allows users to read text copied from outside VS Code.
-  if (!text && originalClipboard) {
+  const isCurrentlyPlaying = isPlaying();
+
+  // 3. Fallback to clipboard ONLY if not playing (avoids preventing stop when deselecting)
+  if (!text && !isCurrentlyPlaying && originalClipboard) {
     text = originalClipboard.trim();
   }
 
+  if (isCurrentlyPlaying) {
+    if (!text || text === currentlyReadingText) {
+      // User requested stop with no new selection OR identical selection
+      api.stopPlayback();
+      currentlyReadingText = '';
+      return;
+    } else {
+      // User selected NEW text while playing!
+      api.stopPlayback();
+      currentlyReadingText = '';
+      
+      // Pause briefly for clean up before starting new playback
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  } else {
+    // Standard playback start checks
+    if (!text) {
+      vscode.window.showInformationMessage('SELECT TEXT 📃');
+      return;
+    }
+  }
+
   if (!text) {
-    vscode.window.showInformationMessage('SELECT TEXT 📃');
-    return;
+    return; // Guarantee it's not empty
   }
 
   try {
+    currentlyReadingText = text;
     setPlayingState(true);
     await api.readText(text);
   } catch (error) {
-    // Only show error if it wasn't a manual stop
     if (!wasStoppedByUser()) {
       vscode.window.showErrorMessage(
         'Error running text-to-speech: ' +
@@ -193,7 +221,10 @@ async function runPlayback(
       );
     }
   } finally {
-    setPlayingState(false);
+    if (currentlyReadingText === text) {
+      currentlyReadingText = '';
+      setPlayingState(false);
+    }
   }
 }
 
