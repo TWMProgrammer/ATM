@@ -34,6 +34,45 @@ body {
     padding: 18px;
 }
 
+.mode-panels {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+}
+
+.mode-panel {
+    width: 100%;
+    display: none;
+}
+
+.mode-panel.is-active {
+    display: flex;
+    animation: modePanelIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mode-panel-search {
+    align-items: center;
+}
+
+.mode-panel-radio {
+    justify-content: center;
+    gap: 8px;
+}
+
+@keyframes modePanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(7px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes screenFadeIn {
     from { opacity: 0; transform: translateY(4px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -41,10 +80,33 @@ body {
 .search-container {
     position: relative;
     width: 100%;
-    max-width: 600px;
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.radio-mode-btn {
+    border: 1px solid color-mix(in srgb, var(--vscode-input-border, rgba(128, 128, 128, 0.35)) 82%, transparent);
+    background: transparent;
+    color: var(--vscode-foreground);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    transition: transform 0.16s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.radio-mode-btn:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--vscode-button-secondaryHoverBackground) 70%, #0f2f1f 30%);
+}
+
+.radio-mode-btn.is-active {
+    background: color-mix(in srgb, var(--vscode-button-background) 82%, #3fb579 18%);
+    border-color: color-mix(in srgb, var(--vscode-focusBorder) 60%, transparent);
+    color: var(--vscode-button-foreground);
 }
 
 .search-container.api-loading::after {
@@ -408,15 +470,24 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     line-height: 1;
     border-radius: 3px;
     transition: opacity 0.15s ease;
-    cursor: default;
+    cursor: pointer;
 }
 
 #qa-music-label.is-linkable {
-    cursor: default;
+    cursor: pointer;
 }
 
 #qa-music-label.is-get-api {
     cursor: pointer;
+}
+
+#qa-music-tab {
+    cursor: pointer;
+}
+
+#qa-music-tab:hover,
+#qa-music-label:hover {
+    cursor: all-scroll;
 }
 
 #qa-music-label.is-linkable:hover {

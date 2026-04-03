@@ -77,6 +77,44 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     // Quick Access buttons (Music / Time / Game)
     const quickAccessButtons = Array.from(document.querySelectorAll('.qa-btn')) as HTMLButtonElement[];
     const musicQuickButton = quickAccessButtons[0] || null;
+    const musicLabel = document.querySelector('#qa-music-label') as HTMLElement | null;
+    const musicSearchPanel = document.querySelector('#mode-panel-music-search') as HTMLElement | null;
+    const radioPanel = document.querySelector('#mode-panel-radio') as HTMLElement | null;
+    const radioButtons = Array.from(document.querySelectorAll('.radio-mode-btn')) as HTMLButtonElement[];
+
+    type AudioUiMode = 'music' | 'radio';
+    let audioUiMode: AudioUiMode = 'music';
+
+    const setAudioUiMode = (mode: AudioUiMode) => {
+        audioUiMode = mode;
+
+        if (musicLabel) {
+            musicLabel.textContent = mode === 'music' ? 'Music' : 'Radio';
+        }
+
+        if (mode === 'music') {
+            musicSearchPanel?.classList.add('is-active');
+            radioPanel?.classList.remove('is-active');
+            radioPanel?.setAttribute('aria-hidden', 'true');
+        } else {
+            musicSearchPanel?.classList.remove('is-active');
+            radioPanel?.classList.add('is-active');
+            radioPanel?.setAttribute('aria-hidden', 'false');
+            radioButtons.forEach((button) => button.classList.remove('is-active'));
+        }
+    };
+
+    const setActiveRadioButton = (activeButton: HTMLButtonElement) => {
+        radioButtons.forEach((button) => {
+            button.classList.toggle('is-active', button === activeButton);
+        });
+    };
+
+    radioButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            setActiveRadioButton(button);
+        });
+    });
 
     const showGlobalScreen = (target: 'search' | 'time' | 'game') => {
         // Remove active from ALL screens
@@ -124,14 +162,21 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         });
     });
 
-    // "Music" label click → go to player/results if a track/search is active
-    const musicLabel = document.querySelector('#qa-music-label') as HTMLElement | null;
-    if (musicLabel) {
-        musicLabel.addEventListener('click', (e) => {
-            e.stopPropagation(); // don't bubble to the outer qa-btn
-            musicController.goToMusic();
+    // Music tab now toggles UI mode (Music <-> Radio).
+    if (musicQuickButton) {
+        musicQuickButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            if (!document.querySelector('#screen-search')?.classList.contains('active')) {
+                showGlobalScreen('search');
+            }
+
+            setAudioUiMode(audioUiMode === 'music' ? 'radio' : 'music');
         });
     }
+
+    // Initial mode
+    setAudioUiMode('music');
 
     // The Search input Enter key is now fully handled inside search.ts ('MusicSearchUI')
 }());
