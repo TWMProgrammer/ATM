@@ -105,6 +105,8 @@ export class TranslatorWebviewPanel {
     // --- Tab icon (extension icon) ---
     if (target?.extensionUri && target?.iconRelativePath) {
       panel.iconPath = vscode.Uri.joinPath(target.extensionUri, target.iconRelativePath);
+    } else {
+      (panel as any).iconPath = new vscode.ThemeIcon('vscode');
     }
 
     TranslatorWebviewPanel.currentPanel = new TranslatorWebviewPanel(panel, target?.extensionUri);
