@@ -232,7 +232,7 @@ export class ATMDataProvider {
     let totalCommits = await this.getLocalCommits();
     let streak = 0;
 
-    if (this.currentNickname && this.currentNickname.trim() !== '' && this.currentNickname !== 'Player') {
+    if (this.currentNickname && this.currentNickname.trim() !== '' && this.currentNickname !== 'username') {
         if (forceGithubFetch) {
             const ghStats = await this.fetchGitHubStats(this.currentNickname);
             this.context?.globalState.update('atm_last_bg_commits', ghStats.commits);

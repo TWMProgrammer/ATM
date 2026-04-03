@@ -99,7 +99,7 @@ export async function refreshScreenshotPanelData(payload: { nickname?: string, s
     currentPanel.webview.postMessage({ command: 'showSkeletons' });
     
     try {
-        const nicknameToUse = payload.nickname || currentPayload.nickname || 'Player';
+        const nicknameToUse = payload.nickname || currentPayload.nickname || 'username';
         const data: any = await fetchDashboardData(nicknameToUse);
         data.song = currentPayload.song;
         data.pomodoros = currentPayload.pomodoros;
@@ -159,7 +159,7 @@ async function fetchDashboardData(nickname: string) {
 
     // --- GitHub User API & Contributions ---
     const cleanNick = nickname.replace('@', '').trim();
-    if (cleanNick && cleanNick !== 'Player' && cleanNick !== 'Atom') {
+    if (cleanNick && cleanNick !== 'username' && cleanNick !== 'Player' && cleanNick !== 'Atom') {
         const fetchProfile = new Promise<any>((resolve, reject) => {
             https.get(`https://api.github.com/users/${cleanNick}`, {
                 headers: {

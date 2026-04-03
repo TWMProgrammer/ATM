@@ -9,7 +9,7 @@ import { $ } from '../../../../shared/utils';
 import { getVsCodeApi } from './vscode-api';
 
 const STORAGE_KEY = 'atm_game_nickname';
-const DEFAULT_NAME = 'Player';
+const DEFAULT_NAME = 'username';
 const MAX_LENGTH = 15;
 
 /** Sanitize raw user input into a safe nickname string. */
