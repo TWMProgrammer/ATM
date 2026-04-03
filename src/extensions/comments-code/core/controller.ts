@@ -254,9 +254,9 @@ export class CommentsCodeController {
         escape = true;
         continue;
       }
-      if (c === "'" && !inDouble && !inTemplate) inSingle = !inSingle;
-      else if (c === '"' && !inSingle && !inTemplate) inDouble = !inDouble;
-      else if (c === '`' && !inSingle && !inDouble) inTemplate = !inTemplate;
+      if (c === "'" && !inDouble && !inTemplate) {inSingle = !inSingle;}
+      else if (c === '"' && !inSingle && !inTemplate) {inDouble = !inDouble;}
+      else if (c === '`' && !inSingle && !inDouble) {inTemplate = !inTemplate;}
     }
     return inSingle || inDouble || inTemplate;
   }
@@ -513,17 +513,17 @@ export class CommentsCodeController {
     blockStart: string,
     blockEnd: string,
   ): boolean {
-    if (!blockStart || !blockEnd) return inBlock;
+    if (!blockStart || !blockEnd) {return inBlock;}
     let pos = 0;
     while (pos < text.length) {
       if (!inBlock) {
         const bsIdx = text.indexOf(blockStart, pos);
-        if (bsIdx === -1) break;
+        if (bsIdx === -1) {break;}
         inBlock = true;
         pos = bsIdx + blockStart.length;
       } else {
         const beIdx = text.indexOf(blockEnd, pos);
-        if (beIdx === -1) break;
+        if (beIdx === -1) {break;}
         inBlock = false;
         pos = beIdx + blockEnd.length;
       }

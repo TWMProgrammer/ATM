@@ -168,10 +168,10 @@ export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 
 	// Extract percentages for each family (default to 1.0 if not found/unlimited)
 	const getPct = (matchers: string[]) => {
 		const matched = models.filter(m => matchers.some(matcher => m.label.includes(matcher)));
-		if (matched.length === 0) return 1.0;
+		if (matched.length === 0) {return 1.0;}
 		// Use the first one since they share quota
 		const first = matched[0];
-		if (first.isExhausted) return 0.0;
+		if (first.isExhausted) {return 0.0;}
 		return first.remainingPercentage !== undefined ? first.remainingPercentage / 100 : 1.0;
 	};
 
@@ -364,28 +364,28 @@ export function getModelStatusColor(label: string, percentage: number): string {
 
 	// Gemini Pro (Blue -> Cyan -> Purple)
 	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
-		if (percentage >= 80) return '#3b82f6'; // Electric Blue
-		if (percentage >= 50) return '#06b6d4'; // Cyan / Celeste
+		if (percentage >= 80) {return '#3b82f6';} // Electric Blue
+		if (percentage >= 50) {return '#06b6d4';} // Cyan / Celeste
 		return '#a855f7'; // Purple warning
 	}
 	
 	// GPT-OSS (Orange -> Rose -> Yellow)
 	if (label.includes('GPT-OSS')) {
-		if (percentage >= 80) return '#fb923c'; // Orange
-		if (percentage >= 50) return '#f43f5e'; // Rose / Pink-Red
+		if (percentage >= 80) {return '#fb923c';} // Orange
+		if (percentage >= 50) {return '#f43f5e';} // Rose / Pink-Red
 		return COLOR_WARNING; // Golden Yellow
 	}
 	
 	// Claude (Peach -> Lilac -> Yellow)
 	if (label.includes('Claude')) {
-		if (percentage >= 80) return '#ecb6a4'; // Peach / Skin
-		if (percentage >= 50) return '#c084fc'; // Soft Lilac / Purple
+		if (percentage >= 80) {return '#ecb6a4';} // Peach / Skin
+		if (percentage >= 50) {return '#c084fc';} // Soft Lilac / Purple
 		return COLOR_WARNING; // Golden Yellow
 	}
 	
 	// Default / Gemini Flash (Green -> Lime -> Yellow)
-	if (percentage >= 80) return COLOR_HEALTHY; // Healthy Green
-	if (percentage >= 50) return '#84cc16'; // Lime Green
+	if (percentage >= 80) {return COLOR_HEALTHY;} // Healthy Green
+	if (percentage >= 50) {return '#84cc16';} // Lime Green
 	return COLOR_WARNING; // Golden Yellow
 }
 

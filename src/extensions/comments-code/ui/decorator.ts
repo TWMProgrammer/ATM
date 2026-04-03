@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { CommentTag } from './styles';
 
 function getSvgDataUri(iconType: string | undefined, color: string | undefined): vscode.Uri | undefined {
-  if (!iconType) return undefined;
+  if (!iconType) {return undefined;}
   const baseColor = color ? (color.length === 9 ? color.slice(0, 7) : color) : '#ffffff';
   let d = '';
   switch (iconType) {
