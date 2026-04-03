@@ -292,7 +292,16 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     align-items: center;
     justify-content: center;
     gap: 0;
+    position: relative;
     transition: padding-left 0.62s cubic-bezier(0.22, 0.61, 0.36, 1), padding-right 0.62s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+#qa-music-tab {
+    min-width: 0;
+}
+
+#qa-music-tab.has-play-indicator {
+    padding-right: 24px;
 }
 
 .qa-tab-btn.has-clear-api {
@@ -356,7 +365,32 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 }
 
 #qa-play-btn {
-    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+}
+
+#qa-play-btn.is-visible {
+    opacity: 0.9;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+#qa-play-btn.loading::after {
+    width: 11px;
+    height: 11px;
 }
 
 .qa-tab-btn.has-clear-api .qa-clear-api-btn:hover,
@@ -368,6 +402,10 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 }
 
 #qa-music-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
     border-radius: 3px;
     transition: opacity 0.15s ease;
     cursor: default;

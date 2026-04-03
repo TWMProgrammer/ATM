@@ -81,7 +81,14 @@ export class MusicPlayerUI {
         this.suppressPlaybackEvents = false;
 
         const qaBtn = $('#qa-play-btn');
-        if (qaBtn) {qaBtn.style.display = 'inline-flex';}
+        const musicTab = $('#qa-music-tab');
+        if (qaBtn) {
+            qaBtn.classList.add('is-visible');
+            qaBtn.setAttribute('aria-hidden', 'false');
+        }
+        if (musicTab) {
+            musicTab.classList.add('has-play-indicator');
+        }
 
         const url = this.parseTrackStreamUrl(track);
         
@@ -133,7 +140,14 @@ export class MusicPlayerUI {
         this.setLoading(false);
 
         const qaBtn = $('#qa-play-btn');
-        if (qaBtn) {qaBtn.style.display = 'none';}
+        const musicTab = $('#qa-music-tab');
+        if (qaBtn) {
+            qaBtn.classList.remove('is-visible');
+            qaBtn.setAttribute('aria-hidden', 'true');
+        }
+        if (musicTab) {
+            musicTab.classList.remove('has-play-indicator');
+        }
     }
 
     public pause() {
