@@ -481,7 +481,7 @@
         {
           "type": "webview",
           "id": "atm-yt-music-view",
-          "name": "ATM + ( MUSIC ~ TIME ~ DATA ) ",
+          "name": "ATM :: Music · Time · Data",
           "icon": "$(music)"
         }
       ],
