@@ -86,12 +86,7 @@ export class AtmMusicController {
                     this.setLockState(true);
                 }
             } else if (msg.type === 'apiKeyValidationResult') {
-                this.searchUI.setLocked(false); // remove the specific UI lock for a moment or handle it
-                if (msg.isValid) {
-                    this.setLockState(false);
-                } else {
-                    this.setLockState(true);
-                }
+                void this.handleApiKeyValidationResult(Boolean(msg.isValid));
             } else if (msg.type === 'searchResults') {
                 this.tracks = msg.results || [];
                 this.hasCachedSearch = true;
@@ -114,8 +109,18 @@ export class AtmMusicController {
         this.vscode.postMessage({ type: 'ready' } as WebviewMessage);
     }
 
+    private async handleApiKeyValidationResult(isValid: boolean) {
+        await this.searchUI.finishApiValidationLoading(isValid);
+        if (isValid) {
+            this.setLockState(false);
+        } else {
+            this.setLockState(true);
+        }
+    }
+
     private performSearch(query: string) {
         if (this.isLocked) {
+            this.searchUI.startApiValidationLoading();
             this.vscode.postMessage({ type: 'validateAndSaveApi', apiKey: query });
             return;
         }

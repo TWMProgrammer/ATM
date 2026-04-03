@@ -47,6 +47,42 @@ body {
     gap: 6px;
 }
 
+.search-container.api-loading::after {
+    content: '';
+    position: absolute;
+    left: 30px;
+    right: 42px;
+    top: 5px;
+    bottom: 5px;
+    border-radius: 999px;
+    pointer-events: none;
+    background: linear-gradient(
+        110deg,
+        rgba(255, 255, 255, 0) 18%,
+        color-mix(in srgb, var(--vscode-focusBorder) 26%, rgba(255, 255, 255, 0)) 44%,
+        color-mix(in srgb, var(--vscode-foreground) 12%, rgba(255, 255, 255, 0)) 52%,
+        color-mix(in srgb, var(--vscode-focusBorder) 26%, rgba(255, 255, 255, 0)) 60%,
+        rgba(255, 255, 255, 0) 82%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.65;
+    animation: apiSkeletonSweep 1.2s linear infinite;
+}
+
+.search-container.api-loading .search-input {
+    border-color: color-mix(in srgb, var(--vscode-focusBorder) 70%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--vscode-focusBorder) 45%, transparent);
+}
+
+@keyframes apiSkeletonSweep {
+    0% {
+        transform: translateX(-36%);
+    }
+    100% {
+        transform: translateX(36%);
+    }
+}
+
 .search-icon {
     position: absolute;
     left: 12px;
@@ -172,6 +208,24 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .search-btn:disabled:active {
     transform: none;
     background: var(--vscode-button-secondaryBackground);
+}
+
+.search-btn-loader {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--vscode-button-foreground) 28%, transparent);
+    border-top-color: var(--vscode-button-foreground);
+    animation: searchBtnSpin 0.75s linear infinite;
+}
+
+@keyframes searchBtnSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .quick-access {

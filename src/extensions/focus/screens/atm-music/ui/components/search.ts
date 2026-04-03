@@ -3,21 +3,82 @@ import { $, escapeHtml } from '../../../../shared/utils';
 export type SearchButtonMode = 'disabled' | 'search' | 'forward';
 
 export class MusicSearchUI {
+    private searchContainer: HTMLElement | null = null;
     private searchInput: HTMLInputElement | null = null;
     private searchBtn: HTMLButtonElement | null = null;
     private lastSearchQuery = '';
     private canForward = false;
     private mode: SearchButtonMode = 'disabled';
     private isLocked = false;
+    private isApiValidationLoading = false;
+    private apiValidationStartAt = 0;
+    private apiValidationToken = 0;
 
     constructor(
         private readonly onSearch: (query: string) => void,
         private readonly onForward: () => void
     ) {
+        this.searchContainer = document.querySelector('#screen-search .search-container') as HTMLElement | null;
         this.searchInput = $('#search-input') as HTMLInputElement | null;
         this.searchBtn = $('#search-btn') as HTMLButtonElement | null;
         this.setupEvents();
         this.updateState();
+    }
+
+    public startApiValidationLoading() {
+        if (!this.isLocked || this.isApiValidationLoading) {return;}
+        this.isApiValidationLoading = true;
+        this.apiValidationStartAt = Date.now();
+        this.apiValidationToken++;
+        this.searchContainer?.classList.add('api-loading');
+        if (this.searchInput) {
+            this.searchInput.readOnly = true;
+            this.searchInput.classList.remove('fading-out');
+        }
+        this.updateState();
+    }
+
+    public finishApiValidationLoading(isSuccess: boolean): Promise<void> {
+        const token = this.apiValidationToken;
+        const minDurationMs = 2000;
+        const elapsed = Date.now() - this.apiValidationStartAt;
+        const waitMs = this.isApiValidationLoading ? Math.max(0, minDurationMs - elapsed) : 0;
+
+        return new Promise((resolve) => {
+            window.setTimeout(() => {
+                if (token !== this.apiValidationToken) {
+                    resolve();
+                    return;
+                }
+
+                this.isApiValidationLoading = false;
+                this.searchContainer?.classList.remove('api-loading');
+                if (this.searchInput) {
+                    this.searchInput.readOnly = false;
+                }
+
+                if (isSuccess && this.searchInput && this.searchInput.value.trim().length > 0) {
+                    this.searchInput.classList.add('fading-out');
+                    window.setTimeout(() => {
+                        if (token !== this.apiValidationToken) {
+                            resolve();
+                            return;
+                        }
+                        if (this.searchInput) {
+                            this.searchInput.value = '';
+                            this.lastSearchQuery = '';
+                            this.searchInput.classList.remove('fading-out');
+                        }
+                        this.updateState();
+                        resolve();
+                    }, 320);
+                    return;
+                }
+
+                this.updateState();
+                resolve();
+            }, waitMs);
+        });
     }
 
     public getQuery(): string {
@@ -74,25 +135,7 @@ export class MusicSearchUI {
         this.isLocked = isLocked;
         if (this.searchInput) {
             this.searchInput.placeholder = isLocked ? '🔑 Paste your YouTube API key here...' : 'BETA - Search for music...';
-            
-            if (isLocked) {
-                this.searchInput.value = '';
-                this.updateState();
-            } else if (!isLocked && this.searchInput.value) {
-                // Fade out animation
-                this.searchInput.classList.add('fading-out');
-                
-                setTimeout(() => {
-                    if (this.searchInput) {
-                        this.searchInput.value = '';
-                        this.lastSearchQuery = '';
-                        this.searchInput.classList.remove('fading-out');
-                        this.updateState();
-                    }
-                }, 300);
-            } else {
-                this.updateState();
-            }
+            this.updateState();
         } else {
             this.updateState();
         }
@@ -100,6 +143,15 @@ export class MusicSearchUI {
 
     private updateState() {
         if (!this.searchBtn) {return;}
+
+        if (this.isApiValidationLoading) {
+            this.mode = 'search';
+            this.searchBtn.disabled = true;
+            this.searchBtn.classList.add('is-disabled');
+            this.searchBtn.setAttribute('aria-label', 'Validating API key');
+            this.searchBtn.innerHTML = '<span class="search-btn-loader" aria-hidden="true"></span>';
+            return;
+        }
 
         const currentQuery = this.getQuery();
         const isUnchanged = currentQuery === this.lastSearchQuery && currentQuery.length > 0;
