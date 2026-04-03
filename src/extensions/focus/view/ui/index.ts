@@ -1,6 +1,9 @@
 declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void };
 
 import { createAtmMusicController } from '../../screens/atm-music/root';
+import { LOFI_2026_STREAM_URL } from '../../screens/atm-music/radio/providers/lofi';
+import { FM_111_STREAM_URL } from '../../screens/atm-music/radio/providers/normal';
+import { PODCAST_STREAM_URL } from '../../screens/atm-music/radio/providers/podcast';
 import { createAtmTimeController } from '../../screens/atm-time/ui/index';
 import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
@@ -113,6 +116,15 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     radioButtons.forEach((button) => {
         button.addEventListener('click', () => {
             setActiveRadioButton(button);
+
+            const station = button.dataset.radioStation || '';
+            if (station === 'fm-111') {
+                musicController.playRadioStream('FM - 111', FM_111_STREAM_URL);
+            } else if (station === 'lofi-2026') {
+                musicController.playRadioStream('LoFi 2026', LOFI_2026_STREAM_URL);
+            } else if (station === 'podcast') {
+                musicController.playRadioStream('Podcast', PODCAST_STREAM_URL);
+            }
         });
     });
 

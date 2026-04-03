@@ -87,6 +87,41 @@ export function startAudioServer(): Promise<number> {
                     }
                 });
 
+            } else if (url.pathname === '/radio') {
+                const streamUrl = (url.searchParams.get('streamUrl') || '').trim();
+                if (!streamUrl) {
+                    res.writeHead(400);
+                    return res.end('Missing streamUrl');
+                }
+
+                // Restrict CORS to VS Code webview origins only
+                const origin = req.headers.origin || '';
+                const allowedOrigin = origin.startsWith('vscode-webview://') ? origin : 'null';
+                res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+
+                // Handle CORS preflight
+                if (req.method === 'OPTIONS') {
+                    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+                    res.setHeader('Access-Control-Allow-Headers', 'Range');
+                    res.writeHead(204);
+                    return res.end();
+                }
+
+                let parsed: URL;
+                try {
+                    parsed = new URL(streamUrl);
+                } catch {
+                    res.writeHead(400);
+                    return res.end('Invalid streamUrl');
+                }
+
+                if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                    res.writeHead(400);
+                    return res.end('Unsupported streamUrl protocol');
+                }
+
+                proxyRadioStream(parsed.toString(), req, res, 0);
+
             } else {
                 res.writeHead(404);
                 res.end();
@@ -156,4 +191,65 @@ async function handleSearch(webviewView: vscode.WebviewView, query: string) {
             message: 'Failed to search. Check your connection.',
         } as WebviewMessage);
     }
+}
+
+function proxyRadioStream(
+    targetUrl: string,
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    redirectDepth: number,
+): void {
+    if (redirectDepth > 5) {
+        if (!res.headersSent) {
+            res.writeHead(508);
+        }
+        res.end('Too many redirects');
+        return;
+    }
+
+    let parsed: URL;
+    try {
+        parsed = new URL(targetUrl);
+    } catch {
+        if (!res.headersSent) {
+            res.writeHead(400);
+        }
+        res.end('Invalid redirected stream URL');
+        return;
+    }
+
+    const upstreamHeaders: Record<string, string> = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Icy-MetaData': '1',
+    };
+
+    const protocol = parsed.protocol === 'https:' ? https : http;
+    protocol.get(parsed.toString(), { headers: upstreamHeaders }, (streamRes) => {
+        if (streamRes.statusCode && streamRes.statusCode >= 300 && streamRes.statusCode < 400 && streamRes.headers.location) {
+            const nextUrl = new URL(streamRes.headers.location, parsed).toString();
+            streamRes.resume();
+            return proxyRadioStream(nextUrl, req, res, redirectDepth + 1);
+        }
+
+        const outHeaders: Record<string, string | string[]> = {
+            'Content-Type': streamRes.headers['content-type'] || 'audio/mpeg',
+            'Accept-Ranges': 'bytes',
+        };
+
+        if (streamRes.headers['content-length']) {
+            outHeaders['Content-Length'] = streamRes.headers['content-length'];
+        }
+        if (streamRes.headers['content-range']) {
+            outHeaders['Content-Range'] = streamRes.headers['content-range'];
+        }
+
+        res.writeHead(streamRes.statusCode || 200, outHeaders);
+        streamRes.pipe(res);
+    }).on('error', (e) => {
+        console.error('[ATM Music] Radio pipe error:', e);
+        if (!res.headersSent) {
+            res.writeHead(500);
+        }
+        res.end();
+    });
 }

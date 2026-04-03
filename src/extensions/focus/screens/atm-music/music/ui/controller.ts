@@ -17,6 +17,7 @@ export class AtmMusicController {
     private currentIndex = -1;
     private hasCachedSearch = false;
     private musicLabelEl: HTMLElement | null = null;
+    private radioReconnectTimer: number | null = null;
 
     constructor(private readonly vscode: VSCodeApi) {
         this.musicLabelEl = $('#qa-music-label');
@@ -113,6 +114,18 @@ export class AtmMusicController {
     }
 
     private playNext(silent = false) {
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+
+        // Live radio mode: reconnect same stream if it ends.
+        if (currentTrack && this.isRadioTrack(currentTrack) && this.tracks.length === 1) {
+            if (silent) {
+                this.playerUI.skipToTrack(currentTrack, false, false);
+            } else {
+                this.selectTrack(this.currentIndex);
+            }
+            return;
+        }
+
         if (this.currentIndex < this.tracks.length - 1) {
             this.currentIndex++;
             const track = this.tracks[this.currentIndex];
@@ -158,6 +171,13 @@ export class AtmMusicController {
     }
 
     private handlePlaybackFallback() {
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+
+        if (currentTrack && this.isRadioTrack(currentTrack)) {
+            this.retryRadioStream(currentTrack);
+            return;
+        }
+
         // Silent skip: try the next track without re-rendering
         if (this.currentIndex < this.tracks.length - 1) {
             this.playNext(true);  // silent = true
@@ -183,6 +203,63 @@ export class AtmMusicController {
 
     // Public API for external integration
     public search(query: string) { this.searchUI.setQuery(query); this.performSearch(query); }
+
+    public playRadioStream(stationTitle: string, streamUrl: string) {
+        const safeTitle = (stationTitle || 'LoFi 2026').trim();
+        const safeStreamUrl = (streamUrl || '').trim();
+        if (!safeStreamUrl) {
+            this.showError('Radio stream is unavailable.');
+            return;
+        }
+
+        const port = window.STREAM_PORT || 0;
+        const proxiedUrl = port > 0
+            ? `http://127.0.0.1:${port}/radio?streamUrl=${encodeURIComponent(safeStreamUrl)}`
+            : safeStreamUrl;
+
+        const radioTrack: Track = {
+            id: `radio_${safeTitle.toLowerCase().replace(/\s+/g, '_')}`,
+            videoId: '',
+            title: safeTitle,
+            artist: 'Radio',
+            album: 'Live Stream',
+            thumbnail: '',
+            duration: 0,
+            preview: proxiedUrl,
+            provider: 'deezer',
+            canPlay: true,
+            isFullTrack: true,
+        };
+
+        this.clearError();
+        this.clearRadioReconnectTimer();
+        this.tracks = [radioTrack];
+        this.hasCachedSearch = false;
+        this.currentIndex = 0;
+        this.showScreen('player');
+        this.playerUI.playTrack(radioTrack, false, false);
+        this.updateMusicLabelState();
+    }
+
+    private isRadioTrack(track: Track): boolean {
+        return track.id.startsWith('radio_');
+    }
+
+    private retryRadioStream(track: Track): void {
+        this.clearError();
+        this.clearRadioReconnectTimer();
+
+        this.radioReconnectTimer = window.setTimeout(() => {
+            this.playerUI.skipToTrack(track, false, false);
+        }, 500);
+    }
+
+    private clearRadioReconnectTimer(): void {
+        if (this.radioReconnectTimer !== null) {
+            window.clearTimeout(this.radioReconnectTimer);
+            this.radioReconnectTimer = null;
+        }
+    }
 
     /** Navigate to player (if a track is loaded) or results (if a search was made). */
     public goToMusic() {
