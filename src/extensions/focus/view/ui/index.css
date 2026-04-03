@@ -287,6 +287,48 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     cursor: default;
 }
 
+.qa-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.qa-clear-api-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    width: 0;
+    max-width: 0;
+    opacity: 0;
+    margin-right: 0;
+    overflow: hidden;
+    transform: translateX(-10px);
+    transition: max-width 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.26s ease, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), margin-right 0.32s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+    pointer-events: none;
+    cursor: default;
+    user-select: none;
+}
+
+.qa-tab-btn.has-clear-api:hover .qa-clear-api-btn,
+.qa-tab-btn.has-clear-api:focus-within .qa-clear-api-btn {
+    width: 18px;
+    max-width: 18px;
+    margin-right: 2px;
+    opacity: 0.9;
+    transform: translateX(0);
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.qa-tab-btn.has-clear-api .qa-clear-api-btn:hover,
+.qa-tab-btn.has-clear-api .qa-clear-api-btn:focus-visible {
+    opacity: 1;
+    filter: brightness(1.15);
+    outline: none;
+}
+
 #qa-music-label {
     border-radius: 3px;
     transition: opacity 0.15s ease;
@@ -294,7 +336,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 }
 
 #qa-music-label.is-linkable {
-    cursor: pointer;
+    cursor: default;
 }
 
 #qa-music-label.is-linkable:hover {

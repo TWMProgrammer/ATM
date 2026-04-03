@@ -16,11 +16,13 @@ export class AtmMusicController {
     private tracks: Track[] = [];
     private currentIndex = -1;
     private hasCachedSearch = false;
+    private musicTabBtn: HTMLElement | null = null;
     private musicLabelEl: HTMLElement | null = null;
     private clearApiBtn: HTMLElement | null = null;
     private isLocked = false;
 
     constructor(private readonly vscode: VSCodeApi) {
+        this.musicTabBtn = $('#qa-music-tab');
         this.musicLabelEl = $('#qa-music-label');
         this.clearApiBtn = $('#qa-clear-api-btn');
         this.mountBaseHtml();
@@ -106,6 +108,13 @@ export class AtmMusicController {
         // Bind clear API button
         if (this.clearApiBtn) {
             this.clearApiBtn.addEventListener('click', () => {
+                this.vscode.postMessage({ type: 'clearApiKey' });
+            });
+
+            this.clearApiBtn.addEventListener('keydown', (event: Event) => {
+                const e = event as KeyboardEvent;
+                if (e.key !== 'Enter' && e.key !== ' ') {return;}
+                e.preventDefault();
                 this.vscode.postMessage({ type: 'clearApiKey' });
             });
         }
@@ -229,9 +238,7 @@ export class AtmMusicController {
         if (this.musicLabelEl) {
             this.musicLabelEl.textContent = locked ? '☁️ Get API' : 'Music';
         }
-        if (this.clearApiBtn) {
-            this.clearApiBtn.style.display = locked ? 'none' : 'inline-block';
-        }
+        this.musicTabBtn?.classList.toggle('has-clear-api', !locked);
         this.updateMusicLabelState();
     }
 
