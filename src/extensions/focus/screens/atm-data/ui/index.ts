@@ -208,7 +208,7 @@ export function initDataUI(): void {
   prevBtn    = $('#nav-prev');
   nextBtn    = $('#nav-next');
 
-  // Set initial index (start on commits)
+  // Set initial index (start on time)
   currentIndex = 1;
 
   // Initial static render

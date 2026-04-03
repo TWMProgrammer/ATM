@@ -24,8 +24,8 @@ const ICONS = {
 /** Default stats shown on first load (before real data arrives) */
 function createDefaultStats(): StatEntry[] {
   return [
-    { id: 'stat-time',    icon: ICONS.time,    value: '0m',  label: 'Tiempo en VS Code' },
     { id: 'stat-commits', icon: ICONS.commits, value: '0',   label: 'Commits Hoy' },
+    { id: 'stat-time',    icon: ICONS.time,    value: '0m',  label: 'Tiempo en VS Code' },
     { id: 'stat-files',   icon: ICONS.files,   value: '0',   label: 'Archivos Tocados' },
     { id: 'stat-streak',  icon: ICONS.streak,  value: '0',   label: 'Días de Racha' },
   ];
