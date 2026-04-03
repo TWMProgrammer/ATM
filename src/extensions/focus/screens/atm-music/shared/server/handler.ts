@@ -7,6 +7,17 @@ import { providerManager } from '../../music/providers/provider-manager';
 let streamServer: http.Server | null = null;
 let streamPort = 0;
 
+const PODCAST_DISCOVERY_ENDPOINTS = [
+    'https://de1.api.radio-browser.info',
+    'https://nl1.api.radio-browser.info',
+    'https://at1.api.radio-browser.info',
+];
+
+const PODCAST_FALLBACK = {
+    label: 'Podcast',
+    streamUrl: 'https://securestreams2.autopo.st:1185/;stream/1',
+};
+
 export function startAudioServer(): Promise<number> {
     if (streamServer && streamPort > 0) {return Promise.resolve(streamPort);}
 
@@ -121,6 +132,26 @@ export function startAudioServer(): Promise<number> {
                 }
 
                 proxyRadioStream(parsed.toString(), req, res, 0);
+
+            } else if (url.pathname === '/discover/podcast') {
+                // Restrict CORS to VS Code webview origins only
+                const origin = req.headers.origin || '';
+                const allowedOrigin = origin.startsWith('vscode-webview://') ? origin : 'null';
+                res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+
+                if (req.method === 'OPTIONS') {
+                    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+                    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+                    res.writeHead(204);
+                    return res.end();
+                }
+
+                const station = await discoverPodcastStation();
+                res.writeHead(200, {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Cache-Control': 'no-store',
+                });
+                return res.end(JSON.stringify(station));
 
             } else {
                 res.writeHead(404);
@@ -256,4 +287,102 @@ function proxyRadioStream(
         }
         res.end();
     });
+}
+
+type RadioBrowserStation = {
+    name?: string;
+    url?: string;
+    url_resolved?: string;
+    codec?: string;
+    hls?: number | string;
+    lastcheckok?: number | string;
+};
+
+async function discoverPodcastStation(): Promise<{ label: string; streamUrl: string }> {
+    for (const endpoint of PODCAST_DISCOVERY_ENDPOINTS) {
+        try {
+            const stations = await fetchRadioBrowserPodcastStations(endpoint);
+            const station = pickBestPodcastStation(stations);
+            if (station) {
+                return station;
+            }
+        } catch (error) {
+            console.warn(`[ATM Music] Podcast discovery failed on ${endpoint}:`, error);
+        }
+    }
+
+    return PODCAST_FALLBACK;
+}
+
+function fetchRadioBrowserPodcastStations(endpoint: string): Promise<RadioBrowserStation[]> {
+    return new Promise((resolve, reject) => {
+        const apiUrl = `${endpoint}/json/stations/search?tag=podcast&hidebroken=true&order=clickcount&reverse=true&limit=35`;
+
+        const apiRequest = https.get(apiUrl, {
+            headers: {
+                'User-Agent': 'ATM Focus Extension/1.0',
+                'Accept': 'application/json',
+            },
+            timeout: 10000,
+        }, (response) => {
+            if ((response.statusCode || 500) >= 400) {
+                response.resume();
+                return reject(new Error(`Podcast API returned ${response.statusCode}`));
+            }
+
+            const chunks: Buffer[] = [];
+            response.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+            response.on('end', () => {
+                try {
+                    const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+                    if (Array.isArray(parsed)) {
+                        resolve(parsed as RadioBrowserStation[]);
+                    } else {
+                        resolve([]);
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+
+        apiRequest.on('timeout', () => {
+            apiRequest.destroy(new Error('Podcast API timeout'));
+        }).on('error', (error) => {
+            reject(error);
+        });
+    });
+}
+
+function pickBestPodcastStation(stations: RadioBrowserStation[]): { label: string; streamUrl: string } | null {
+    for (const station of stations) {
+        const streamUrl = (station.url_resolved || station.url || '').trim();
+        if (!streamUrl.startsWith('http://') && !streamUrl.startsWith('https://')) {
+            continue;
+        }
+
+        const isOk = Number(station.lastcheckok ?? 1) === 1;
+        if (!isOk) {
+            continue;
+        }
+
+        const isHls = Number(station.hls ?? 0) === 1;
+        if (isHls) {
+            continue;
+        }
+
+        const codec = (station.codec || '').toLowerCase();
+        const likelyPlayable = !codec || codec.includes('mp3') || codec.includes('aac');
+        if (!likelyPlayable) {
+            continue;
+        }
+
+        const rawLabel = (station.name || PODCAST_FALLBACK.label).trim();
+        return {
+            label: rawLabel || PODCAST_FALLBACK.label,
+            streamUrl,
+        };
+    }
+
+    return null;
 }

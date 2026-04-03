@@ -206,6 +206,33 @@ export class AtmMusicController {
     // Public API for external integration
     public search(query: string) { this.searchUI.setQuery(query); this.performSearch(query); }
 
+    public async playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string): Promise<void> {
+        const fallbackSafeTitle = (fallbackTitle || 'Podcast').trim();
+        const fallbackSafeStreamUrl = (fallbackStreamUrl || '').trim();
+
+        const port = window.STREAM_PORT || 0;
+        if (port <= 0) {
+            this.playRadioStream(fallbackSafeTitle, fallbackSafeStreamUrl);
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://127.0.0.1:${port}/discover/podcast`);
+            if (!response.ok) {
+                throw new Error(`Podcast discovery failed with HTTP ${response.status}`);
+            }
+
+            const data = await response.json() as { label?: string; streamUrl?: string };
+            const title = (data.label || fallbackSafeTitle).trim();
+            const streamUrl = (data.streamUrl || fallbackSafeStreamUrl).trim();
+
+            this.playRadioStream(title || fallbackSafeTitle, streamUrl);
+        } catch (error) {
+            console.warn('[ATM Music] Podcast API discovery failed, using fallback:', error);
+            this.playRadioStream(fallbackSafeTitle, fallbackSafeStreamUrl);
+        }
+    }
+
     public playRadioStream(stationTitle: string, streamUrl: string) {
         const safeTitle = (stationTitle || 'LoFi 2026').trim();
         const safeStreamUrl = (streamUrl || '').trim();

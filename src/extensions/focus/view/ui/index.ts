@@ -133,6 +133,11 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             setActiveRadioButton(button);
 
             const station = button.dataset.radioStation || '';
+            if (station === 'podcast') {
+                void musicController.playPodcastFromApi('Podcast', PODCAST_STREAM_URL);
+                return;
+            }
+
             const selectedStation = radioStationMap[station];
             if (selectedStation) {
                 musicController.playRadioStream(selectedStation.title, selectedStation.streamUrl);
