@@ -177,7 +177,7 @@ export class MusicSearchUI {
     private updateState() {
         if (!this.searchBtn) {return;}
 
-        this.searchBtn.classList.remove('is-api-ready', 'is-api-error', 'is-api-idle');
+        this.searchBtn.classList.remove('is-api-error');
 
         if (this.isApiValidationLoading) {
             this.mode = 'search';
@@ -205,7 +205,6 @@ export class MusicSearchUI {
             this.mode = hasValue ? 'search' : 'disabled';
             this.searchBtn.disabled = !hasValue;
             this.searchBtn.classList.toggle('is-disabled', !hasValue);
-            this.searchBtn.classList.add(hasValue ? 'is-api-ready' : 'is-api-idle');
             this.searchBtn.setAttribute('aria-label', hasValue ? 'Validate API key' : 'Paste API key');
             this.searchBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
             return;

@@ -210,28 +210,6 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     background: var(--vscode-button-secondaryBackground);
 }
 
-.search-btn.is-api-idle {
-    background: color-mix(in srgb, var(--vscode-button-background) 45%, var(--vscode-button-secondaryBackground));
-    color: color-mix(in srgb, var(--vscode-button-foreground) 78%, var(--vscode-descriptionForeground));
-}
-
-.search-btn.is-api-idle.is-disabled,
-.search-btn.is-api-idle:disabled {
-    opacity: 0.9;
-    background: color-mix(in srgb, var(--vscode-button-background) 48%, var(--vscode-button-secondaryBackground));
-    color: color-mix(in srgb, var(--vscode-button-foreground) 72%, var(--vscode-descriptionForeground));
-}
-
-.search-btn.is-api-ready {
-    background: linear-gradient(135deg, #22c55e 0%, #14b8a6 52%, #22d3ee 100%);
-    color: #052e22;
-    box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.45), 0 0 16px rgba(20, 184, 166, 0.24);
-}
-
-.search-btn.is-api-ready:hover {
-    background: linear-gradient(135deg, #2dd46b 0%, #18c9b6 52%, #36dbf3 100%);
-}
-
 .search-btn.is-api-error {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
     color: #fff;
@@ -240,10 +218,6 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 
 .search-btn.is-api-error:hover {
     background: linear-gradient(135deg, #f15b5b 0%, #e33a3a 50%, #c72626 100%);
-}
-
-body.vscode-light .search-btn.is-api-ready {
-    color: #073126;
 }
 
 .search-btn-loader {
