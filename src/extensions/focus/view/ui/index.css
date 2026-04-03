@@ -241,7 +241,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .quick-access {
     display: flex;
     gap: 6px;
-    margin-top: 16px;
+    margin-top: 20px;
     max-width: 600px;
     justify-content: center;
     flex-wrap: wrap;
@@ -290,6 +290,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .qa-tab-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0;
     transition: padding-left 0.62s cubic-bezier(0.22, 0.61, 0.36, 1), padding-right 0.62s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
