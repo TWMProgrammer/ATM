@@ -1,6 +1,11 @@
-.play-btn.loading,
-#qa-play-btn.loading {
+
+.play-btn.loading {
 	position: relative;
+	pointer-events: none;
+}
+
+#qa-play-btn.loading {
+	position: absolute;
 	pointer-events: none;
 }
 
@@ -16,8 +21,6 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 16px;
-	height: 16px;
 	border-radius: 50%;
 	background: linear-gradient(
 		90deg,
@@ -27,6 +30,16 @@
 	);
 	background-size: 200% 100%;
 	animation: play-btn-skeleton-shimmer 1.5s linear infinite;
+}
+
+.play-btn.loading::after {
+	width: 16px;
+	height: 16px;
+}
+
+#qa-play-btn.loading::after {
+	width: 11px;
+	height: 11px;
 }
 
 body.vscode-light .play-btn.loading::after,
