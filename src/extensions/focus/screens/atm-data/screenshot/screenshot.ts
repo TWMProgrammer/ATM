@@ -145,6 +145,7 @@ async function fetchDashboardData(nickname: string) {
         const provider = ATMDataProvider.getInstance();
         timeLabel = provider.getFormattedTime();
         filesChanged = provider.getFilesEditedCount();
+        dayStreak = provider.getLocalStreak(); // Local streak — instant, no network
     } catch {}
 
     // Local git commits today

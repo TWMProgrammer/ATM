@@ -20,6 +20,7 @@ export class ATMDataProvider {
   
   private activeMinutesToday: number = 0;
   private filesEditedToday: Set<string> = new Set();
+  private localStreak: number = 0;
   
   private updateInterval: NodeJS.Timeout | null = null;
   private lastActivityTime: number = Date.now();
@@ -55,6 +56,50 @@ export class ATMDataProvider {
     } else {
       this.resetDailyStats();
     }
+    // Initialize local streak (must happen after date check)
+    this.initStreak();
+  }
+
+  /**
+   * Local streak logic — runs once per session on init.
+   * Compares today vs the last active date stored in globalState:
+   *   - Same day   → keep current streak (already counted today)
+   *   - Yesterday  → increment streak (consecutive day!)
+   *   - Older/none → reset to 1 (streak broken)
+   * Cost: reads 2 integers from disk. Zero network, zero CPU.
+   */
+  private initStreak(): void {
+    if (!this.context) { return; }
+
+    const todayMs   = this.startOfDay(new Date());
+    const lastMs    = this.context.globalState.get<number>('atm_streak_last_day_ms') || 0;
+    const stored    = this.context.globalState.get<number>('atm_streak_count') || 0;
+    const yesterdayMs = todayMs - 86_400_000; // exactly 24 h back
+
+    if (lastMs === todayMs) {
+      // Already opened today — just restore the stored value
+      this.localStreak = stored;
+    } else if (lastMs === yesterdayMs) {
+      // Consecutive day — increment!
+      this.localStreak = stored + 1;
+      this.context.globalState.update('atm_streak_count',       this.localStreak);
+      this.context.globalState.update('atm_streak_last_day_ms', todayMs);
+    } else {
+      // Missed at least one day (or first launch) — reset to 1
+      this.localStreak = 1;
+      this.context.globalState.update('atm_streak_count',       1);
+      this.context.globalState.update('atm_streak_last_day_ms', todayMs);
+    }
+  }
+
+  /** Returns midnight (00:00:00.000) of the given date in local time as ms. */
+  private startOfDay(date: Date): number {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  }
+
+  /** Public accessor for the local coding streak. */
+  public getLocalStreak(): number {
+    return this.localStreak;
   }
 
   public setWebview(webviewView: vscode.WebviewView) {
@@ -230,28 +275,26 @@ export class ATMDataProvider {
     }
 
     let totalCommits = await this.getLocalCommits();
-    let streak = 0;
 
+    // Always start from the reliable local streak.
+    // If the user has a real GitHub nickname, we optionally add GitHub commits
+    // but we no longer use GitHub for streak (too unreliable & needs network).
     if (this.currentNickname && this.currentNickname.trim() !== '' && this.currentNickname !== 'username') {
         if (forceGithubFetch) {
             const ghStats = await this.fetchGitHubStats(this.currentNickname);
             this.context?.globalState.update('atm_last_bg_commits', ghStats.commits);
-            this.context?.globalState.update('atm_last_bg_streak', ghStats.streak);
             totalCommits += ghStats.commits;
-            streak = ghStats.streak;
         } else {
             const cachedCommits = this.context?.globalState.get<number>('atm_last_bg_commits') || 0;
-            const cachedStreak = this.context?.globalState.get<number>('atm_last_bg_streak') || 0;
             totalCommits += cachedCommits;
-            streak = cachedStreak;
         }
     }
 
     const stats: ATMStats = {
-      'stat-time': this.formatTime(this.activeMinutesToday),
+      'stat-time':   this.formatTime(this.activeMinutesToday),
       'stat-commits': totalCommits.toString(),
-      'stat-files': this.filesEditedToday.size.toString(),
-      'stat-streak': streak.toString()
+      'stat-files':  this.filesEditedToday.size.toString(),
+      'stat-streak': this.localStreak.toString(),   // ← always local, always accurate
     };
 
     this.webviewView.webview.postMessage({
