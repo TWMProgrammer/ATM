@@ -74,9 +74,28 @@ export class MusicSearchUI {
         this.isLocked = isLocked;
         if (this.searchInput) {
             this.searchInput.placeholder = isLocked ? '🔑 Paste your YouTube API key here...' : 'BETA - Search for music...';
-            if (isLocked) {this.searchInput.value = '';}
+            
+            if (isLocked) {
+                this.searchInput.value = '';
+                this.updateState();
+            } else if (!isLocked && this.searchInput.value) {
+                // Fade out animation
+                this.searchInput.classList.add('fading-out');
+                
+                setTimeout(() => {
+                    if (this.searchInput) {
+                        this.searchInput.value = '';
+                        this.lastSearchQuery = '';
+                        this.searchInput.classList.remove('fading-out');
+                        this.updateState();
+                    }
+                }, 300);
+            } else {
+                this.updateState();
+            }
+        } else {
+            this.updateState();
         }
-        this.updateState();
     }
 
     private updateState() {

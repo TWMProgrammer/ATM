@@ -83,6 +83,12 @@ body {
     box-shadow: 0 0 0 1px var(--vscode-focusBorder);
 }
 
+.search-input.fading-out {
+    color: transparent !important;
+    opacity: 0 !important;
+    transition: color 0.3s ease, opacity 0.3s ease !important;
+}
+
 .search-input::placeholder {
     color: var(--vscode-input-placeholderForeground);
     opacity: 0.7;

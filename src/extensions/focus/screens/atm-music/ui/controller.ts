@@ -17,10 +17,12 @@ export class AtmMusicController {
     private currentIndex = -1;
     private hasCachedSearch = false;
     private musicLabelEl: HTMLElement | null = null;
+    private clearApiBtn: HTMLElement | null = null;
     private isLocked = false;
 
     constructor(private readonly vscode: VSCodeApi) {
         this.musicLabelEl = $('#qa-music-label');
+        this.clearApiBtn = $('#qa-clear-api-btn');
         this.mountBaseHtml();
         
         this.searchUI = new MusicSearchUI(
@@ -100,6 +102,13 @@ export class AtmMusicController {
                 this.showError(msg.message || 'Unknown error');
             }
         });
+
+        // Bind clear API button
+        if (this.clearApiBtn) {
+            this.clearApiBtn.addEventListener('click', () => {
+                this.vscode.postMessage({ type: 'clearApiKey' });
+            });
+        }
 
         // Notify Extension to start the background audio stream server
         this.vscode.postMessage({ type: 'ready' } as WebviewMessage);
@@ -208,6 +217,9 @@ export class AtmMusicController {
         this.searchUI.setLocked(locked);
         if (this.musicLabelEl) {
             this.musicLabelEl.textContent = locked ? '☁️ Get API' : 'Music';
+        }
+        if (this.clearApiBtn) {
+            this.clearApiBtn.style.display = locked ? 'none' : 'inline-block';
         }
         this.updateMusicLabelState();
     }
