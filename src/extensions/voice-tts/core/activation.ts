@@ -124,52 +124,56 @@ async function runPlayback(
     return;
   }
 
-  // 1. Get current editor selection (if any)
-  const editor = vscode.window.activeTextEditor;
-  const editorText = (editor && !editor.selection.isEmpty) 
-    ? editor.document.getText(editor.selection).trim() 
-    : '';
-
   let text = '';
+  const originalClipboard = await vscode.env.clipboard.readText();
+  const DUMMY_TEXT = '___ATM_TTS_DUMMY_CLIPBOARD___';
 
-  if (editorText) {
-    // If we have an active editor selection, ALWAYS use that immediately.
-    // This avoids messing with clipboard unnecessarily.
-    text = editorText;
-  } else {
-    // 2. No editor selection? We might be in a Webview, Output Panel, AI Chat, etc.
-    // Try to capture text by copying it to the clipboard.
+  try {
+    // 1. Try to capture text from whatever is currently focused (Webview, AI Chat, Editor)
+    // by using the system Copy command. This ensures the *focused* selection wins over an
+    // inactive editor selection. We use a dummy text to see if the copy actually succeeds.
+    await vscode.env.clipboard.writeText(DUMMY_TEXT);
     
-    // Remember original clipboard
-    const originalClipboard = await vscode.env.clipboard.readText();
+    // Simulate "Copy" action (this captures from the active UI element)
+    await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
     
+    // Give the system a brief moment to update the clipboard (Webview IPC takes a few ms)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const newClipboard = await vscode.env.clipboard.readText();
+    
+    // If the clipboard changed from DUMMY_TEXT, it means we successfully copied something new
+    if (newClipboard && newClipboard !== DUMMY_TEXT) {
+      text = newClipboard.trim();
+    }
+    
+    // Try restoring original clipboard silently so we don't pollute it
     try {
-      // Simulate "Copy" action
-      await vscode.commands.executeCommand('editor.action.clipboardCopyAction');
-      
-      // Give the system a brief moment to update the clipboard
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      const newClipboard = await vscode.env.clipboard.readText();
-      
-      // If clipboard actually changed, it means something new was copied
-      if (newClipboard && newClipboard !== originalClipboard) {
-        text = newClipboard.trim();
-        
-        // Try restoring original clipboard silently so we don't pollute it
-        try {
-          await vscode.env.clipboard.writeText(originalClipboard);
-        } catch {
-          // It's okay if restore fails
-        }
-      } else if (originalClipboard) {
-        // Fallback: Use what was already in the clipboard
-        text = originalClipboard.trim();
+      if (originalClipboard) {
+        await vscode.env.clipboard.writeText(originalClipboard);
+      } else {
+        await vscode.env.clipboard.writeText('');
       }
     } catch {
-      // Fallback: Use what was already in the clipboard
-      text = originalClipboard.trim();
+      // Ignored
     }
+  } catch (error) {
+    console.error('[voice-tts] Clipboard copy approach failed:', error);
+  }
+
+  // 2. If no text was actively selected in the focused element, 
+  // fallback to the active editor's selection.
+  if (!text) {
+    const editor = vscode.window.activeTextEditor;
+    if (editor && !editor.selection.isEmpty) {
+      text = editor.document.getText(editor.selection).trim();
+    }
+  }
+
+  // 3. Fallback to whatever was originally in the clipboard if still no text.
+  // This allows users to read text copied from outside VS Code.
+  if (!text && originalClipboard) {
+    text = originalClipboard.trim();
   }
 
   if (!text) {
