@@ -279,6 +279,11 @@
           "type": "boolean",
           "default": false,
           "description": "Disable all hover reveal actions and force hidden env values for maximum safety."
+        },
+        "atm.youtubeApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "YouTube V3 API Key for ATM Music Search"
         }
       }
     },

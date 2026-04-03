@@ -120,12 +120,21 @@ export async function handleWebviewMessage(
 ) {
     if (message.type === 'ready') {
         const port = await startAudioServer();
+        const apiKey = vscode.workspace.getConfiguration('atm').get<string>('youtubeApiKey') || '';
         webviewView.webview.postMessage({
             type: 'config',
-            streamPort: port
+            streamPort: port,
+            apiKey
         } as WebviewMessage);
     } else if (message.type === 'search' && message.query) {
         handleSearch(webviewView, message.query);
+    } else if (message.type === 'validateAndSaveApi' && message.apiKey) {
+        handleValidateApiKey(webviewView, message.apiKey);
+    } else if (message.type === 'openUrl' && message.url) {
+        vscode.env.openExternal(vscode.Uri.parse(message.url));
+    } else if (message.type === 'clearApiKey') {
+        await vscode.workspace.getConfiguration('atm').update('youtubeApiKey', '', vscode.ConfigurationTarget.Global);
+        webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false, apiKey: '' } as WebviewMessage);
     }
 }
 
@@ -156,4 +165,80 @@ async function handleSearch(webviewView: vscode.WebviewView, query: string) {
             message: 'Failed to search. Check your connection.',
         } as WebviewMessage);
     }
+}
+
+async function handleValidateApiKey(webviewView: vscode.WebviewView, apiKey: string) {
+    try {
+        const key = (apiKey || '').trim();
+        if (!key) {
+            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false } as WebviewMessage);
+            return;
+        }
+
+        const validation = await validateYoutubeApiKey(key);
+
+        if (validation.isValid) {
+            await vscode.workspace.getConfiguration('atm').update('youtubeApiKey', key, vscode.ConfigurationTarget.Global);
+            webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: true, apiKey: key } as WebviewMessage);
+        } else {
+            webviewView.webview.postMessage({
+                type: 'apiKeyValidationResult',
+                isValid: false,
+                message: validation.message || 'Invalid YouTube API key or unavailable key.'
+            } as WebviewMessage);
+        }
+    } catch (e) {
+        webviewView.webview.postMessage({ type: 'apiKeyValidationResult', isValid: false } as WebviewMessage);
+    }
+}
+
+async function validateYoutubeApiKey(apiKey: string): Promise<{ isValid: boolean; message?: string }> {
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=id&id=dQw4w9WgXcQ&key=${encodeURIComponent(apiKey)}`;
+
+    return new Promise((resolve) => {
+        const req = https.get(url, (res) => {
+            let raw = '';
+
+            res.on('data', (chunk) => {
+                raw += chunk.toString();
+            });
+
+            res.on('end', () => {
+                const status = res.statusCode || 0;
+                let parsed: any = null;
+
+                if (raw) {
+                    try {
+                        parsed = JSON.parse(raw);
+                    } catch {
+                        parsed = null;
+                    }
+                }
+
+                if (status === 200 && !parsed?.error) {
+                    resolve({ isValid: true });
+                    return;
+                }
+
+                const backendMessage = typeof parsed?.error?.message === 'string' ? parsed.error.message : '';
+                const fallbackMessage = status === 403
+                    ? 'API key rejected (permissions or quota).'
+                    : status === 400
+                        ? 'API key format is invalid.'
+                        : status > 0
+                            ? `API validation failed (${status}).`
+                            : 'API validation failed.';
+
+                resolve({ isValid: false, message: backendMessage || fallbackMessage });
+            });
+        });
+
+        req.setTimeout(8000, () => {
+            req.destroy(new Error('timeout'));
+        });
+
+        req.on('error', () => {
+            resolve({ isValid: false, message: 'Network error while validating API key.' });
+        });
+    });
 }
