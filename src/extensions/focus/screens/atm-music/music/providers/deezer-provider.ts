@@ -1,5 +1,5 @@
 import * as https from 'https';
-import { Track } from '../../../../shared/types';
+import { Track } from '../../shared/types';
 import { IMusicProvider } from './base-provider';
 
 interface DeezerTrack {

@@ -1,4 +1,4 @@
-import { Track } from '../../../../shared/types';
+import { Track } from '../../shared/types';
 
 /**
  * Abstract interface that all music providers must implement.

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { handleWebviewMessage } from '../screens/atm-music/music';
+import { handleWebviewMessage } from '../screens/atm-music/shared/server/handler';
 import { openScreenshotPanel, refreshScreenshotPanelData } from '../screens/atm-data/screenshot/screenshot';
 import { ATMDataProvider } from '../screens/atm-data/core/provider';
 
@@ -59,7 +59,7 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		// Asset paths
 		const styles = [
 			['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
-			['src', 'extensions', 'focus', 'screens', 'atm-music', 'ui', 'index.css'],
+			['src', 'extensions', 'focus', 'screens', 'atm-music', 'music', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
 			['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.css'],
 		];

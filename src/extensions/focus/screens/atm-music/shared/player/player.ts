@@ -1,5 +1,5 @@
 import { $, escapeHtml, formatDuration } from '../../../../shared/utils';
-import { Track } from '../../../../shared/types';
+import { Track } from '../types';
 
 export class MusicPlayerUI {
     private container: HTMLElement | null = null;

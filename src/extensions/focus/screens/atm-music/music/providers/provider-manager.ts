@@ -1,4 +1,4 @@
-import { Track } from '../../../../shared/types';
+import { Track } from '../../shared/types';
 import { IMusicProvider } from './base-provider';
 import { NeteaseProvider } from './netease-provider';
 import { DeezerProvider } from './deezer-provider';

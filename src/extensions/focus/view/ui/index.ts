@@ -1,6 +1,6 @@
 declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void };
 
-import { createAtmMusicController } from '../../screens/atm-music/ui/index';
+import { createAtmMusicController } from '../../screens/atm-music/root';
 import { createAtmTimeController } from '../../screens/atm-time/ui/index';
 import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 

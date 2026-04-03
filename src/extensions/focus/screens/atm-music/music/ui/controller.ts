@@ -1,8 +1,8 @@
-import { WebviewMessage, Track } from '../../../shared/types';
-import { MusicSearchUI } from './components/search';
-import { MusicResultsUI } from './components/results';
-import { MusicPlayerUI } from './components/player';
-import { $, escapeHtml } from '../../../shared/utils';
+import { WebviewMessage, Track } from '../../shared/types';
+import { MusicSearchUI } from './search';
+import { MusicResultsUI } from './results';
+import { MusicPlayerUI } from '../../shared/player/player';
+import { $, escapeHtml } from '../../../../shared/utils';
 
 export interface VSCodeApi {
     postMessage: (message: WebviewMessage) => void;

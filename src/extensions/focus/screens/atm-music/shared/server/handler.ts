@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as http from 'http';
 import * as https from 'https';
-import { WebviewMessage } from '../../../shared/types';
-import { providerManager } from './providers/provider-manager';
+import { WebviewMessage } from '../types';
+import { providerManager } from '../../music/providers/provider-manager';
 
 let streamServer: http.Server | null = null;
 let streamPort = 0;
