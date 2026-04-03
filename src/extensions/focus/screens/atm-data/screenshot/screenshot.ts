@@ -390,13 +390,8 @@ async function fetchDashboardData(nickname: string) {
                 }
             }
 
-            if (heatmapData.length > 0) {
-                let streak = 0;
-                for (let i = heatmapData.length - 1; i >= 0; i--) {
-                    if (heatmapData[i] > 0) { streak++; } else { break; }
-                }
-                dayStreak = streak;
-            }
+            // Note: dayStreak is already set from provider.getLocalStreak() above.
+            // We no longer derive it from GitHub heatmap data (unreliable & overrides local).
 
             // Fallback for weekly commits when per-day counts are not available.
             if (totalCommits === 0) {
@@ -417,8 +412,6 @@ async function fetchDashboardData(nickname: string) {
         }
     }
 
-    const activeDays = heatmapData.filter(level => level > 0).length;
-
     return {
         name,
         followers,
@@ -435,7 +428,6 @@ async function fetchDashboardData(nickname: string) {
         heatmapData,
         heatmapGrid,
         heatmapMonthPositions,
-        activeDays
     };
 }
 
