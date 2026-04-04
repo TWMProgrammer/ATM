@@ -185,6 +185,54 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 		displayName: 'RFM',
 		streamUrl: 'https://23603.live.streamtheworld.com/RFMAAC.aac',
 	},
+	{
+		id: 'cn',
+		label: 'AM - China 🇨🇳',
+		displayName: 'FM100.8 Baohe Voice',
+		streamUrl: 'https://lhttp-hw.qtfm.cn/live/5022668/64k.mp3',
+	},
+	{
+		id: 'sg',
+		label: 'AM - Singapore 🇸🇬',
+		displayName: '938 Now Radio',
+		streamUrl: 'http://playerservices.streamtheworld.com/api/livestream-redirect/938NOWAAC.aac',
+	},
+	{
+		id: 'my',
+		label: 'AM - Malaysia 🇲🇾',
+		displayName: '988 FM',
+		streamUrl: 'https://28103.live.streamtheworld.com/988_FMAAC.aac',
+	},
+	{
+		id: 'id',
+		label: 'AM - Indonesia 🇮🇩',
+		displayName: 'Radio Suara Al-Iman 846 AM Surabaya',
+		streamUrl: 'https://radioislamindonesia.com/aliman.mp3',
+	},
+	{
+		id: 'th',
+		label: 'AM - Thailand 🇹🇭',
+		displayName: '101.5 Chula Radio',
+		streamUrl: 'http://radio11.plathong.net:7590/;stream.mp3',
+	},
+	{
+		id: 'ph',
+		label: 'AM - Philippines 🇵🇭',
+		displayName: 'Radyo Katribu Philippines Teleradyo',
+		streamUrl: 'https://io.radyoph.com:8020/katribu',
+	},
+	{
+		id: 'tw',
+		label: 'AM - Taiwan 🇹🇼',
+		displayName: '1766 Online Radio',
+		streamUrl: 'http://livestream.1766.today:1768/live1.mp3',
+	},
+	{
+		id: 'hk',
+		label: 'AM - Hong Kong 🇭🇰',
+		displayName: 'Apple FM',
+		streamUrl: 'http://sc.apple-fm.net:9020/',
+	},
 ];
 
 export const AM_STATIONS: AmPeruStation[] = [
