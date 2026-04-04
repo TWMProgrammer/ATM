@@ -78,11 +78,10 @@ export class AtmMusicController {
                     <span id="player-track-info" class="player-track-info"></span>
                     <button id="player-random-country-btn" class="header-icon-btn" type="button" title="Random AM country" aria-label="Play random AM country" aria-hidden="true" hidden>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 7h6l2-3 2 3h8"></path>
-                            <path d="M3 17h6l2 3 2-3h8"></path>
-                            <path d="M17 5l4 4-4 4"></path>
-                            <path d="M17 11l4-4"></path>
-                            <path d="M17 19l4-4"></path>
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M3 12h18"></path>
+                            <path d="M12 3a14 14 0 0 1 0 18"></path>
+                            <path d="M12 3a14 14 0 0 0 0 18"></path>
                         </svg>
                     </button>
                 </div>
