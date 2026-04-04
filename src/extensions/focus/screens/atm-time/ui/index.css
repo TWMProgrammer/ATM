@@ -115,56 +115,54 @@
     position: relative;
 }
 
-/* Base diffuse glow behind the text - Intensified */
+/* Base diffuse glow behind the text - Balanced + a bit more pop */
 #pomo-time-display::after {
     content: "";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 260px; /* Increased size */
-    height: 240px;
-    background: radial-gradient(circle, color-mix(in srgb, var(--vscode-button-background), transparent 50%) 0%, transparent 85%);
-    filter: blur(32px); /* Higher blur for smoother but bigger spread */
+    width: 240px;
+    height: 220px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--vscode-button-background), transparent 66%) 0%, transparent 80%);
+    filter: blur(30px);
     z-index: -1;
     pointer-events: none;
     border-radius: 50%;
     transition: all 0.8s ease;
-    opacity: 0.8; /* Base opacity higher */
+    opacity: 0.8;
 }
 
 .is-playing #pomo-time-display::after {
     opacity: 1;
-    animation: glow-pulse 3s infinite ease-in-out; /* Slightly faster pulse */
+    animation: glow-pulse 3.5s infinite ease-in-out;
 }
 
 @keyframes glow-pulse {
     0%, 100% {
-        transform: translate(-50%, -50%) scale(0.9);
-        opacity: 0.6;
-        filter: blur(32px);
+        transform: translate(-50%, -50%) scale(0.95);
+        opacity: 0.7;
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.3); /* More extreme scale */
+        transform: translate(-50%, -50%) scale(1.22); /* Just a tiny bit more */
         opacity: 1;
-        filter: blur(40px);
     }
 }
 
-/* Adjust glow for completion state - More intense green */
+/* Adjust glow for completion state */
 #pomo-time-display.timer-complete::after {
-    background: radial-gradient(circle, color-mix(in srgb, var(--vscode-charts-green, #2dc2c2), transparent 40%) 0%, transparent 85%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--vscode-charts-green, #2dc2c2), transparent 60%) 0%, transparent 85%);
     animation: none;
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.1);
 }
 
 #pomo-time-display {
-    font-size: 64px; /* Even slightly larger for impact */
-    font-weight: 900; /* Extra bold */
+    font-size: 62px;
+    font-weight: 800; /* Prominent but clean */
     font-variant-numeric: tabular-nums;
-    letter-spacing: -2.5px;
-    background: linear-gradient(to bottom, var(--vscode-editor-foreground) 45%, color-mix(in srgb, var(--vscode-editor-foreground), transparent 40%) 110%);
+    letter-spacing: -2px;
+    background: linear-gradient(to bottom, var(--vscode-editor-foreground) 45%, color-mix(in srgb, var(--vscode-editor-foreground), transparent 50%) 110%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -176,8 +174,8 @@
 }
 
 #pomo-time-display.timer-complete {
-    background: linear-gradient(to bottom, var(--vscode-button-background, #3794ff) 40%, color-mix(in srgb, var(--vscode-button-background), transparent 30%) 130%) !important;
+    background: linear-gradient(to bottom, var(--vscode-button-background, #3794ff) 50%, transparent 130%) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
-    filter: drop-shadow(0 0 20px color-mix(in srgb, var(--vscode-button-background), transparent 40%)) !important;
+    filter: drop-shadow(0 0 15px color-mix(in srgb, var(--vscode-button-background), transparent 50%)) !important;
 }
