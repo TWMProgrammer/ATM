@@ -1,6 +1,7 @@
 declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void };
 
 import { createAtmMusicController } from '../../screens/atm-music/root';
+import { AM_PERU_STREAM_URL } from '../../screens/atm-music/radio/providers/am';
 import { LOFI_2026_STREAM_URL } from '../../screens/atm-music/radio/providers/lofi';
 import { FM_111_STREAM_URL } from '../../screens/atm-music/radio/providers/normal';
 import { PODCAST_STREAM_URL } from '../../screens/atm-music/radio/providers/podcast';
@@ -125,6 +126,10 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         'podcast': {
             title: 'FM - Podcast',
             streamUrl: PODCAST_STREAM_URL,
+        },
+        'am-peru': {
+            title: 'AM - Peru',
+            streamUrl: AM_PERU_STREAM_URL,
         },
     };
 
