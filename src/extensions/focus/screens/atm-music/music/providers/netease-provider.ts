@@ -1,4 +1,4 @@
-import { Track } from '../../../../shared/types';
+import { Track } from '../../shared/types';
 import { IMusicProvider } from './base-provider';
 
 // Lazy-load NeteaseCloudMusicApi to prevent crashing the entire extension

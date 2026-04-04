@@ -1,5 +1,5 @@
 import { $, escapeHtml, formatDuration } from '../../../../shared/utils';
-import { Track } from '../../../../shared/types';
+import { Track } from '../../shared/types';
 import { buildGradientBanner } from '../../../../shared/ui-ux/gradient-banner';
 
 /**
