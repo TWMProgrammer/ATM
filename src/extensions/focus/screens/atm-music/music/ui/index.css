@@ -35,6 +35,34 @@
     background: var(--vscode-button-secondaryHoverBackground);
 }
 
+.header-icon-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vscode-button-secondaryForeground);
+    background: var(--vscode-button-secondaryBackground);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.header-icon-btn:hover {
+    background: var(--vscode-button-secondaryHoverBackground);
+    transform: translateY(-1px);
+}
+
+.header-icon-btn:active {
+    transform: translateY(0);
+}
+
+.header-icon-btn[hidden] {
+    display: none;
+}
+
 .results-query {
     display: flex;
     align-items: center;

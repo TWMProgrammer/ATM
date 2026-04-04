@@ -40,7 +40,8 @@ export class MusicPlayerUI {
         private readonly onNext: () => void,
         private readonly onPrev: () => void,
         private readonly onBack: () => void,
-        private readonly onFallback: () => void
+        private readonly onFallback: () => void,
+        private readonly onRandomAmCountry: () => void
     ) {
         this.container = $('#player-container');
         this.trackInfo = $('#player-track-info');
@@ -529,10 +530,19 @@ export class MusicPlayerUI {
         if (this.trackInfo) {
             this.trackInfo.innerHTML = `<span class="header-track-artist">${escapeHtml(track.artist)}</span><span class="header-track-separator"> - </span><span class="header-track-title">${escapeHtml(track.title)}</span>`;
         }
+
+        const randomBtn = this.$c<HTMLButtonElement>('#player-random-country-btn');
+        if (randomBtn) {
+            const isAmRadioTrack = this.isRadioTrack(track) && /^AM\s*-\s*/i.test(track.title || '');
+            randomBtn.hidden = !isAmRadioTrack;
+            randomBtn.setAttribute('aria-hidden', isAmRadioTrack ? 'false' : 'true');
+            randomBtn.disabled = !isAmRadioTrack;
+        }
     }
 
     private setupBackEvents() {
         $('#back-to-results')?.addEventListener('click', () => this.onBack());
+        $('#player-random-country-btn')?.addEventListener('click', () => this.onRandomAmCountry());
         
         $('#qa-play-btn')?.addEventListener('click', (e: Event) => {
             e.stopPropagation();
