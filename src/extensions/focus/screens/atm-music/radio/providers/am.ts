@@ -9,19 +9,19 @@ export interface AmPeruStation {
 export const AM_PERU_STATIONS: AmPeruStation[] = [
 	{
 		id: 'peru-norte',
-		label: 'AM - Perú 🇵🇪 | Norte',
+		label: 'AM - Perú 🇵🇪 :: Norte',
 		displayName: 'Boleros Inolvidables (FMLima)',
 		streamUrl: 'https://stream.zeno.fm/5t45zksv7mruv',
 	},
 	{
 		id: 'peru-este',
-		label: 'AM - Perú 🇵🇪 | Este',
+		label: 'AM - Perú 🇵🇪 :: Este',
 		displayName: 'La Noventera',
 		streamUrl: 'https://host.gometri.com/proxy/lanoventera/stream/',
 	},
 	{
 		id: 'peru-oeste',
-		label: 'AM - Perú 🇵🇪 | Oeste',
+		label: 'AM - Perú 🇵🇪 :: Oeste',
 		displayName: 'La Salsa Maestra',
 		streamUrl: 'https://stream.zeno.fm/c1skkw28pfeuv',
 	},
@@ -40,7 +40,7 @@ export function getRandomPeruAmStation(previousStationId: string | null): AmPeru
 	if (AM_PERU_STATIONS.length === 0) {
 		return {
 			id: 'peru-fallback',
-			label: 'AM - Perú 🇵🇪 | Norte',
+			label: 'AM - Perú 🇵🇪 :: Norte',
 			displayName: 'Fallback Peru Station',
 			streamUrl: AM_PERU_STREAM_URL,
 		};
