@@ -1,7 +1,7 @@
 declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void };
 
 import { createAtmMusicController } from '../../screens/atm-music/root';
-import { getNextPeruAmStation } from '../../screens/atm-music/radio/providers/am';
+import { getRandomPeruAmStation } from '../../screens/atm-music/radio/providers/am';
 import { LOFI_2026_STREAM_URL } from '../../screens/atm-music/radio/providers/lofi';
 import { FM_111_STREAM_URL } from '../../screens/atm-music/radio/providers/normal';
 import { PODCAST_STREAM_URL } from '../../screens/atm-music/radio/providers/podcast';
@@ -144,7 +144,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             }
 
             if (station === 'am-peru') {
-                const nextAmStation = getNextPeruAmStation(lastAmStationId);
+                const nextAmStation = getRandomPeruAmStation(lastAmStationId);
                 lastAmStationId = nextAmStation.id;
                 musicController.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am-peru:${nextAmStation.id}`);
                 return;

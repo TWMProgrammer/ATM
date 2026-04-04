@@ -27,7 +27,7 @@ export const AM_PERU_STATIONS: AmPeruStation[] = [
 	},
 	{
 		id: 'peru-sur',
-		label: 'AM - Perú 🇵🇪 | Sur',
+		label: 'AM - Perú 🇵🇪 :: Sur',
 		displayName: 'Radio Trinidad 1070 AM',
 		streamUrl: 'https://maximacenterdata.com/8056/stream',
 	},
@@ -35,6 +35,32 @@ export const AM_PERU_STATIONS: AmPeruStation[] = [
 
 // Backward-compatible default for existing imports.
 export const AM_PERU_STREAM_URL = AM_PERU_STATIONS[0].streamUrl;
+
+export function getRandomPeruAmStation(previousStationId: string | null): AmPeruStation {
+	if (AM_PERU_STATIONS.length === 0) {
+		return {
+			id: 'peru-fallback',
+			label: 'AM - Perú 🇵🇪 | Norte',
+			displayName: 'Fallback Peru Station',
+			streamUrl: AM_PERU_STREAM_URL,
+		};
+	}
+
+	if (AM_PERU_STATIONS.length === 1) {
+		return AM_PERU_STATIONS[0];
+	}
+
+	const candidates = previousStationId
+		? AM_PERU_STATIONS.filter((station) => station.id !== previousStationId)
+		: AM_PERU_STATIONS;
+
+	if (candidates.length === 0) {
+		return AM_PERU_STATIONS[0];
+	}
+
+	const randomIndex = Math.floor(Math.random() * candidates.length);
+	return candidates[randomIndex];
+}
 
 export function getNextPeruAmStation(previousStationId: string | null): AmPeruStation {
 	if (AM_PERU_STATIONS.length === 0) {
