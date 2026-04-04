@@ -411,6 +411,33 @@
     color: #ff6b6b;
     font-weight: 700;
     letter-spacing: 0.2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.progress-time.is-live::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff6b6b;
+    opacity: 0.95;
+}
+
+.progress-time.is-live.is-live-playing::before {
+    animation: liveDotBlink 1s ease-in-out infinite;
+}
+
+@keyframes liveDotBlink {
+    0%,
+    100% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
 /* ── Custom Progress Track (Modern Gradient) ── */

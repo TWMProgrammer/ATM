@@ -299,7 +299,7 @@ export class MusicPlayerUI {
                 this.lastCurTimeStr = curStr;
             }
 
-            const liveStr = '● LIVE';
+            const liveStr = 'LIVE';
             if (liveStr !== this.lastTotTimeStr) {
                 totEl.textContent = liveStr;
                 this.lastTotTimeStr = liveStr;
@@ -504,6 +504,7 @@ export class MusicPlayerUI {
 
     private updateWaveState() {
         this.$c('#screen-player')?.classList.toggle('is-playing', this.isPlaying && !this.isLoadingState);
+        this.updateLiveIndicatorState();
     }
 
     private updateIcons() {
@@ -589,13 +590,26 @@ export class MusicPlayerUI {
         }
 
         if (this.isRadioTrack(track)) {
-            totalTime.textContent = '● LIVE';
+            totalTime.textContent = 'LIVE';
             totalTime.classList.add('is-live');
             progressTrack.classList.add('is-live');
         } else {
             totalTime.textContent = formatDuration(track.duration);
             totalTime.classList.remove('is-live');
+            totalTime.classList.remove('is-live-playing');
             progressTrack.classList.remove('is-live');
         }
+
+        this.updateLiveIndicatorState();
+    }
+
+    private updateLiveIndicatorState(): void {
+        const totalTime = this.$c<HTMLElement>('#total-time');
+        if (!totalTime) {
+            return;
+        }
+
+        const shouldBlink = this.isLiveRadioMode && this.isPlaying && !this.isLoadingState;
+        totalTime.classList.toggle('is-live-playing', shouldBlink);
     }
 }
