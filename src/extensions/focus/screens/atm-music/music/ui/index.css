@@ -35,6 +35,34 @@
     background: var(--vscode-button-secondaryHoverBackground);
 }
 
+.header-icon-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--vscode-button-secondaryForeground);
+    background: var(--vscode-button-secondaryBackground);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.header-icon-btn:hover {
+    background: var(--vscode-button-secondaryHoverBackground);
+    transform: translateY(-1px);
+}
+
+.header-icon-btn:active {
+    transform: translateY(0);
+}
+
+.header-icon-btn[hidden] {
+    display: none;
+}
+
 .results-query {
     display: flex;
     align-items: center;
@@ -407,6 +435,39 @@
     text-align: right;
 }
 
+.progress-time.is-live {
+    color: #ff6b6b;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.progress-time.is-live::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff6b6b;
+    opacity: 0.95;
+}
+
+.progress-time.is-live.is-live-playing::before {
+    animation: liveDotBlink 1.8s ease-in-out infinite;
+}
+
+@keyframes liveDotBlink {
+    0%,
+    100% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
 /* ── Custom Progress Track (Modern Gradient) ── */
 .progress-track {
     position: relative;
@@ -427,6 +488,14 @@
 .progress-track.loading {
     opacity: 0.4;
     cursor: default;
+}
+
+.progress-track.is-live {
+    cursor: default;
+}
+
+.progress-track.is-live .progress-thumb {
+    opacity: 0 !important;
 }
 
 .progress-fill {

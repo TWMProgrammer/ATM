@@ -3,6 +3,7 @@ import { MusicSearchUI } from './search';
 import { MusicResultsUI } from './results';
 import { MusicPlayerUI } from '../../shared/player/player';
 import { $, escapeHtml } from '../../../../shared/utils';
+import { getRandomPeruAmStation } from '../../radio/providers/am';
 
 export interface VSCodeApi {
     postMessage: (message: WebviewMessage) => void;
@@ -24,6 +25,8 @@ export class AtmMusicController {
     private readonly radioRetryMaxDelayMs = 15000;
     private readonly radioRetryResetWindowMs = 20000;
     private readonly radioRetryMaxAttempts = 8;
+    private currentRadioStationKey: string | null = null;
+    private lastAmStationId: string | null = null;
     private cachedPodcastStation: { title: string; streamUrl: string } | null = null;
     private podcastDiscoveryInFlight: Promise<void> | null = null;
 
@@ -47,7 +50,8 @@ export class AtmMusicController {
             () => this.playNext(),
             () => this.playPrev(),
             () => this.handleBackFromPlayer(),
-            () => this.handlePlaybackFallback()
+            () => this.handlePlaybackFallback(),
+            () => this.playRandomAmStation()
         );
 
         this.bindGlobalMessages();
@@ -72,6 +76,14 @@ export class AtmMusicController {
                 <div class="screen-header">
                     <button id="back-to-results" class="back-btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>Back</button>
                     <span id="player-track-info" class="player-track-info"></span>
+                    <button id="player-random-country-btn" class="header-icon-btn" type="button" title="Random AM country" aria-label="Play random AM country" aria-hidden="true" hidden>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M3 12h18"></path>
+                            <path d="M12 3a14 14 0 0 1 0 18"></path>
+                            <path d="M12 3a14 14 0 0 0 0 18"></path>
+                        </svg>
+                    </button>
                 </div>
                 <div id="player-container" class="player-container"></div>
             </section>
@@ -102,6 +114,7 @@ export class AtmMusicController {
     private performSearch(query: string) {
         this.tracks = [];
         this.hasCachedSearch = false;
+        this.currentRadioStationKey = null;
         this.clearError();
         this.searchUI.setCanForward(false);
         this.resultsUI.setQuery(query);
@@ -115,6 +128,9 @@ export class AtmMusicController {
         this.currentIndex = index;
         const track = this.tracks[index];
         if (track) {
+            if (!this.isRadioTrack(track)) {
+                this.currentRadioStationKey = null;
+            }
             this.showScreen('player');
             this.playerUI.playTrack(track, index > 0, index < this.tracks.length - 1);
             this.updateMusicLabelState();
@@ -220,7 +236,7 @@ export class AtmMusicController {
     // Public API for external integration
     public search(query: string) { this.searchUI.setQuery(query); this.performSearch(query); }
 
-    public playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string): void {
+    public playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string, stationKey = 'podcast'): void {
         const fallbackSafeTitle = (fallbackTitle || 'Podcast').trim();
         const fallbackSafeStreamUrl = (fallbackStreamUrl || '').trim();
 
@@ -229,7 +245,7 @@ export class AtmMusicController {
             title: fallbackSafeTitle,
             streamUrl: fallbackSafeStreamUrl,
         };
-        this.playRadioStream(stationToPlay.title, stationToPlay.streamUrl);
+        this.playRadioStream(stationToPlay.title, stationToPlay.streamUrl, stationKey);
 
         this.ensurePodcastDiscovery(fallbackSafeTitle, fallbackSafeStreamUrl);
     }
@@ -269,11 +285,10 @@ export class AtmMusicController {
         })();
     }
 
-    public playRadioStream(stationTitle: string, streamUrl: string) {
+    public playRadioStream(stationTitle: string, streamUrl: string, stationKey?: string) {
         const rawTitle = (stationTitle || 'Radio').trim();
-        const safeTitle = rawTitle.toLowerCase().startsWith('fm - ')
-            ? rawTitle
-            : `FM - ${rawTitle}`;
+        const hasBandPrefix = /^(fm|am)\s*-\s*/i.test(rawTitle) || rawTitle.toLowerCase() === 'am';
+        const safeTitle = hasBandPrefix ? rawTitle : `FM - ${rawTitle}`;
         const safeStreamUrl = (streamUrl || '').trim();
         if (!safeStreamUrl) {
             this.showError('Radio stream is unavailable.');
@@ -302,12 +317,36 @@ export class AtmMusicController {
         this.clearError();
         this.clearRadioReconnectTimer();
         this.resetRadioRetryState();
+        this.currentRadioStationKey = stationKey || null;
+        if (this.currentRadioStationKey?.startsWith('am-peru:')) {
+            const [, stationId] = this.currentRadioStationKey.split(':');
+            this.lastAmStationId = stationId || null;
+        }
         this.tracks = [radioTrack];
         this.hasCachedSearch = false;
         this.currentIndex = 0;
         this.showScreen('player');
         this.playerUI.playTrack(radioTrack, false, false);
         this.updateMusicLabelState();
+    }
+
+    public playRandomAmStation(): void {
+        const nextAmStation = getRandomPeruAmStation(this.lastAmStationId);
+        this.lastAmStationId = nextAmStation.id;
+        this.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am-peru:${nextAmStation.id}`);
+    }
+
+    public isPlayingRadioStation(stationKey: string): boolean {
+        if (!stationKey) {
+            return false;
+        }
+
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+        if (!currentTrack || !this.isRadioTrack(currentTrack)) {
+            return false;
+        }
+
+        return this.playerUI.isRunning() && this.currentRadioStationKey === stationKey;
     }
 
     private isRadioTrack(track: Track): boolean {

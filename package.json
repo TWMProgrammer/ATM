@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "ATM",
   "description": "Available now: VSCode • Antigravity • Cursor • Windsurf • Trae.ai • Kiro & Firebase Studio - (atm)... 雨",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "publisher": "bastndev",
   "license": "MIT",
   "engines": {
@@ -487,7 +487,7 @@
         {
           "type": "webview",
           "id": "atm-yt-music-view",
-          "name": "ATM :: Music · Time · Data",
+          "name": "ATM :: Radio/Music · Pomodoro · Data",
           "icon": "$(music)"
         }
       ],

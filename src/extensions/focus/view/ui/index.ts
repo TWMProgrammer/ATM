@@ -86,7 +86,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     const radioButtons = Array.from(document.querySelectorAll('.radio-mode-btn')) as HTMLButtonElement[];
 
     type AudioUiMode = 'music' | 'radio';
-    let audioUiMode: AudioUiMode = 'music';
+    let audioUiMode: AudioUiMode = 'radio';
 
     const setAudioUiMode = (mode: AudioUiMode) => {
         audioUiMode = mode;
@@ -133,14 +133,27 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             setActiveRadioButton(button);
 
             const station = button.dataset.radioStation || '';
+
+            // Optimization: for FM stations, avoid reloading when the same one is already playing.
+            const isAmStation = station === 'am-peru';
+            if (!isAmStation && musicController.isPlayingRadioStation(station)) {
+                musicController.goToMusic();
+                return;
+            }
+
+            if (station === 'am-peru') {
+                musicController.playRandomAmStation();
+                return;
+            }
+
             if (station === 'podcast') {
-                musicController.playPodcastFromApi('FM - Podcast', PODCAST_STREAM_URL);
+                musicController.playPodcastFromApi('FM - Podcast', PODCAST_STREAM_URL, 'podcast');
                 return;
             }
 
             const selectedStation = radioStationMap[station];
             if (selectedStation) {
-                musicController.playRadioStream(selectedStation.title, selectedStation.streamUrl);
+                musicController.playRadioStream(selectedStation.title, selectedStation.streamUrl, station);
             }
         });
     });
@@ -205,7 +218,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     }
 
     // Initial mode
-    setAudioUiMode('music');
+    setAudioUiMode('radio');
 
     // The Search input Enter key is now fully handled inside search.ts ('MusicSearchUI')
 }());
