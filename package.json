@@ -1,8 +1,8 @@
 {
   "name": "atm",
   "displayName": "ATM",
-  "description": "Available now: VSCode • Antigravity • Cursor • Windsurf • Trae.ai • Kiro & Firebase Studio - (atm)... 雨",
-  "version": "1.4.0",
+  "description": "Available now: VSCode • Antigravity • Cursor • Windsurf • Trae.ai • Kiro & (Firebase Studio)... 雨",
+  "version": "1.5.0",
   "publisher": "bastndev",
   "license": "MIT",
   "engines": {
