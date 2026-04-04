@@ -123,7 +123,11 @@ body {
 .radio-mode-btn:hover {
     transform: translateY(-1px);
     background: color-mix(in srgb, var(--vscode-editor-foreground) 10%, transparent);
-    color: var(--vscode-editor-foreground);
+    color: #ffffff;
+}
+
+body.vscode-light .radio-mode-btn:hover {
+    color: #000000;
 }
 
 .radio-mode-btn.is-active {
