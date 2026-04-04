@@ -3,6 +3,7 @@ import { MusicSearchUI } from './search';
 import { MusicResultsUI } from './results';
 import { MusicPlayerUI } from '../../shared/player/player';
 import { $, escapeHtml } from '../../../../shared/utils';
+import { getRandomPeruAmStation } from '../../radio/providers/am';
 
 export interface VSCodeApi {
     postMessage: (message: WebviewMessage) => void;
@@ -25,6 +26,7 @@ export class AtmMusicController {
     private readonly radioRetryResetWindowMs = 20000;
     private readonly radioRetryMaxAttempts = 8;
     private currentRadioStationKey: string | null = null;
+    private lastAmStationId: string | null = null;
     private cachedPodcastStation: { title: string; streamUrl: string } | null = null;
     private podcastDiscoveryInFlight: Promise<void> | null = null;
 
@@ -48,7 +50,8 @@ export class AtmMusicController {
             () => this.playNext(),
             () => this.playPrev(),
             () => this.handleBackFromPlayer(),
-            () => this.handlePlaybackFallback()
+            () => this.handlePlaybackFallback(),
+            () => this.playRandomAmStation()
         );
 
         this.bindGlobalMessages();
@@ -73,6 +76,15 @@ export class AtmMusicController {
                 <div class="screen-header">
                     <button id="back-to-results" class="back-btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>Back</button>
                     <span id="player-track-info" class="player-track-info"></span>
+                    <button id="player-random-country-btn" class="header-icon-btn" type="button" title="Random AM country" aria-label="Play random AM country" aria-hidden="true" hidden>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 7h6l2-3 2 3h8"></path>
+                            <path d="M3 17h6l2 3 2-3h8"></path>
+                            <path d="M17 5l4 4-4 4"></path>
+                            <path d="M17 11l4-4"></path>
+                            <path d="M17 19l4-4"></path>
+                        </svg>
+                    </button>
                 </div>
                 <div id="player-container" class="player-container"></div>
             </section>
@@ -307,12 +319,22 @@ export class AtmMusicController {
         this.clearRadioReconnectTimer();
         this.resetRadioRetryState();
         this.currentRadioStationKey = stationKey || null;
+        if (this.currentRadioStationKey?.startsWith('am-peru:')) {
+            const [, stationId] = this.currentRadioStationKey.split(':');
+            this.lastAmStationId = stationId || null;
+        }
         this.tracks = [radioTrack];
         this.hasCachedSearch = false;
         this.currentIndex = 0;
         this.showScreen('player');
         this.playerUI.playTrack(radioTrack, false, false);
         this.updateMusicLabelState();
+    }
+
+    public playRandomAmStation(): void {
+        const nextAmStation = getRandomPeruAmStation(this.lastAmStationId);
+        this.lastAmStationId = nextAmStation.id;
+        this.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am-peru:${nextAmStation.id}`);
     }
 
     public isPlayingRadioStation(stationKey: string): boolean {
