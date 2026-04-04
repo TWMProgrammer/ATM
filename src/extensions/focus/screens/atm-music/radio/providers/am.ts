@@ -62,8 +62,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'co',
 		label: 'AM - Colombia 🇨🇴',
-		displayName: 'Caracol Radio Colombia',
-		streamUrl: 'http://27323.live.streamtheworld.com:3690/CARACOL_RADIOAAC_SC',
+		displayName: 'Radionica Colombia',
+		streamUrl: 'http://shoutcast.rtvc.gov.co:8010/;',
 	},
 	{
 		id: 'br',
@@ -134,8 +134,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'au',
 		label: 'AM - Australia 🇦🇺',
-		displayName: 'Sky News Australia Radio',
-		streamUrl: 'https://playerservices.streamtheworld.com/api/livestream-redirect/NOVA_SKYNEWSAAC.aac',
+		displayName: 'Kiss FM 87.6 Melbourne',
+		streamUrl: 'http://cc.net2streams.com:8565/kissfm.mp3',
 	},
 	{
 		id: 'ca',
@@ -146,8 +146,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'za',
 		label: 'AM - South Africa 🇿🇦',
-		displayName: 'Lesedi',
-		streamUrl: 'https://playerservices.streamtheworld.com/api/livestream-redirect/LESEDIAAC_SC',
+		displayName: 'Bosveld Stereo',
+		streamUrl: 'http://capeant.antfarm.co.za:8000/Bosveld',
 	},
 	{
 		id: 'nl',
@@ -200,14 +200,14 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'my',
 		label: 'AM - Malaysia 🇲🇾',
-		displayName: '988 FM',
-		streamUrl: 'https://28103.live.streamtheworld.com/988_FMAAC.aac',
+		displayName: 'Jazz Lounge',
+		streamUrl: 'http://eu8.fastcast4u.com:5068/;',
 	},
 	{
 		id: 'id',
 		label: 'AM - Indonesia 🇮🇩',
-		displayName: 'Radio Suara Al-Iman 846 AM Surabaya',
-		streamUrl: 'https://radioislamindonesia.com/aliman.mp3',
+		displayName: 'I-Radio Jakarta',
+		streamUrl: 'http://stream.radiojar.com/4ywdgup3bnzuv',
 	},
 	{
 		id: 'th',
@@ -374,8 +374,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 've',
 		label: 'AM - Venezuela 🇻🇪',
-		displayName: 'Acción 104.5 FM (La diferencia en el dial)',
-		streamUrl: 'https://stream.intervalohost.com/accionfm/stream',
+		displayName: 'Union Radio 90.3 FM Caracas',
+		streamUrl: 'http://ur58.lorini.net:2080/stream',
 	},
 	{
 		id: 'cr',
@@ -464,14 +464,14 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'zw',
 		label: 'AM - Zimbabwe 🇿🇼',
-		displayName: 'Star FM 89.7',
-		streamUrl: 'https://edge.iono.fm/xice/159_medium.aac',
+		displayName: 'Capitalk 100.4FM Harare',
+		streamUrl: 'https://edge.iono.fm/xice/162_medium.aac',
 	},
 	{
 		id: 'zm',
 		label: 'AM - Zambia 🇿🇲',
-		displayName: 'Hot 102.7 FM',
-		streamUrl: 'https://edge.iono.fm/xice/57_medium.aac?ref=https%3A%2F%2Fhot1027.co.za%2F&adToken=',
+		displayName: 'Sun FM Zambia',
+		streamUrl: 'http://11233.cloudrad.io:9102/live',
 	},
 	{
 		id: 'cm',
