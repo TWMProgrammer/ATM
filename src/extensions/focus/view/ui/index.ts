@@ -28,7 +28,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
                 const nickname = getNicknameController()?.getNickname() || '@Player';
                 const currentTrack = musicController.getCurrentTrack();
                 const song = currentTrack ? `${currentTrack.artist} - ${currentTrack.title}` : null;
-                const pomodoros = (timeController as any)?.getCompletedPomodoros ? (timeController as any).getCompletedPomodoros() : 0;
+                const pomodoros = timeController?.getCompletedPomodoros ? timeController.getCompletedPomodoros() : 0;
                 
                 const payloadContent = {
                     nickname: nickname,

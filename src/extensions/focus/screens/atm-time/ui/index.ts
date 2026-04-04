@@ -72,7 +72,7 @@ export function createAtmTimeController() {
         }
     });
 
-    (timer as any).getCompletedPomodoros = () => pomodorosCompleted;
+
 
     // Event Listeners
     btnPlay?.addEventListener('click', () => timer.play());
@@ -128,6 +128,9 @@ export function createAtmTimeController() {
         document.removeEventListener('keydown', handleKeyDown);
     };
 
-    return timer;
+    const augmentedTimer = timer as PomodoroTimer & { getCompletedPomodoros: () => number };
+    augmentedTimer.getCompletedPomodoros = () => pomodorosCompleted;
+
+    return augmentedTimer;
 }
 
