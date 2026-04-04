@@ -407,6 +407,12 @@
     text-align: right;
 }
 
+.progress-time.is-live {
+    color: #ff6b6b;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
 /* ── Custom Progress Track (Modern Gradient) ── */
 .progress-track {
     position: relative;
@@ -427,6 +433,14 @@
 .progress-track.loading {
     opacity: 0.4;
     cursor: default;
+}
+
+.progress-track.is-live {
+    cursor: default;
+}
+
+.progress-track.is-live .progress-thumb {
+    opacity: 0 !important;
 }
 
 .progress-fill {

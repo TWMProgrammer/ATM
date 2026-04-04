@@ -14,6 +14,7 @@ export class MusicPlayerUI {
     private isLoadingState = false;
     private pendingTrack: Track | null = null;
     private currentTrackDuration = 0;
+    private isLiveRadioMode = false;
 
     // --- Performance Cache ---
     private cachedEls: Record<string, Element | null> = {};
@@ -54,9 +55,11 @@ export class MusicPlayerUI {
     }
 
     public playTrack(track: Track, hasPrev: boolean, hasNext: boolean) {
+        this.setTrackPlaybackMode(track);
         if (!this.container?.querySelector('.player-content')) {
             this.stopPlayback();
             this.render(track, hasPrev, hasNext);
+            this.applyTimeUiMode(track);
             this.updateTrackHeader(track);
             this.setLoading(true);
             this.attemptPlay(track);
@@ -107,17 +110,17 @@ export class MusicPlayerUI {
     }
 
     public skipToTrack(track: Track, hasPrev: boolean, hasNext: boolean) {
+        this.setTrackPlaybackMode(track);
         this.stopPlayback();
         this.updateTrackHeader(track);
-        this.currentTrackDuration = track.duration || 0;
+        this.currentTrackDuration = this.isLiveRadioMode ? 0 : (track.duration || 0);
 
         const prevBtn = $('#prev-btn');
         const nextBtn = $('#next-btn');
         if (prevBtn) {prevBtn.classList.toggle('disabled', !hasPrev);}
         if (nextBtn) {nextBtn.classList.toggle('disabled', !hasNext);}
 
-        const totalTime = $('#total-time');
-        if (totalTime) {totalTime.textContent = formatDuration(track.duration);}
+        this.applyTimeUiMode(track);
         
         this.updateProgressVisual(0);
         
@@ -274,6 +277,9 @@ export class MusicPlayerUI {
 
     private isRemainingMode = false;
     private toggleTimeMode() {
+        if (this.isLiveRadioMode) {
+            return;
+        }
         this.isRemainingMode = !this.isRemainingMode;
         this.updateTimeDisplay();
     }
@@ -283,8 +289,27 @@ export class MusicPlayerUI {
         const totEl = this.$c('#total-time');
         if (!curEl || !totEl) {return;}
 
-        const cur = this.audioPlayer.currentTime || 0;
-        const dur = this.audioPlayer.duration || 0;
+        const cur = Number.isFinite(this.audioPlayer.currentTime) ? this.audioPlayer.currentTime : 0;
+
+        if (this.isLiveRadioMode) {
+            const curStr = formatDuration(Math.max(0, Math.floor(cur)));
+            if (curStr !== this.lastCurTimeStr) {
+                curEl.textContent = curStr;
+                this.lastCurTimeStr = curStr;
+            }
+
+            const liveStr = '● LIVE';
+            if (liveStr !== this.lastTotTimeStr) {
+                totEl.textContent = liveStr;
+                this.lastTotTimeStr = liveStr;
+            }
+            return;
+        }
+
+        let dur = this.audioPlayer.duration;
+        if (!Number.isFinite(dur) || dur <= 0) {
+            dur = this.currentTrackDuration > 0 ? this.currentTrackDuration : 0;
+        }
 
         let curStr = '';
         if (this.isRemainingMode && dur > 0) {
@@ -321,7 +346,7 @@ export class MusicPlayerUI {
 
         // Click to seek
         track.addEventListener('mousedown', (e: MouseEvent) => {
-            if (this.isLoadingState) {return;}
+            if (this.isLoadingState || this.isLiveRadioMode) {return;}
             this.isSeeking = true;
             seekToPosition(e.clientX);
             track.classList.add('is-dragging');
@@ -342,7 +367,7 @@ export class MusicPlayerUI {
 
         // Touch support
         track.addEventListener('touchstart', (e: TouchEvent) => {
-            if (this.isLoadingState) {return;}
+            if (this.isLoadingState || this.isLiveRadioMode) {return;}
             this.isSeeking = true;
             seekToPosition(e.touches[0].clientX);
             track.classList.add('is-dragging');
@@ -383,6 +408,10 @@ export class MusicPlayerUI {
     }
 
     private seek(value: string) {
+        if (this.isLiveRadioMode) {
+            return;
+        }
+
         const val = Number(value) / 1000;
 
         // Prefer the real audio duration; fall back to stored track duration
@@ -416,6 +445,15 @@ export class MusicPlayerUI {
         const update = () => {
             if (!this.isPlaying && this.audioPlayer.paused) {return;}
             const cur = this.audioPlayer.currentTime;
+
+            if (this.isLiveRadioMode) {
+                if (!this.isSeeking) {
+                    this.updateProgressVisual(0);
+                    this.updateTimeDisplay();
+                }
+                this.progressTimer = requestAnimationFrame(update);
+                return;
+            }
 
             let dur = this.audioPlayer.duration;
             if (!isFinite(dur)) {
@@ -525,5 +563,35 @@ export class MusicPlayerUI {
                 }
             }
         }, true); // Use capture phase to catch the event before other modules
+    }
+
+    private isRadioTrack(track: Track): boolean {
+        return track.id.startsWith('radio_');
+    }
+
+    private setTrackPlaybackMode(track: Track): void {
+        this.isLiveRadioMode = this.isRadioTrack(track);
+        if (this.isLiveRadioMode) {
+            this.isRemainingMode = false;
+        }
+    }
+
+    private applyTimeUiMode(track: Track): void {
+        const totalTime = $('#total-time');
+        const progressTrack = $('#progress-track');
+
+        if (!totalTime || !progressTrack) {
+            return;
+        }
+
+        if (this.isRadioTrack(track)) {
+            totalTime.textContent = '● LIVE';
+            totalTime.classList.add('is-live');
+            progressTrack.classList.add('is-live');
+        } else {
+            totalTime.textContent = formatDuration(track.duration);
+            totalTime.classList.remove('is-live');
+            progressTrack.classList.remove('is-live');
+        }
     }
 }
