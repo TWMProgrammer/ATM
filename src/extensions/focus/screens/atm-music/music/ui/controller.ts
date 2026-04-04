@@ -24,6 +24,8 @@ export class AtmMusicController {
     private readonly radioRetryMaxDelayMs = 15000;
     private readonly radioRetryResetWindowMs = 20000;
     private readonly radioRetryMaxAttempts = 8;
+    private cachedPodcastStation: { title: string; streamUrl: string } | null = null;
+    private podcastDiscoveryInFlight: Promise<void> | null = null;
 
     constructor(private readonly vscode: VSCodeApi) {
         this.musicLabelEl = $('#qa-music-label');
@@ -218,31 +220,53 @@ export class AtmMusicController {
     // Public API for external integration
     public search(query: string) { this.searchUI.setQuery(query); this.performSearch(query); }
 
-    public async playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string): Promise<void> {
+    public playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string): void {
         const fallbackSafeTitle = (fallbackTitle || 'Podcast').trim();
         const fallbackSafeStreamUrl = (fallbackStreamUrl || '').trim();
 
-        const port = window.STREAM_PORT || 0;
-        if (port <= 0) {
-            this.playRadioStream(fallbackSafeTitle, fallbackSafeStreamUrl);
+        // Play immediately (same UX as FM/LoFi), using cached API result or fallback.
+        const stationToPlay = this.cachedPodcastStation ?? {
+            title: fallbackSafeTitle,
+            streamUrl: fallbackSafeStreamUrl,
+        };
+        this.playRadioStream(stationToPlay.title, stationToPlay.streamUrl);
+
+        this.ensurePodcastDiscovery(fallbackSafeTitle, fallbackSafeStreamUrl);
+    }
+
+    private ensurePodcastDiscovery(fallbackTitle: string, fallbackStreamUrl: string): void {
+        if (this.podcastDiscoveryInFlight) {
             return;
         }
 
-        try {
-            const response = await fetch(`http://127.0.0.1:${port}/discover/podcast`);
-            if (!response.ok) {
-                throw new Error(`Podcast discovery failed with HTTP ${response.status}`);
-            }
-
-            const data = await response.json() as { label?: string; streamUrl?: string };
-            const title = (data.label || fallbackSafeTitle).trim();
-            const streamUrl = (data.streamUrl || fallbackSafeStreamUrl).trim();
-
-            this.playRadioStream(title || fallbackSafeTitle, streamUrl);
-        } catch (error) {
-            console.warn('[ATM Music] Podcast API discovery failed, using fallback:', error);
-            this.playRadioStream(fallbackSafeTitle, fallbackSafeStreamUrl);
+        const port = window.STREAM_PORT || 0;
+        if (port <= 0) {
+            return;
         }
+
+        this.podcastDiscoveryInFlight = (async () => {
+            try {
+                const response = await fetch(`http://127.0.0.1:${port}/discover/podcast`);
+                if (!response.ok) {
+                    throw new Error(`Podcast discovery failed with HTTP ${response.status}`);
+                }
+
+                const data = await response.json() as { label?: string; streamUrl?: string };
+                const title = (data.label || fallbackTitle).trim();
+                const streamUrl = (data.streamUrl || fallbackStreamUrl).trim();
+
+                if (streamUrl) {
+                    this.cachedPodcastStation = {
+                        title: title || fallbackTitle,
+                        streamUrl,
+                    };
+                }
+            } catch (error) {
+                console.warn('[ATM Music] Podcast API discovery failed; fallback remains active:', error);
+            } finally {
+                this.podcastDiscoveryInFlight = null;
+            }
+        })();
     }
 
     public playRadioStream(stationTitle: string, streamUrl: string) {
