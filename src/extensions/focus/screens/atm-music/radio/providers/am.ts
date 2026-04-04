@@ -45,7 +45,7 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 		id: 'mx',
 		label: 'AM - Mexico 🇲🇽',
 		displayName: 'Radio Felicidad 1180 AM',
-		streamUrl: 'https://playerservices.streamtheworld.com/api/livestream-redirect/XEFRAMAAC.aac',
+		streamUrl: 'http://streamingcwsradio20.com:9410/stream',
 	},
 	{
 		id: 'ar',
