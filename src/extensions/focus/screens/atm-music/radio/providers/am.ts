@@ -56,8 +56,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'cl',
 		label: 'AM - Chile 🇨🇱',
-		displayName: 'BioBio Chile',
-		streamUrl: 'https://unlimited3-cl.dps.live/biobiosantiago/aac/icecast.audio',
+		displayName: 'Radio Futuro',
+		streamUrl: 'https://playerservices.streamtheworld.com/api/livestream-redirect/FUTURO_SC.mp3',
 	},
 	{
 		id: 'co',
@@ -140,8 +140,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'ca',
 		label: 'AM - Canada 🇨🇦',
-		displayName: 'RdMix Classic Rock',
-		streamUrl: 'https://cast1.torontocast.com:4610/stream',
+		displayName: '#100 BEST IBIZA DEEP HOUSE',
+		streamUrl: 'https://stream.zeno.fm/lwv6zqgtv1dtv',
 	},
 	{
 		id: 'za',
@@ -164,8 +164,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'no',
 		label: 'AM - Norway 🇳🇴',
-		displayName: 'P4 Norge',
-		streamUrl: 'https://p4.p4groupaudio.com/P04_AH',
+		displayName: 'Nrk P1 Stor-Oslo',
+		streamUrl: 'https://cdn0-47115-liveicecast0.dna.contentdelivery.net/p1_mp3_h',
 	},
 	{
 		id: 'fi',
@@ -218,8 +218,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'ph',
 		label: 'AM - Philippines 🇵🇭',
-		displayName: 'Radyo Katribu Philippines Teleradyo',
-		streamUrl: 'https://io.radyoph.com:8020/katribu',
+		displayName: 'MOR 101.9 FM',
+		streamUrl: 'https://playerservices.streamtheworld.com/api/livestream-redirect/MORFM_S01.mp3',
 	},
 	{
 		id: 'tw',
@@ -254,8 +254,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'lk',
 		label: 'AM - Sri Lanka 🇱🇰',
-		displayName: 'Anow Radio HD Tamil',
-		streamUrl: 'https://onair.punnagairadio.com/anowradiohd/stream',
+		displayName: 'Sun FM',
+		streamUrl: 'https://radio.lotustechnologieslk.net:2020/stream/sunfmgarden',
 	},
 	{
 		id: 'kh',
@@ -296,8 +296,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'ch',
 		label: 'AM - Switzerland 🇨🇭',
-		displayName: 'A Fine Jazz Gumbo Radio',
-		streamUrl: 'https://streaming.smartradio.ch:9502/stream',
+		displayName: 'SRF 3',
+		streamUrl: 'http://stream.srg-ssr.ch/m/drs3/mp3_128',
 	},
 	{
 		id: 'at',
@@ -368,8 +368,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'ec',
 		label: 'AM - Ecuador 🇪🇨',
-		displayName: 'Abba FM',
-		streamUrl: 'http://streamingecuador.net:7500/stream',
+		displayName: 'Armonica FM',
+		streamUrl: 'https://armonicafm.makrodigital.com:9570/stream',
 	},
 	{
 		id: 've',
@@ -404,8 +404,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'hn',
 		label: 'AM - Honduras 🇭🇳',
-		displayName: 'EXA FM Honduras',
-		streamUrl: 'https://stream.zeno.fm/0n4tnx3wd5zuv',
+		displayName: 'Vox FM Honduras',
+		streamUrl: 'https://ice42.securenetsystems.net/VOXFM',
 	},
 	{
 		id: 'ni',
@@ -464,8 +464,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'zw',
 		label: 'AM - Zimbabwe 🇿🇼',
-		displayName: 'Capitalk 100.4FM Harare',
-		streamUrl: 'https://edge.iono.fm/xice/162_medium.aac',
+		displayName: 'Star FM 89.7',
+		streamUrl: 'https://edge.iono.fm/xice/159_medium.aac',
 	},
 	{
 		id: 'zm',
