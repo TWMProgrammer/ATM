@@ -1,8 +1,8 @@
-import { WebviewMessage, Track } from '../../../shared/types';
-import { MusicSearchUI } from './components/search';
-import { MusicResultsUI } from './components/results';
-import { MusicPlayerUI } from './components/player';
-import { $, escapeHtml } from '../../../shared/utils';
+import { WebviewMessage, Track } from '../../shared/types';
+import { MusicSearchUI } from './search';
+import { MusicResultsUI } from './results';
+import { MusicPlayerUI } from '../../shared/player/player';
+import { $, escapeHtml } from '../../../../shared/utils';
 
 export interface VSCodeApi {
     postMessage: (message: WebviewMessage) => void;
@@ -17,6 +17,16 @@ export class AtmMusicController {
     private currentIndex = -1;
     private hasCachedSearch = false;
     private musicLabelEl: HTMLElement | null = null;
+    private radioReconnectTimer: number | null = null;
+    private radioRetryDecayTimer: number | null = null;
+    private radioRetryCount = 0;
+    private readonly radioRetryBaseDelayMs = 1000;
+    private readonly radioRetryMaxDelayMs = 15000;
+    private readonly radioRetryResetWindowMs = 20000;
+    private readonly radioRetryMaxAttempts = 8;
+    private currentRadioStationKey: string | null = null;
+    private cachedPodcastStation: { title: string; streamUrl: string } | null = null;
+    private podcastDiscoveryInFlight: Promise<void> | null = null;
 
     constructor(private readonly vscode: VSCodeApi) {
         this.musicLabelEl = $('#qa-music-label');
@@ -37,7 +47,7 @@ export class AtmMusicController {
         this.playerUI = new MusicPlayerUI(
             () => this.playNext(),
             () => this.playPrev(),
-            () => this.showScreen('results'),
+            () => this.handleBackFromPlayer(),
             () => this.handlePlaybackFallback()
         );
 
@@ -93,6 +103,7 @@ export class AtmMusicController {
     private performSearch(query: string) {
         this.tracks = [];
         this.hasCachedSearch = false;
+        this.currentRadioStationKey = null;
         this.clearError();
         this.searchUI.setCanForward(false);
         this.resultsUI.setQuery(query);
@@ -106,6 +117,9 @@ export class AtmMusicController {
         this.currentIndex = index;
         const track = this.tracks[index];
         if (track) {
+            if (!this.isRadioTrack(track)) {
+                this.currentRadioStationKey = null;
+            }
             this.showScreen('player');
             this.playerUI.playTrack(track, index > 0, index < this.tracks.length - 1);
             this.updateMusicLabelState();
@@ -113,6 +127,14 @@ export class AtmMusicController {
     }
 
     private playNext(silent = false) {
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+
+        // Live radio mode: reconnect same stream if it ends.
+        if (currentTrack && this.isRadioTrack(currentTrack) && this.tracks.length === 1) {
+            this.retryRadioStream(currentTrack);
+            return;
+        }
+
         if (this.currentIndex < this.tracks.length - 1) {
             this.currentIndex++;
             const track = this.tracks[this.currentIndex];
@@ -141,6 +163,18 @@ export class AtmMusicController {
         this.searchUI.setCanForward(this.hasCachedSearch);
     }
 
+    private handleBackFromPlayer() {
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+        if (currentTrack && this.isRadioTrack(currentTrack)) {
+            // In radio mode, Back should return to station selection, not music results.
+            this.showScreen('search');
+            this.searchUI.setCanForward(false);
+            return;
+        }
+
+        this.showScreen('results');
+    }
+
     private showScreen(name: 'search' | 'results' | 'player') {
         // Only manage music-related screens - don't touch time/game
         const musicScreenIds = ['screen-search', 'screen-results', 'screen-player'];
@@ -158,6 +192,13 @@ export class AtmMusicController {
     }
 
     private handlePlaybackFallback() {
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+
+        if (currentTrack && this.isRadioTrack(currentTrack)) {
+            this.retryRadioStream(currentTrack);
+            return;
+        }
+
         // Silent skip: try the next track without re-rendering
         if (this.currentIndex < this.tracks.length - 1) {
             this.playNext(true);  // silent = true
@@ -183,6 +224,159 @@ export class AtmMusicController {
 
     // Public API for external integration
     public search(query: string) { this.searchUI.setQuery(query); this.performSearch(query); }
+
+    public playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string, stationKey = 'podcast'): void {
+        const fallbackSafeTitle = (fallbackTitle || 'Podcast').trim();
+        const fallbackSafeStreamUrl = (fallbackStreamUrl || '').trim();
+
+        // Play immediately (same UX as FM/LoFi), using cached API result or fallback.
+        const stationToPlay = this.cachedPodcastStation ?? {
+            title: fallbackSafeTitle,
+            streamUrl: fallbackSafeStreamUrl,
+        };
+        this.playRadioStream(stationToPlay.title, stationToPlay.streamUrl, stationKey);
+
+        this.ensurePodcastDiscovery(fallbackSafeTitle, fallbackSafeStreamUrl);
+    }
+
+    private ensurePodcastDiscovery(fallbackTitle: string, fallbackStreamUrl: string): void {
+        if (this.podcastDiscoveryInFlight) {
+            return;
+        }
+
+        const port = window.STREAM_PORT || 0;
+        if (port <= 0) {
+            return;
+        }
+
+        this.podcastDiscoveryInFlight = (async () => {
+            try {
+                const response = await fetch(`http://127.0.0.1:${port}/discover/podcast`);
+                if (!response.ok) {
+                    throw new Error(`Podcast discovery failed with HTTP ${response.status}`);
+                }
+
+                const data = await response.json() as { label?: string; streamUrl?: string };
+                const title = (data.label || fallbackTitle).trim();
+                const streamUrl = (data.streamUrl || fallbackStreamUrl).trim();
+
+                if (streamUrl) {
+                    this.cachedPodcastStation = {
+                        title: title || fallbackTitle,
+                        streamUrl,
+                    };
+                }
+            } catch (error) {
+                console.warn('[ATM Music] Podcast API discovery failed; fallback remains active:', error);
+            } finally {
+                this.podcastDiscoveryInFlight = null;
+            }
+        })();
+    }
+
+    public playRadioStream(stationTitle: string, streamUrl: string, stationKey?: string) {
+        const rawTitle = (stationTitle || 'Radio').trim();
+        const hasBandPrefix = /^(fm|am)\s*-\s*/i.test(rawTitle) || rawTitle.toLowerCase() === 'am';
+        const safeTitle = hasBandPrefix ? rawTitle : `FM - ${rawTitle}`;
+        const safeStreamUrl = (streamUrl || '').trim();
+        if (!safeStreamUrl) {
+            this.showError('Radio stream is unavailable.');
+            return;
+        }
+
+        const port = window.STREAM_PORT || 0;
+        const proxiedUrl = port > 0
+            ? `http://127.0.0.1:${port}/radio?streamUrl=${encodeURIComponent(safeStreamUrl)}`
+            : safeStreamUrl;
+
+        const radioTrack: Track = {
+            id: `radio_${safeTitle.toLowerCase().replace(/\s+/g, '_')}`,
+            videoId: '',
+            title: safeTitle,
+            artist: 'Radio',
+            album: 'Live Stream',
+            thumbnail: '',
+            duration: 0,
+            preview: proxiedUrl,
+            provider: 'deezer',
+            canPlay: true,
+            isFullTrack: true,
+        };
+
+        this.clearError();
+        this.clearRadioReconnectTimer();
+        this.resetRadioRetryState();
+        this.currentRadioStationKey = stationKey || null;
+        this.tracks = [radioTrack];
+        this.hasCachedSearch = false;
+        this.currentIndex = 0;
+        this.showScreen('player');
+        this.playerUI.playTrack(radioTrack, false, false);
+        this.updateMusicLabelState();
+    }
+
+    public isPlayingRadioStation(stationKey: string): boolean {
+        if (!stationKey) {
+            return false;
+        }
+
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+        if (!currentTrack || !this.isRadioTrack(currentTrack)) {
+            return false;
+        }
+
+        return this.playerUI.isRunning() && this.currentRadioStationKey === stationKey;
+    }
+
+    private isRadioTrack(track: Track): boolean {
+        return track.id.startsWith('radio_');
+    }
+
+    private retryRadioStream(track: Track): void {
+        this.clearRadioReconnectTimer();
+        this.clearRadioRetryDecayTimer();
+
+        if (this.radioRetryCount >= this.radioRetryMaxAttempts) {
+            this.showError('Radio stream unstable. Tap the station to retry.');
+            return;
+        }
+
+        this.radioRetryCount += 1;
+        const delay = Math.min(
+            this.radioRetryBaseDelayMs * Math.pow(2, this.radioRetryCount - 1),
+            this.radioRetryMaxDelayMs,
+        );
+
+        this.radioReconnectTimer = window.setTimeout(() => {
+            this.clearError();
+            this.playerUI.skipToTrack(track, false, false);
+        }, delay);
+
+        // If stream stays up for a while, allow fast retries again.
+        this.radioRetryDecayTimer = window.setTimeout(() => {
+            this.radioRetryCount = 0;
+            this.radioRetryDecayTimer = null;
+        }, this.radioRetryResetWindowMs);
+    }
+
+    private clearRadioReconnectTimer(): void {
+        if (this.radioReconnectTimer !== null) {
+            window.clearTimeout(this.radioReconnectTimer);
+            this.radioReconnectTimer = null;
+        }
+    }
+
+    private clearRadioRetryDecayTimer(): void {
+        if (this.radioRetryDecayTimer !== null) {
+            window.clearTimeout(this.radioRetryDecayTimer);
+            this.radioRetryDecayTimer = null;
+        }
+    }
+
+    private resetRadioRetryState(): void {
+        this.radioRetryCount = 0;
+        this.clearRadioRetryDecayTimer();
+    }
 
     /** Navigate to player (if a track is loaded) or results (if a search was made). */
     public goToMusic() {

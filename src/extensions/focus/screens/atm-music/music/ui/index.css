@@ -1,5 +1,5 @@
-@import "../../../shared/skeletons/s-music/list.css";
-@import "../../../shared/skeletons/s-music/play.css";
+@import "../../../../shared/skeletons/s-music/list.css";
+@import "../../../../shared/skeletons/s-music/play.css";
 
 /* ATM Music screens: results + player */
 
@@ -407,6 +407,39 @@
     text-align: right;
 }
 
+.progress-time.is-live {
+    color: #ff6b6b;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.progress-time.is-live::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff6b6b;
+    opacity: 0.95;
+}
+
+.progress-time.is-live.is-live-playing::before {
+    animation: liveDotBlink 1.8s ease-in-out infinite;
+}
+
+@keyframes liveDotBlink {
+    0%,
+    100% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
 /* ── Custom Progress Track (Modern Gradient) ── */
 .progress-track {
     position: relative;
@@ -427,6 +460,14 @@
 .progress-track.loading {
     opacity: 0.4;
     cursor: default;
+}
+
+.progress-track.is-live {
+    cursor: default;
+}
+
+.progress-track.is-live .progress-thumb {
+    opacity: 0 !important;
 }
 
 .progress-fill {

@@ -1,6 +1,6 @@
 import * as https from 'https';
 import * as http from 'http';
-import { Track } from '../../../../shared/types';
+import { Track } from '../../shared/types';
 import { IMusicProvider } from './base-provider';
 
 interface JioSaavnImage {

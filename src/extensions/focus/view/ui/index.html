@@ -9,37 +9,47 @@
 
     <!-- Screen 1: Search -->
     <section id="screen-search" class="screen active">
-        <div class="search-container">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" width="14" height="14">
-                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-            </svg>
-            <input
-                type="search"
-                id="search-input"
-                class="search-input"
-                placeholder="BETA - Search for music..."
-                autocomplete="off"
-                spellcheck="false"
-                aria-label="Search music"
-            />
-            <button id="search-btn" class="search-btn" aria-label="Search">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-            </button>
+        <div class="mode-panels">
+            <div id="mode-panel-music-search" class="mode-panel mode-panel-search">
+                <div class="search-container">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" width="14" height="14">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <input
+                        type="search"
+                        id="search-input"
+                        class="search-input"
+                        placeholder="BETA - Search for music..."
+                        autocomplete="off"
+                        spellcheck="false"
+                        aria-label="Search music"
+                    />
+                    <button id="search-btn" class="search-btn" aria-label="Search">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mode-panel-radio" class="mode-panel mode-panel-radio is-active" aria-hidden="false">
+                <button class="radio-mode-btn" type="button" data-radio-station="fm-111">FM - 111</button>
+                <button class="radio-mode-btn" type="button" data-radio-station="lofi-2026">FM - LoFi</button>
+                <button class="radio-mode-btn" type="button" data-radio-station="podcast">FM - Podcast</button>
+                <button class="radio-mode-btn radio-mode-btn-am" type="button" data-radio-station="am-peru">AM</button>
+            </div>
         </div>
 
         <div class="quick-access">
             <button id="qa-music-tab" class="qa-btn qa-tab-btn is-active" type="button" aria-current="true">
-                <span id="qa-music-label">Music</span>
-                <span id="qa-play-btn" style="display: none; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; opacity: 0.9; cursor: pointer;" title="Play/Pause">
+                <span id="qa-music-label">Radio</span>
+                <span id="qa-play-btn" title="Play/Pause" aria-hidden="true">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                         <path id="qa-play-path" d="M8 5v14l11-7z"/>
                     </svg>
                 </span>
             </button>
-            <button class="qa-btn" type="button" data-screen="time">Time</button>
+            <button class="qa-btn" type="button" data-screen="time">Pomodoro</button>
             <button class="qa-btn" type="button" data-screen="game">Data</button>
         </div>
     </section>

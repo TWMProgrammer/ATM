@@ -31,7 +31,47 @@ body {
 #screen-search {
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 18px;
+}
+
+.mode-panels {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+}
+
+.mode-panel {
+    width: 100%;
+    display: none;
+}
+
+.mode-panel.is-active {
+    display: flex;
+    animation: modePanelIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mode-panel-search {
+    align-items: center;
+}
+
+.mode-panel-radio {
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+@keyframes modePanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(7px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes screenFadeIn {
@@ -41,10 +81,49 @@ body {
 .search-container {
     position: relative;
     width: 100%;
-    max-width: 600px;
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.radio-mode-btn {
+    border: 1px solid color-mix(in srgb, var(--vscode-input-border, rgba(128, 128, 128, 0.35)) 82%, transparent);
+    background: transparent;
+    color: var(--vscode-foreground);
+    border-radius: 999px;
+    padding: 6px 8px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    cursor: pointer;
+    transition: transform 0.16s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.radio-mode-btn-am {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1px;
+}
+
+.radio-mode-btn:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--vscode-button-secondaryHoverBackground) 70%, #0f2f1f 30%);
+}
+
+.radio-mode-btn.is-active {
+    background: color-mix(in srgb, var(--vscode-button-background) 82%, #3fb579 18%);
+    border-color: color-mix(in srgb, var(--vscode-focusBorder) 60%, transparent);
+    color: var(--vscode-button-foreground);
 }
 
 .search-container.api-loading::after {
@@ -102,8 +181,8 @@ body {
 
 .search-input {
     flex: 1;
-    padding: 8px 10px 8px 34px;
-    font-size: 12px;
+    padding: 9px 10px 9px 34px;
+    font-size: 11px;
     font-family: var(--vscode-font-family);
     background-color: var(--vscode-input-background);
     color: var(--vscode-input-foreground);
@@ -171,8 +250,8 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 }
 
 .search-btn {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     border: none;
     background: var(--vscode-button-background);
@@ -240,8 +319,8 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 
 .quick-access {
     display: flex;
-    gap: 6px;
-    margin-top: 20px;
+    gap: 5px;
+    margin-top: 14px;
     max-width: 600px;
     justify-content: center;
     flex-wrap: wrap;
@@ -256,8 +335,8 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     color: var(--vscode-button-secondaryForeground);
     border: 1px solid transparent;
     border-radius: 50px;
-    padding: 5px 12px;
-    font-size: 11px;
+    padding: 5px 11px;
+    font-size: 10px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -292,7 +371,16 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     align-items: center;
     justify-content: center;
     gap: 0;
+    position: relative;
     transition: padding-left 0.62s cubic-bezier(0.22, 0.61, 0.36, 1), padding-right 0.62s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+#qa-music-tab {
+    min-width: 0;
+}
+
+#qa-music-tab.has-play-indicator {
+    padding-right: 24px;
 }
 
 .qa-tab-btn.has-clear-api {
@@ -356,7 +444,32 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 }
 
 #qa-play-btn {
-    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+}
+
+#qa-play-btn.is-visible {
+    opacity: 0.9;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+#qa-play-btn.loading::after {
+    width: 11px;
+    height: 11px;
 }
 
 .qa-tab-btn.has-clear-api .qa-clear-api-btn:hover,
@@ -368,17 +481,30 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 }
 
 #qa-music-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
     border-radius: 3px;
     transition: opacity 0.15s ease;
-    cursor: default;
+    cursor: pointer;
 }
 
 #qa-music-label.is-linkable {
-    cursor: default;
+    cursor: pointer;
 }
 
 #qa-music-label.is-get-api {
     cursor: pointer;
+}
+
+#qa-music-tab {
+    cursor: pointer;
+}
+
+#qa-music-tab:hover,
+#qa-music-label:hover {
+    cursor: all-scroll;
 }
 
 #qa-music-label.is-linkable:hover {
