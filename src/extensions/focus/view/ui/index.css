@@ -577,4 +577,32 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     justify-content: center;
 }
 
+/* Responsive adjustments for narrow sidebar (e.g., when panel is reduced) */
+@media screen and (max-width: 300px) {
+    .mode-panel-radio {
+        gap: 3px;
+    }
+    
+    .radio-mode-btn {
+        padding: 4px 9px;
+        font-size: 10px;
+    }
+    
+    .radio-mode-btn-am {
+        width: 26px;
+        height: 26px;
+        font-size: 9px;
+    }
+
+    .quick-access {
+        gap: 2px;
+        padding: 2px;
+    }
+
+    .qa-btn {
+        padding: 4px 10px;
+        font-size: 10px;
+    }
+}
+
 
