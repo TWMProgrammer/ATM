@@ -182,8 +182,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'pt',
 		label: 'AM - Portugal 🇵🇹',
-		displayName: 'RFM',
-		streamUrl: 'https://23603.live.streamtheworld.com/RFMAAC.aac',
+		displayName: 'Radio Comercial Portugal',
+		streamUrl: 'https://stream-icy.bauermedia.pt/comercial.mp3',
 	},
 	{
 		id: 'cn',
@@ -368,8 +368,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'ec',
 		label: 'AM - Ecuador 🇪🇨',
-		displayName: 'Armonica FM',
-		streamUrl: 'https://armonicafm.makrodigital.com:9570/stream',
+		displayName: 'Radio La Otra 91.3 FM',
+		streamUrl: 'https://laotrafm.makrodigital.com/stream/laotrafmquito',
 	},
 	{
 		id: 've',
