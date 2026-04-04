@@ -158,8 +158,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'se',
 		label: 'AM - Sweden 🇸🇪',
-		displayName: 'Bandit Rock',
-		streamUrl: 'http://fm02-ice.stream.khz.se/fm02_mp3',
+		displayName: '106,7 Rockklassiker',
+		streamUrl: 'http://tx-bauerse.sharp-stream.com/http_live.php?ua=WEB&i=rockklassiker_instream_se_mp3',
 	},
 	{
 		id: 'no',
@@ -195,7 +195,7 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 		id: 'sg',
 		label: 'AM - Singapore 🇸🇬',
 		displayName: '938 Now Radio',
-		streamUrl: 'http://playerservices.streamtheworld.com/api/livestream-redirect/938NOWAAC.aac',
+		streamUrl: 'https://playerservices.streamtheworld.com/api/livestream-redirect/938NOWAAC.aac',
 	},
 	{
 		id: 'my',
@@ -230,8 +230,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'hk',
 		label: 'AM - Hong Kong 🇭🇰',
-		displayName: 'Apple FM',
-		streamUrl: 'http://sc.apple-fm.net:9020/',
+		displayName: 'D-100',
+		streamUrl: 'http://59.152.232.107:8000/Channel1-128MP3',
 	},
 	{
 		id: 'pk',
@@ -290,8 +290,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'uz',
 		label: 'AM - Uzbekistan 🇺🇿',
-		displayName: "A'LO FM",
-		streamUrl: 'http://tabassum.uz:9000/alo_low',
+		displayName: 'Islom.uz',
+		streamUrl: 'https://radio.islom.uz/islomuz',
 	},
 	{
 		id: 'ch',
@@ -302,8 +302,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'at',
 		label: 'AM - Austria 🇦🇹',
-		displayName: 'Life Radio Tirol',
-		streamUrl: 'https://stream.liferadio.tirol/MUONLY/mp3-192/link',
+		displayName: '1000 ELECTRONIC DANCE MUSIC',
+		streamUrl: 'http://stream.laut.fm/1000-electronic-dance-music',
 	},
 	{
 		id: 'be',
@@ -332,8 +332,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 'hu',
 		label: 'AM - Hungary 🇭🇺',
-		displayName: 'Gyor Plus Radio',
-		streamUrl: 'https://stream.42netmedia.com:8443/sc_gyor1',
+		displayName: '103.9 rock',
+		streamUrl: 'https://icast.connectmedia.hu/5301/live.mp3',
 	},
 	{
 		id: 'ro',
@@ -374,8 +374,8 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 	{
 		id: 've',
 		label: 'AM - Venezuela 🇻🇪',
-		displayName: '105.1 Fuerza Musical',
-		streamUrl: 'https://server6.globalhostla.com:9376/stream',
+		displayName: 'Acción 104.5 FM (La diferencia en el dial)',
+		streamUrl: 'https://stream.intervalohost.com/accionfm/stream',
 	},
 	{
 		id: 'cr',
