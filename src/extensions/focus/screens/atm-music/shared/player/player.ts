@@ -15,6 +15,7 @@ export class MusicPlayerUI {
     private pendingTrack: Track | null = null;
     private currentTrackDuration = 0;
     private isLiveRadioMode = false;
+    private liveProgressStartedAtMs = 0;
 
     // --- Performance Cache ---
     private cachedEls: Record<string, Element | null> = {};
@@ -448,7 +449,9 @@ export class MusicPlayerUI {
 
             if (this.isLiveRadioMode) {
                 if (!this.isSeeking) {
-                    this.updateProgressVisual(0);
+                    const elapsedSeconds = Math.max(0, (Date.now() - this.liveProgressStartedAtMs) / 1000);
+                    const ratio = Math.min(elapsedSeconds / 3, 1);
+                    this.updateProgressVisual(ratio);
                     this.updateTimeDisplay();
                 }
                 this.progressTimer = requestAnimationFrame(update);
@@ -573,6 +576,7 @@ export class MusicPlayerUI {
         this.isLiveRadioMode = this.isRadioTrack(track);
         if (this.isLiveRadioMode) {
             this.isRemainingMode = false;
+            this.liveProgressStartedAtMs = Date.now();
         }
     }
 
