@@ -195,7 +195,7 @@ export const AM_WORLD_STATIONS: AmPeruStation[] = [
 		id: 'sg',
 		label: 'AM - Singapore 🇸🇬',
 		displayName: '938 Now Radio',
-		streamUrl: 'https://playerservices.streamtheworld.com/api/livestream-redirect/938NOWAAC.aac',
+		streamUrl: 'http://19183.live.streamtheworld.com:3690/938NOW_PREM_SC',
 	},
 	{
 		id: 'my',
