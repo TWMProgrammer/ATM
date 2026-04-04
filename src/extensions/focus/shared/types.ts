@@ -44,4 +44,5 @@ export interface WebviewMessage {
     url?: string;
     apiKey?: string;
     isValid?: boolean;
+    searchId?: number;
 }

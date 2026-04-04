@@ -172,5 +172,10 @@ export class ProviderManager {
     }
 }
 
-// Export singleton instance
-export const providerManager = new ProviderManager();
+let _providerManager: ProviderManager | null = null;
+export function getProviderManager(): ProviderManager {
+    if (!_providerManager) {
+        _providerManager = new ProviderManager();
+    }
+    return _providerManager;
+}

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as http from 'http';
 import * as https from 'https';
 import { WebviewMessage } from '../types';
-import { providerManager } from '../../music/providers/provider-manager';
+import { getProviderManager } from '../../music/providers/provider-manager';
 
 let streamServer: http.Server | null = null;
 let streamPort = 0;
@@ -46,7 +46,7 @@ export function startAudioServer(): Promise<number> {
                 }
 
                 // Get true authorized streaming URL
-                const realUrl = await providerManager.getStreamUrl(provider, videoId);
+                const realUrl = await getProviderManager().getStreamUrl(provider, videoId);
 
                 if (!realUrl) {
                     res.writeHead(404);
@@ -213,7 +213,7 @@ export async function handleWebviewMessage(
             streamPort: port
         } as WebviewMessage);
     } else if (message.type === 'search' && message.query) {
-        handleSearch(webviewView, message.query);
+        handleSearch(webviewView, message.query, message.searchId);
     }
 }
 
@@ -230,12 +230,13 @@ export function stopAudioServer(): void {
     }
 }
 
-async function handleSearch(webviewView: vscode.WebviewView, query: string) {
+async function handleSearch(webviewView: vscode.WebviewView, query: string, searchId?: number) {
     try {
-        const results = await providerManager.searchAll(query);
+        const results = await getProviderManager().searchAll(query);
         webviewView.webview.postMessage({ 
             type: 'searchResults', 
-            results 
+            results,
+            searchId
         } as WebviewMessage);
     } catch (error) {
         console.error('[ATM Music] Search error:', error);

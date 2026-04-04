@@ -570,7 +570,7 @@ export class MusicPlayerUI {
                 
                 // EXCEPTION: Let the Time (Pomodoro) screen handle spacebar for its own timer
                 const timeScreen = document.getElementById('screen-time');
-                if (timeScreen && timeScreen.classList.contains('active')) {
+                if (timeScreen && window.getComputedStyle(timeScreen).display !== 'none') {
                     return;
                 }
                 

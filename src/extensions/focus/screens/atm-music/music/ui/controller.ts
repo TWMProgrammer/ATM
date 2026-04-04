@@ -29,6 +29,7 @@ export class AtmMusicController {
     private lastAmStationId: string | null = null;
     private cachedPodcastStation: { title: string; streamUrl: string } | null = null;
     private podcastDiscoveryInFlight: Promise<void> | null = null;
+    private currentSearchId = 0;
 
     constructor(private readonly vscode: VSCodeApi) {
         this.musicLabelEl = $('#qa-music-label');
@@ -97,6 +98,9 @@ export class AtmMusicController {
             if (msg.type === 'config' && msg.streamPort) {
                 window.STREAM_PORT = msg.streamPort;
             } else if (msg.type === 'searchResults') {
+                if (msg.searchId !== undefined && msg.searchId !== this.currentSearchId) {
+                    return; // Ignore stale search result
+                }
                 this.tracks = msg.results || [];
                 this.hasCachedSearch = true;
                 this.resultsUI.render(this.tracks);
@@ -121,7 +125,8 @@ export class AtmMusicController {
         this.resultsUI.showSkeleton();
         this.showScreen('results');
         this.updateMusicLabelState();
-        this.vscode.postMessage({ type: 'search', query });
+        this.currentSearchId++;
+        this.vscode.postMessage({ type: 'search', query, searchId: this.currentSearchId });
     }
 
     private selectTrack(index: number) {
