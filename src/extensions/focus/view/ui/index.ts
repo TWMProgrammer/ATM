@@ -87,7 +87,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     const radioButtons = Array.from(document.querySelectorAll('.radio-mode-btn')) as HTMLButtonElement[];
 
     type AudioUiMode = 'music' | 'radio';
-    let audioUiMode: AudioUiMode = 'music';
+    let audioUiMode: AudioUiMode = 'radio';
     let lastAmStationId: string | null = null;
 
     const setAudioUiMode = (mode: AudioUiMode) => {
@@ -222,7 +222,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     }
 
     // Initial mode
-    setAudioUiMode('music');
+    setAudioUiMode('radio');
 
     // The Search input Enter key is now fully handled inside search.ts ('MusicSearchUI')
 }());
