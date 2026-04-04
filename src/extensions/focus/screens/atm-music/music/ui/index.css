@@ -427,7 +427,7 @@
 }
 
 .progress-time.is-live.is-live-playing::before {
-    animation: liveDotBlink 1s ease-in-out infinite;
+    animation: liveDotBlink 1.8s ease-in-out infinite;
 }
 
 @keyframes liveDotBlink {
