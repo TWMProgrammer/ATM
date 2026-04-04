@@ -477,7 +477,12 @@ export class MusicPlayerUI {
         this.progressTimer = requestAnimationFrame(update);
     }
 
-    private stopProgressLoop() { if (this.progressTimer) {cancelAnimationFrame(this.progressTimer);} }
+    private stopProgressLoop() {
+        if (this.progressTimer) {
+            cancelAnimationFrame(this.progressTimer);
+            this.progressTimer = null;
+        }
+    }
 
     private setLoading(loading: boolean) {
         this.isLoadingState = loading;

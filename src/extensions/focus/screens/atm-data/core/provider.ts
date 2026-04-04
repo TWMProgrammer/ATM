@@ -20,6 +20,7 @@ export class ATMDataProvider {
   
   private activeMinutesToday: number = 0;
   private filesEditedToday: Set<string> = new Set();
+  private previousFilesEditedCountToday: number = 0;
   private localStreak: number = 0;
   
   private updateInterval: NodeJS.Timeout | null = null;
@@ -30,6 +31,7 @@ export class ATMDataProvider {
   // --- Memory Caches to prevent CPU/Network Abuse ---
   private gitCache: { commits: number, timestamp: number } | null = null;
   private ghCache: { data: { commits: number, streak: number }, timestamp: number } | null = null;
+  private ghHtmlCache: { username: string, html: string, timestamp: number } | null = null;
   private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
   private constructor() {
@@ -51,8 +53,8 @@ export class ATMDataProvider {
     const storedDate = this.context.globalState.get<string>('atm_stats_date');
     if (storedDate === today) {
       this.activeMinutesToday = this.context.globalState.get<number>('atm_active_minutes') || 0;
-      const files = this.context.globalState.get<string[]>('atm_files_edited') || [];
-      this.filesEditedToday = new Set(files);
+      this.previousFilesEditedCountToday = this.context.globalState.get<number>('atm_files_edited_count') || 0;
+      this.filesEditedToday = new Set();
     } else {
       this.resetDailyStats();
     }
@@ -127,6 +129,7 @@ export class ATMDataProvider {
   private resetDailyStats() {
     this.activeMinutesToday = 0;
     this.filesEditedToday.clear();
+    this.previousFilesEditedCountToday = 0;
     this.saveLocalStats();
   }
 
@@ -136,7 +139,7 @@ export class ATMDataProvider {
     }
     this.context.globalState.update('atm_stats_date', new Date().toDateString());
     this.context.globalState.update('atm_active_minutes', this.activeMinutesToday);
-    this.context.globalState.update('atm_files_edited', Array.from(this.filesEditedToday));
+    this.context.globalState.update('atm_files_edited_count', this.previousFilesEditedCountToday + this.filesEditedToday.size);
   }
 
   private trackActivity() {
@@ -163,7 +166,7 @@ export class ATMDataProvider {
         if (Date.now() - this.lastActivityTime < 5 * 60 * 1000) {
             this.activeMinutesToday += 1;
             this.saveLocalStats();
-            this.dispatchUpdate();
+            this.dispatchUpdate(false);
         }
     }, 60000);
   }
@@ -184,7 +187,7 @@ export class ATMDataProvider {
 
   /** Public accessor for count of files edited today. */
   public getFilesEditedCount(): number {
-    return this.filesEditedToday.size;
+    return this.previousFilesEditedCountToday + this.filesEditedToday.size;
   }
 
   private async getLocalCommits(): Promise<number> {
@@ -218,27 +221,45 @@ export class ATMDataProvider {
     return totalCount;
   }
 
+  public async fetchSharedGitHubContributionsHTML(username: string): Promise<string> {
+     const now = Date.now();
+     if (this.ghHtmlCache && this.ghHtmlCache.username === username && (now - this.ghHtmlCache.timestamp < this.CACHE_TTL_MS)) {
+         return this.ghHtmlCache.html;
+     }
+
+     return new Promise((resolve) => {
+       https.get(`https://github.com/users/${username}/contributions`, {
+           headers: { 
+               'User-Agent': 'Mozilla/5.0 (compatible; VSCode-ATM-Extension)',
+               'Accept': 'text/html'
+           }
+       }, (res) => {
+         let data = '';
+         res.on('data', chunk => data += chunk);
+         res.on('end', () => {
+           if (res.statusCode === 200) {
+               this.ghHtmlCache = { username, html: data, timestamp: Date.now() };
+               resolve(data);
+           } else {
+               resolve('');
+           }
+         });
+       }).on('error', () => resolve(''));
+     });
+  }
+
   private async fetchGitHubStats(username: string): Promise<{ commits: number, streak: number }> {
     const now = Date.now();
     if (this.ghCache && (now - this.ghCache.timestamp < this.CACHE_TTL_MS)) {
         return this.ghCache.data;
     }
 
-    return new Promise((resolve) => {
-      https.get(`https://github.com/users/${username}/contributions`, {
-          headers: { 
-              'User-Agent': 'Mozilla/5.0 (compatible; VSCode-ATM-Extension)',
-              'Accept': 'text/html'
-          }
-      }, (res) => {
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => {
-          if (res.statusCode !== 200) {
-              resolve({ commits: 0, streak: 0 });
-              return;
-          }
-          try {
+    const data = await this.fetchSharedGitHubContributionsHTML(username);
+    if (!data) {
+        return { commits: 0, streak: 0 };
+    }
+
+    try {
              let weekCommits = 0;
              const tooltips = data.match(/<tool-tip[^>]*>([^<]+)<\/tool-tip>/g);
              if (tooltips) {
@@ -260,13 +281,10 @@ export class ATMDataProvider {
 
              const result = { commits: weekCommits, streak };
              this.ghCache = { data: result, timestamp: Date.now() };
-             resolve(result);
+             return result;
           } catch {
-             resolve({ commits: 0, streak: 0 });
+             return { commits: 0, streak: 0 };
           }
-        });
-      }).on('error', () => resolve({ commits: 0, streak: 0 }));
-    });
   }
 
   public async dispatchUpdate(forceGithubFetch: boolean = true) {
@@ -293,7 +311,7 @@ export class ATMDataProvider {
     const stats: ATMStats = {
       'stat-time':   this.formatTime(this.activeMinutesToday),
       'stat-commits': totalCommits.toString(),
-      'stat-files':  this.filesEditedToday.size.toString(),
+      'stat-files':  this.getFilesEditedCount().toString(),
       'stat-streak': this.localStreak.toString(),   // ← always local, always accurate
     };
 

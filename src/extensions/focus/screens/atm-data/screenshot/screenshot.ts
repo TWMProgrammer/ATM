@@ -153,8 +153,8 @@ async function fetchDashboardData(nickname: string) {
     if (workspaceFolders) {
         try {
             const cwd = workspaceFolders[0].uri.fsPath;
-            const { stdout } = await execAsync('git log --since="midnight" --oneline', { cwd });
-            commitsToday = stdout.trim().split('\n').filter(Boolean).length;
+            const { stdout } = await execAsync('git rev-list --count --since="midnight" HEAD', { cwd });
+            commitsToday = parseInt(stdout.trim(), 10) || 0;
         } catch {}
     }
 
@@ -176,18 +176,7 @@ async function fetchDashboardData(nickname: string) {
             }).on('error', reject);
         });
 
-        const fetchContributions = new Promise<string>((resolve, reject) => {
-            https.get(`https://github.com/users/${cleanNick}/contributions`, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (compatible; VSCode-ATM-Extension)',
-                    'Accept': 'text/html'
-                }
-            }, (res) => {
-                let body = '';
-                res.on('data', d => body += d);
-                res.on('end', () => resolve(body));
-            }).on('error', reject);
-        });
+        const fetchContributions = ATMDataProvider.getInstance().fetchSharedGitHubContributionsHTML(cleanNick);
 
         // Check Memory Cache First
         if (githubCache && githubCache.nickname === cleanNick && (Date.now() - githubCache.timestamp < GH_CACHE_TTL)) {
@@ -503,7 +492,7 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
   const appJsUri = panel.webview.asWebviewUri(appJsPath);
 
   const cspSource = panel.webview.cspSource;
-  const cspMetaTag = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} data: blob: https:; style-src ${cspSource} 'unsafe-inline'; script-src ${cspSource} 'unsafe-eval' 'unsafe-inline'; font-src ${cspSource} data:; connect-src ${cspSource} data: blob:;">`;
+  const cspMetaTag = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} data: blob: https:; style-src ${cspSource} 'unsafe-inline'; script-src ${cspSource}; font-src ${cspSource} data:; connect-src ${cspSource} data: blob:;">`;
 
   // Inject content
   let html = htmlTemplate.replace('<head>', `<head>\n${cspMetaTag}`);

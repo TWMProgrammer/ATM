@@ -90,6 +90,11 @@ export function startAudioServer(): Promise<number> {
 
                     res.writeHead(streamRes.statusCode || 200, outHeaders);
                     streamRes.pipe(res);
+
+                    // Cleanup: destroy upstream if client disconnects mid-stream
+                    res.on('close', () => {
+                        streamRes.destroy();
+                    });
                 }).on('error', (e) => {
                     console.error('[ATM Music] Pipe error:', e);
                     if (!res.headersSent) {
@@ -131,6 +136,19 @@ export function startAudioServer(): Promise<number> {
                     return res.end('Unsupported streamUrl protocol');
                 }
 
+                const hostname = parsed.hostname;
+                if (
+                    hostname === 'localhost' || 
+                    hostname === '127.0.0.1' || 
+                    hostname === '0.0.0.0' || 
+                    hostname.startsWith('192.168.') || 
+                    hostname.startsWith('10.') || 
+                    /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname)
+                ) {
+                    res.writeHead(403);
+                    return res.end('Forbidden target IP');
+                }
+
                 proxyRadioStream(parsed.toString(), req, res, 0);
 
             } else if (url.pathname === '/discover/podcast') {
@@ -165,6 +183,10 @@ export function startAudioServer(): Promise<number> {
             }
         }
     });
+
+    // Prevent hanging connections from leaking file descriptors
+    streamServer.timeout = 30000;        // 30s max for non-streaming requests
+    streamServer.keepAliveTimeout = 5000; // 5s keepalive between requests
 
     return new Promise((resolve) => {
         streamServer!.listen(0, '127.0.0.1', () => {
@@ -280,6 +302,11 @@ function proxyRadioStream(
 
         res.writeHead(streamRes.statusCode || 200, outHeaders);
         streamRes.pipe(res);
+
+        // Cleanup: destroy upstream if client disconnects mid-stream
+        res.on('close', () => {
+            streamRes.destroy();
+        });
     }).on('error', (e) => {
         console.error('[ATM Music] Radio pipe error:', e);
         if (!res.headersSent) {
