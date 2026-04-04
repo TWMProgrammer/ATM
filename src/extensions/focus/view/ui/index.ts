@@ -119,11 +119,11 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             streamUrl: FM_111_STREAM_URL,
         },
         'lofi-2026': {
-            title: 'LoFi 2026',
+            title: 'FM - LoFi 2026',
             streamUrl: LOFI_2026_STREAM_URL,
         },
         'podcast': {
-            title: 'Podcast',
+            title: 'FM - Podcast',
             streamUrl: PODCAST_STREAM_URL,
         },
     };
@@ -134,7 +134,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
             const station = button.dataset.radioStation || '';
             if (station === 'podcast') {
-                void musicController.playPodcastFromApi('Podcast', PODCAST_STREAM_URL);
+                musicController.playPodcastFromApi('FM - Podcast', PODCAST_STREAM_URL);
                 return;
             }
 

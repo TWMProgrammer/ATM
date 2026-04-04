@@ -270,7 +270,10 @@ export class AtmMusicController {
     }
 
     public playRadioStream(stationTitle: string, streamUrl: string) {
-        const safeTitle = (stationTitle || 'LoFi 2026').trim();
+        const rawTitle = (stationTitle || 'Radio').trim();
+        const safeTitle = rawTitle.toLowerCase().startsWith('fm - ')
+            ? rawTitle
+            : `FM - ${rawTitle}`;
         const safeStreamUrl = (streamUrl || '').trim();
         if (!safeStreamUrl) {
             this.showError('Radio stream is unavailable.');
