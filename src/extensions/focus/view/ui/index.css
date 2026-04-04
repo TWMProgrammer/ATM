@@ -427,6 +427,42 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     stroke-linejoin: round;
 }
 
+.qa-music-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-right: 0;
+    pointer-events: none;
+    transition: 
+        width 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
+        opacity 0.32s ease, 
+        margin-right 0.38s ease;
+}
+
+.qa-music-icon svg {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.qa-tab-btn:hover .qa-music-icon,
+.qa-tab-btn:focus-within .qa-music-icon {
+    width: 16px;
+    opacity: 1;
+    margin-right: 8px;
+}
+
+.qa-tab-btn:hover .qa-music-icon svg {
+    animation: music-note-pulse 1.5s infinite alternate ease-in-out;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+}
+
+@keyframes music-note-pulse {
+    from { transform: translateY(0.5px) scale(0.92); }
+    to { transform: translateY(-1.5px) scale(1.15); }
+}
+
 .qa-tab-btn.has-clear-api:hover .qa-clear-api-btn,
 .qa-tab-btn.has-clear-api:focus-within .qa-clear-api-btn {
     width: 16px;
