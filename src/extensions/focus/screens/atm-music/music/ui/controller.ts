@@ -24,6 +24,7 @@ export class AtmMusicController {
     private readonly radioRetryMaxDelayMs = 15000;
     private readonly radioRetryResetWindowMs = 20000;
     private readonly radioRetryMaxAttempts = 8;
+    private currentRadioStationKey: string | null = null;
     private cachedPodcastStation: { title: string; streamUrl: string } | null = null;
     private podcastDiscoveryInFlight: Promise<void> | null = null;
 
@@ -102,6 +103,7 @@ export class AtmMusicController {
     private performSearch(query: string) {
         this.tracks = [];
         this.hasCachedSearch = false;
+        this.currentRadioStationKey = null;
         this.clearError();
         this.searchUI.setCanForward(false);
         this.resultsUI.setQuery(query);
@@ -115,6 +117,9 @@ export class AtmMusicController {
         this.currentIndex = index;
         const track = this.tracks[index];
         if (track) {
+            if (!this.isRadioTrack(track)) {
+                this.currentRadioStationKey = null;
+            }
             this.showScreen('player');
             this.playerUI.playTrack(track, index > 0, index < this.tracks.length - 1);
             this.updateMusicLabelState();
@@ -220,7 +225,7 @@ export class AtmMusicController {
     // Public API for external integration
     public search(query: string) { this.searchUI.setQuery(query); this.performSearch(query); }
 
-    public playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string): void {
+    public playPodcastFromApi(fallbackTitle: string, fallbackStreamUrl: string, stationKey = 'podcast'): void {
         const fallbackSafeTitle = (fallbackTitle || 'Podcast').trim();
         const fallbackSafeStreamUrl = (fallbackStreamUrl || '').trim();
 
@@ -229,7 +234,7 @@ export class AtmMusicController {
             title: fallbackSafeTitle,
             streamUrl: fallbackSafeStreamUrl,
         };
-        this.playRadioStream(stationToPlay.title, stationToPlay.streamUrl);
+        this.playRadioStream(stationToPlay.title, stationToPlay.streamUrl, stationKey);
 
         this.ensurePodcastDiscovery(fallbackSafeTitle, fallbackSafeStreamUrl);
     }
@@ -269,7 +274,7 @@ export class AtmMusicController {
         })();
     }
 
-    public playRadioStream(stationTitle: string, streamUrl: string) {
+    public playRadioStream(stationTitle: string, streamUrl: string, stationKey?: string) {
         const rawTitle = (stationTitle || 'Radio').trim();
         const hasBandPrefix = /^(fm|am)\s*-\s*/i.test(rawTitle) || rawTitle.toLowerCase() === 'am';
         const safeTitle = hasBandPrefix ? rawTitle : `FM - ${rawTitle}`;
@@ -301,12 +306,26 @@ export class AtmMusicController {
         this.clearError();
         this.clearRadioReconnectTimer();
         this.resetRadioRetryState();
+        this.currentRadioStationKey = stationKey || null;
         this.tracks = [radioTrack];
         this.hasCachedSearch = false;
         this.currentIndex = 0;
         this.showScreen('player');
         this.playerUI.playTrack(radioTrack, false, false);
         this.updateMusicLabelState();
+    }
+
+    public isPlayingRadioStation(stationKey: string): boolean {
+        if (!stationKey) {
+            return false;
+        }
+
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+        if (!currentTrack || !this.isRadioTrack(currentTrack)) {
+            return false;
+        }
+
+        return this.playerUI.isRunning() && this.currentRadioStationKey === stationKey;
     }
 
     private isRadioTrack(track: Track): boolean {
