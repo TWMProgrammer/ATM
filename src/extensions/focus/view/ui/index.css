@@ -91,7 +91,7 @@ body {
     background: transparent;
     color: var(--vscode-foreground);
     border-radius: 999px;
-    padding: 6px 12px;
+    padding: 6px 16px;
     font-size: 10px;
     line-height: 1;
     font-weight: 600;
@@ -448,9 +448,9 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 
 .qa-tab-btn:hover .qa-music-icon,
 .qa-tab-btn:focus-within .qa-music-icon {
-    width: 16px;
+    width: 14px;
     opacity: 1;
-    margin-right: 8px;
+    margin-right: 5px;
 }
 
 .qa-tab-btn:hover .qa-music-icon svg {
