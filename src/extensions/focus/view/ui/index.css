@@ -116,10 +116,10 @@ body {
 }
 
 .radio-mode-btn-am.has-flag {
-    font-size: 18px;
-    background: color-mix(in srgb, var(--vscode-editor-background) 80%, white 5%) !important;
-    border: 1px solid color-mix(in srgb, var(--vscode-editor-foreground) 10%, transparent) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    font-size: 19px; /* A bit more presence */
+    background: color-mix(in srgb, var(--vscode-button-secondaryBackground) 65%, transparent) !important;
+    border: 1.5px solid var(--vscode-button-background) !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--vscode-button-background) 35%, transparent) !important;
 }
 
 .radio-mode-btn:hover {
