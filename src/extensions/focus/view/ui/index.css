@@ -124,11 +124,11 @@ body {
 
 .radio-mode-btn:hover {
     transform: translateY(-1px);
-    background: color-mix(in srgb, var(--vscode-button-secondaryHoverBackground) 70%, #0f2f1f 30%);
+    background: color-mix(in srgb, var(--vscode-button-secondaryHoverBackground) 85%, var(--vscode-button-background) 15%);
 }
 
 .radio-mode-btn.is-active {
-    background: color-mix(in srgb, var(--vscode-button-background) 82%, #3fb579 18%);
+    background: var(--vscode-button-background);
     border-color: color-mix(in srgb, var(--vscode-focusBorder) 60%, transparent);
     color: var(--vscode-button-foreground);
 }
