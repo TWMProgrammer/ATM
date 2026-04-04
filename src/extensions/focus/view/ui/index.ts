@@ -1,7 +1,7 @@
 declare const acquireVsCodeApi: () => { postMessage: (message: unknown) => void };
 
 import { createAtmMusicController } from '../../screens/atm-music/root';
-import { AM_PERU_STREAM_URL } from '../../screens/atm-music/radio/providers/am';
+import { getNextPeruAmStation } from '../../screens/atm-music/radio/providers/am';
 import { LOFI_2026_STREAM_URL } from '../../screens/atm-music/radio/providers/lofi';
 import { FM_111_STREAM_URL } from '../../screens/atm-music/radio/providers/normal';
 import { PODCAST_STREAM_URL } from '../../screens/atm-music/radio/providers/podcast';
@@ -88,6 +88,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
     type AudioUiMode = 'music' | 'radio';
     let audioUiMode: AudioUiMode = 'music';
+    let lastAmStationId: string | null = null;
 
     const setAudioUiMode = (mode: AudioUiMode) => {
         audioUiMode = mode;
@@ -127,10 +128,6 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             title: 'FM - Podcast',
             streamUrl: PODCAST_STREAM_URL,
         },
-        'am-peru': {
-            title: 'AM - Peru',
-            streamUrl: AM_PERU_STREAM_URL,
-        },
     };
 
     radioButtons.forEach((button) => {
@@ -143,6 +140,13 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             const isAmStation = station === 'am-peru';
             if (!isAmStation && musicController.isPlayingRadioStation(station)) {
                 musicController.goToMusic();
+                return;
+            }
+
+            if (station === 'am-peru') {
+                const nextAmStation = getNextPeruAmStation(lastAmStationId);
+                lastAmStationId = nextAmStation.id;
+                musicController.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am-peru:${nextAmStation.id}`);
                 return;
             }
 
