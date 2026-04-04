@@ -91,7 +91,7 @@ body {
     background: transparent;
     color: var(--vscode-foreground);
     border-radius: 999px;
-    padding: 6px 16px;
+    padding: 6px 13px;
     font-size: 10px;
     line-height: 1;
     font-weight: 600;
