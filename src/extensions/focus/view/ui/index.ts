@@ -158,6 +158,24 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         });
     });
 
+    // Listen for station changes to update the 'AM' flag
+    window.addEventListener('atm_station_changed', ((event: CustomEvent) => {
+        const { title, stationKey } = event.detail;
+        const amButton = document.querySelector('.radio-mode-btn-am') as HTMLButtonElement | null;
+        if (!amButton) {return;}
+
+        if (stationKey?.startsWith('am-peru')) {
+            // Extract flag from title (e.g. 'AM - Perú 🇵🇪' -> '🇵🇪')
+            const flagMatch = title.match(/[\u{1F1E6}-\u{1F1FF}]{2}/u);
+            const flag = flagMatch ? flagMatch[0] : 'AM';
+            amButton.textContent = flag;
+            amButton.classList.add('has-flag');
+        } else {
+            amButton.textContent = 'AM';
+            amButton.classList.remove('has-flag');
+        }
+    }) as EventListener);
+
     const showGlobalScreen = (target: 'search' | 'time' | 'game') => {
         // Remove active from ALL screens
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));

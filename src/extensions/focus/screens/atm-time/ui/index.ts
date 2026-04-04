@@ -27,8 +27,8 @@ export function createAtmTimeController() {
                 btnToggleMode.style.color = 'var(--vscode-editor-foreground)';
                 btnToggleMode.style.borderColor = 'var(--vscode-widget-border)';
             } else {
-                btnToggleMode.style.color = 'var(--vscode-charts-blue, #3794ff)';
-                btnToggleMode.style.borderColor = 'var(--vscode-charts-blue, #3794ff)';
+                btnToggleMode.style.color = 'var(--vscode-button-background)';
+                btnToggleMode.style.borderColor = 'var(--vscode-button-background)';
             }
         }
     };
@@ -44,6 +44,14 @@ export function createAtmTimeController() {
         },
         onStateChange: (isPlaying, mode) => {
             isCurrentlyPlaying = isPlaying;
+            const displayWrapper = root.querySelector('.pomo-display-wrapper');
+            if (displayWrapper) {
+                if (isPlaying) {
+                    displayWrapper.classList.add('is-playing');
+                } else {
+                    displayWrapper.classList.remove('is-playing');
+                }
+            }
             if (isPlaying) {
                 if (btnPlay) {
                     btnPlay.style.display = 'none';

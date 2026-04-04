@@ -91,7 +91,7 @@ body {
     background: transparent;
     color: var(--vscode-foreground);
     border-radius: 999px;
-    padding: 6px 8px;
+    padding: 6px 13px;
     font-size: 10px;
     line-height: 1;
     font-weight: 600;
@@ -115,13 +115,20 @@ body {
     letter-spacing: 0.1px;
 }
 
+.radio-mode-btn-am.has-flag {
+    font-size: 16px;
+    background: color-mix(in srgb, var(--vscode-button-secondaryBackground) 65%, transparent) !important;
+    border: 1.5px solid var(--vscode-button-background) !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--vscode-button-background) 35%, transparent) !important;
+}
+
 .radio-mode-btn:hover {
     transform: translateY(-1px);
-    background: color-mix(in srgb, var(--vscode-button-secondaryHoverBackground) 70%, #0f2f1f 30%);
+    background: color-mix(in srgb, var(--vscode-button-secondaryHoverBackground) 85%, var(--vscode-button-background) 15%);
 }
 
 .radio-mode-btn.is-active {
-    background: color-mix(in srgb, var(--vscode-button-background) 82%, #3fb579 18%);
+    background: var(--vscode-button-background);
     border-color: color-mix(in srgb, var(--vscode-focusBorder) 60%, transparent);
     color: var(--vscode-button-foreground);
 }
@@ -427,6 +434,41 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     stroke-linejoin: round;
 }
 
+.qa-music-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-right: 0;
+    pointer-events: none;
+    transition: 
+        width 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
+        opacity 0.32s ease, 
+        margin-right 0.38s ease;
+}
+
+.qa-music-icon svg {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.qa-tab-btn:hover .qa-music-icon {
+    width: 14px;
+    opacity: 1;
+    margin-right: 5px;
+}
+
+.qa-tab-btn:hover .qa-music-icon svg {
+    animation: music-note-pulse 1.5s infinite alternate ease-in-out;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+}
+
+@keyframes music-note-pulse {
+    from { transform: translateY(0.5px) scale(0.92); }
+    to { transform: translateY(-1.5px) scale(1.15); }
+}
+
 .qa-tab-btn.has-clear-api:hover .qa-clear-api-btn,
 .qa-tab-btn.has-clear-api:focus-within .qa-clear-api-btn {
     width: 16px;
@@ -504,7 +546,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 
 #qa-music-tab:hover,
 #qa-music-label:hover {
-    cursor: all-scroll;
+    cursor: pointer;
 }
 
 #qa-music-label.is-linkable:hover {
