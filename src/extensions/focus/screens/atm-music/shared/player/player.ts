@@ -477,7 +477,12 @@ export class MusicPlayerUI {
         this.progressTimer = requestAnimationFrame(update);
     }
 
-    private stopProgressLoop() { if (this.progressTimer) {cancelAnimationFrame(this.progressTimer);} }
+    private stopProgressLoop() {
+        if (this.progressTimer) {
+            cancelAnimationFrame(this.progressTimer);
+            this.progressTimer = null;
+        }
+    }
 
     private setLoading(loading: boolean) {
         this.isLoadingState = loading;
@@ -565,7 +570,7 @@ export class MusicPlayerUI {
                 
                 // EXCEPTION: Let the Time (Pomodoro) screen handle spacebar for its own timer
                 const timeScreen = document.getElementById('screen-time');
-                if (timeScreen && timeScreen.classList.contains('active')) {
+                if (timeScreen && window.getComputedStyle(timeScreen).display !== 'none') {
                     return;
                 }
                 

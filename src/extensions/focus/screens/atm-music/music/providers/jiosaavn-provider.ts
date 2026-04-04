@@ -130,7 +130,7 @@ export class JioSaavnProvider implements IMusicProvider {
                 return reject(new Error('[ATM Music] [JioSaavn] Too many redirects'));
             }
             const protocol = url.startsWith('https') ? https : http;
-            protocol.get(url, (res: any) => {
+            const req = protocol.get(url, (res: any) => {
                 if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
                     // Fix relative redirects
                     const location = res.headers.location.startsWith('/') 
@@ -144,6 +144,11 @@ export class JioSaavnProvider implements IMusicProvider {
                 res.on('end', () => resolve(data));
                 res.on('error', reject);
             }).on('error', reject);
+
+            req.setTimeout(8000, () => {
+                req.destroy();
+                reject(new Error('[ATM Music] [JioSaavn] Timeout'));
+            });
         });
     }
 }

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as http from 'http';
 import * as https from 'https';
 import { WebviewMessage } from '../types';
-import { providerManager } from '../../music/providers/provider-manager';
+import { getProviderManager } from '../../music/providers/provider-manager';
 
 let streamServer: http.Server | null = null;
 let streamPort = 0;
@@ -46,7 +46,7 @@ export function startAudioServer(): Promise<number> {
                 }
 
                 // Get true authorized streaming URL
-                const realUrl = await providerManager.getStreamUrl(provider, videoId);
+                const realUrl = await getProviderManager().getStreamUrl(provider, videoId);
 
                 if (!realUrl) {
                     res.writeHead(404);
@@ -90,6 +90,11 @@ export function startAudioServer(): Promise<number> {
 
                     res.writeHead(streamRes.statusCode || 200, outHeaders);
                     streamRes.pipe(res);
+
+                    // Cleanup: destroy upstream if client disconnects mid-stream
+                    res.on('close', () => {
+                        streamRes.destroy();
+                    });
                 }).on('error', (e) => {
                     console.error('[ATM Music] Pipe error:', e);
                     if (!res.headersSent) {
@@ -131,6 +136,19 @@ export function startAudioServer(): Promise<number> {
                     return res.end('Unsupported streamUrl protocol');
                 }
 
+                const hostname = parsed.hostname;
+                if (
+                    hostname === 'localhost' || 
+                    hostname === '127.0.0.1' || 
+                    hostname === '0.0.0.0' || 
+                    hostname.startsWith('192.168.') || 
+                    hostname.startsWith('10.') || 
+                    /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname)
+                ) {
+                    res.writeHead(403);
+                    return res.end('Forbidden target IP');
+                }
+
                 proxyRadioStream(parsed.toString(), req, res, 0);
 
             } else if (url.pathname === '/discover/podcast') {
@@ -166,6 +184,10 @@ export function startAudioServer(): Promise<number> {
         }
     });
 
+    // Prevent hanging connections from leaking file descriptors
+    streamServer.timeout = 30000;        // 30s max for non-streaming requests
+    streamServer.keepAliveTimeout = 5000; // 5s keepalive between requests
+
     return new Promise((resolve) => {
         streamServer!.listen(0, '127.0.0.1', () => {
             const addr = streamServer?.address();
@@ -191,7 +213,7 @@ export async function handleWebviewMessage(
             streamPort: port
         } as WebviewMessage);
     } else if (message.type === 'search' && message.query) {
-        handleSearch(webviewView, message.query);
+        handleSearch(webviewView, message.query, message.searchId);
     }
 }
 
@@ -208,12 +230,13 @@ export function stopAudioServer(): void {
     }
 }
 
-async function handleSearch(webviewView: vscode.WebviewView, query: string) {
+async function handleSearch(webviewView: vscode.WebviewView, query: string, searchId?: number) {
     try {
-        const results = await providerManager.searchAll(query);
+        const results = await getProviderManager().searchAll(query);
         webviewView.webview.postMessage({ 
             type: 'searchResults', 
-            results 
+            results,
+            searchId
         } as WebviewMessage);
     } catch (error) {
         console.error('[ATM Music] Search error:', error);
@@ -280,6 +303,11 @@ function proxyRadioStream(
 
         res.writeHead(streamRes.statusCode || 200, outHeaders);
         streamRes.pipe(res);
+
+        // Cleanup: destroy upstream if client disconnects mid-stream
+        res.on('close', () => {
+            streamRes.destroy();
+        });
     }).on('error', (e) => {
         console.error('[ATM Music] Radio pipe error:', e);
         if (!res.headersSent) {

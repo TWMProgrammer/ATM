@@ -8,6 +8,9 @@ import { ATMDataProvider } from '../screens/atm-data/core/provider';
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'atm-yt-music-view';
 
+	/** Cached raw HTML template (read from disk once, reused on every resolve) */
+	private _cachedRawHtml: string | null = null;
+
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
 	) { }
@@ -77,16 +80,25 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 			`font-src ${webview.cspSource}`,
 		].join('; ');
 
-		const htmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'view', 'ui', 'index.html');
-		let html = fs.readFileSync(htmlPath, 'utf8');
+		// Read and assemble the raw template once, cache for subsequent resolves.
+		// These files are part of the extension bundle and never change at runtime.
+		if (!this._cachedRawHtml) {
+			const htmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'view', 'ui', 'index.html');
+			let rawHtml = fs.readFileSync(htmlPath, 'utf8');
 
-		const timeHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.html');
-		const timeHtml = fs.readFileSync(timeHtmlPath, 'utf8');
-		html = html.replace('<div id="atm-time-root"></div>', `<div id="atm-time-root">\n${timeHtml}\n</div>`);
+			const timeHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.html');
+			const timeHtml = fs.readFileSync(timeHtmlPath, 'utf8');
+			rawHtml = rawHtml.replace('<div id="atm-time-root"></div>', `<div id="atm-time-root">\n${timeHtml}\n</div>`);
 
-		const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.html');
-		const dataHtml = fs.readFileSync(dataHtmlPath, 'utf8');
-		html = html.replace('<div id="atm-data-root" class="center-screen-message"></div>', `\n${dataHtml}\n`);
+			const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.html');
+			const dataHtml = fs.readFileSync(dataHtmlPath, 'utf8');
+			rawHtml = rawHtml.replace('<div id="atm-data-root" class="center-screen-message"></div>', `\n${dataHtml}\n`);
+
+			this._cachedRawHtml = rawHtml;
+		}
+
+		// Inject dynamic webview-specific parts (CSP + URIs change per webview instance)
+		let html = this._cachedRawHtml;
 
 		const styleLinks = styleUris.map(uri => `<link rel="stylesheet" href="${uri}">`).join('\n');
 

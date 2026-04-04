@@ -95,7 +95,7 @@ export class DeezerProvider implements IMusicProvider {
             if (redirectsLeft <= 0) {
                 return reject(new Error('[ATM Music] [Deezer] Too many redirects'));
             }
-            https.get(url, (res) => {
+            const req = https.get(url, (res) => {
                 if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
                     return this.httpGet(res.headers.location, redirectsLeft - 1).then(resolve, reject);
                 }
@@ -105,6 +105,11 @@ export class DeezerProvider implements IMusicProvider {
                 res.on('end', () => resolve(data));
                 res.on('error', reject);
             }).on('error', reject);
+
+            req.setTimeout(8000, () => {
+                req.destroy();
+                reject(new Error('[ATM Music] [Deezer] Timeout'));
+            });
         });
     }
 }
