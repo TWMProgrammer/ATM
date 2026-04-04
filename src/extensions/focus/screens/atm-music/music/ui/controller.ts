@@ -44,7 +44,7 @@ export class AtmMusicController {
         this.playerUI = new MusicPlayerUI(
             () => this.playNext(),
             () => this.playPrev(),
-            () => this.showScreen('results'),
+            () => this.handleBackFromPlayer(),
             () => this.handlePlaybackFallback()
         );
 
@@ -154,6 +154,18 @@ export class AtmMusicController {
         // Keep current playback alive while browsing back to Search.
         this.showScreen('search');
         this.searchUI.setCanForward(this.hasCachedSearch);
+    }
+
+    private handleBackFromPlayer() {
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+        if (currentTrack && this.isRadioTrack(currentTrack)) {
+            // In radio mode, Back should return to station selection, not music results.
+            this.showScreen('search');
+            this.searchUI.setCanForward(false);
+            return;
+        }
+
+        this.showScreen('results');
     }
 
     private showScreen(name: 'search' | 'results' | 'player') {
