@@ -540,7 +540,7 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 
 #qa-music-tab:hover,
 #qa-music-label:hover {
-    cursor: all-scroll;
+    cursor: pointer;
 }
 
 #qa-music-label.is-linkable:hover {
