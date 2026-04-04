@@ -328,6 +328,14 @@ export class AtmMusicController {
         this.showScreen('player');
         this.playerUI.playTrack(radioTrack, false, false);
         this.updateMusicLabelState();
+
+        // Notify global listeners about the station change (useful for UI flag updates)
+        window.dispatchEvent(new CustomEvent('atm_station_changed', { 
+            detail: { 
+                title: safeTitle, 
+                stationKey: this.currentRadioStationKey 
+            } 
+        }));
     }
 
     public playRandomAmStation(): void {

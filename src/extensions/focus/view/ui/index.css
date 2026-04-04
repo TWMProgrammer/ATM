@@ -115,6 +115,10 @@ body {
     letter-spacing: 0.1px;
 }
 
+.radio-mode-btn-am.has-flag {
+    font-size: 14px;
+}
+
 .radio-mode-btn:hover {
     transform: translateY(-1px);
     background: color-mix(in srgb, var(--vscode-button-secondaryHoverBackground) 70%, #0f2f1f 30%);
