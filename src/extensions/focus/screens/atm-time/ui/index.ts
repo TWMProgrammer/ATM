@@ -21,15 +21,6 @@ export function createAtmTimeController() {
         if (btnToggleMode) {
             btnToggleMode.textContent = mode === 'focus' ? '5m' : '25m';
             btnToggleMode.title = mode === 'focus' ? 'Switch to Break (5m)' : 'Switch to Focus (25m)';
-            
-            // Highlight color in break mode to differentiate
-            if (mode === 'focus') {
-                btnToggleMode.style.color = 'var(--vscode-editor-foreground)';
-                btnToggleMode.style.borderColor = 'var(--vscode-widget-border)';
-            } else {
-                btnToggleMode.style.color = 'var(--vscode-button-background)';
-                btnToggleMode.style.borderColor = 'var(--vscode-button-background)';
-            }
         }
     };
 
