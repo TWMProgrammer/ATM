@@ -450,7 +450,7 @@ export class MusicPlayerUI {
             if (this.isLiveRadioMode) {
                 if (!this.isSeeking) {
                     const elapsedSeconds = Math.max(0, (Date.now() - this.liveProgressStartedAtMs) / 1000);
-                    const ratio = Math.min(elapsedSeconds / 3, 1);
+                    const ratio = Math.min(elapsedSeconds / 1.5, 1);
                     this.updateProgressVisual(ratio);
                     this.updateTimeDisplay();
                 }
