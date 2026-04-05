@@ -216,6 +216,7 @@ export class ProcessFinder {
 					rejectUnauthorized: false, // Self-signed cert on localhost (see JSDoc above)
 					timeout: PORT_PROBE_TIMEOUT_MS,
 				}, res => {
+					res.resume(); // Consume the stream to prevent socket memory leaks
 					if (res.statusCode === 200) {
 						cancelPendingRequests();
 						resolve(port);

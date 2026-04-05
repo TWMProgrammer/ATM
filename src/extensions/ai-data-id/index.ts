@@ -62,7 +62,9 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	}
 
 	/** Selects the appropriate status bar icon based on the lowest quota %. */
-	function getStatusBarIcon(_minRemaining: number): string {
+	function getStatusBarIcon(minRemaining: number): string {
+		if (minRemaining < 15) { return ICON_ERROR; }
+		if (minRemaining < 40) { return ICON_WARNING; }
 		return ICON_DEFAULT;
 	}
 
