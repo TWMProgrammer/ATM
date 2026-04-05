@@ -357,38 +357,40 @@ function formatTimestamp(date: Date): string {
 /**
  * Returns a dynamic branding color that degrades as the percentage drops.
  * Each AI family has its own unique color degradation palette.
+ * API reports exact cuts only: 100 → 80 → 60 → 40 → 20 → exhausted (0%).
  */
 export function getModelStatusColor(label: string, percentage: number): string {
-	// Critical exhaustion is universally Danger Red
+	// Safety net — API never sends values below 20%, but guards against future changes.
 	if (percentage < 15) { return COLOR_DANGER; }
 
-	// Gemini Pro (Blue -> Cyan -> Purple)
+	// Gemini Pro (Azul eléctrico → Azul claro → Sky blue → Verde agua → Mostaza)
 	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
-		if (percentage >= 80) {return '#3b82f6';} // Electric Blue
-		if (percentage >= 50) {return '#06b6d4';} // Cyan / Celeste
-		return '#a855f7'; // Purple warning
+		if (percentage >= 80) { return '#60a5fa'; } // Azul claro       (100% / 80%)
+		if (percentage >= 60) { return '#38bdf8'; } // Sky blue         (60%)
+		if (percentage >= 40) { return '#2dd4bf'; } // Verde agua teal  (40%)
+		return '#eab308';                            // Amarillo mostaza (20%)
 	}
-	
+
 	// GPT-OSS (Orange -> Rose -> Yellow)
 	if (label.includes('GPT-OSS')) {
-		if (percentage >= 80) {return '#fb923c';} // Orange
-		if (percentage >= 50) {return '#f43f5e';} // Rose / Pink-Red
-		return COLOR_WARNING; // Golden Yellow
+		if (percentage >= 80) { return '#fb923c'; } // Orange
+		if (percentage >= 50) { return '#f43f5e'; } // Rose / Pink-Red
+		return COLOR_WARNING;                        // Golden Yellow
 	}
-	
+
 	// Claude (Peach -> Lilac -> Yellow)
 	if (label.includes('Claude')) {
-		if (percentage >= 80) {return '#ecb6a4';} // Peach / Skin
-		if (percentage >= 50) {return '#c084fc';} // Soft Lilac / Purple
-		return COLOR_WARNING; // Golden Yellow
+		if (percentage >= 80) { return '#ecb6a4'; } // Peach / Skin
+		if (percentage >= 50) { return '#c084fc'; } // Soft Lilac / Purple
+		return COLOR_WARNING;                        // Golden Yellow
 	}
-	
-	// Default / Gemini Flash (Green -> Lime -> Yellow)
-	if (percentage >= 80) { return '#22c55e'; } // Verde vivo
-	if (percentage >= 60) { return '#10b981'; } // Teal esmeralda
-	if (percentage >= 40) { return '#84cc16'; } // Lima suave
-	if (percentage >= 20) { return '#eab308'; } // Amarillo mostaza
-	return COLOR_WARNING; // Golden Yellow
+
+	// Default / Gemini Flash (Verde → Teal → Lima → Mostaza → Naranja)
+	if (percentage >= 80) { return '#22c55e'; } // Verde vivo       (100% / 80%)
+	if (percentage >= 60) { return '#10b981'; } // Teal esmeralda   (60%)
+	if (percentage >= 40) { return '#84cc16'; } // Lima suave       (40%)
+	if (percentage >= 20) { return '#eab308'; } // Amarillo mostaza (20%)
+	return '#f97316';                            // Naranja fuerte   (15%–19% safety net)
 }
 
 /**
