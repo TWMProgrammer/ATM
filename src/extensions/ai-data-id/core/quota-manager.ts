@@ -48,7 +48,7 @@ const HOURS_PER_DAY = 24;
 export class QuotaManager {
 	private port: number = 0;
 	private csrfToken: string = '';
-	private readonly sharedAgent = new https.Agent({ keepAlive: true });
+	private sharedAgent = new https.Agent({ keepAlive: true });
 
 	/** Initialize the connection parameters. Must be called before `fetchQuota()`. */
 	init(port: number, csrfToken: string): void {
@@ -60,6 +60,8 @@ export class QuotaManager {
 	reset(): void {
 		this.port = 0;
 		this.csrfToken = '';
+		this.sharedAgent.destroy();
+		this.sharedAgent = new https.Agent({ keepAlive: true });
 	}
 
 	/** Clean up the shared HTTPS agent. Call on extension deactivation. */
