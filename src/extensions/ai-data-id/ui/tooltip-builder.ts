@@ -295,7 +295,7 @@ export function getModelStatusColor(label: string, percentage: number): string {
 		if (percentage >= 80) { return '#fdba74'; } // Warm peach    (80%)
 		if (percentage >= 60) { return '#fb923c'; } // Soft orange   (60%)
 		if (percentage >= 40) { return '#f97316'; } // Orange        (40%)
-		return '#eab308';                            // Amber         (20%)
+		return '#fde047';                            // Amber         (20%)
 	}
 
 	// Gemini Flash — green family fading to amber
