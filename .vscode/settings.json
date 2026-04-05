@@ -24,6 +24,7 @@
         "Trae"
     ],
     "atm.codeSpell.customWords": [
-        "pomo"
+        "pomo",
+        "dotenv"
     ]
 }
