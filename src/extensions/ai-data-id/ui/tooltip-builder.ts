@@ -281,12 +281,13 @@ export function getModelStatusColor(label: string, percentage: number): string {
 		return '#eab308';                            // Amber         (20%)
 	}
 
-	// GPT-OSS — orange fading to red (shares quota pool with Claude)
-	if (label.includes('GPT-OSS')) {
-		if (percentage >= 80) { return '#fb923c'; } // Orange        (100% / 80%)
-		if (percentage >= 60) { return '#ef4444'; } // Red           (60%)
-		if (percentage >= 40) { return '#dc2626'; } // Crimson       (40%)
-		return '#eab308';                            // Amber         (20%)
+	// Gemini Flash — green family fading to amber
+	if (label.includes('Flash')) {
+		if (percentage >= 80) { return '#22c55e'; } // Green         (100% / 80%)
+		if (percentage >= 60) { return '#10b981'; } // Teal green    (60%)
+		if (percentage >= 40) { return '#84cc16'; } // Lime          (40%)
+		if (percentage >= 20) { return '#eab308'; } // Amber         (20%)
+		return '#f97316';                            // Orange        (safety net)
 	}
 
 	// Claude — warm peach fading to orange (shares quota pool with GPT-OSS)
@@ -298,12 +299,15 @@ export function getModelStatusColor(label: string, percentage: number): string {
 		return '#fde047';                            // Amber         (20%)
 	}
 
-	// Gemini Flash — green family fading to amber
-	if (percentage >= 80) { return '#22c55e'; } // Green         (100% / 80%)
-	if (percentage >= 60) { return '#10b981'; } // Teal green    (60%)
-	if (percentage >= 40) { return '#84cc16'; } // Lime          (40%)
-	if (percentage >= 20) { return '#eab308'; } // Amber         (20%)
-	return '#f97316';                            // Orange        (safety net)
+	// GPT-OSS — orange fading to red (shares quota pool with Claude)
+	if (label.includes('GPT-OSS')) {
+		if (percentage >= 80) { return '#fb923c'; } // Orange        (100% / 80%)
+		if (percentage >= 60) { return '#ef4444'; } // Red           (60%)
+		if (percentage >= 40) { return '#dc2626'; } // Crimson       (40%)
+		return '#eab308';                            // Amber         (20%)
+	}
+
+	return '#f97316'; // safety net
 }
 
 /**
