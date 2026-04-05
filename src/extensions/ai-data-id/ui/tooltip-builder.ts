@@ -129,7 +129,7 @@ export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 
 		return first.remainingPercentage !== undefined ? first.remainingPercentage / 100 : 1.0;
 	};
 
-	const available = Math.round(
+	const available = Math.ceil(
 		getPct(['Flash'])                  * MONTHLY_FLASH +
 		getPct(['Pro (High)', 'Pro (Low)']) * MONTHLY_PRO   +
 		getPct(['Claude', 'GPT-OSS'])      * MONTHLY_THIRD

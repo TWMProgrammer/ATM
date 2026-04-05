@@ -57,7 +57,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	/** Builds a hash of the snapshot to detect meaningful changes. */
 	function computeSnapshotHash(snapshot: QuotaSnapshot): string {
 		return snapshot.models
-			.map(m => `${m.modelId}:${m.remainingPercentage}:${m.isExhausted}:${m.timeUntilResetFormatted}`)
+			.map(m => `${m.modelId}:${m.remainingPercentage}:${m.isExhausted}:${m.resetTime.getTime()}`)
 			.join('|');
 	}
 
