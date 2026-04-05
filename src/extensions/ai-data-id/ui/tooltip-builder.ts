@@ -12,10 +12,10 @@ const UNFILLED_SEGMENT_COLOR = '#ffffff0f';
 
 // ── Status colors ────────────────────────────────────────────────────
 
-const COLOR_DANGER  = '#ff0066';  // quota < 15% or exhausted
-const COLOR_WARNING = '#facc15';  // system-wide fallback warning
-const COLOR_INFO    = '#22d3ee';  // system-wide info
-const COLOR_HEALTHY = '#4ade80';  // system-wide healthy
+const COLOR_DANGER  = '#f43f5e';  // rose-500
+const COLOR_WARNING = '#f59e0b';  // amber-500
+const COLOR_INFO    = '#0ea5e9';  // sky-500
+const COLOR_HEALTHY = '#10b981';  // emerald-500
 
 // ── Text & UI colors ─────────────────────────────────────────────────
 
@@ -25,9 +25,9 @@ const COLOR_SEPARATOR      = '#3f3f46';  // zinc-700
 
 // ── Plan tier colors ─────────────────────────────────────────────────
 
-const COLOR_PLAN_FREE  = '#c4b5fd';  // violet-400
-const COLOR_PLAN_PRO   = '#4285f4';  // google-blue
-const COLOR_PLAN_ULTRA = '#fbbf24';  // amber-400
+const COLOR_PLAN_FREE  = '#a78bfa';  // violet-400
+const COLOR_PLAN_PRO   = '#3b82f6';  // blue-500
+const COLOR_PLAN_ULTRA = '#f59e0b';  // amber-500
 
 // ── Model display order ──────────────────────────────────────────────
 
@@ -273,41 +273,39 @@ function formatTimestamp(date: Date): string {
 export function getModelStatusColor(label: string, percentage: number): string {
 	if (percentage < 15) { return COLOR_DANGER; }
 
-	// Gemini Pro — blue family fading to teal then warm
+	// 1. Gemini Pro — Google Blue fading to Cyan
 	if (label.includes('Pro (High)') || label.includes('Pro (Low)')) {
-		if (percentage >= 80) { return '#60a5fa'; } // Blue          (100% / 80%)
-		if (percentage >= 60) { return '#38bdf8'; } // Sky blue      (60%)
-		if (percentage >= 40) { return '#2dd4bf'; } // Teal          (40%)
-		return '#eab308';                            // Amber         (20%)
+		if (percentage >= 80) { return '#3b82f6'; } // blue-500
+		if (percentage >= 60) { return '#0ea5e9'; } // sky-500
+		if (percentage >= 40) { return '#06b6d4'; } // cyan-500
+		return COLOR_WARNING;                       // amber-500
 	}
 
-	// Gemini Flash — green family fading to amber
+	// 2. Gemini Flash — Emerald fading to Lime
 	if (label.includes('Flash')) {
-		if (percentage >= 80) { return '#22c55e'; } // Green         (100% / 80%)
-		if (percentage >= 60) { return '#10b981'; } // Teal green    (60%)
-		if (percentage >= 40) { return '#84cc16'; } // Lime          (40%)
-		if (percentage >= 20) { return '#eab308'; } // Amber         (20%)
-		return '#f97316';                            // Orange        (safety net)
+		if (percentage >= 80) { return '#10b981'; } // emerald-500
+		if (percentage >= 60) { return '#22c55e'; } // green-500
+		if (percentage >= 40) { return '#84cc16'; } // lime-500
+		return COLOR_WARNING;                       // amber-500
 	}
 
-	// Claude — warm peach fading to orange (shares quota pool with GPT-OSS)
+	// 3. Claude — Anthropic Peach/Warm fading to Deep Orange
 	if (label.includes('Claude')) {
-		if (percentage > 80)  { return '#ecb6a4'; } // Peach         (100%)
-		if (percentage >= 80) { return '#fdba74'; } // Warm peach    (80%)
-		if (percentage >= 60) { return '#fb923c'; } // Soft orange   (60%)
-		if (percentage >= 40) { return '#f97316'; } // Orange        (40%)
-		return '#fde047';                            // Amber         (20%)
+		if (percentage >= 80) { return '#fdba74'; } // orange-300 (Peach)
+		if (percentage >= 60) { return '#fb923c'; } // orange-400
+		if (percentage >= 40) { return '#f97316'; } // orange-500
+		return COLOR_WARNING;                       // amber-500
 	}
 
-	// GPT-OSS — orange fading to red (shares quota pool with Claude)
+	// 4. GPT-OSS — Purple fading to Pink
 	if (label.includes('GPT-OSS')) {
-		if (percentage >= 80) { return '#fb923c'; } // Orange        (100% / 80%)
-		if (percentage >= 60) { return '#ef4444'; } // Red           (60%)
-		if (percentage >= 40) { return '#dc2626'; } // Crimson       (40%)
-		return '#eab308';                            // Amber         (20%)
+		if (percentage >= 80) { return '#8b5cf6'; } // violet-500
+		if (percentage >= 60) { return '#d946ef'; } // fuchsia-500
+		if (percentage >= 40) { return '#ec4899'; } // pink-500
+		return COLOR_WARNING;                       // amber-500
 	}
 
-	return '#f97316'; // safety net
+	return COLOR_WARNING; // safety net
 }
 
 /**
