@@ -71,84 +71,84 @@
     "commands": [
       {
         "command": "atm.voiceTts.copyAndRead",
-        "title": "ATM Voice TTS: Copy & Read"
+        "title": "%command.voiceTts.read%"
       },
       {
         "command": "commentsCode.listAnnotations",
-        "title": "ATM: List TODO / FIXME Annotations"
+        "title": "%command.comments.list%"
       },
       {
         "command": "atm.translate-doc.translateExtension",
-        "title": "ATM: Translate",
+        "title": "%command.translate%",
         "icon": "$(globe)"
       },
       {
         "command": "atm.voiceTts.selectVoice",
-        "title": "ATM Voice TTS: Select Voice",
+        "title": "%command.voiceTts.select%",
         "icon": "$(globe)"
       },
       {
         "command": "atm.mdx.preview",
-        "title": "ATM: Open MDX Preview",
+        "title": "%command.mdx.preview%",
         "icon": "$(open-preview)"
       },
       {
         "command": "git-better.copyHash",
-        "title": "ATM Git: Copy Commit Hash"
+        "title": "%command.git.copyHash%"
       },
       {
         "command": "git-better.openGitHub",
-        "title": "ATM Git: Open Commit on GitHub"
+        "title": "%command.git.openGitHub%"
       },
       {
         "command": "git-better.toggleBlame",
-        "title": "ATM Git: Toggle Inline Blame"
+        "title": "%command.git.toggleBlame%"
       },
       {
         "command": "atm.screenshotCode",
-        "title": "ATM (📸) screenshot"
+        "title": "%command.screenshot%"
       },
       {
         "command": "atm.versionPackage.check",
-        "title": "ATM: Check Package Versions",
+        "title": "%command.version.check%",
         "icon": "$(cloud-download)"
       },
       {
         "command": "atm.versionPackage.updateAll",
-        "title": "ATM: Update All Packages",
+        "title": "%command.version.updateAll%",
         "icon": "$(wand)"
       },
       {
         "command": "atm.svgBetter.optimize",
-        "title": "ATM: Optimize SVG",
+        "title": "%command.svg.optimize%",
         "icon": "$(zap)"
       },
       {
         "command": "atm.copyTag.run",
-        "title": "ATM Copy: Highlight Copied Text"
+        "title": "%command.copyTag%"
       },
       {
         "command": "atm.translate-doc.translateReleaseNotes",
-        "title": "ATM: Translate Release Notes",
+        "title": "%command.translateRelease%",
         "icon": "$(globe)"
       },
       {
         "command": "atm.dataId.showConsumption",
-        "title": "ATM: Data AI",
+        "title": "%command.dataId%",
         "icon": "$(sparkle-filled)"
       },
       {
         "command": "envLens.revealValue",
-        "title": "Env Lens: Reveal Value"
+        "title": "%command.env.reveal%"
       },
       {
         "command": "envLens.disableBlur",
-        "title": "Env Lens: Reveal .env Values",
+        "title": "%command.env.disableBlur%",
         "icon": "$(eye-closed)"
       },
       {
         "command": "envLens.enableBlur",
-        "title": "Env Lens: Hide .env Values",
+        "title": "%command.env.enableBlur%",
         "icon": "$(eye)"
       }
     ],
@@ -561,7 +561,7 @@
         {
           "type": "webview",
           "id": "atm-yt-music-view",
-          "name": "ATM :: Radio/Music · Pomodoro · Data",
+          "name": "%view.music%",
           "icon": "$(music)"
         }
       ],

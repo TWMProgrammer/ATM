@@ -1,4 +1,23 @@
 {
   "extension.displayName": "ATM",
-  "extension.description": "⚡ All-in-One Toolkit — Error Lens · Git Blame · Env Protection · Image Preview · Screenshot Code · Voice TTS · Pomodoro · SVG Optimizer · MDX · AI Data · Spell Check · Translate & more. Works on VS Code, Cursor, Windsurf, Trae.ai & Kiro."
+  "extension.description": "⚡ All-in-One Toolkit — Error Lens · Git Blame · Env Protection · Image Preview · Screenshot Code · Voice TTS · Pomodoro · SVG Optimizer · MDX · AI Data · Spell Check · Translate & more. Works on VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
+  "command.voiceTts.read": "ATM Voice TTS: Copy & Read",
+  "command.comments.list": "ATM: List TODO / FIXME Annotations",
+  "command.translate": "ATM: Translate",
+  "command.voiceTts.select": "ATM Voice TTS: Select Voice",
+  "command.mdx.preview": "ATM: Open MDX Preview",
+  "command.git.copyHash": "ATM Git: Copy Commit Hash",
+  "command.git.openGitHub": "ATM Git: Open Commit on GitHub",
+  "command.git.toggleBlame": "ATM Git: Toggle Inline Blame",
+  "command.screenshot": "ATM (📸) screenshot",
+  "command.version.check": "ATM: Check Package Versions",
+  "command.version.updateAll": "ATM: Update All Packages",
+  "command.svg.optimize": "ATM: Optimize SVG",
+  "command.copyTag": "ATM Copy: Highlight Copied Text",
+  "command.translateRelease": "ATM: Translate Release Notes",
+  "command.dataId": "ATM: Data AI",
+  "command.env.reveal": "Env Lens: Reveal Value",
+  "command.env.disableBlur": "Env Lens: Reveal .env Values",
+  "command.env.enableBlur": "Env Lens: Hide .env Values",
+  "view.music": "ATM :: Radio/Music · Pomodoro · Data"
 }

@@ -1,4 +1,23 @@
 {
   "extension.displayName": "ATM (All-in-One 工具箱)",
-  "extension.description": "⚡ 全能工具箱 — Error Lens · Git Blame · Env 保护 · 图片预览 · 代码截图 · 语音 TTS · 番茄钟 · SVG 优化 · MDX · AI 数据 · 拼写检查 · 翻译等。支持 VS Code, Cursor, Windsurf, Trae.ai & Kiro。"
+  "extension.description": "⚡ 全能工具箱 — Error Lens · Git Blame · Env 保护 · 图片预览 · 代码截图 · 语音 TTS · 番茄钟 · SVG 优化 · MDX · AI 数据 · 拼写检查 · 翻译等。支持 VS Code, Cursor, Windsurf, Trae.ai & Kiro。",
+  "command.voiceTts.read": "ATM 语音 TTS：复制并阅读",
+  "command.comments.list": "ATM：列出 TODO / FIXME 注释",
+  "command.translate": "ATM：翻译",
+  "command.voiceTts.select": "ATM 语音 TTS：选择语音",
+  "command.mdx.preview": "ATM：打开 MDX 预览",
+  "command.git.copyHash": "ATM Git：复制提交哈希",
+  "command.git.openGitHub": "ATM Git：在 GitHub 上打开提交",
+  "command.git.toggleBlame": "ATM Git：切换内联 Blame",
+  "command.screenshot": "ATM (📸) 截图",
+  "command.version.check": "ATM：检查包版本",
+  "command.version.updateAll": "ATM：更新所有包",
+  "command.svg.optimize": "ATM：优化 SVG",
+  "command.copyTag": "ATM 复制：高亮显示已复制文本",
+  "command.translateRelease": "ATM：翻译发行说明",
+  "command.dataId": "ATM：数据 AI",
+  "command.env.reveal": "Env Lens：显示值",
+  "command.env.disableBlur": "Env Lens：显示 .env 值",
+  "command.env.enableBlur": "Env Lens：隐藏 .env 值",
+  "view.music": "ATM :: 无线电/音乐 · 番茄钟 · 数据"
 }

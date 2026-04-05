@@ -1,4 +1,23 @@
 {
   "extension.displayName": "ATM (올인원 툴킷)",
-  "extension.description": "⚡ 올인원 툴킷 — Error Lens · Git Blame · Env 보호 · 이미지 미리보기 · 코드 스크린샷 · 음성 TTS · 뽀모도로 · SVG 최적화 · MDX · AI 데이터 · 맞춤법 검사 · 번역 등. VS Code, Cursor, Windsurf, Trae.ai & Kiro 지원。"
+  "extension.description": "⚡ 올인원 툴킷 — Error Lens · Git Blame · Env 보호 · 이미지 미리보기 · 코드 스크린샷 · 음성 TTS · 뽀모도로 · SVG 최적화 · MDX · AI 데이터 · 맞춤법 검사 · 번역 등. VS Code, Cursor, Windsurf, Trae.ai & Kiro 지원。",
+  "command.voiceTts.read": "ATM 음성 TTS: 복사 및 읽기",
+  "command.comments.list": "ATM: TODO / FIXME 주석 목록",
+  "command.translate": "ATM: 번역",
+  "command.voiceTts.select": "ATM 음성 TTS: 음성 선택",
+  "command.mdx.preview": "ATM: MDX 미리보기 열기",
+  "command.git.copyHash": "ATM Git: 커밋 해시 복사",
+  "command.git.openGitHub": "ATM Git: GitHub에서 커밋 열기",
+  "command.git.toggleBlame": "ATM Git: 인라인 Blame 토글",
+  "command.screenshot": "ATM (📸) 스크린샷",
+  "command.version.check": "ATM: 패키지 버전 확인",
+  "command.version.updateAll": "ATM: 모든 패키지 업데이트",
+  "command.svg.optimize": "ATM: SVG 최적화",
+  "command.copyTag": "ATM 복사: 복사된 텍스트 강조",
+  "command.translateRelease": "ATM: 릴리스 노트 번역",
+  "command.dataId": "ATM: 데이터 AI",
+  "command.env.reveal": "Env Lens: 값 표시",
+  "command.env.disableBlur": "Env Lens: .env 값 표시",
+  "command.env.enableBlur": "Env Lens: .env 값 숨기기",
+  "view.music": "ATM :: 라디오/음악 · 뽀모도로 · 데이터"
 }
