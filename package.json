@@ -54,90 +54,96 @@
   "sponsor": {
     "url": "https://github.com/sponsors/bastndev"
   },
+
   "activationEvents": [
     "onStartupFinished",
     "onLanguage:dotenv"
   ],
   "main": "./dist/extension.js",
+
   "contributes": {
-    "languages": [
+    "commands": [
       {
-        "id": "mdx",
-        "aliases": [
-          "MDX"
-        ],
-        "extensions": [
-          ".mdx"
-        ],
-        "configuration": "./src/extensions/markdown-mdx/syntaxes/language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "mdx",
-        "scopeName": "source.mdx",
-        "path": "./src/extensions/markdown-mdx/syntaxes/source.mdx.tmLanguage",
-        "embeddedLanguages": {
-          "meta.embedded.c": "c",
-          "meta.embedded.cpp": "cpp",
-          "meta.embedded.cs": "csharp",
-          "meta.embedded.css": "css",
-          "meta.embedded.diff": "diff",
-          "meta.embedded.go": "go",
-          "meta.embedded.graphql": "graphql",
-          "meta.embedded.html": "html",
-          "meta.embedded.ini": "ini",
-          "meta.embedded.java": "java",
-          "meta.embedded.js": "javascriptreact",
-          "meta.embedded.json": "json",
-          "meta.embedded.kotlin": "kotlin",
-          "meta.embedded.less": "less",
-          "meta.embedded.lua": "lua",
-          "meta.embedded.makefile": "makefile",
-          "meta.embedded.md": "markdown",
-          "meta.embedded.mdx": "mdx",
-          "meta.embedded.objc": "objective-c",
-          "meta.embedded.perl": "perl",
-          "meta.embedded.php": "php",
-          "meta.embedded.python": "python",
-          "meta.embedded.r": "r",
-          "meta.embedded.ruby": "ruby",
-          "meta.embedded.rust": "rust",
-          "meta.embedded.scss": "scss",
-          "meta.embedded.shell": "shellscript",
-          "meta.embedded.sql": "sql",
-          "meta.embedded.svg": "xml",
-          "meta.embedded.swift": "swift",
-          "meta.embedded.toml": "toml",
-          "meta.embedded.ts": "typescriptreact",
-          "meta.embedded.tsx": "typescriptreact",
-          "meta.embedded.vbnet": "vb",
-          "meta.embedded.xml": "xml",
-          "meta.embedded.yaml": "yaml"
-        }
+        "command": "atm.voiceTts.copyAndRead",
+        "title": "ATM Voice TTS: Copy & Read"
       },
       {
-        "scopeName": "source.markdown.mdx.codeblock",
-        "path": "./src/extensions/markdown-mdx/syntaxes/mdx.markdown.tmLanguage.json",
-        "injectTo": [
-          "text.html.markdown"
-        ],
-        "embeddedLanguages": {
-          "meta.embedded.block.mdx": "mdx"
-        }
-      }
-    ],
-    "markdown.markdownItPlugins": true,
-    "markdown.previewStyles": [
-      "./src/extensions/markdown-md/ui/checkboxes.css"
-    ],
-    "markdown.previewScripts": [
-      "./dist/mermaidPreview.js"
-    ],
-    "snippets": [
+        "command": "commentsCode.listAnnotations",
+        "title": "ATM: List TODO / FIXME Annotations"
+      },
       {
-        "language": "markdown",
-        "path": "./src/extensions/markdown-md/snippets/markdown.json"
+        "command": "atm.translate-doc.translateExtension",
+        "title": "ATM: Translate",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "atm.voiceTts.selectVoice",
+        "title": "ATM Voice TTS: Select Voice",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "atm.mdx.preview",
+        "title": "ATM: Open MDX Preview",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "git-better.copyHash",
+        "title": "ATM Git: Copy Commit Hash"
+      },
+      {
+        "command": "git-better.openGitHub",
+        "title": "ATM Git: Open Commit on GitHub"
+      },
+      {
+        "command": "git-better.toggleBlame",
+        "title": "ATM Git: Toggle Inline Blame"
+      },
+      {
+        "command": "atm.screenshotCode",
+        "title": "ATM (📸) screenshot"
+      },
+      {
+        "command": "atm.versionPackage.check",
+        "title": "ATM: Check Package Versions",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "atm.versionPackage.updateAll",
+        "title": "ATM: Update All Packages",
+        "icon": "$(wand)"
+      },
+      {
+        "command": "atm.svgBetter.optimize",
+        "title": "ATM: Optimize SVG",
+        "icon": "$(zap)"
+      },
+      {
+        "command": "atm.copyTag.run",
+        "title": "ATM Copy: Highlight Copied Text"
+      },
+      {
+        "command": "atm.translate-doc.translateReleaseNotes",
+        "title": "ATM: Translate Release Notes",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "atm.dataId.showConsumption",
+        "title": "ATM: Data AI",
+        "icon": "$(sparkle-filled)"
+      },
+      {
+        "command": "envLens.revealValue",
+        "title": "Env Lens: Reveal Value"
+      },
+      {
+        "command": "envLens.disableBlur",
+        "title": "Env Lens: Reveal .env Values",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "envLens.enableBlur",
+        "title": "Env Lens: Hide .env Values",
+        "icon": "$(eye)"
       }
     ],
     "configuration": {
@@ -285,88 +291,59 @@
         }
       }
     },
-    "commands": [
+    "grammars": [
       {
-        "command": "atm.voiceTts.copyAndRead",
-        "title": "ATM Voice TTS: Copy & Read"
+        "language": "mdx",
+        "scopeName": "source.mdx",
+        "path": "./src/extensions/markdown-mdx/syntaxes/source.mdx.tmLanguage",
+        "embeddedLanguages": {
+          "meta.embedded.c": "c",
+          "meta.embedded.cpp": "cpp",
+          "meta.embedded.cs": "csharp",
+          "meta.embedded.css": "css",
+          "meta.embedded.diff": "diff",
+          "meta.embedded.go": "go",
+          "meta.embedded.graphql": "graphql",
+          "meta.embedded.html": "html",
+          "meta.embedded.ini": "ini",
+          "meta.embedded.java": "java",
+          "meta.embedded.js": "javascriptreact",
+          "meta.embedded.json": "json",
+          "meta.embedded.kotlin": "kotlin",
+          "meta.embedded.less": "less",
+          "meta.embedded.lua": "lua",
+          "meta.embedded.makefile": "makefile",
+          "meta.embedded.md": "markdown",
+          "meta.embedded.mdx": "mdx",
+          "meta.embedded.objc": "objective-c",
+          "meta.embedded.perl": "perl",
+          "meta.embedded.php": "php",
+          "meta.embedded.python": "python",
+          "meta.embedded.r": "r",
+          "meta.embedded.ruby": "ruby",
+          "meta.embedded.rust": "rust",
+          "meta.embedded.scss": "scss",
+          "meta.embedded.shell": "shellscript",
+          "meta.embedded.sql": "sql",
+          "meta.embedded.svg": "xml",
+          "meta.embedded.swift": "swift",
+          "meta.embedded.toml": "toml",
+          "meta.embedded.ts": "typescriptreact",
+          "meta.embedded.tsx": "typescriptreact",
+          "meta.embedded.vbnet": "vb",
+          "meta.embedded.xml": "xml",
+          "meta.embedded.yaml": "yaml"
+        }
       },
       {
-        "command": "commentsCode.listAnnotations",
-        "title": "ATM: List TODO / FIXME Annotations"
-      },
-      {
-        "command": "atm.translate-doc.translateExtension",
-        "title": "ATM: Translate",
-        "icon": "$(globe)"
-      },
-      {
-        "command": "atm.voiceTts.selectVoice",
-        "title": "ATM Voice TTS: Select Voice",
-        "icon": "$(globe)"
-      },
-      {
-        "command": "atm.mdx.preview",
-        "title": "ATM: Open MDX Preview",
-        "icon": "$(open-preview)"
-      },
-      {
-        "command": "git-better.copyHash",
-        "title": "ATM Git: Copy Commit Hash"
-      },
-      {
-        "command": "git-better.openGitHub",
-        "title": "ATM Git: Open Commit on GitHub"
-      },
-      {
-        "command": "git-better.toggleBlame",
-        "title": "ATM Git: Toggle Inline Blame"
-      },
-      {
-        "command": "atm.screenshotCode",
-        "title": "ATM (📸) screenshot"
-      },
-      {
-        "command": "atm.versionPackage.check",
-        "title": "ATM: Check Package Versions",
-        "icon": "$(cloud-download)"
-      },
-      {
-        "command": "atm.versionPackage.updateAll",
-        "title": "ATM: Update All Packages",
-        "icon": "$(wand)"
-      },
-      {
-        "command": "atm.svgBetter.optimize",
-        "title": "ATM: Optimize SVG",
-        "icon": "$(zap)"
-      },
-      {
-        "command": "atm.copyTag.run",
-        "title": "ATM Copy: Highlight Copied Text"
-      },
-      {
-        "command": "atm.translate-doc.translateReleaseNotes",
-        "title": "ATM: Translate Release Notes",
-        "icon": "$(globe)"
-      },
-      {
-        "command": "atm.dataId.showConsumption",
-        "title": "ATM: Data AI",
-        "icon": "$(sparkle-filled)"
-      },
-      {
-        "command": "envLens.revealValue",
-        "title": "Env Lens: Reveal Value"
-      },
-      {
-        "command": "envLens.disableBlur",
-        "title": "Env Lens: Reveal .env Values",
-        "icon": "$(eye-closed)"
-      },
-      {
-        "command": "envLens.enableBlur",
-        "title": "Env Lens: Hide .env Values",
-        "icon": "$(eye)"
+        "scopeName": "source.markdown.mdx.codeblock",
+        "path": "./src/extensions/markdown-mdx/syntaxes/mdx.markdown.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.mdx": "mdx"
+        }
       }
     ],
     "keybindings": [
@@ -403,11 +380,42 @@
         "when": "atm.releaseNotes.active"
       }
     ],
+    "languages": [
+      {
+        "id": "mdx",
+        "aliases": [
+          "MDX"
+        ],
+        "extensions": [
+          ".mdx"
+        ],
+        "configuration": "./src/extensions/markdown-mdx/syntaxes/language-configuration.json"
+      }
+    ],
+    "markdown.markdownItPlugins": true,
+    "markdown.previewScripts": [
+      "./dist/mermaidPreview.js"
+    ],
+    "markdown.previewStyles": [
+      "./src/extensions/markdown-md/ui/checkboxes.css"
+    ],
     "menus": {
       "commandPalette": [
         {
           "command": "atm.dataId.showConsumption",
           "when": "atm.isAntigravity"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "atm.screenshotCode",
+          "group": "1_modification",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "atm.translate-doc.translateReleaseNotes",
+          "group": "1_modification",
+          "when": "atm.releaseNotes.active"
         }
       ],
       "editor/title": [
@@ -456,45 +464,6 @@
         {
           "command": "atm.translate-doc.translateExtension",
           "group": "1_modification"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "atm.screenshotCode",
-          "group": "1_modification",
-          "when": "editorHasSelection"
-        },
-        {
-          "command": "atm.translate-doc.translateReleaseNotes",
-          "group": "1_modification",
-          "when": "atm.releaseNotes.active"
-        }
-      ]
-    },
-    "viewsContainers": {
-      "panel": [
-        {
-          "id": "gitlab-panel",
-          "title": "GitLab",
-          "icon": "$(git-merge)"
-        }
-      ]
-    },
-    "views": {
-      "explorer": [
-        {
-          "type": "webview",
-          "id": "atm-yt-music-view",
-          "name": "ATM :: Radio/Music · Pomodoro · Data",
-          "icon": "$(music)"
-        }
-      ],
-      "gitlab-panel": [
-        {
-          "type": "webview",
-          "id": "gitlab.graphView",
-          "name": "Graph",
-          "icon": "$(git-merge)"
         }
       ]
     },
@@ -574,21 +543,69 @@
           }
         }
       }
-    ]
+    ],
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./src/extensions/markdown-md/snippets/markdown.json"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "atm-yt-music-view",
+          "name": "ATM :: Radio/Music · Pomodoro · Data",
+          "icon": "$(music)"
+        }
+      ],
+      "gitlab-panel": [
+        {
+          "type": "webview",
+          "id": "gitlab.graphView",
+          "name": "Graph",
+          "icon": "$(git-merge)"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "gitlab-panel",
+          "title": "GitLab",
+          "icon": "$(git-merge)"
+        }
+      ]
+    }
   },
-  "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
-    "watch": "npm-run-all -p watch:*",
-    "watch:esbuild": "node esbuild.js --watch",
-    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+
+  "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "file-type": "^21.3.3",
+    "get-video-dimensions": "^1.0.0",
+    "html-to-image": "^1.11.13",
+    "music-metadata": "^11.12.3",
+    "NeteaseCloudMusicApi": "^4.30.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "semver": "^7.7.4",
+    "svgo": "^4.0.1"
+  },
+    "scripts": {
     "check-types": "tsc --noEmit",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "compile-tests": "tsc -p . --outDir out",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "test": "vscode-test",
+    "vscode:prepublish": "npm run package",
+    "watch": "npm-run-all -p watch:*",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
@@ -614,19 +631,5 @@
     "ts-morph": "^27.0.2",
     "type-fest": "^5.4.4",
     "typescript": "^5.7.3"
-  },
-  "dependencies": {
-    "@mdx-js/mdx": "^3.1.1",
-    "file-type": "^21.3.3",
-    "get-video-dimensions": "^1.0.0",
-    "html-to-image": "^1.11.13",
-    "music-metadata": "^11.12.3",
-    "NeteaseCloudMusicApi": "^4.30.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "remark-frontmatter": "^5.0.0",
-    "remark-gfm": "^4.0.1",
-    "semver": "^7.7.4",
-    "svgo": "^4.0.1"
   }
 }
