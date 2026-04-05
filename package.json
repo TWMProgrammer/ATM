@@ -1,7 +1,7 @@
 {
   "name": "atm",
-  "displayName": "ATM",
-  "description": "⚡ All-in-One Toolkit — Error Lens · Git Blame · Env Protection · Image Preview · Screenshot Code · Voice TTS · Pomodoro · SVG Optimizer · MDX · AI Data · Spell Check · Translate & more. Works on VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
   "version": "1.5.1",
   "publisher": "bastndev",
   "license": "MIT",
