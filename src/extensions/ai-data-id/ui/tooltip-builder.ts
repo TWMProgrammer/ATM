@@ -289,19 +289,19 @@ export function getModelStatusColor(label: string, percentage: number): string {
 		return COLOR_WARNING;                       // amber-500
 	}
 
-	// 3. Claude — Anthropic Peach/Warm fading to Deep Orange
+	// 3. Claude — Anthropic Peach/Skin fading into Fuchsia (No amber anxiety!)
 	if (label.includes('Claude')) {
-		if (percentage >= 80) { return '#fdba74'; } // orange-300 (Peach)
-		if (percentage >= 60) { return '#fb923c'; } // orange-400
-		if (percentage >= 40) { return '#f97316'; } // orange-500
+		if (percentage >= 80) { return '#fdba74'; } // orange-300 (Warm Peach/Skin)
+		if (percentage >= 60) { return '#fb7185'; } // rose-400 (Coral/Vivid pinkish-skin)
+		if (percentage >= 40) { return '#d946ef'; } // fuchsia-500 (Fuchsia)
 		return COLOR_WARNING;                       // amber-500
 	}
 
-	// 4. GPT-OSS — Purple fading to Pink
+	// 4. GPT-OSS — Vibrant Pink / Fuchsia
 	if (label.includes('GPT-OSS')) {
-		if (percentage >= 80) { return '#8b5cf6'; } // violet-500
-		if (percentage >= 60) { return '#d946ef'; } // fuchsia-500
-		if (percentage >= 40) { return '#ec4899'; } // pink-500
+		if (percentage >= 80) { return '#f472b6'; } // pink-400
+		if (percentage >= 60) { return '#ec4899'; } // pink-500
+		if (percentage >= 40) { return '#db2777'; } // pink-600
 		return COLOR_WARNING;                       // amber-500
 	}
 
