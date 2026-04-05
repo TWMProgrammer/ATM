@@ -117,9 +117,9 @@ export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 
 	if (tier === 'ULTRA') { return { type: 'unlimited' }; }
 
 	const mult           = tier === 'PRO' ? 10 : 1;
-	const MONTHLY_FLASH  = 3000 * mult;
-	const MONTHLY_PRO    = 1000 * mult;
-	const MONTHLY_THIRD  = 1000 * mult;
+	const MONTHLY_PRO    = 2000 * mult;
+	const MONTHLY_THIRD  = 2000 * mult;
+	const MONTHLY_FLASH  = 1000 * mult;
 
 	const getPct = (matchers: string[]) => {
 		const match = models.filter(m => matchers.some(s => m.label.includes(s)));
