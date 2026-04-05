@@ -56,9 +56,7 @@
   },
   "activationEvents": [
     "onStartupFinished",
-    "onLanguage:mdx",
-    "onLanguage:dotenv",
-    "onCommand:atm.mdx.preview"
+    "onLanguage:dotenv"
   ],
   "main": "./dist/extension.js",
   "contributes": {
