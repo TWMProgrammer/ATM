@@ -384,8 +384,10 @@ export function getModelStatusColor(label: string, percentage: number): string {
 	}
 	
 	// Default / Gemini Flash (Green -> Lime -> Yellow)
-	if (percentage >= 80) {return COLOR_HEALTHY;} // Healthy Green
-	if (percentage >= 50) {return '#84cc16';} // Lime Green
+	if (percentage >= 80) { return '#22c55e'; } // Verde vivo
+	if (percentage >= 60) { return '#10b981'; } // Teal esmeralda
+	if (percentage >= 40) { return '#84cc16'; } // Lima suave
+	if (percentage >= 20) { return '#eab308'; } // Amarillo mostaza
 	return COLOR_WARNING; // Golden Yellow
 }
 
