@@ -49,3 +49,12 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* Progressive fade-out for professional look */
+.skeleton-item:nth-child(1) { opacity: 1; }
+.skeleton-item:nth-child(2) { opacity: 0.85; }
+.skeleton-item:nth-child(3) { opacity: 0.65; }
+.skeleton-item:nth-child(4) { opacity: 0.45; }
+.skeleton-item:nth-child(5) { opacity: 0.25; }
+.skeleton-item:nth-child(6) { opacity: 0.08; }
+.skeleton-item:nth-child(n+7) { opacity: 0.05; }
