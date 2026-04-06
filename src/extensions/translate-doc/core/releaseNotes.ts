@@ -1,5 +1,5 @@
-import * as https from 'https';
 import * as vscode from 'vscode';
+import { escapeHtmlAttribute } from './utils';
 
 
 export function registerReleaseNotesContextTracking(context: vscode.ExtensionContext): void {
@@ -42,28 +42,12 @@ export async function fetchReleaseNotesMarkdown(version: string): Promise<string
   for (const branch of branches) {
     for (const cleanVersion of candidates) {
       const url = `https://raw.githubusercontent.com/microsoft/vscode-docs/${branch}/release-notes/v${cleanVersion}.md`;
-      const content = await new Promise<string | undefined>((resolve) => {
-        const req = https.get(url, (res) => {
-          if (res.statusCode !== 200) {
-            res.resume();
-            resolve(undefined);
-            return;
-          }
-
-          let data = '';
-          res.on('data', (chunk) => { data += chunk; });
-          res.on('end', () => { resolve(data); });
-        });
-
-        req.setTimeout(10_000, () => {
-          req.destroy();
-          resolve(undefined);
-        });
-        req.on('error', () => { resolve(undefined); });
-      });
-
-      if (content) {
-        return content;
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+        if (!res.ok) { continue; }
+        return await res.text();
+      } catch {
+        // Network error or timeout — try next candidate / branch
       }
     }
   }
@@ -114,10 +98,3 @@ function getMediaPlaceholderHint(languageCode: string): string {
   return prefix ? hints[prefix] : '← Official image in the left panel';
 }
 
-function escapeHtmlAttribute(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}

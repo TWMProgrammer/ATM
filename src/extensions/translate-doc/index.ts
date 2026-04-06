@@ -78,7 +78,19 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
     };
 
     const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
-    await translateAndRender(panel, targetText, lang.code);
+
+    const controller = new AbortController();
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: `Translating to ${lang.label}…`,
+        cancellable: true,
+      },
+      async (_progress, token) => {
+        token.onCancellationRequested(() => controller.abort());
+        await translateAndRender(panel, targetText, lang.code, controller.signal);
+      }
+    );
   };
 
   const translateReleaseNotesHandler = async () => {
@@ -101,18 +113,29 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
     const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
     panel.setSkeleton();
 
-    try {
-      const markdown = await fetchReleaseNotesMarkdown(versionInfo.version);
-      if (!markdown) {
-        throw new Error('Could not fetch the release notes content.');
-      }
+    const controller = new AbortController();
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: `Translating to ${lang.label}…`,
+        cancellable: true,
+      },
+      async (_progress, token) => {
+        token.onCancellationRequested(() => controller.abort());
+        try {
+          const markdown = await fetchReleaseNotesMarkdown(versionInfo.version);
+          if (!markdown) {
+            throw new Error('Could not fetch the release notes content.');
+          }
 
-      const cleanMarkdown = preprocessReleaseNotesMarkdown(markdown, lang.code);
-      await translateAndRender(panel, cleanMarkdown, lang.code);
-    } catch (error: any) {
-      vscode.window.showErrorMessage(`Failed to translate Release Notes: ${error.message}`);
-      panel.setError('Could not load or translate the release notes. Please check your connection.');
-    }
+          const cleanMarkdown = preprocessReleaseNotesMarkdown(markdown, lang.code);
+          await translateAndRender(panel, cleanMarkdown, lang.code, controller.signal);
+        } catch (error: any) {
+          vscode.window.showErrorMessage(`Failed to translate Release Notes: ${error.message}`);
+          panel.setError('Could not load or translate the release notes. Please check your connection.');
+        }
+      }
+    );
   };
 
   context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.translateExtension, translateExtensionHandler));
@@ -123,7 +146,12 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
   context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.legacyTranslateReleaseNotes, translateReleaseNotesHandler));
 }
 
-async function translateAndRender(panel: TranslatorWebviewPanel, text: string, langCode: string): Promise<void> {
+async function translateAndRender(
+  panel: TranslatorWebviewPanel,
+  text: string,
+  langCode: string,
+  signal?: AbortSignal
+): Promise<void> {
   const key = cacheKey(text, langCode);
   const cached = translationCache.get(key);
   if (cached) {
@@ -133,12 +161,9 @@ async function translateAndRender(panel: TranslatorWebviewPanel, text: string, l
 
   panel.setSkeleton();
 
-  const controller = new AbortController();
-
   try {
-    const translated = await translateText(text, langCode, controller.signal);
+    const translated = await translateText(text, langCode, signal);
     if (panel.isDisposed) {
-      controller.abort();
       return;
     }
 
@@ -149,10 +174,12 @@ async function translateAndRender(panel: TranslatorWebviewPanel, text: string, l
     translationCache.set(key, translated);
     panel.setTranslatedMarkdown(translated);
   } catch (error: any) {
-    controller.abort();
     if (panel.isDisposed) {
       return;
     }
+
+    // Ignore abort errors — user cancelled intentionally
+    if (signal?.aborted) { return; }
 
     vscode.window.showErrorMessage('Translation failed: ' + error.message);
     panel.setError('Translation failed. Please try again.');

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import MarkdownIt from 'markdown-it';
+import { escapeHtml } from '../core/utils';
 
 // =========================================================
 // 🏷️ TYPES
@@ -22,6 +23,7 @@ export class TranslatorWebviewPanel {
   private static readonly _md = new MarkdownIt({ html: true, linkify: true, typographer: true });
 
   private readonly _panel: vscode.WebviewPanel;
+  private readonly _extensionUri: vscode.Uri;
   private readonly _targetExtensionUri: vscode.Uri | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _isDisposed = false;
@@ -30,8 +32,9 @@ export class TranslatorWebviewPanel {
   // 🏗️ CONSTRUCTOR / FACTORY
   // =========================================================
 
-  private constructor(panel: vscode.WebviewPanel, targetExtensionUri: vscode.Uri | undefined) {
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, targetExtensionUri: vscode.Uri | undefined) {
     this._panel = panel;
+    this._extensionUri = extensionUri;
     this._targetExtensionUri = targetExtensionUri;
 
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
@@ -72,11 +75,9 @@ export class TranslatorWebviewPanel {
       
       // Move flag to the end: "🇪🇸 Español" -> "Español 🇪🇸"
       let formattedLang = target.languageLabel;
-      const spaceIndex = formattedLang.indexOf(' ');
-      if (spaceIndex !== -1) {
-        const flag = formattedLang.slice(0, spaceIndex);
-        const name = formattedLang.slice(spaceIndex + 1);
-        formattedLang = `${name} ${flag}`;
+      const [flag, ...rest] = formattedLang.split(' ');
+      if (rest.length > 0) {
+        formattedLang = `${rest.join(' ')} ${flag}`;
       }
 
       title = `${shortName} · ${formattedLang}`;
@@ -107,7 +108,7 @@ export class TranslatorWebviewPanel {
       panel.iconPath = vscode.Uri.joinPath(target.extensionUri, target.iconRelativePath);
     }
 
-    TranslatorWebviewPanel.currentPanel = new TranslatorWebviewPanel(panel, target?.extensionUri);
+    TranslatorWebviewPanel.currentPanel = new TranslatorWebviewPanel(panel, extensionUri, target?.extensionUri);
     return TranslatorWebviewPanel.currentPanel;
   }
 
@@ -211,6 +212,9 @@ export class TranslatorWebviewPanel {
       </div>`;
 
     const cspSource = this._panel.webview.cspSource;
+    const cssUri = this._panel.webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'assets', 'translate-doc.css')
+    );
 
     return /* html */ `
 <!DOCTYPE html>
@@ -218,270 +222,9 @@ export class TranslatorWebviewPanel {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; media-src ${cspSource} https: data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} https: data:; media-src ${cspSource} https: data:; style-src ${cspSource}; script-src 'unsafe-inline';">
   <title>Translated Extension</title>
-  <style>
-    /* ── Base ───────────────────────────────────────────────── */
-    * { box-sizing: border-box; }
-
-    body {
-      font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-      font-size: var(--vscode-font-size, 14px);
-      line-height: 1.7;
-      color: var(--vscode-editor-foreground);
-      background: var(--vscode-editor-background);
-      padding: 24px 32px 64px;
-      margin: 0;
-    }
-
-    /* ── Skeleton loading ──────────────────────────────────── */
-    .skeleton { animation: fadeIn .4s ease-in; min-height: calc(100vh - 88px); }
-
-    .sk-title {
-      height: 30px; width: 40%;
-      background: var(--vscode-editor-inactiveSelectionBackground);
-      margin-bottom: 22px; border-radius: 4px;
-      animation: pulse 1.4s infinite;
-    }
-    .sk-line {
-      height: 14px;
-      background: var(--vscode-editor-inactiveSelectionBackground);
-      margin-bottom: 10px; border-radius: 4px;
-      animation: pulse 1.4s infinite;
-    }
-    .sk-box {
-      height: 140px;
-      background: var(--vscode-editor-inactiveSelectionBackground);
-      margin: 20px 0; border-radius: 6px;
-      animation: pulse 1.4s infinite;
-    }
-
-    @keyframes pulse {
-      0%,100% { opacity: .45; }
-      50%     { opacity: .75; }
-    }
-
-    /* ── Content fade-in ───────────────────────────────────── */
-    .content { animation: fadeIn .6s ease-out forwards; opacity: 0; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Headings ──────────────────────────────────────────── */
-    h1 {
-      font-size: 1.8em;
-      font-weight: 600;
-      margin: 0 0 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--vscode-widget-border, rgba(255,255,255,.1));
-    }
-    h2 {
-      font-size: 1.4em;
-      font-weight: 600;
-      margin: 28px 0 12px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--vscode-widget-border, rgba(255,255,255,.06));
-    }
-    h3 { font-size: 1.15em; font-weight: 600; margin: 22px 0 8px; }
-    h4 { font-size: 1.05em; font-weight: 600; margin: 18px 0 6px; }
-
-    /* ── Links ─────────────────────────────────────────────── */
-    a {
-      color: var(--vscode-textLink-foreground);
-      text-decoration: none;
-    }
-    a:hover { text-decoration: underline; }
-
-    /* ── Images ────────────────────────────────────────────── */
-    img {
-      max-width: 100%;
-      border-radius: 6px;
-      margin: 8px 0;
-    }
-
-    video {
-      max-width: 100%;
-      border-radius: 6px;
-      margin: 10px 0;
-      background: var(--vscode-editorWidget-background, rgba(0,0,0,.2));
-    }
-
-    /* ── Release Notes media placeholder (lightweight UI fallback) ─────── */
-    atm-media-placeholder {
-      position: relative;
-      display: block;
-      width: 100%;
-      min-height: 220px;
-      margin: 18px 0;
-      border-radius: 14px;
-      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.14));
-      background:
-        radial-gradient(120% 150% at 10% 10%, rgba(33, 150, 243, 0.18) 0%, rgba(33, 150, 243, 0) 45%),
-        radial-gradient(120% 120% at 90% 90%, rgba(0, 200, 120, 0.16) 0%, rgba(0, 200, 120, 0) 50%),
-        linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-      box-shadow: 0 14px 34px rgba(0, 0, 0, .28);
-      overflow: hidden;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-    }
-
-    atm-media-placeholder::before {
-      content: "MEDIA";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      letter-spacing: .14em;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--vscode-descriptionForeground, rgba(255,255,255,.7));
-      text-shadow: 0 2px 18px rgba(0, 0, 0, .45);
-    }
-
-    atm-media-placeholder::after {
-      content: attr(data-hint);
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 14px;
-      text-align: center;
-      font-size: .88rem;
-      font-weight: 500;
-      color: var(--vscode-descriptionForeground, rgba(255,255,255,.7));
-      opacity: .95;
-      letter-spacing: .02em;
-    }
-
-    /* ── Code ──────────────────────────────────────────────── */
-    code {
-      font-family: var(--vscode-editor-font-family, 'Fira Code', 'Cascadia Code', monospace);
-      font-size: 0.9em;
-      background: var(--vscode-textCodeBlock-background, rgba(255,255,255,.06));
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    pre {
-      background: var(--vscode-textCodeBlock-background, rgba(255,255,255,.06));
-      padding: 14px 18px;
-      border-radius: 6px;
-      overflow-x: auto;
-      margin: 12px 0;
-    }
-    pre code {
-      background: none;
-      padding: 0;
-    }
-
-    /* ── Blockquotes ───────────────────────────────────────── */
-    blockquote {
-      border-left: 4px solid var(--vscode-textBlockQuote-border, #3794ff);
-      padding: 4px 16px;
-      margin: 12px 0;
-      color: var(--vscode-textBlockQuote-foreground);
-      background: rgba(255,255,255,.02);
-      border-radius: 0 4px 4px 0;
-    }
-
-    /* ── Tables ────────────────────────────────────────────── */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 14px 0;
-    }
-    th, td {
-      text-align: left;
-      padding: 8px 12px;
-      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.1));
-    }
-    th {
-      font-weight: 600;
-      background: rgba(255,255,255,.04);
-    }
-    tr:hover td {
-      background: rgba(255,255,255,.02);
-    }
-
-    /* ── Lists ─────────────────────────────────────────────── */
-    ul, ol { padding-left: 24px; margin: 8px 0; }
-    li { margin: 4px 0; }
-
-    /* ── Horizontal rule ───────────────────────────────────── */
-    hr {
-      border: none;
-      border-top: 1px solid var(--vscode-widget-border, rgba(255,255,255,.1));
-      margin: 24px 0;
-    }
-
-    /* ── Badges & inline icons (shields.io, favicons in lists, etc.) */
-    p > a > img,
-    p > img,
-    li > img,
-    li > a > img {
-      display: inline-block;
-      vertical-align: middle;
-      border-radius: 3px;
-      margin: 2px 4px 2px 0;
-    }
-
-    /* ── Scroll-to-top button ─────────────────────────────── */
-    .scroll-top-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.15));
-      background: var(--vscode-editor-background);
-      color: var(--vscode-textLink-foreground);
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s, transform .2s;
-      z-index: 100;
-    }
-    .scroll-top-btn.visible {
-      opacity: .6;
-      pointer-events: auto;
-    }
-    .scroll-top-btn:hover {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-
-    /* ── TTS Badge ─────────────────────────────────────────── */
-    .tts-badge {
-      position: fixed;
-      bottom: 70px;
-      right: 20px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      background: var(--vscode-badge-background, rgba(0,122,204,.85));
-      color: var(--vscode-badge-foreground, #fff);
-      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.15));
-      box-shadow: 0 4px 12px rgba(0,0,0,.3);
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity .2s ease, transform .2s ease;
-      z-index: 101;
-      white-space: nowrap;
-    }
-    .tts-badge.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
+  <link rel="stylesheet" href="${cssUri}">
 </head>
 <body>
   ${isLoading ? skeleton : `<div class="content">${content}</div>
@@ -520,18 +263,4 @@ export class TranslatorWebviewPanel {
 </body>
 </html>`;
   }
-}
-
-// =========================================================
-// 🛠️ HELPERS
-// =========================================================
-
-/** Escape HTML special characters to prevent XSS injection. */
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
