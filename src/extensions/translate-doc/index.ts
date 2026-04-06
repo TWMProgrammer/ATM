@@ -133,9 +133,12 @@ async function translateAndRender(panel: TranslatorWebviewPanel, text: string, l
 
   panel.setSkeleton();
 
+  const controller = new AbortController();
+
   try {
-    const translated = await translateText(text, langCode);
+    const translated = await translateText(text, langCode, controller.signal);
     if (panel.isDisposed) {
+      controller.abort();
       return;
     }
 
@@ -146,6 +149,7 @@ async function translateAndRender(panel: TranslatorWebviewPanel, text: string, l
     translationCache.set(key, translated);
     panel.setTranslatedMarkdown(translated);
   } catch (error: any) {
+    controller.abort();
     if (panel.isDisposed) {
       return;
     }

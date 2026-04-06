@@ -97,7 +97,7 @@ export class TranslatorWebviewPanel {
       vscode.ViewColumn.Beside,
       {
         enableScripts: true,
-        retainContextWhenHidden: false,
+        retainContextWhenHidden: true,
         localResourceRoots: resourceRoots,
       }
     );
@@ -456,16 +456,44 @@ export class TranslatorWebviewPanel {
       opacity: 1;
       transform: scale(1.1);
     }
+
+    /* ── TTS Badge ─────────────────────────────────────────── */
+    .tts-badge {
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--vscode-badge-background, rgba(0,122,204,.85));
+      color: var(--vscode-badge-foreground, #fff);
+      border: 1px solid var(--vscode-widget-border, rgba(255,255,255,.15));
+      box-shadow: 0 4px 12px rgba(0,0,0,.3);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 101;
+      white-space: nowrap;
+    }
+    .tts-badge.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
   ${isLoading ? skeleton : `<div class="content">${content}</div>
   <button class="scroll-top-btn" id="scrollTopBtn" title="Scroll to top"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.5l-5 5 .7.7L8 5.9l4.3 4.3.7-.7z"/></svg></button>
+  <div class="tts-badge" id="ttsBadge">📋 Copied for TTS</div>
   <script>
     (function() {
       const vscode = acquireVsCodeApi();
       const btn = document.getElementById('scrollTopBtn');
-      
+      const ttsBadge = document.getElementById('ttsBadge');
+      let ttsTimeout = null;
+
       btn.addEventListener('click', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
@@ -475,15 +503,16 @@ export class TranslatorWebviewPanel {
         btn.classList.toggle('visible', scrollPercent > 0.2);
       });
 
-      // 🎤 ATM Voice TTS Bridge
-      // Listens for text selection and "silently" copies it for Voice TTS
+      // 🎤 ATM Voice TTS Bridge — copies selection and shows a brief badge
       document.addEventListener('mouseup', () => {
         const selection = window.getSelection().toString().trim();
         if (selection) {
-          vscode.postMessage({
-            command: 'textSelected',
-            text: selection
-          });
+          vscode.postMessage({ command: 'textSelected', text: selection });
+
+          // Show feedback badge so the user knows the copy happened
+          ttsBadge.classList.add('visible');
+          clearTimeout(ttsTimeout);
+          ttsTimeout = setTimeout(() => ttsBadge.classList.remove('visible'), 1500);
         }
       });
     })();

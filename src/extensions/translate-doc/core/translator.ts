@@ -55,10 +55,14 @@ const PROTECTED_PATTERNS: RegExp[] = [
 /**
  * Translate a (potentially large) Markdown text while preserving URLs,
  * images, code blocks, commands, and other non-translatable patterns.
+ *
+ * @param signal  Optional AbortSignal — if aborted (e.g. the user closed the
+ *                panel), pending batches are skipped immediately.
  */
 export async function translateText(
   text: string,
-  targetLanguageCode: string
+  targetLanguageCode: string,
+  signal?: AbortSignal
 ): Promise<string> {
   // 1. Protect non-translatable content with placeholders
   const { text: safeText, placeholders } = protectPatterns(text);
@@ -70,9 +74,11 @@ export async function translateText(
   const translated: string[] = [];
 
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+    if (signal?.aborted) { break; }
+
     const batch = chunks.slice(i, i + BATCH_SIZE);
     const results = await Promise.all(
-      batch.map((chunk) => translate(chunk, { to: targetLanguageCode }))
+      batch.map((chunk) => translate(chunk, { to: targetLanguageCode, fetchOptions: { signal } }))
     );
     translated.push(...results.map((r) => r.text));
   }
