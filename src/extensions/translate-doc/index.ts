@@ -6,6 +6,7 @@ import { TranslatorWebviewPanel } from './ui/webview';
 import type { TranslationTarget } from './ui/webview';
 
 const translationCache = new Map<string, string>();
+const MAX_CACHE_ENTRIES = 20;
 
 const COMMANDS = {
   translateExtension: 'atm.translate-doc.translateExtension',
@@ -15,7 +16,11 @@ const COMMANDS = {
 };
 
 function cacheKey(text: string, langCode: string): string {
-  return `${text.length}:${langCode}`;
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+  }
+  return `${hash}:${text.length}:${langCode}`;
 }
 
 export function activateTranslateDoc(context: vscode.ExtensionContext): void {
@@ -134,6 +139,10 @@ async function translateAndRender(panel: TranslatorWebviewPanel, text: string, l
       return;
     }
 
+    if (translationCache.size >= MAX_CACHE_ENTRIES) {
+      const oldest = translationCache.keys().next().value;
+      if (oldest !== undefined) { translationCache.delete(oldest); }
+    }
     translationCache.set(key, translated);
     panel.setTranslatedMarkdown(translated);
   } catch (error: any) {

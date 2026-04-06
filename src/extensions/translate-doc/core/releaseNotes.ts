@@ -48,6 +48,7 @@ export async function fetchReleaseNotesMarkdown(version: string): Promise<string
       const content = await new Promise<string | undefined>((resolve) => {
         https.get(url, (res) => {
           if (res.statusCode !== 200) {
+            res.resume();
             resolve(undefined);
             return;
           }
