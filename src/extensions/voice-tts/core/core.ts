@@ -62,6 +62,58 @@ export const PRESET_LANGUAGES: PresetLanguage[] = [
       },
     ],
   },
+  {
+    label: '🇷🇺 Русский',
+    shortCode: 'RU',
+    catalogKey: 'ru_RU',
+    recommendedVoices: [
+      {
+        name: 'irina',
+        label: 'Irina',
+        quality: 'medium',
+        description: 'Clear female Russian voice — medium quality',
+      },
+    ],
+  },
+  {
+    label: '🇧🇷 Português',
+    shortCode: 'PT',
+    catalogKey: 'pt_BR',
+    recommendedVoices: [
+      {
+        name: 'faber',
+        label: 'Faber',
+        quality: 'medium',
+        description: 'Clear Brazilian Portuguese voice — medium quality',
+      },
+    ],
+  },
+  {
+    label: '🇫🇷 Français',
+    shortCode: 'FR',
+    catalogKey: 'fr_FR',
+    recommendedVoices: [
+      {
+        name: 'siwis',
+        label: 'Siwis',
+        quality: 'medium',
+        description: 'Clear French voice — medium quality',
+      },
+    ],
+  },
+  {
+    label: '🇩🇪 Deutsch',
+    shortCode: 'DE',
+    catalogKey: 'de_DE',
+    recommendedVoices: [
+      {
+        name: 'thorsten',
+        label: 'Thorsten',
+        quality: 'medium',
+        description: 'Clear German male voice — medium quality',
+      },
+    ],
+  },
 ];
 
 /* =========================================================

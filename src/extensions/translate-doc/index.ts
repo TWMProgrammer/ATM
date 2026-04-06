@@ -6,6 +6,7 @@ import { TranslatorWebviewPanel } from './ui/webview';
 import type { TranslationTarget } from './ui/webview';
 
 const translationCache = new Map<string, string>();
+const MAX_CACHE_ENTRIES = 20;
 
 const COMMANDS = {
   translateExtension: 'atm.translate-doc.translateExtension',
@@ -15,7 +16,11 @@ const COMMANDS = {
 };
 
 function cacheKey(text: string, langCode: string): string {
-  return `${text.length}:${langCode}`;
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+  }
+  return `${hash}:${text.length}:${langCode}`;
 }
 
 export function activateTranslateDoc(context: vscode.ExtensionContext): void {
@@ -73,7 +78,9 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
     };
 
     const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
-    await translateAndRender(panel, targetText, lang.code);
+
+    const controller = new AbortController();
+    await translateAndRender(panel, targetText, lang.code, controller.signal);
   };
 
   const translateReleaseNotesHandler = async () => {
@@ -96,6 +103,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
     const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
     panel.setSkeleton();
 
+    const controller = new AbortController();
     try {
       const markdown = await fetchReleaseNotesMarkdown(versionInfo.version);
       if (!markdown) {
@@ -103,7 +111,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
       }
 
       const cleanMarkdown = preprocessReleaseNotesMarkdown(markdown, lang.code);
-      await translateAndRender(panel, cleanMarkdown, lang.code);
+      await translateAndRender(panel, cleanMarkdown, lang.code, controller.signal);
     } catch (error: any) {
       vscode.window.showErrorMessage(`Failed to translate Release Notes: ${error.message}`);
       panel.setError('Could not load or translate the release notes. Please check your connection.');
@@ -118,7 +126,12 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
   context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.legacyTranslateReleaseNotes, translateReleaseNotesHandler));
 }
 
-async function translateAndRender(panel: TranslatorWebviewPanel, text: string, langCode: string): Promise<void> {
+async function translateAndRender(
+  panel: TranslatorWebviewPanel,
+  text: string,
+  langCode: string,
+  signal?: AbortSignal
+): Promise<void> {
   const key = cacheKey(text, langCode);
   const cached = translationCache.get(key);
   if (cached) {
@@ -129,17 +142,24 @@ async function translateAndRender(panel: TranslatorWebviewPanel, text: string, l
   panel.setSkeleton();
 
   try {
-    const translated = await translateText(text, langCode);
+    const translated = await translateText(text, langCode, signal);
     if (panel.isDisposed) {
       return;
     }
 
+    if (translationCache.size >= MAX_CACHE_ENTRIES) {
+      const oldest = translationCache.keys().next().value;
+      if (oldest !== undefined) { translationCache.delete(oldest); }
+    }
     translationCache.set(key, translated);
     panel.setTranslatedMarkdown(translated);
   } catch (error: any) {
     if (panel.isDisposed) {
       return;
     }
+
+    // Ignore abort errors — user cancelled intentionally
+    if (signal?.aborted) { return; }
 
     vscode.window.showErrorMessage('Translation failed: ' + error.message);
     panel.setError('Translation failed. Please try again.');

@@ -1,0 +1,23 @@
+{
+  "extension.displayName": "ATM (Kit Tudo-em-Um)",
+  "extension.description": "⚡ Kit de Ferramentas Tudo-em-Um — Error Lens · Git Blame · Proteção Env · Pré-visualização de Imagem · Screenshot · Voz TTS · Pomodoro · Otimizador SVG · MDX · Dados AI · Corretor Ortográfico · Tradução e mais. Funciona em VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
+  "command.voiceTts.read": "ATM Voz TTS: Copiar e Ler",
+  "command.comments.list": "ATM: Listar Anotações TODO / FIXME",
+  "command.translate": "ATM: Traduzir",
+  "command.voiceTts.select": "ATM Voz TTS: Selecionar Voz",
+  "command.mdx.preview": "ATM: Abrir Pré-visualização MDX",
+  "command.git.copyHash": "ATM Git: Copiar Hash do Commit",
+  "command.git.openGitHub": "ATM Git: Abrir Commit no GitHub",
+  "command.git.toggleBlame": "ATM Git: Alternar Inline Blame",
+  "command.screenshot": "ATM (📸) Captura de Tela",
+  "command.version.check": "ATM: Verificar Versões de Pacotes",
+  "command.version.updateAll": "ATM: Atualizar Todos os Pacotes",
+  "command.svg.optimize": "ATM: Otimizar SVG",
+  "command.copyTag": "ATM Copy: Destacar Texto Copiado",
+  "command.translateRelease": "ATM: Traduzir Notas de Lançamento",
+  "command.dataId": "ATM: Dados AI",
+  "command.env.reveal": "Env Lens: Revelar Valor",
+  "command.env.disableBlur": "Env Lens: Revelar Valores .env",
+  "command.env.enableBlur": "Env Lens: Ocultar Valores .env",
+  "view.music": "ATM :: Rádio/Música · Pomodoro · Dados"
+}

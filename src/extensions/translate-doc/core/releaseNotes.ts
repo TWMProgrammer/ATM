@@ -1,9 +1,6 @@
-import * as https from 'https';
 import * as vscode from 'vscode';
+import { escapeHtmlAttribute } from './utils';
 
-interface ReleaseNotesFetchResult {
-  markdown: string;
-}
 
 export function registerReleaseNotesContextTracking(context: vscode.ExtensionContext): void {
   const updateReleaseNotesContext = () => {
@@ -45,24 +42,12 @@ export async function fetchReleaseNotesMarkdown(version: string): Promise<string
   for (const branch of branches) {
     for (const cleanVersion of candidates) {
       const url = `https://raw.githubusercontent.com/microsoft/vscode-docs/${branch}/release-notes/v${cleanVersion}.md`;
-      const content = await new Promise<string | undefined>((resolve) => {
-        https.get(url, (res) => {
-          if (res.statusCode !== 200) {
-            resolve(undefined);
-            return;
-          }
-
-          let data = '';
-          res.on('data', (chunk) => { data += chunk; });
-          res.on('end', () => { resolve(data); });
-        }).on('error', () => {
-          resolve(undefined);
-        });
-      });
-
-      if (content) {
-        const result: ReleaseNotesFetchResult = { markdown: content };
-        return result.markdown;
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+        if (!res.ok) { continue; }
+        return await res.text();
+      } catch {
+        // Network error or timeout — try next candidate / branch
       }
     }
   }
@@ -95,21 +80,21 @@ function isReleaseNotesTab(tab: vscode.Tab | undefined): boolean {
 }
 
 function getMediaPlaceholderHint(languageCode: string): string {
-  if (languageCode === 'es') {
-    return '← Imagen oficial en el panel izquierdo';
-  }
+  const hints: Record<string, string> = {
+    'es':    '← Imagen oficial en el panel izquierdo',
+    'pt':    '← Imagem oficial no painel esquerdo',
+    'fr':    '← Image officielle dans le panneau gauche',
+    'de':    '← Offizielles Bild im linken Panel',
+    'ru':    '← Официальное изображение в левой панели',
+    'ja':    '← 公式画像は左パネルをご覧ください',
+    'ko':    '← 공식 이미지는 왼쪽 패널을 확인하세요',
+    'zh-CN': '← 官方图片请看左侧面板',
+    'zh-TW': '← 官方圖片請看左側面板',
+  };
 
-  if (/^zh\b/i.test(languageCode)) {
-    return '← 官方图片请看左侧面板';
-  }
-
-  return '← Official image in the left panel';
+  // Exact match first, then prefix match (e.g. 'zh' → 'zh-CN')
+  if (hints[languageCode]) { return hints[languageCode]; }
+  const prefix = Object.keys(hints).find((k) => languageCode.startsWith(k.split('-')[0]));
+  return prefix ? hints[prefix] : '← Official image in the left panel';
 }
 
-function escapeHtmlAttribute(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}

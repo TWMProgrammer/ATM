@@ -1,0 +1,23 @@
+{
+  "extension.displayName": "ATM (Всё-в-одном)",
+  "extension.description": "⚡ Универсальный инструментарий — Error Lens · Git Blame · Защита Env · Предпросмотр изображений · Скриншот кода · Голос TTS · Помодоро · Оптимизатор SVG · MDX · Данные AI · Проверка орфографии · Переводчик и др. Работает в VS Code, Cursor, Windsurf, Trae.ai и Kiro.",
+  "command.voiceTts.read": "ATM Голос TTS: Копировать и читать",
+  "command.comments.list": "ATM: Список аннотаций TODO / FIXME",
+  "command.translate": "ATM: Перевести",
+  "command.voiceTts.select": "ATM Голос TTS: Выбрать голос",
+  "command.mdx.preview": "ATM: Открыть предпросмотр MDX",
+  "command.git.copyHash": "ATM Git: Копировать хеш коммита",
+  "command.git.openGitHub": "ATM Git: Открыть коммит на GitHub",
+  "command.git.toggleBlame": "ATM Git: Переключить Inline Blame",
+  "command.screenshot": "ATM (📸) Скриншот",
+  "command.version.check": "ATM: Проверить версии пакетов",
+  "command.version.updateAll": "ATM: Обновить все пакеты",
+  "command.svg.optimize": "ATM: Оптимизировать SVG",
+  "command.copyTag": "ATM Copy: Выделить скопированный текст",
+  "command.translateRelease": "ATM: Перевести примечания к выпуску",
+  "command.dataId": "ATM: Данные AI",
+  "command.env.reveal": "Env Lens: Показать значение",
+  "command.env.disableBlur": "Env Lens: Показать значения .env",
+  "command.env.enableBlur": "Env Lens: Скрыть значения .env",
+  "view.music": "ATM :: Радио/Музыка · Помодоро · Данные"
+}

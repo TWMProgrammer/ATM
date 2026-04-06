@@ -293,7 +293,7 @@ export function getModelStatusColor(label: string, percentage: number): string {
 	if (label.includes('Claude')) {
 		if (percentage >= 80) { return '#fdba74'; } // orange-300 (Warm Peach/Skin)
 		if (percentage >= 60) { return '#fb7185'; } // rose-400 (Coral/Vivid pinkish-skin)
-		if (percentage >= 40) { return '#d946ef'; } // fuchsia-500 (Fuchsia)
+		if (percentage >= 40) { return '#e347c4'; } // fuchsia-500 (Fuchsia)
 		return COLOR_WARNING;                       // amber-500
 	}
 

@@ -1,0 +1,23 @@
+{
+  "extension.displayName": "ATM (Alles-in-Einem-Toolkit)",
+  "extension.description": "⚡ Alles-in-Einem-Toolkit — Error Lens · Git Blame · Env-Schutz · Bildvorschau · Code-Screenshot · Stimme TTS · Pomodoro · SVG-Optimierer · MDX · KI-Daten · Rechtschreibprüfung · Übersetzung und mehr. Für VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
+  "command.voiceTts.read": "ATM Stimme TTS: Kopieren & Lesen",
+  "command.comments.list": "ATM: TODO / FIXME Anmerkungen auflisten",
+  "command.translate": "ATM: Übersetzen",
+  "command.voiceTts.select": "ATM Stimme TTS: Stimme auswählen",
+  "command.mdx.preview": "ATM: MDX-Vorschau öffnen",
+  "command.git.copyHash": "ATM Git: Commit-Hash kopieren",
+  "command.git.openGitHub": "ATM Git: Commit auf GitHub öffnen",
+  "command.git.toggleBlame": "ATM Git: Inline-Blame umschalten",
+  "command.screenshot": "ATM (📸) Screenshot",
+  "command.version.check": "ATM: Paketversionen prüfen",
+  "command.version.updateAll": "ATM: Alle Pakete aktualisieren",
+  "command.svg.optimize": "ATM: SVG optimieren",
+  "command.copyTag": "ATM Kopie: Kopierten Text hervorheben",
+  "command.translateRelease": "ATM: Release Notes übersetzen",
+  "command.dataId": "ATM: Daten-KI",
+  "command.env.reveal": "Env Lens: Wert anzeigen",
+  "command.env.disableBlur": "Env Lens: .env-Werte anzeigen",
+  "command.env.enableBlur": "Env Lens: .env-Werte ausblenden",
+  "view.music": "ATM :: Radio/Musik · Pomodoro · Daten"
+}

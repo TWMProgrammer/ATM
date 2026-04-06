@@ -1,0 +1,23 @@
+{
+  "extension.displayName": "ATM (オールインワン・ツールキット)",
+  "extension.description": "⚡ オールインワン・ツールキット — Error Lens · Git Blame · Env保護 · 画像プレビュー · コード・スクリーンショット · 音声TTS · ポモドーロ · SVG最適化 · MDX · AIデータ · スペルチェック · 翻訳など。VS Code, Cursor, Windsurf, Trae.ai & Kiroに対応。",
+  "command.voiceTts.read": "ATM 音声TTS: コピーして読み上げ",
+  "command.comments.list": "ATM: TODO / FIXME 注釈を一覧表示",
+  "command.translate": "ATM: 翻訳",
+  "command.voiceTts.select": "ATM 音声TTS: 音声を選択",
+  "command.mdx.preview": "ATM: MDXプレビューを開く",
+  "command.git.copyHash": "ATM Git: コミットハッシュをコピー",
+  "command.git.openGitHub": "ATM Git: GitHubでコミットを開く",
+  "command.git.toggleBlame": "ATM Git: インラインBlameを切り替え",
+  "command.screenshot": "ATM (📸) スクリーンショット",
+  "command.version.check": "ATM: パッケージバージョンを確認",
+  "command.version.updateAll": "ATM: すべてのパッケージを更新",
+  "command.svg.optimize": "ATM: SVGを最適化",
+  "command.copyTag": "ATM コピー: コピーしたテキストをハイライト",
+  "command.translateRelease": "ATM: リリースノートを翻訳",
+  "command.dataId": "ATM: データAI",
+  "command.env.reveal": "Env Lens: 値を表示",
+  "command.env.disableBlur": "Env Lens: .envの値を表示",
+  "command.env.enableBlur": "Env Lens: .envの値を非表示",
+  "view.music": "ATM :: ラジオ/音楽 · ポモドーロ · データ"
+}
