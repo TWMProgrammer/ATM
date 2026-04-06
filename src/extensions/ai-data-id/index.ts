@@ -64,9 +64,9 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 			.join('|');
 	}
 
-	/** Selects the appropriate status bar icon based on the lowest quota %. */
+	/** Selects the appropriate status bar icon based on the engineered percentage. */
 	function getStatusBarIcon(minRemaining: number): string {
-		// En 20% ya se considera peligro absoluto (posibilidad de agotarse instantáneamente)
+		// 20% is considered a danger zone (quota might be exhausted shortly).
 		if (minRemaining <= 20) { return ICON_ERROR; }
 		return ICON_DEFAULT;
 	}
@@ -152,8 +152,8 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					void fetchAndUpdateQuota(true);
 				}, 0);
 			} else {
-				// Reloj Adaptativo y Despertador: 
-				// Solo programar si la ventana está activa.
+				// Adaptive Polling:
+				// Only schedule if the window is focused (performance optimization).
 				if (vscode.window.state.focused) {
 					const nextInterval = lastReportedPercentage <= 20 ? POLLING_INTERVAL_FAST_MS : POLLING_INTERVAL_NORMAL_MS;
 					fetchTimer = setTimeout(() => {
@@ -178,15 +178,15 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	const refreshCmd = vscode.commands.registerCommand('atm.dataId.refreshConsumption', forceRefresh);
 	const showCmd = vscode.commands.registerCommand('atm.dataId.showConsumption', forceRefresh);
 
-	// ── Event Listeners (Impacto y Foco) ─────────────────────────────
+	// ── Event Listeners (Impact & Focus) ─────────────────────────────
 
-	// 1. Despertador Inteligente (Focus)
+	// 1. Smart Wake-up (Focus)
 	const windowStateSub = vscode.window.onDidChangeWindowState((state) => {
 		if (state.focused) {
-			// Actualizar de inmediato al volver a VS Code
+			// Update immediately when returning to VS Code
 			void fetchAndUpdateQuota();
 		} else {
-			// Pausar reloj (ahorro 100% de CPU/Batería backgroud)
+			// Pause polling to save resources while in background
 			if (fetchTimer) {
 				clearTimeout(fetchTimer);
 				fetchTimer = null;
@@ -194,10 +194,9 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 		}
 	});
 
-	// 2. Detector de Impacto (Bloques de códgo / IA)
+	// 2. Impact Detector (Large code insertions / AI activity)
 	let debounceTimer: NodeJS.Timeout | null = null;
 	const textDocSub = vscode.workspace.onDidChangeTextDocument((e) => {
-		// Solo escaneamos en archivos reales
 		if (e.document.uri.scheme !== 'file') { return; }
 
 		const hasLargeInsert = e.contentChanges.some(change => {
@@ -209,7 +208,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 
 		if (hasLargeInsert) {
 			if (debounceTimer) { clearTimeout(debounceTimer); }
-			// Amortiguador de 5 seg para no hacer spam al servidor
+			// 5s debounce to avoid spamming the local server
 			debounceTimer = setTimeout(() => {
 				void fetchAndUpdateQuota();
 			}, 5000);
