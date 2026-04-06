@@ -6,8 +6,10 @@ import { buildTooltip, computeEngineeredCredits, resolvePlanTier } from './ui/to
 
 // ── Constants ────────────────────────────────────────────────────────
 
-/** How often (ms) to poll for updated quota data. */
-const POLLING_INTERVAL_MS = 120_000; // 2 minutes
+/** How often (ms) to poll for updated quota data (normal). */
+const POLLING_INTERVAL_NORMAL_MS = 60_000; // 1 minute
+/** How often (ms) to poll when quota is <= 20% (danger zone). */
+const POLLING_INTERVAL_FAST_MS = 30_000; // 30 seconds
 
 /** Delay (ms) before the first fetch to avoid blocking IDE startup. */
 const INITIAL_DELAY_MS = 3_000;
@@ -53,6 +55,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	let lastSnapshotHash = '';
 	let lastSnapshot: QuotaSnapshot | null = null;
 	let fetchTimer: NodeJS.Timeout | null = null;
+	let lastReportedPercentage = 100; // Stores the last engineered percentage
 
 	/** Builds a hash of the snapshot to detect meaningful changes. */
 	function computeSnapshotHash(snapshot: QuotaSnapshot): string {
@@ -63,8 +66,8 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 
 	/** Selects the appropriate status bar icon based on the lowest quota %. */
 	function getStatusBarIcon(minRemaining: number): string {
-		if (minRemaining <= 0) { return ICON_ERROR; }
-		if (minRemaining <= 20) { return ICON_WARNING; }
+		// En 20% ya se considera peligro absoluto (posibilidad de agotarse instantáneamente)
+		if (minRemaining <= 20) { return ICON_ERROR; }
 		return ICON_DEFAULT;
 	}
 
@@ -121,8 +124,10 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					
 					if (engineered.type === 'unlimited') {
 						statusBarItem.text = `✨ AI ∞%`;
+						lastReportedPercentage = 100;
 					} else {
 						const globalPct = Math.round(engineered.percentage);
+						lastReportedPercentage = globalPct;
 						statusBarItem.text = `${getStatusBarIcon(globalPct)} AI ${globalPct}%`;
 					}
 				}
@@ -147,9 +152,14 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					void fetchAndUpdateQuota(true);
 				}, 0);
 			} else {
-				fetchTimer = setTimeout(() => {
-					void fetchAndUpdateQuota();
-				}, POLLING_INTERVAL_MS);
+				// Reloj Adaptativo y Despertador: 
+				// Solo programar si la ventana está activa.
+				if (vscode.window.state.focused) {
+					const nextInterval = lastReportedPercentage <= 20 ? POLLING_INTERVAL_FAST_MS : POLLING_INTERVAL_NORMAL_MS;
+					fetchTimer = setTimeout(() => {
+						void fetchAndUpdateQuota();
+					}, nextInterval);
+				}
 			}
 		}
 	}
@@ -168,6 +178,44 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	const refreshCmd = vscode.commands.registerCommand('atm.dataId.refreshConsumption', forceRefresh);
 	const showCmd = vscode.commands.registerCommand('atm.dataId.showConsumption', forceRefresh);
 
+	// ── Event Listeners (Impacto y Foco) ─────────────────────────────
+
+	// 1. Despertador Inteligente (Focus)
+	const windowStateSub = vscode.window.onDidChangeWindowState((state) => {
+		if (state.focused) {
+			// Actualizar de inmediato al volver a VS Code
+			void fetchAndUpdateQuota();
+		} else {
+			// Pausar reloj (ahorro 100% de CPU/Batería backgroud)
+			if (fetchTimer) {
+				clearTimeout(fetchTimer);
+				fetchTimer = null;
+			}
+		}
+	});
+
+	// 2. Detector de Impacto (Bloques de códgo / IA)
+	let debounceTimer: NodeJS.Timeout | null = null;
+	const textDocSub = vscode.workspace.onDidChangeTextDocument((e) => {
+		// Solo escaneamos en archivos reales
+		if (e.document.uri.scheme !== 'file') { return; }
+
+		const hasLargeInsert = e.contentChanges.some(change => {
+			const text = change.text;
+			if (!text) { return false; }
+			const lineCount = (text.match(/\n/g) || []).length;
+			return lineCount >= 3;
+		});
+
+		if (hasLargeInsert) {
+			if (debounceTimer) { clearTimeout(debounceTimer); }
+			// Amortiguador de 5 seg para no hacer spam al servidor
+			debounceTimer = setTimeout(() => {
+				void fetchAndUpdateQuota();
+			}, 5000);
+		}
+	});
+
 	// ── Bootstrap ────────────────────────────────────────────────────
 
 	fetchTimer = setTimeout(() => fetchAndUpdateQuota(), INITIAL_DELAY_MS);
@@ -178,9 +226,12 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 		statusBarItem,
 		refreshCmd,
 		showCmd,
+		windowStateSub,
+		textDocSub,
 		{
 			dispose: () => {
 				if (fetchTimer) { clearTimeout(fetchTimer); }
+				if (debounceTimer) { clearTimeout(debounceTimer); }
 				quotaManager.dispose();
 			}
 		}
