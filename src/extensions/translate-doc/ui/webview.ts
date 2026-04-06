@@ -188,23 +188,36 @@ export class TranslatorWebviewPanel {
 
   private _buildHtml(isLoading: boolean, content: string): string {
     const skeleton = `
-      <div class="skeleton">
-        <div class="sk-title" style="width:60%"></div>
-        <div class="sk-line" style="width:95%"></div>
-        <div class="sk-line" style="width:90%"></div>
-        <div class="sk-line" style="width:70%; margin-bottom: 28px;"></div>
+      <div class="skeleton-doc">
+        <!-- Big Document Title -->
+        <div class="sk-doc-item sk-title"></div>
         
-        <div class="sk-title" style="width:35%; height:28px;"></div>
-        <div class="sk-line" style="width:100%"></div>
-        <div class="sk-line" style="width:88%"></div>
-        <div class="sk-line" style="width:60%"></div>
-        <div class="sk-box"></div>
+        <!-- Subtle meta info (e.g. date, author) -->
+        <div class="sk-meta">
+          <div class="sk-doc-item sk-meta-item"></div>
+          <div class="sk-doc-item sk-meta-item" style="width: 120px;"></div>
+        </div>
         
-        <div class="sk-title" style="width:45%; height:28px;"></div>
-        <div class="sk-line" style="width:92%"></div>
-        <div class="sk-line" style="width:85%"></div>
-        <div class="sk-line" style="width:75%"></div>
-        <div class="sk-box" style="height:120px"></div>
+        <div class="sk-separator"></div>
+        
+        <!-- Introduction Paragraph -->
+        <div class="sk-paragraph">
+          <div class="sk-doc-item sk-line w-100"></div>
+          <div class="sk-doc-item sk-line w-95"></div>
+          <div class="sk-doc-item sk-line w-90"></div>
+          <div class="sk-doc-item sk-line w-60"></div>
+        </div>
+
+        <!-- Large Content Area (Image or Code space, occupies remaining height) -->
+        <div class="sk-doc-item sk-block-large"></div>
+        
+        <!-- Secondary Section Header & List -->
+        <div class="sk-doc-item sk-line w-40" style="height: 22px; margin-bottom: 8px;"></div>
+        <div class="sk-list">
+          <div class="sk-list-item"><div class="sk-bullet"></div><div class="sk-doc-item sk-line w-85"></div></div>
+          <div class="sk-list-item"><div class="sk-bullet"></div><div class="sk-doc-item sk-line w-100"></div></div>
+          <div class="sk-list-item"><div class="sk-bullet"></div><div class="sk-doc-item sk-line w-60"></div></div>
+        </div>
       </div>`;
 
     const cspSource = this._panel.webview.cspSource;

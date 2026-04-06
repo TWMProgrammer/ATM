@@ -11,54 +11,76 @@ body {
   margin: 0;
 }
 
-/* ── Skeleton loading ──────────────────────────────────── */
-.skeleton { 
-  min-height: calc(100vh - 88px); 
-  display: flex; 
+/* ── Skeleton loading (Minimalist Document) ─────────────── */
+.skeleton-doc {
+  display: flex;
   flex-direction: column;
+  height: calc(100vh - 88px);
+  gap: 20px;
   padding-top: 10px;
 }
 
-.sk-title, .sk-line, .sk-box {
-  background: var(--vscode-editor-inactiveSelectionBackground, rgba(128, 128, 128, 0.1));
+.sk-doc-item {
+  /* Ignoring VS Code theme for a strict modern gray/black semi-translucent look */
+  background: rgba(140, 140, 140, 0.12);
+  border-radius: 4px; /* Sharper, more minimalist edges */
   position: relative;
   overflow: hidden;
-  border-radius: 6px;
 }
 
-/* Modern shimmer effect */
-.sk-title::after, .sk-line::after, .sk-box::after {
+.sk-doc-item::after {
   content: "";
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  inset: 0;
   transform: translateX(-100%);
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--vscode-editor-hoverHighlightBackground, rgba(128, 128, 128, 0.15)) 50%,
+    rgba(200, 200, 200, 0.1) 50%,
     transparent 100%
   );
-  animation: shimmer 1.5s infinite;
+  animation: sk-gleam 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes shimmer {
+@keyframes sk-gleam {
   100% { transform: translateX(100%); }
 }
 
-.sk-title {
-  height: 36px; 
-  width: 45%;
-  margin-bottom: 24px; 
-}
-.sk-line {
-  height: 16px;
-  margin-bottom: 12px; 
-}
-.sk-box {
-  height: 160px;
-  margin: 20px 0; 
+/* Document Title */
+.sk-title { width: 70%; height: 38px; border-radius: 6px; margin-bottom: 8px; }
+
+/* Meta data / Tags */
+.sk-meta { display: flex; gap: 12px; margin-bottom: 12px; }
+.sk-meta-item { width: 80px; height: 18px; border-radius: 10px; background: rgba(140, 140, 140, 0.08); }
+
+/* Separator */
+.sk-separator { height: 1px; width: 100%; background: rgba(140, 140, 140, 0.2); }
+
+/* Paragraph blocks */
+.sk-paragraph { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.sk-line { height: 14px; border-radius: 4px; }
+.sk-line.w-100 { width: 100%; }
+.sk-line.w-95 { width: 95%; }
+.sk-line.w-90 { width: 90%; }
+.sk-line.w-85 { width: 85%; }
+.sk-line.w-60 { width: 60%; }
+.sk-line.w-40 { width: 40%; }
+
+/* Code Block / Image placeholder that grows to fill remaining height */
+.sk-block-large {
+  flex: 1; /* stretches to fill height */
+  width: 100%;
   border-radius: 8px;
+  background: rgba(100, 100, 100, 0.08);
+  border: 1px solid rgba(140, 140, 140, 0.08);
+  min-height: 180px;
+  margin: 10px 0;
 }
+
+/* List Items */
+.sk-list { display: flex; flex-direction: column; gap: 12px; margin-left: 20px;}
+.sk-list-item { display: flex; align-items: center; gap: 12px; }
+.sk-bullet { width: 8px; height: 8px; border-radius: 50%; background: rgba(140, 140, 140, 0.15); flex-shrink: 0;}
 
 /* ── Content fade-in ───────────────────────────────────── */
 .content { animation: fadeIn .6s ease-out forwards; opacity: 0; }
