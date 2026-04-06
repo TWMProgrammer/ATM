@@ -25,6 +25,9 @@
     ],
     "atm.codeSpell.customWords": [
         "pomo",
-        "dotenv"
+        "dotenv",
+        "linters",
+        "pomodoro",
+        "optimizer"
     ]
 }

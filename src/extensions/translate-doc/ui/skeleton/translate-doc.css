@@ -11,32 +11,76 @@ body {
   margin: 0;
 }
 
-/* ── Skeleton loading ──────────────────────────────────── */
-.skeleton { animation: fadeIn .4s ease-in; min-height: calc(100vh - 88px); }
-
-.sk-title {
-  height: 30px; width: 40%;
-  background: var(--vscode-editor-inactiveSelectionBackground);
-  margin-bottom: 22px; border-radius: 4px;
-  animation: pulse 1.4s infinite;
-}
-.sk-line {
-  height: 14px;
-  background: var(--vscode-editor-inactiveSelectionBackground);
-  margin-bottom: 10px; border-radius: 4px;
-  animation: pulse 1.4s infinite;
-}
-.sk-box {
-  height: 140px;
-  background: var(--vscode-editor-inactiveSelectionBackground);
-  margin: 20px 0; border-radius: 6px;
-  animation: pulse 1.4s infinite;
+/* ── Skeleton loading (Minimalist Document) ─────────────── */
+.skeleton-doc {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 88px);
+  gap: 20px;
+  padding-top: 10px;
 }
 
-@keyframes pulse {
-  0%,100% { opacity: .45; }
-  50%     { opacity: .75; }
+.sk-doc-item {
+  /* Ignoring VS Code theme for a strict modern gray/black semi-translucent look */
+  background: rgba(140, 140, 140, 0.12);
+  border-radius: 4px; /* Sharper, more minimalist edges */
+  position: relative;
+  overflow: hidden;
 }
+
+.sk-doc-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(200, 200, 200, 0.1) 50%,
+    transparent 100%
+  );
+  animation: sk-gleam 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes sk-gleam {
+  100% { transform: translateX(100%); }
+}
+
+/* Document Title */
+.sk-title { width: 70%; height: 38px; border-radius: 6px; margin-bottom: 8px; }
+
+/* Meta data / Tags */
+.sk-meta { display: flex; gap: 12px; margin-bottom: 12px; }
+.sk-meta-item { width: 80px; height: 18px; border-radius: 10px; background: rgba(140, 140, 140, 0.08); }
+
+/* Separator */
+.sk-separator { height: 1px; width: 100%; background: rgba(140, 140, 140, 0.2); }
+
+/* Paragraph blocks */
+.sk-paragraph { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.sk-line { height: 14px; border-radius: 4px; }
+.sk-line.w-100 { width: 100%; }
+.sk-line.w-95 { width: 95%; }
+.sk-line.w-90 { width: 90%; }
+.sk-line.w-85 { width: 85%; }
+.sk-line.w-60 { width: 60%; }
+.sk-line.w-40 { width: 40%; }
+
+/* Code Block / Image placeholder that grows to fill remaining height */
+.sk-block-large {
+  flex: 1; /* stretches to fill height */
+  width: 100%;
+  border-radius: 8px;
+  background: rgba(100, 100, 100, 0.08);
+  border: 1px solid rgba(140, 140, 140, 0.08);
+  min-height: 180px;
+  margin: 10px 0;
+}
+
+/* List Items */
+.sk-list { display: flex; flex-direction: column; gap: 12px; margin-left: 20px;}
+.sk-list-item { display: flex; align-items: center; gap: 12px; }
+.sk-bullet { width: 8px; height: 8px; border-radius: 50%; background: rgba(140, 140, 140, 0.15); flex-shrink: 0;}
 
 /* ── Content fade-in ───────────────────────────────────── */
 .content { animation: fadeIn .6s ease-out forwards; opacity: 0; }

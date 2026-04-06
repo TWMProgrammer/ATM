@@ -2,18 +2,19 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "publisher": "bastndev",
   "license": "MIT",
   "engines": {
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Linters",
-    "Other",
     "Programming Languages",
+    "Machine Learning",
     "Visualization",
-    "Snippets"
+    "Snippets",
+    "Linters",
+    "Other"
   ],
   "keywords": [
     "error lens",

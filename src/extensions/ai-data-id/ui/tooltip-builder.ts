@@ -110,35 +110,95 @@ export type EngineeredCreditsResult =
 	| { type: 'unlimited' };
 
 /**
+ * Core configuration for model categorization.
+ * Maps keywords (found in modelId or label) to their respective "Baskets".
+ */
+const MODEL_BASKETS = {
+	PRO: {
+		keywords: ['pro', 'ultra'],              // Gemini Pro / Ultra variants only
+		monthlyAllocation: 2000
+	},
+	FLASH: {
+		keywords: ['flash', 'fast', 'haiku', 'lite'],
+		monthlyAllocation: 1000
+	},
+	THIRD_PARTY: {
+		keywords: ['claude', 'sonnet', 'opus', 'gpt-oss', 'llama', 'deepseek'],
+		monthlyAllocation: 2000                   // Claude + GPT-OSS share one pool
+	}
+};
+
+/**
  * Computes a synthetic credit score from model quotas.
  * FREE: 5 000 max · PRO: 50 000 max · ULTRA: unlimited.
+ * Links connected models by treating them as aggregated "Baskets".
  */
 export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 'FREE' | 'PRO' | 'ULTRA'): EngineeredCreditsResult {
 	if (tier === 'ULTRA') { return { type: 'unlimited' }; }
 
-	const mult           = tier === 'PRO' ? 10 : 1;
-	const MONTHLY_PRO    = 2000 * mult;
-	const MONTHLY_THIRD  = 2000 * mult;
-	const MONTHLY_FLASH  = 1000 * mult;
+	const tierMultiplier = tier === 'PRO' ? 10 : 1;
+	
+	// Track allocations dynamically
+	let totalAvailable = 0;
+	let totalMonthly = 0;
 
-	const getPct = (matchers: string[]) => {
-		const match = models.filter(m => matchers.some(s => m.label.includes(s)));
-		if (!match.length) { return 1.0; }
-		const first = match[0];
-		if (first.isExhausted) { return 0.0; }
-		return first.remainingPercentage !== undefined ? first.remainingPercentage / 100 : 1.0;
+	// Process each basket
+	for (const [basketName, config] of Object.entries(MODEL_BASKETS)) {
+		const monthlyForBasket = config.monthlyAllocation * tierMultiplier;
+		totalMonthly += monthlyForBasket;
+
+		// Find ALL models belonging to this basket
+		const matchingModels = models.filter(m => {
+			const idOrLabel = (m.modelId + ' ' + m.label).toLowerCase();
+			return config.keywords.some(kw => idOrLabel.includes(kw));
+		});
+
+		let basketAvailablePct = 0;
+
+		if (matchingModels.length > 0) {
+			// If connected models share quota, they usually drain at the same rate or
+			// getting exhausted in one affects the others.
+			// We take the minimum remaining percentage among matching models to be safe,
+			// or average them. Let's use the first non-exhausted one, or 0 if all exhausted,
+			// or average. Taking the minimum is safest.
+			let minPct = 100;
+			let foundFinite = false;
+
+			for (const m of matchingModels) {
+				if (m.isExhausted) {
+					minPct = 0;
+					foundFinite = true;
+					break; // If one is exhausted, the whole connected pool is usually exhausted
+				}
+				if (m.remainingPercentage !== undefined) {
+					minPct = Math.min(minPct, m.remainingPercentage);
+					foundFinite = true;
+				}
+			}
+
+			if (foundFinite) {
+				basketAvailablePct = minPct / 100;
+			} else {
+				// All matching models have undefined percentage (unlimited but not exhausted)
+				basketAvailablePct = 1.0;
+			}
+		} else {
+			// CRITICAL FIX: If a basket is missing from the server, 
+			// we assume 0 credits for it, we do NOT assume 100%.
+			basketAvailablePct = 0;
+		}
+
+		totalAvailable += (basketAvailablePct * monthlyForBasket);
+	}
+
+	const percentage = totalMonthly > 0 ? (totalAvailable / totalMonthly) * 100 : 0;
+
+	return { 
+		type: 'measured', 
+		available: Math.ceil(totalAvailable), 
+		monthly: totalMonthly, 
+		percentage 
 	};
-
-	const available = Math.ceil(
-		getPct(['Flash'])                  * MONTHLY_FLASH +
-		getPct(['Pro (High)', 'Pro (Low)']) * MONTHLY_PRO   +
-		getPct(['Claude', 'GPT-OSS'])      * MONTHLY_THIRD
-	);
-
-	const monthly    = MONTHLY_FLASH + MONTHLY_PRO + MONTHLY_THIRD;
-	const percentage = (available / monthly) * 100;
-
-	return { type: 'measured', available, monthly, percentage };
 }
 
 // ── Tooltip sections ─────────────────────────────────────────────────
