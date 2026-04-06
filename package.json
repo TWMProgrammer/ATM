@@ -9,11 +9,12 @@
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Linters",
-    "Other",
     "Programming Languages",
+    "Machine Learning",
     "Visualization",
-    "Snippets"
+    "Snippets",
+    "Linters",
+    "Other"
   ],
   "keywords": [
     "error lens",
