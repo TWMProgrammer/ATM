@@ -1,5 +1,5 @@
 {
-  "extension.displayName": "ATM (Всё-в-одном)",
+  "extension.displayName": "ᐱ T ꓟ",
   "extension.description": "⚡ Универсальный инструментарий — Error Lens · Git Blame · Защита Env · Предпросмотр изображений · Скриншот кода · Голос TTS · Помодоро · Оптимизатор SVG · MDX · Данные AI · Проверка орфографии · Переводчик и др. Работает в VS Code, Cursor, Windsurf, Trae.ai и Kiro.",
   "command.voiceTts.read": "ATM Голос TTS: Копировать и читать",
   "command.comments.list": "ATM: Список аннотаций TODO / FIXME",
