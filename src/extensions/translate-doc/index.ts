@@ -80,17 +80,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
     const panel = TranslatorWebviewPanel.createOrShow(context.extensionUri, target);
 
     const controller = new AbortController();
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: `Translating to ${lang.label}…`,
-        cancellable: true,
-      },
-      async (_progress, token) => {
-        token.onCancellationRequested(() => controller.abort());
-        await translateAndRender(panel, targetText, lang.code, controller.signal);
-      }
-    );
+    await translateAndRender(panel, targetText, lang.code, controller.signal);
   };
 
   const translateReleaseNotesHandler = async () => {
@@ -114,28 +104,18 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
     panel.setSkeleton();
 
     const controller = new AbortController();
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: `Translating to ${lang.label}…`,
-        cancellable: true,
-      },
-      async (_progress, token) => {
-        token.onCancellationRequested(() => controller.abort());
-        try {
-          const markdown = await fetchReleaseNotesMarkdown(versionInfo.version);
-          if (!markdown) {
-            throw new Error('Could not fetch the release notes content.');
-          }
-
-          const cleanMarkdown = preprocessReleaseNotesMarkdown(markdown, lang.code);
-          await translateAndRender(panel, cleanMarkdown, lang.code, controller.signal);
-        } catch (error: any) {
-          vscode.window.showErrorMessage(`Failed to translate Release Notes: ${error.message}`);
-          panel.setError('Could not load or translate the release notes. Please check your connection.');
-        }
+    try {
+      const markdown = await fetchReleaseNotesMarkdown(versionInfo.version);
+      if (!markdown) {
+        throw new Error('Could not fetch the release notes content.');
       }
-    );
+
+      const cleanMarkdown = preprocessReleaseNotesMarkdown(markdown, lang.code);
+      await translateAndRender(panel, cleanMarkdown, lang.code, controller.signal);
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`Failed to translate Release Notes: ${error.message}`);
+      panel.setError('Could not load or translate the release notes. Please check your connection.');
+    }
   };
 
   context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.translateExtension, translateExtensionHandler));
