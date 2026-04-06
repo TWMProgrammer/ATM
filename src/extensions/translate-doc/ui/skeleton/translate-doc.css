@@ -12,30 +12,52 @@ body {
 }
 
 /* ── Skeleton loading ──────────────────────────────────── */
-.skeleton { animation: fadeIn .4s ease-in; min-height: calc(100vh - 88px); }
+.skeleton { 
+  min-height: calc(100vh - 88px); 
+  display: flex; 
+  flex-direction: column;
+  padding-top: 10px;
+}
+
+.sk-title, .sk-line, .sk-box {
+  background: var(--vscode-editor-inactiveSelectionBackground, rgba(128, 128, 128, 0.1));
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+/* Modern shimmer effect */
+.sk-title::after, .sk-line::after, .sk-box::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--vscode-editor-hoverHighlightBackground, rgba(128, 128, 128, 0.15)) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
 
 .sk-title {
-  height: 30px; width: 40%;
-  background: var(--vscode-editor-inactiveSelectionBackground);
-  margin-bottom: 22px; border-radius: 4px;
-  animation: pulse 1.4s infinite;
+  height: 36px; 
+  width: 45%;
+  margin-bottom: 24px; 
 }
 .sk-line {
-  height: 14px;
-  background: var(--vscode-editor-inactiveSelectionBackground);
-  margin-bottom: 10px; border-radius: 4px;
-  animation: pulse 1.4s infinite;
+  height: 16px;
+  margin-bottom: 12px; 
 }
 .sk-box {
-  height: 140px;
-  background: var(--vscode-editor-inactiveSelectionBackground);
-  margin: 20px 0; border-radius: 6px;
-  animation: pulse 1.4s infinite;
-}
-
-@keyframes pulse {
-  0%,100% { opacity: .45; }
-  50%     { opacity: .75; }
+  height: 160px;
+  margin: 20px 0; 
+  border-radius: 8px;
 }
 
 /* ── Content fade-in ───────────────────────────────────── */

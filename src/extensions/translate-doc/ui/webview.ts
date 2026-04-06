@@ -87,7 +87,7 @@ export class TranslatorWebviewPanel {
     }
 
     // --- Resource roots ---
-    const resourceRoots: vscode.Uri[] = [vscode.Uri.joinPath(extensionUri, 'assets')];
+    const resourceRoots: vscode.Uri[] = [vscode.Uri.joinPath(extensionUri, 'src')];
     if (target?.extensionUri) {
       resourceRoots.push(target.extensionUri);
     }
@@ -189,31 +189,27 @@ export class TranslatorWebviewPanel {
   private _buildHtml(isLoading: boolean, content: string): string {
     const skeleton = `
       <div class="skeleton">
-        <div class="sk-title"></div>
-        <div class="sk-line" style="width:80%"></div>
-        <div class="sk-line" style="width:92%"></div>
-        <div class="sk-line" style="width:65%"></div>
-        <div class="sk-box"></div>
-        <div class="sk-line" style="width:85%"></div>
-        <div class="sk-line" style="width:55%"></div>
-        <div class="sk-line" style="width:75%"></div>
-        <div class="sk-box" style="height:100px"></div>
-        <div class="sk-line" style="width:60%"></div>
-        <div class="sk-line" style="width:88%"></div>
-        <div class="sk-line" style="width:70%"></div>
-        <div class="sk-title" style="width:35%;margin-top:28px"></div>
-        <div class="sk-line" style="width:78%"></div>
+        <div class="sk-title" style="width:60%"></div>
+        <div class="sk-line" style="width:95%"></div>
         <div class="sk-line" style="width:90%"></div>
-        <div class="sk-line" style="width:50%"></div>
+        <div class="sk-line" style="width:70%; margin-bottom: 28px;"></div>
+        
+        <div class="sk-title" style="width:35%; height:28px;"></div>
+        <div class="sk-line" style="width:100%"></div>
+        <div class="sk-line" style="width:88%"></div>
+        <div class="sk-line" style="width:60%"></div>
+        <div class="sk-box"></div>
+        
+        <div class="sk-title" style="width:45%; height:28px;"></div>
+        <div class="sk-line" style="width:92%"></div>
+        <div class="sk-line" style="width:85%"></div>
+        <div class="sk-line" style="width:75%"></div>
         <div class="sk-box" style="height:120px"></div>
-        <div class="sk-line" style="width:82%"></div>
-        <div class="sk-line" style="width:68%"></div>
-        <div class="sk-line" style="width:74%"></div>
       </div>`;
 
     const cspSource = this._panel.webview.cspSource;
     const cssUri = this._panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'assets', 'translate-doc.css')
+      vscode.Uri.joinPath(this._extensionUri, 'src', 'extensions', 'translate-doc', 'ui', 'skeleton', 'translate-doc.css')
     );
 
     return /* html */ `
