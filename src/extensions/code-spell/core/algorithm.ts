@@ -8,8 +8,8 @@ let cachedDictionaryArray: string[] | null = null;
  * Excellent for capturing typos and transposed letters.
  */
 function diceCoefficient(a: string, b: string): number {
-  if (a === b) return 1;
-  if (a.length < 2 || b.length < 2) return 0;
+  if (a === b) {return 1;}
+  if (a.length < 2 || b.length < 2) {return 0;}
   
   const aBigrams = new Map<string, number>();
   for (let i = 0; i < a.length - 1; i++) {
