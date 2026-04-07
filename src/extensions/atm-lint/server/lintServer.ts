@@ -47,9 +47,7 @@ connection.onInitialize((params: InitializeParams) => {
 	// Pass workspace roots to the engine for proper cwd resolution
 	const workspaceRoots = (params.workspaceFolders ?? [])
 		.map(folder => URI.parse(folder.uri).fsPath);
-	if (workspaceRoots.length > 0) {
-		engine.setWorkspaceRoots(workspaceRoots);
-	}
+	engine.setWorkspaceRoots(workspaceRoots);
 
 	const result: InitializeResult = {
 		capabilities: {
@@ -75,6 +73,17 @@ connection.onInitialized(() => {
 	if (hasConfigurationCapability) {
 		connection.client.register(DidChangeConfigurationNotification.type, undefined);
 	}
+
+	if (hasWorkspaceFolderCapability) {
+		connection.workspace.onDidChangeWorkspaceFolders(() => {
+			void (async () => {
+				await refreshWorkspaceRoots();
+				engine.resetInstances();
+				await revalidateOpenDocuments();
+			})();
+		});
+	}
+
 	void refreshSettings();
 	connection.console.log('[Server] ATM Lint Server initialized.');
 });
@@ -151,6 +160,22 @@ async function refreshSettings(): Promise<void> {
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		globalSettings = defaultSettings;
 		connection.console.log(`[Server] Failed to load settings, using defaults: ${errorMessage}`);
+	}
+}
+
+async function refreshWorkspaceRoots(): Promise<void> {
+	if (!hasWorkspaceFolderCapability) {
+		return;
+	}
+
+	try {
+		const folders = await connection.workspace.getWorkspaceFolders();
+		const workspaceRoots = (folders ?? []).map(folder => URI.parse(folder.uri).fsPath);
+		engine.setWorkspaceRoots(workspaceRoots);
+		connection.console.log(`[Server] Workspace roots refreshed: ${workspaceRoots.length}`);
+	} catch (error: unknown) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		connection.console.log(`[Server] Failed to refresh workspace roots: ${errorMessage}`);
 	}
 }
 

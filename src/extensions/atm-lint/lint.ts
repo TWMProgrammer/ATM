@@ -1,7 +1,7 @@
 // Barrel file to orchestrate the Lint client and ATM integration
 import { ExtensionContext } from 'vscode';
-import { activateLintClient, deactivateLintClient, revalidateOpenDocuments, startClient, stopClient } from './client/lintClient';
-import { activateStatusBar } from './client/statusBar';
+import { activateLintClient, deactivateLintClient, isClientRunning, revalidateOpenDocuments, startClient, stopClient } from './client/lintClient';
+import { activateStatusBar, updateStatusBar } from './client/statusBar';
 import { activateCommands } from './client/commands';
 
 export function activateLint(context: ExtensionContext) {
@@ -18,10 +18,11 @@ export function activateLint(context: ExtensionContext) {
         } else {
             await stopClient();
         }
-    }, async () => revalidateOpenDocuments());
+    }, async () => revalidateOpenDocuments(), () => isClientRunning());
 
     // Start the server by default
     void startClient().catch((error: unknown) => {
+        updateStatusBar(false);
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[ATM Lint] Failed to start client: ${errorMessage}`);
     });

@@ -4,23 +4,22 @@ import { updateStatusBar } from './statusBar';
 export function activateCommands(
     context: vscode.ExtensionContext,
     toggleClient: (enable: boolean) => Promise<void>,
-    revalidateDiagnostics: () => Promise<number>
+    revalidateDiagnostics: () => Promise<number>,
+    isClientEnabled: () => boolean
 ) {
-    let isEnabled = true;
-
     // Toggle command: Enables/disables the engine
     const toggleCommand = vscode.commands.registerCommand('atm.lint.toggle', async () => {
-        const nextState = !isEnabled;
+        const nextState = !isClientEnabled();
 
         try {
             // Notify the client to start or stop the LSP server
             await toggleClient(nextState);
 
-            // Update state only after successful start/stop
-            isEnabled = nextState;
-            updateStatusBar(isEnabled);
+            // Reflect real client state after toggling.
+            updateStatusBar(isClientEnabled());
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
+            updateStatusBar(isClientEnabled());
             vscode.window.showErrorMessage(`ATM Lint toggle failed: ${errorMessage}`);
         }
     });

@@ -10,6 +10,10 @@ import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '..
 
 let client: LanguageClient;
 
+export function isClientRunning(): boolean {
+	return !!client && client.isRunning();
+}
+
 export function activateLintClient(context: ExtensionContext) {
 	// 1. Path to the server
 	const serverModule = context.asAbsolutePath(path.join('dist', 'lintServer.js'));
@@ -57,19 +61,19 @@ export function activateLintClient(context: ExtensionContext) {
 }
 
 export async function startClient() {
-	if (client && !client.isRunning()) {
+	if (client && !isClientRunning()) {
 		await client.start();
 	}
 }
 
 export async function stopClient(): Promise<void> {
-	if (client && client.isRunning()) {
+	if (isClientRunning()) {
 		await client.stop();
 	}
 }
 
 export async function revalidateOpenDocuments(): Promise<number> {
-	if (!client || !client.isRunning()) {
+	if (!isClientRunning()) {
 		return 0;
 	}
 

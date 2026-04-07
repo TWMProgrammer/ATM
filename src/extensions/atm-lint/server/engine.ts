@@ -115,7 +115,7 @@ export class LintEngine {
 			this.instances.delete(cwd);
 			this.clearDocumentData(uri);
 
-			return [];
+			return [this.createEngineFailureDiagnostic(errorMessage)];
 		}
 	}
 
@@ -248,13 +248,14 @@ export class LintEngine {
 		const startChar = Math.max(0, msg.column - 1);
 		const endLine = msg.endLine ? Math.max(0, msg.endLine - 1) : startLine;
 		const endChar = msg.endColumn ? Math.max(0, msg.endColumn - 1) : startChar + 1;
+		const messageSuffix = msg.ruleId ? ` (${msg.ruleId})` : '';
 
 		return {
 			range: {
 				start: { line: startLine, character: startChar },
 				end: { line: endLine, character: endChar }
 			},
-			message: `${msg.message} (${msg.ruleId})`,
+			message: `${msg.message}${messageSuffix}`,
 			severity: this.mapSeverity(msg.severity),
 			source: 'Lint (ATM)',
 			code: msg.ruleId || undefined,
@@ -263,6 +264,19 @@ export class LintEngine {
 				suggestions: msg.suggestions,
 				textVersion: this.documentVersion.get(uri)
 			}
+		};
+	}
+
+	private createEngineFailureDiagnostic(errorMessage: string): Diagnostic {
+		return {
+			range: {
+				start: { line: 0, character: 0 },
+				end: { line: 0, character: 0 }
+			},
+			message: `ATM Lint could not run ESLint: ${errorMessage}`,
+			severity: DiagnosticSeverity.Warning,
+			source: 'Lint (ATM)',
+			code: 'atm-lint/eslint-runtime'
 		};
 	}
 

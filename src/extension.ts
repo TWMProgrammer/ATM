@@ -38,5 +38,5 @@ export async function deactivate(): Promise<void> {
   deactivateTranslateDoc();
   await deactivateColorDebugging();
   deactivateFocus();
-  deactivateLint();
+  await deactivateLint();
 }
