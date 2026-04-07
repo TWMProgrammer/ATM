@@ -61,13 +61,11 @@
   "sponsor": {
     "url": "https://github.com/sponsors/bastndev"
   },
-
   "activationEvents": [
     "onStartupFinished",
     "onLanguage:dotenv"
   ],
   "main": "./dist/extension.js",
-
   "contributes": {
     "commands": [
       {
@@ -585,7 +583,6 @@
       ]
     }
   },
-
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",
     "file-type": "^21.3.3",
@@ -598,9 +595,11 @@
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
     "semver": "^7.7.4",
-    "svgo": "^4.0.1"
+    "svgo": "^4.0.1",
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1"
   },
-    "scripts": {
+  "scripts": {
     "check-types": "tsc --noEmit",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
     "compile-tests": "tsc -p . --outDir out",
