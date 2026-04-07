@@ -149,6 +149,10 @@
         "command": "envLens.enableBlur",
         "title": "%command.env.enableBlur%",
         "icon": "$(eye)"
+      },
+      {
+        "command": "atm.eslint.toggle",
+        "title": "ATM: Toggle ESLint"
       }
     ],
     "configuration": {

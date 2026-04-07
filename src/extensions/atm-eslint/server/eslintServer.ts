@@ -31,7 +31,11 @@ connection.onInitialize((params: InitializeParams) => {
 
 	const result: InitializeResult = {
 		capabilities: {
-			textDocumentSync: TextDocumentSyncKind.Incremental,
+			textDocumentSync: {
+				openClose: true,
+				change: TextDocumentSyncKind.Incremental,
+				save: true
+			},
 			codeActionProvider: true,
 		}
 	};
@@ -50,9 +54,38 @@ connection.onInitialized(() => {
 	connection.console.log('[Server] ATM ESLint Server initialized.');
 });
 
-documents.onDidChangeContent(change => {
-	validateTextDocument(change.document);
+connection.onDidChangeConfiguration(() => {
+	engine.resetInstances();
+	revalidateOpenDocuments();
 });
+
+connection.onDidChangeWatchedFiles(() => {
+	engine.resetInstances();
+	revalidateOpenDocuments();
+});
+
+documents.onDidOpen(change => {
+	void validateTextDocument(change.document);
+});
+
+documents.onDidChangeContent(change => {
+	void validateTextDocument(change.document);
+});
+
+documents.onDidSave(change => {
+	void validateTextDocument(change.document);
+});
+
+documents.onDidClose(change => {
+	engine.clearDocumentData(change.document.uri);
+	connection.sendDiagnostics({ uri: change.document.uri, diagnostics: [] });
+});
+
+function revalidateOpenDocuments(): void {
+	for (const document of documents.all()) {
+		void validateTextDocument(document);
+	}
+}
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	const filePath = URI.parse(textDocument.uri).fsPath;

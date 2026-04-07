@@ -21,7 +21,10 @@ export function activateEslint(context: ExtensionContext) {
     });
 
     // Start the server by default
-    startClient();
+    void startClient().catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[ATM ESLint] Failed to start client: ${errorMessage}`);
+    });
 }
 
 export function deactivateEslint(): Thenable<void> | undefined {

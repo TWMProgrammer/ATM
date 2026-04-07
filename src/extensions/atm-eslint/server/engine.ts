@@ -42,6 +42,11 @@ export class EslintEngine {
 		this.log('[Engine] All cached ESLint instances cleared.');
 	}
 
+	public clearDocumentData(uri: string): void {
+		this.lastReportedMessages.delete(uri);
+		this.lastDocumentText.delete(uri);
+	}
+
 	public async lintText(text: string, filePath: string, uri: string): Promise<Diagnostic[]> {
 		try {
 			const cwd = path.dirname(filePath);
@@ -49,7 +54,10 @@ export class EslintEngine {
 
 			const results = await eslint.lintText(text, { filePath });
 			const result = results[0];
-			if (!result) return [];
+			if (!result) {
+				this.clearDocumentData(uri);
+				return [];
+			}
 
 			this.lastReportedMessages.set(uri, result.messages);
 			this.lastDocumentText.set(uri, text);
@@ -63,6 +71,7 @@ export class EslintEngine {
 
 			const cwd = path.dirname(filePath);
 			this.instances.delete(cwd);
+			this.clearDocumentData(uri);
 
 			return [];
 		}
