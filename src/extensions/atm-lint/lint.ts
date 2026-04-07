@@ -1,12 +1,12 @@
-// Barrel file to orchestrate the ESLint client and ATM integration
+// Barrel file to orchestrate the Lint client and ATM integration
 import { ExtensionContext } from 'vscode';
-import { activateEslintClient, deactivateEslintClient, revalidateOpenDocuments, startClient, stopClient } from './client/eslintClient';
+import { activateLintClient, deactivateLintClient, revalidateOpenDocuments, startClient, stopClient } from './client/lintClient';
 import { activateStatusBar } from './client/statusBar';
 import { activateCommands } from './client/commands';
 
-export function activateEslint(context: ExtensionContext) {
+export function activateLint(context: ExtensionContext) {
     // 1. Setup LSP client
-    activateEslintClient(context);
+    activateLintClient(context);
 
     // 2. Initialize Status Bar icon
     activateStatusBar(context);
@@ -23,10 +23,10 @@ export function activateEslint(context: ExtensionContext) {
     // Start the server by default
     void startClient().catch((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error(`[ATM ESLint] Failed to start client: ${errorMessage}`);
+        console.error(`[ATM Lint] Failed to start client: ${errorMessage}`);
     });
 }
 
-export function deactivateEslint(): Thenable<void> | undefined {
-    return deactivateEslintClient();
+export function deactivateLint(): Thenable<void> | undefined {
+    return deactivateLintClient();
 }

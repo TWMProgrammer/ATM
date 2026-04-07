@@ -11,7 +11,7 @@ import {
 
 type LogFn = (message: string) => void;
 
-type EslintFix = {
+type LintFix = {
 	range: [number, number];
 	text: string;
 };
@@ -20,7 +20,7 @@ type CodeActionOptions = {
 	includeSuggestions?: boolean;
 };
 
-export class EslintEngine {
+export class LintEngine {
 	private instances: Map<string, ESLint> = new Map();
 	private documentVersion: Map<string, number> = new Map();
 	private lastDocumentText: Map<string, string> = new Map();
@@ -89,7 +89,7 @@ export class EslintEngine {
 	public getCodeActions(uri: string, diagnostic: Diagnostic, options: CodeActionOptions = {}): CodeAction[] {
 		const includeSuggestions = options.includeSuggestions ?? true;
 		const text = this.lastDocumentText.get(uri);
-		const data = diagnostic.data as { fix?: EslintFix; suggestions?: { desc: string; fix: EslintFix }[]; textVersion?: number } | undefined;
+		const data = diagnostic.data as { fix?: LintFix; suggestions?: { desc: string; fix: LintFix }[]; textVersion?: number } | undefined;
 
 		if (!text || !data) {
 			return [];
@@ -145,7 +145,7 @@ export class EslintEngine {
 		return actions;
 	}
 
-	private buildEditFromFix(uri: string, text: string, fix: EslintFix): WorkspaceEdit | undefined {
+	private buildEditFromFix(uri: string, text: string, fix: LintFix): WorkspaceEdit | undefined {
 		const [startOffset, endOffset] = fix.range;
 		const range = this.toRangeFromOffsets(text, startOffset, endOffset);
 		if (!range) {
@@ -164,18 +164,18 @@ export class EslintEngine {
 
 	private buildFixTitle(ruleId: string | null | undefined): string {
 		if (!ruleId) {
-			return 'ESLint: Apply auto-fix';
+			return 'Lint: Apply auto-fix';
 		}
 
-		return `ESLint: Apply auto-fix (${ruleId})`;
+		return `Lint: Apply auto-fix (${ruleId})`;
 	}
 
 	private buildSuggestionTitle(description: string, ruleId: string | null | undefined): string {
 		if (!ruleId) {
-			return `ESLint: ${description}`;
+			return `Lint: ${description}`;
 		}
 
-		return `ESLint: ${description} (${ruleId})`;
+		return `Lint: ${description} (${ruleId})`;
 	}
 
 	private toRangeFromOffsets(text: string, startOffset: number, endOffset: number): Range | undefined {
@@ -223,7 +223,7 @@ export class EslintEngine {
 			},
 			message: `${msg.message} (${msg.ruleId})`,
 			severity: this.mapSeverity(msg.severity),
-			source: 'ESLint (ATM)',
+			source: 'Lint (ATM)',
 			code: msg.ruleId || undefined,
 			data: {
 				fix: msg.fix,

@@ -98,7 +98,7 @@ async function main() {
 
 	const serverCtx = await esbuild.context({
 		entryPoints: [
-			'src/extensions/atm-eslint/server/eslintServer.ts'
+			'src/extensions/atm-lint/server/eslintServer.ts'
 		],
 		bundle: true,
 		format: 'cjs',
@@ -106,7 +106,7 @@ async function main() {
 		sourcemap: !production,
 		sourcesContent: false,
 		platform: 'node',
-		outfile: 'dist/eslintServer.js',
+		outfile: 'dist/lintServer.js',
 		external: ['vscode', 'eslint'],
 		logLevel: 'silent',
 		plugins: [extensionEsbuildProblemMatcherPlugin],

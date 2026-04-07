@@ -37,7 +37,7 @@
     "run project",
     "atm",
     "color",
-    "ESLint",
+    "Lint",
     "cursor"
   ],
   "icon": "icon.png",
@@ -151,11 +151,11 @@
         "icon": "$(eye)"
       },
       {
-        "command": "atm.eslint.toggle",
+        "command": "atm.lint.toggle",
         "title": "%command.eslint.toggle%"
       },
       {
-        "command": "atm.eslint.revalidateOpenFiles",
+        "command": "atm.lint.revalidateOpenFiles",
         "title": "%command.eslint.revalidate%",
         "icon": "$(refresh)"
       }
@@ -241,10 +241,10 @@
           "default": [],
           "description": "Array of custom words added to the ATM Code-Spell dictionary."
         },
-        "atm.eslint.enableSuggestions": {
+        "atm.lint.enableSuggestions": {
           "type": "boolean",
           "default": true,
-          "description": "Enable suggestion-based ESLint Quick Fixes (for example, == to ===)."
+          "description": "Enable suggestion-based Lint Quick Fixes (for example, == to ===)."
         },
         "atm.colorBgTag.enabled": {
           "type": "boolean",

@@ -6,13 +6,13 @@ import {
 	ServerOptions,
 	TransportKind
 } from 'vscode-languageclient/node';
-import { ATM_ESLINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
+import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
 
 let client: LanguageClient;
 
-export function activateEslintClient(context: ExtensionContext) {
-	// 1. Path to the server
-	const serverModule = context.asAbsolutePath(path.join('dist', 'eslintServer.js'));
+	export function activateLintClient(context: ExtensionContext) {
+		// 1. Path to the server
+		const serverModule = context.asAbsolutePath(path.join('dist', 'lintServer.js'));
 
 	// 2. Process execution options
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
@@ -40,14 +40,14 @@ export function activateEslintClient(context: ExtensionContext) {
 		synchronize: {
 			// Notify the server about ".eslint*" file changes to clear caches
 			fileEvents: workspace.createFileSystemWatcher('**/.eslint*'),
-			configurationSection: 'atm.eslint'
+			configurationSection: 'atm.lint'
 		}
 	};
 
 	// 4. Instantiation
 	client = new LanguageClient(
-		'atmEslintServer',
-		'ATM ESLint Server',
+		'atmLintServer',
+		'ATM Lint Server',
 		serverOptions,
 		clientOptions
 	);
@@ -70,10 +70,10 @@ export async function revalidateOpenDocuments(): Promise<number> {
 		return 0;
 	}
 
-	const response = await client.sendRequest<RevalidateOpenDocumentsResponse>(ATM_ESLINT_REVALIDATE_REQUEST);
+	const response = await client.sendRequest<RevalidateOpenDocumentsResponse>(ATM_LINT_REVALIDATE_REQUEST);
 	return response.revalidatedDocuments;
 }
 
-export function deactivateEslintClient(): Thenable<void> | undefined {
+export function deactivateLintClient(): Thenable<void> | undefined {
 	return stopClient();
 }

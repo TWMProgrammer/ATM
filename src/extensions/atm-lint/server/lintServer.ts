@@ -11,24 +11,24 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
-import { EslintEngine } from './engine';
-import { ATM_ESLINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
+import { LintEngine } from './engine';
+import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
 
 const connection = createConnection(ProposedFeatures.all);
-const engine = new EslintEngine((msg) => connection.console.log(msg));
+const engine = new LintEngine((msg) => connection.console.log(msg));
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-type AtmEslintSettings = {
+type AtmLintSettings = {
 	enableSuggestions: boolean;
 };
 
-const defaultSettings: AtmEslintSettings = {
+const defaultSettings: AtmLintSettings = {
 	enableSuggestions: true
 };
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
-let globalSettings: AtmEslintSettings = defaultSettings;
+let globalSettings: AtmLintSettings = defaultSettings;
 
 connection.onInitialize((params: InitializeParams) => {
 	const capabilities = params.capabilities;
@@ -65,7 +65,7 @@ connection.onInitialized(() => {
 		connection.client.register(DidChangeConfigurationNotification.type, undefined);
 	}
 	void refreshSettings();
-	connection.console.log('[Server] ATM ESLint Server initialized.');
+	connection.console.log('[Server] ATM Lint Server initialized.');
 });
 
 connection.onDidChangeConfiguration(() => {
@@ -81,7 +81,7 @@ connection.onDidChangeWatchedFiles(() => {
 	void revalidateOpenDocuments();
 });
 
-connection.onRequest(ATM_ESLINT_REVALIDATE_REQUEST, async (): Promise<RevalidateOpenDocumentsResponse> => {
+connection.onRequest(ATM_LINT_REVALIDATE_REQUEST, async (): Promise<RevalidateOpenDocumentsResponse> => {
 	const revalidatedDocuments = await revalidateOpenDocuments();
 	return { revalidatedDocuments };
 });
@@ -110,7 +110,7 @@ async function refreshSettings(): Promise<void> {
 	}
 
 	try {
-		const userConfig = await connection.workspace.getConfiguration('atm.eslint') as Partial<AtmEslintSettings> | undefined;
+		const userConfig = await connection.workspace.getConfiguration('atm.lint') as Partial<AtmLintSettings> | undefined;
 		globalSettings = {
 			enableSuggestions: userConfig?.enableSuggestions ?? defaultSettings.enableSuggestions
 		};
@@ -140,7 +140,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 connection.onCodeAction((params) => {
 	const actions = [];
 	for (const diagnostic of params.context.diagnostics) {
-		if (diagnostic.source === 'ESLint (ATM)') {
+		if (diagnostic.source === 'Lint (ATM)') {
 			const codeActions = engine.getCodeActions(params.textDocument.uri, diagnostic, {
 				includeSuggestions: globalSettings.enableSuggestions
 			});

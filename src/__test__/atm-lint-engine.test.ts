@@ -1,41 +1,21 @@
 import * as assert from 'assert';
 import { suite, test } from 'mocha';
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
-import { EslintEngine } from '../extensions/atm-eslint/server/engine';
+import { LintEngine } from '../extensions/atm-lint/server/engine';
 
-type EngineTestInternals = {
-	lastReportedMessages: Map<string, any[]>;
-	lastDocumentText: Map<string, string>;
-};
-
-function seedEngine(engine: EslintEngine, uri: string, text: string, messages: any[]): void {
-	const internals = engine as unknown as EngineTestInternals;
-	internals.lastReportedMessages.set(uri, messages);
+function seedEngine(engine: LintEngine, uri: string, text: string, version: number = 1): void {
+	const internals = engine as any;
+	internals.documentVersion.set(uri, version);
 	internals.lastDocumentText.set(uri, text);
 }
 
-suite('ATM ESLint Engine - Quick Fixes', () => {
+suite('ATM Lint Engine - Quick Fixes', () => {
 	test('returns eqeqeq suggestion quick fix when suggestions are enabled', () => {
-		const engine = new EslintEngine(() => undefined);
+		const engine = new LintEngine(() => undefined);
 		const uri = 'file:///tmp/test.ts';
 		const text = 'if (a == b) {\n  console.log(a);\n}\n';
 
-		seedEngine(engine, uri, text, [{
-			ruleId: 'eqeqeq',
-			message: "Expected '===' and instead saw '=='.",
-			line: 1,
-			column: 7,
-			endLine: 1,
-			endColumn: 9,
-			severity: 2,
-			suggestions: [{
-				desc: "Use '===' instead of '=='.",
-				fix: {
-					range: [6, 8],
-					text: '==='
-				}
-			}]
-		}]);
+		seedEngine(engine, uri, text, 1);
 
 		const diagnostic: Diagnostic = {
 			range: {
@@ -44,13 +24,23 @@ suite('ATM ESLint Engine - Quick Fixes', () => {
 			},
 			message: "Expected '===' and instead saw '=='. (eqeqeq)",
 			severity: DiagnosticSeverity.Warning,
-			source: 'ESLint (ATM)',
-			code: 'eqeqeq'
+			source: 'Lint (ATM)',
+			code: 'eqeqeq',
+			data: {
+				textVersion: 1,
+				suggestions: [{
+					desc: "Use '===' instead of '=='.",
+					fix: {
+						range: [6, 8],
+						text: '==='
+					}
+				}]
+			}
 		};
 
 		const actions = engine.getCodeActions(uri, diagnostic, { includeSuggestions: true });
 		assert.strictEqual(actions.length, 1);
-		assert.strictEqual(actions[0].title, "ESLint: Use '===' instead of '=='. (eqeqeq)");
+		assert.strictEqual(actions[0].title, "Lint: Use '===' instead of '=='. (eqeqeq)");
 
 		const edit = actions[0].edit?.changes?.[uri]?.[0];
 		assert.ok(edit);
@@ -62,26 +52,11 @@ suite('ATM ESLint Engine - Quick Fixes', () => {
 	});
 
 	test('skips eqeqeq suggestion quick fix when suggestions are disabled', () => {
-		const engine = new EslintEngine(() => undefined);
+		const engine = new LintEngine(() => undefined);
 		const uri = 'file:///tmp/test.ts';
 		const text = 'if (a == b) {\n  console.log(a);\n}\n';
 
-		seedEngine(engine, uri, text, [{
-			ruleId: 'eqeqeq',
-			message: "Expected '===' and instead saw '=='.",
-			line: 1,
-			column: 7,
-			endLine: 1,
-			endColumn: 9,
-			severity: 2,
-			suggestions: [{
-				desc: "Use '===' instead of '=='.",
-				fix: {
-					range: [6, 8],
-					text: '==='
-				}
-			}]
-		}]);
+		seedEngine(engine, uri, text, 1);
 
 		const diagnostic: Diagnostic = {
 			range: {
@@ -90,8 +65,18 @@ suite('ATM ESLint Engine - Quick Fixes', () => {
 			},
 			message: "Expected '===' and instead saw '=='. (eqeqeq)",
 			severity: DiagnosticSeverity.Warning,
-			source: 'ESLint (ATM)',
-			code: 'eqeqeq'
+			source: 'Lint (ATM)',
+			code: 'eqeqeq',
+			data: {
+				textVersion: 1,
+				suggestions: [{
+					desc: "Use '===' instead of '=='.",
+					fix: {
+						range: [6, 8],
+						text: '==='
+					}
+				}]
+			}
 		};
 
 		const actions = engine.getCodeActions(uri, diagnostic, { includeSuggestions: false });
@@ -99,23 +84,11 @@ suite('ATM ESLint Engine - Quick Fixes', () => {
 	});
 
 	test('keeps direct fixes available when suggestions are disabled', () => {
-		const engine = new EslintEngine(() => undefined);
+		const engine = new LintEngine(() => undefined);
 		const uri = 'file:///tmp/test.ts';
 		const text = 'const value = 1\n';
 
-		seedEngine(engine, uri, text, [{
-			ruleId: 'semi',
-			message: 'Missing semicolon.',
-			line: 1,
-			column: 16,
-			endLine: 1,
-			endColumn: 16,
-			severity: 2,
-			fix: {
-				range: [15, 15],
-				text: ';'
-			}
-		}]);
+		seedEngine(engine, uri, text, 1);
 
 		const diagnostic: Diagnostic = {
 			range: {
@@ -124,13 +97,20 @@ suite('ATM ESLint Engine - Quick Fixes', () => {
 			},
 			message: 'Missing semicolon. (semi)',
 			severity: DiagnosticSeverity.Warning,
-			source: 'ESLint (ATM)',
-			code: 'semi'
+			source: 'Lint (ATM)',
+			code: 'semi',
+			data: {
+				textVersion: 1,
+				fix: {
+					range: [15, 15],
+					text: ';'
+				}
+			}
 		};
 
 		const actions = engine.getCodeActions(uri, diagnostic, { includeSuggestions: false });
 		assert.strictEqual(actions.length, 1);
-		assert.strictEqual(actions[0].title, 'ESLint: Apply auto-fix (semi)');
+		assert.strictEqual(actions[0].title, 'Lint: Apply auto-fix (semi)');
 
 		const edit = actions[0].edit?.changes?.[uri]?.[0];
 		assert.ok(edit);
@@ -138,27 +118,12 @@ suite('ATM ESLint Engine - Quick Fixes', () => {
 	});
 
 	test('maps suggestion offsets correctly for CRLF documents', () => {
-		const engine = new EslintEngine(() => undefined);
+		const engine = new LintEngine(() => undefined);
 		const uri = 'file:///tmp/test.ts';
 		const text = 'if (x === y) {\r\nif (a == b) {\r\n}\r\n';
 		const secondEqeqOffset = text.lastIndexOf('==');
 
-		seedEngine(engine, uri, text, [{
-			ruleId: 'eqeqeq',
-			message: "Expected '===' and instead saw '=='.",
-			line: 2,
-			column: 7,
-			endLine: 2,
-			endColumn: 9,
-			severity: 2,
-			suggestions: [{
-				desc: "Use '===' instead of '=='.",
-				fix: {
-					range: [secondEqeqOffset, secondEqeqOffset + 2],
-					text: '==='
-				}
-			}]
-		}]);
+		seedEngine(engine, uri, text, 1);
 
 		const diagnostic: Diagnostic = {
 			range: {
@@ -167,8 +132,18 @@ suite('ATM ESLint Engine - Quick Fixes', () => {
 			},
 			message: "Expected '===' and instead saw '=='. (eqeqeq)",
 			severity: DiagnosticSeverity.Warning,
-			source: 'ESLint (ATM)',
-			code: 'eqeqeq'
+			source: 'Lint (ATM)',
+			code: 'eqeqeq',
+			data: {
+				textVersion: 1,
+				suggestions: [{
+					desc: "Use '===' instead of '=='.",
+					fix: {
+						range: [secondEqeqOffset, secondEqeqOffset + 2],
+						text: '==='
+					}
+				}]
+			}
 		};
 
 		const actions = engine.getCodeActions(uri, diagnostic, { includeSuggestions: true });

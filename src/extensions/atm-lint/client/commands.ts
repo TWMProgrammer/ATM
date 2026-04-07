@@ -9,7 +9,7 @@ export function activateCommands(
     let isEnabled = true;
 
     // Toggle command: Enables/disables the engine
-    const toggleCommand = vscode.commands.registerCommand('atm.eslint.toggle', async () => {
+    const toggleCommand = vscode.commands.registerCommand('atm.lint.toggle', async () => {
         const nextState = !isEnabled;
 
         try {
@@ -21,17 +21,17 @@ export function activateCommands(
             updateStatusBar(isEnabled);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            vscode.window.showErrorMessage(`ATM ESLint toggle failed: ${errorMessage}`);
+            vscode.window.showErrorMessage(`ATM Lint toggle failed: ${errorMessage}`);
         }
     });
 
-    const revalidateCommand = vscode.commands.registerCommand('atm.eslint.revalidateOpenFiles', async () => {
+    const revalidateCommand = vscode.commands.registerCommand('atm.lint.revalidateOpenFiles', async () => {
         try {
             const revalidatedDocuments = await revalidateDiagnostics();
-            vscode.window.showInformationMessage(`ATM ESLint revalidated ${revalidatedDocuments} open file(s).`);
+            vscode.window.showInformationMessage(`ATM Lint revalidated ${revalidatedDocuments} open file(s).`);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            vscode.window.showErrorMessage(`ATM ESLint revalidation failed: ${errorMessage}`);
+            vscode.window.showErrorMessage(`ATM Lint revalidation failed: ${errorMessage}`);
         }
     });
 
