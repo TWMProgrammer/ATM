@@ -168,9 +168,13 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	const diagnostics = await engine.lintText(text, filePath, textDocument.uri);
 
-	// Discard stale results: if the document changed while linting, skip
+	// Discard stale results: if document closed or changed while linting, skip
 	const currentDocument = documents.get(textDocument.uri);
-	if (currentDocument && currentDocument.version !== version) {
+	if (!currentDocument) {
+		return;
+	}
+
+	if (currentDocument.version !== version) {
 		return;
 	}
 
