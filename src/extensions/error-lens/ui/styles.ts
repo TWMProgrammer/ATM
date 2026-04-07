@@ -6,7 +6,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#ff2a6d22',
       color: '#ff2a6d',
-      margin: '0 0 0 40px',
+      margin: '0 0 0 16px',
       textDecoration:
         'none; font-size: 0.95em; border-radius: 8px; padding: 3px 10px; font-weight: normal; font-style: normal;',
     },
@@ -17,7 +17,7 @@ export function createDecorationStyles() {
     after: {
       backgroundColor: '#ff980022',
       color: '#ffb300',
-      margin: '0 0 0 40px',
+      margin: '0 0 0 16px',
       textDecoration:
         'none; font-size: 0.95em; border-radius: 8px; padding: 3px 10px; font-weight: normal; font-style: normal;',
     },
