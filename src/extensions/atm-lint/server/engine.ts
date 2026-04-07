@@ -135,7 +135,6 @@ export class LintEngine {
 		}
 
 		const actions: CodeAction[] = [];
-		let hasPreferred = false;
 		const ruleId = diagnostic.code ? String(diagnostic.code) : null;
 
 		if (data.fix) {
@@ -145,10 +144,8 @@ export class LintEngine {
 					title: this.buildFixTitle(ruleId),
 					kind: CodeActionKind.QuickFix,
 					diagnostics: [diagnostic],
-					isPreferred: true,
 					edit
 				});
-				hasPreferred = true;
 			}
 		}
 
@@ -167,11 +164,8 @@ export class LintEngine {
 					title: this.buildSuggestionTitle(suggestion.desc, ruleId),
 					kind: CodeActionKind.QuickFix,
 					diagnostics: [diagnostic],
-					isPreferred: !hasPreferred,
 					edit
 				});
-
-				hasPreferred = true;
 			}
 		}
 
@@ -195,20 +189,49 @@ export class LintEngine {
 		};
 	}
 
-	private buildFixTitle(ruleId: string | null | undefined): string {
-		if (!ruleId) {
-			return 'Lint: Apply auto-fix';
+	private getEmojiForAction(ruleId: string | null | undefined, description?: string): string {
+		const rule = (ruleId || '').toLowerCase();
+		const desc = (description || '').toLowerCase();
+
+		// Eliminar / Limpiar
+		if (rule.includes('unused') || rule.includes('empty') || desc.includes('remove') || desc.includes('delete')) {
+			return '🗑️'; 
+		}
+		
+		// Estilo / Formato
+		if (rule.includes('quotes') || rule.includes('semi') || rule.includes('indent') || rule.includes('space') || rule.includes('comma')) {
+			return '🎨';
 		}
 
-		return `Lint: Apply auto-fix (${ruleId})`;
+		// Estricto / Seguridad / Best Practices
+		if (rule.includes('eqeqeq') || rule.includes('eval') || rule.includes('var')) {
+			return '🔒';
+		}
+
+		// Modernización / Sugerencias
+		if (rule.includes('prefer') || desc.includes('use')) {
+			return '✨';
+		}
+
+		return '🔧';
+	}
+
+	private buildFixTitle(ruleId: string | null | undefined): string {
+		const emoji = this.getEmojiForAction(ruleId);
+		if (!ruleId) {
+			return `Lint [${emoji}]: Apply auto-fix`;
+		}
+
+		return `Lint [${emoji}]: Apply auto-fix (${ruleId})`;
 	}
 
 	private buildSuggestionTitle(description: string, ruleId: string | null | undefined): string {
+		const emoji = this.getEmojiForAction(ruleId, description);
 		if (!ruleId) {
-			return `Lint: ${description}`;
+			return `Lint [${emoji}]: ${description}`;
 		}
 
-		return `Lint: ${description} (${ruleId})`;
+		return `Lint [${emoji}]: ${description} (${ruleId})`;
 	}
 
 	private toRangeFromOffsets(text: string, startOffset: number, endOffset: number): Range | undefined {
