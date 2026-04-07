@@ -13,9 +13,6 @@ export function activateCommands(context: vscode.ExtensionContext, toggleClient:
         
         // Update the Status Bar UI
         updateStatusBar(isEnabled);
-        
-        const stateMsg = isEnabled ? 'Activated ✅' : 'Deactivated ❌';
-        vscode.window.showInformationMessage(`[ATM] ESLint has been ${stateMsg}`);
     });
 
     context.subscriptions.push(toggleCommand);
