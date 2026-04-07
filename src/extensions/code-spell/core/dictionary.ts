@@ -1,4 +1,4 @@
-import { invalidateSuggestionsCache } from './suggestions';
+import { invalidateSuggestionsCache } from './algorithm';
 import { englishWords } from '../data/en-dict';
 import { TECH_KEYWORDS } from '../data/tech-keywords';
 import * as vscode from 'vscode';

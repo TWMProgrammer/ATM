@@ -96,10 +96,27 @@ async function main() {
 		plugins: [browserEsbuildProblemMatcherPlugin],
 	});
 
+	const serverCtx = await esbuild.context({
+		entryPoints: [
+			'src/extensions/atm-lint/server/lintServer.ts'
+		],
+		bundle: true,
+		format: 'cjs',
+		minify: production,
+		sourcemap: !production,
+		sourcesContent: false,
+		platform: 'node',
+		outfile: 'dist/lintServer.js',
+		external: ['vscode'],
+		logLevel: 'silent',
+		plugins: [extensionEsbuildProblemMatcherPlugin],
+	});
+
 	if (watch) {
 		await extensionCtx.watch();
 		await browserCtx.watch();
 		await focusWebviewCtx.watch();
+		await serverCtx.watch();
 	} else {
 		await extensionCtx.rebuild();
 		await extensionCtx.dispose();
@@ -107,6 +124,8 @@ async function main() {
 		await browserCtx.dispose();
 		await focusWebviewCtx.rebuild();
 		await focusWebviewCtx.dispose();
+		await serverCtx.rebuild();
+		await serverCtx.dispose();
 	}
 }
 

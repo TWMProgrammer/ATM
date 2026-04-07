@@ -9,6 +9,7 @@ import { deactivateColorDebugging } from './extensions/color-debugging';
 import { taskListPlugin } from './extensions/markdown-md/core/taskListPlugin';
 import { mermaidPlugin } from './extensions/markdown-md/core/mermaidPlugin';
 import { deactivateFocus } from './extensions/focus/focus';
+import { deactivateLint } from './extensions/atm-lint/lint';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
@@ -37,4 +38,5 @@ export async function deactivate(): Promise<void> {
   deactivateTranslateDoc();
   await deactivateColorDebugging();
   deactivateFocus();
+  await deactivateLint();
 }

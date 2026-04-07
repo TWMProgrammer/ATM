@@ -67,7 +67,9 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	/** Selects the appropriate status bar icon based on the engineered percentage. */
 	function getStatusBarIcon(minRemaining: number): string {
 		// 20% is considered a danger zone (quota might be exhausted shortly).
-		if (minRemaining <= 20) { return ICON_ERROR; }
+		if (minRemaining <= 20) { 
+			return `$(warning)`; 
+		}
 		return ICON_DEFAULT;
 	}
 
@@ -94,8 +96,10 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 				if (processInfo) {
 					quotaManager.init(processInfo.connectPort, processInfo.csrfToken);
 					statusBarItem.text = `${ICON_DEFAULT} AI Data`;
+					statusBarItem.color = undefined;
 				} else {
 					statusBarItem.text = `${ICON_ERROR} AI Data`;
+					statusBarItem.color = new vscode.ThemeColor('errorForeground');
 					statusBarItem.tooltip = new vscode.MarkdownString(
 						'Could not connect to the local Antigravity AI process.'
 					);
@@ -117,6 +121,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 				const measuredModels = snapshot.models.filter(m => m.remainingPercentage !== undefined);
 				if (measuredModels.length === 0) {
 					statusBarItem.text = `${ICON_DEFAULT} AI Data`;
+					statusBarItem.color = undefined;
 				} else {
 					// Use the new, robust global engineered algorithm!
 					const tier = resolvePlanTier(snapshot.teamsTier, snapshot.planName);
@@ -124,11 +129,13 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					
 					if (engineered.type === 'unlimited') {
 						statusBarItem.text = `✨ AI ∞%`;
+						statusBarItem.color = undefined;
 						lastReportedPercentage = 100;
 					} else {
 						const globalPct = Math.round(engineered.percentage);
 						lastReportedPercentage = globalPct;
 						statusBarItem.text = `${getStatusBarIcon(globalPct)} AI ${globalPct}%`;
+						statusBarItem.color = globalPct <= 20 ? new vscode.ThemeColor('errorForeground') : undefined;
 					}
 				}
 			}
@@ -138,6 +145,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 			console.error('[ai-data-id] Error fetching quota:', e);
 			quotaManager.reset();
 			statusBarItem.text = `${ICON_WARNING} AI Data`;
+			statusBarItem.color = new vscode.ThemeColor('errorForeground');
 			statusBarItem.tooltip = new vscode.MarkdownString(
 				'Partial connection error. Will retry automatically...'
 			);
