@@ -41,6 +41,8 @@ connection.onInitialize((params: InitializeParams) => {
 	const result: InitializeResult = {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
+			// Informamos que este servidor puede ofrecer Code Actions (bombilla)
+			codeActionProvider: true,
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -68,17 +70,28 @@ documents.onDidChangeContent(change => {
 
 // 3. LA VALIDACIÓN REAL CON ESLINT
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
-	// Obtenemos la ruta real del archivo en el sistema operativo
 	const filePath = URI.parse(textDocument.uri).fsPath;
 	const text = textDocument.getText();
 	
-	// Ejecutamos el engine real
-	const diagnostics = await engine.lintText(text, filePath);
+	// Ejecutamos el engine enviando también la URI para el caché de fixes
+	const diagnostics = await engine.lintText(text, filePath, textDocument.uri);
 
-	// Enviar el listado de diagnósticos a VS Code
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
-// 4. ARRANQUE
+// 4. MANEJO DE CODE ACTIONS (La bombilla)
+connection.onCodeAction((params) => {
+	const actions = [];
+	for (const diagnostic of params.context.diagnostics) {
+		// Solo procesamos diagnósticos que vengan de nuestro motor
+		if (diagnostic.source === 'ESLint (ATM)') {
+			const codeActions = engine.getCodeActions(params.textDocument.uri, diagnostic);
+			actions.push(...codeActions);
+		}
+	}
+	return actions;
+});
+
+// 5. ARRANQUE
 documents.listen(connection);
 connection.listen();

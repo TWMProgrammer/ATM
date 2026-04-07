@@ -1,23 +1,23 @@
 import { ESLint, Linter } from 'eslint';
-import * as path from 'path';
 import {
 	Diagnostic,
 	DiagnosticSeverity,
-	Range
+	Range,
+	CodeAction,
+	CodeActionKind,
+	TextEdit,
+	WorkspaceEdit
 } from 'vscode-languageserver/node';
 
 export class EslintEngine {
 	private eslint: ESLint | null = null;
+	// Almacenamos los últimos mensajes por URI para poder sugerir arreglos (Code Actions)
+	private lastReportedMessages: Map<string, Linter.LintMessage[]> = new Map();
 
-	/**
-	 * Inicializa o refresca la instancia de ESLint según la configuración.
-	 */
 	public async initialize() {
 		try {
-			// Configuramos la instancia principal de ESLint.
-			// En el futuro, cargaremos opciones dinámicas desde VS Code Settings.
 			this.eslint = new ESLint({
-				fix: false, // Por ahora solo queremos reporte, no modificar el archivo real.
+				fix: false, 
 			});
 		} catch (error) {
 			console.error('[Engine] Error al inicializar ESLint:', error);
@@ -25,10 +25,7 @@ export class EslintEngine {
 		}
 	}
 
-	/**
-	 * Valida el contenido de un documento y devuelve los diagnósticos de VS Code.
-	 */
-	public async lintText(text: string, filePath: string): Promise<Diagnostic[]> {
+	public async lintText(text: string, filePath: string, uri: string): Promise<Diagnostic[]> {
 		if (!this.eslint) {
 			await this.initialize();
 		}
@@ -38,36 +35,69 @@ export class EslintEngine {
 		}
 
 		try {
-			// Ejecutamos el linter sobre el texto crudo proporcionado por el LSP
 			const results = await this.eslint.lintText(text, { filePath });
-			
-			// ESLint devuelve un array por archivo, tomamos el primero
 			const result = results[0];
 			if (!result) {
 				return [];
 			}
 
-			// Transformamos los mensajes de ESLint al estándar Diagnostic de VS Code
+			// Guardamos los mensajes en el caché para las Code Actions
+			this.lastReportedMessages.set(uri, result.messages);
+
 			return result.messages.map(msg => this.convertEslintMessageToDiagnostic(msg));
 
 		} catch (error) {
-			// Si falla (ej. error sintáctico grave o config corrupta), enviamos un aviso
 			console.error('[Engine] Fallo en el linting:', error);
 			return [];
 		}
 	}
 
 	/**
-	 * Convierte un objeto de error de ESLint en un Diagnostic legible por VS Code.
+	 * Genera sugerencias de corrección (Code Actions) basadas en el error bajo el cursor.
 	 */
+	public getCodeActions(uri: string, diagnostic: Diagnostic): CodeAction[] {
+		const messages = this.lastReportedMessages.get(uri);
+		if (!messages) {
+			return [];
+		}
+
+		const actions: CodeAction[] = [];
+
+		// Buscamos el mensaje de ESLint original que disparó este diagnóstico
+		const match = messages.find(m => 
+			(m.ruleId === diagnostic.code || m.ruleId === (diagnostic.code as string)) && 
+			m.line - 1 === diagnostic.range.start.line &&
+			m.column - 1 === diagnostic.range.start.character
+		);
+
+		if (match && match.fix) {
+			const edit: TextEdit = {
+				range: diagnostic.range, // Simplificación: usamos el rango del problema
+				newText: match.fix.text
+			};
+
+			const workspaceEdit: WorkspaceEdit = {
+				changes: {
+					[uri]: [edit]
+				}
+			};
+
+			actions.push({
+				title: `Fix ATM: ${match.message}`,
+				kind: CodeActionKind.QuickFix,
+				diagnostics: [diagnostic],
+				edit: workspaceEdit
+			});
+		}
+
+		return actions;
+	}
+
 	private convertEslintMessageToDiagnostic(msg: Linter.LintMessage): Diagnostic {
-		// Ajustamos los índices: ESLint usa 1-based, LSP usa 0-based
 		const startLine = Math.max(0, msg.line - 1);
 		const startChar = Math.max(0, msg.column - 1);
-		
-		// Calculamos el final. Si el mensaje no trae una línea final, usamos la misma.
 		const endLine = msg.endLine ? Math.max(0, msg.endLine - 1) : startLine;
-    const endChar = msg.endColumn ? Math.max(0, msg.endColumn - 1) : startChar + 1;
+		const endChar = msg.endColumn ? Math.max(0, msg.endColumn - 1) : startChar + 1;
 
 		const range: Range = {
 			start: { line: startLine, character: startChar },
@@ -83,9 +113,6 @@ export class EslintEngine {
 		};
 	}
 
-	/**
-	 * Mapea la severidad numérica de ESLint a la constante de VS Code.
-	 */
 	private mapSeverity(eslintSeverity: number): DiagnosticSeverity {
 		switch (eslintSeverity) {
 			case 1: return DiagnosticSeverity.Warning;
