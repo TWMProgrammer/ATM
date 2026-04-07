@@ -45,7 +45,7 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
        * Generate action: Change to "suggestion"
        * ========================================================= */
       const action = new vscode.CodeAction(
-        `Replace with "${sugg}"`,
+        `✨ Fix: "${sugg}"`,
         vscode.CodeActionKind.QuickFix,
       );
       action.edit = new vscode.WorkspaceEdit();
@@ -60,7 +60,7 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
      * Action: Add to User Settings (Shorter text first)
      * ========================================================= */
     const userAction = new vscode.CodeAction(
-      `Add "${word}" to User Settings`,
+      `👤 Add "${word}" to User Settings`,
       vscode.CodeActionKind.QuickFix,
     );
     userAction.command = {
@@ -74,7 +74,7 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
      * Action: Add to Workspace Settings (Longer text at the end)
      * ========================================================= */
     const workspaceAction = new vscode.CodeAction(
-      `Add "${word}" to Workspace Settings`,
+      `👤 Add "${word}" to Workspace Settings`,
       vscode.CodeActionKind.QuickFix,
     );
     workspaceAction.command = {
