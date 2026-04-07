@@ -394,5 +394,5 @@ export function getStatusColor(percentage: number): string {
 }
 
 function joinWithSeparator(parts: string[]): string {
-	return parts.join(` &nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; `);
+	return parts.join(` &nbsp;&nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp;&nbsp; `);
 }
