@@ -30,6 +30,10 @@ let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let globalSettings: AtmLintSettings = defaultSettings;
 
+// Debounce timers per document URI (250ms)
+const DEBOUNCE_MS = 250;
+const debounceTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+
 connection.onInitialize((params: InitializeParams) => {
 	const capabilities = params.capabilities;
 
@@ -39,6 +43,13 @@ connection.onInitialize((params: InitializeParams) => {
 	hasWorkspaceFolderCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.workspaceFolders
 	);
+
+	// Pass workspace roots to the engine for proper cwd resolution
+	const workspaceRoots = (params.workspaceFolders ?? [])
+		.map(folder => URI.parse(folder.uri).fsPath);
+	if (workspaceRoots.length > 0) {
+		engine.setWorkspaceRoots(workspaceRoots);
+	}
 
 	const result: InitializeResult = {
 		capabilities: {
@@ -91,17 +102,38 @@ documents.onDidOpen(change => {
 });
 
 documents.onDidChangeContent(change => {
-	void validateTextDocument(change.document);
-});
-
-documents.onDidSave(change => {
-	void validateTextDocument(change.document);
+	scheduleValidation(change.document);
 });
 
 documents.onDidClose(change => {
+	clearDebounce(change.document.uri);
 	engine.clearDocumentData(change.document.uri);
 	connection.sendDiagnostics({ uri: change.document.uri, diagnostics: [] });
 });
+
+/**
+ * Schedules a lint pass after a debounce period.
+ * Prevents redundant linting during rapid typing.
+ */
+function scheduleValidation(document: TextDocument): void {
+	const uri = document.uri;
+	clearDebounce(uri);
+
+	const timer = setTimeout(() => {
+		debounceTimers.delete(uri);
+		void validateTextDocument(document);
+	}, DEBOUNCE_MS);
+
+	debounceTimers.set(uri, timer);
+}
+
+function clearDebounce(uri: string): void {
+	const existing = debounceTimers.get(uri);
+	if (existing) {
+		clearTimeout(existing);
+		debounceTimers.delete(uri);
+	}
+}
 
 async function refreshSettings(): Promise<void> {
 	if (!hasConfigurationCapability) {
@@ -132,8 +164,16 @@ async function revalidateOpenDocuments(): Promise<number> {
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	const filePath = URI.parse(textDocument.uri).fsPath;
 	const text = textDocument.getText();
+	const version = textDocument.version;
 
 	const diagnostics = await engine.lintText(text, filePath, textDocument.uri);
+
+	// Discard stale results: if the document changed while linting, skip
+	const currentDocument = documents.get(textDocument.uri);
+	if (currentDocument && currentDocument.version !== version) {
+		return;
+	}
+
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 

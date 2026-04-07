@@ -51,22 +51,25 @@ export function activateLintClient(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
+
+	// Register for automatic cleanup on deactivation
+	context.subscriptions.push(client);
 }
 
 export async function startClient() {
-	if (client) {
+	if (client && !client.isRunning()) {
 		await client.start();
 	}
 }
 
 export async function stopClient(): Promise<void> {
-	if (client) {
+	if (client && client.isRunning()) {
 		await client.stop();
 	}
 }
 
 export async function revalidateOpenDocuments(): Promise<number> {
-	if (!client) {
+	if (!client || !client.isRunning()) {
 		return 0;
 	}
 

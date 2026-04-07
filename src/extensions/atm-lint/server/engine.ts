@@ -24,16 +24,49 @@ export class LintEngine {
 	private instances: Map<string, ESLint> = new Map();
 	private documentVersion: Map<string, number> = new Map();
 	private lastDocumentText: Map<string, string> = new Map();
+	private workspaceRoots: string[] = [];
 	private log: LogFn;
 
 	constructor(log: LogFn) {
 		this.log = log;
 	}
 
+	/**
+	 * Sets workspace root paths for proper cwd resolution.
+	 * ESLint instances are keyed by workspace root instead of each file's directory.
+	 */
+	public setWorkspaceRoots(roots: string[]): void {
+		this.workspaceRoots = roots;
+		this.log(`[Engine] Workspace roots set: ${roots.join(', ')}`);
+	}
+
+	/**
+	 * Resolves the best cwd for a given file path.
+	 * Uses the closest workspace root that contains the file,
+	 * falling back to the file's parent directory if no root matches.
+	 */
+	private resolveCwd(filePath: string): string {
+		if (this.workspaceRoots.length === 0) {
+			return path.dirname(filePath);
+		}
+
+		let bestRoot = '';
+		let bestLength = 0;
+
+		for (const root of this.workspaceRoots) {
+			if (filePath.startsWith(root + path.sep) && root.length > bestLength) {
+				bestRoot = root;
+				bestLength = root.length;
+			}
+		}
+
+		return bestRoot || path.dirname(filePath);
+	}
+
 	private getOrCreateInstance(cwd: string): ESLint {
 		let instance = this.instances.get(cwd);
 		if (!instance) {
-			// Initialize ESLint focused on the directory where the file is located
+			// Initialize ESLint focused on the workspace root
 			instance = new ESLint({ fix: false, cwd });
 			this.instances.set(cwd, instance);
 			this.log(`[Engine] ESLint instance created for cwd: ${cwd}`);
@@ -53,7 +86,7 @@ export class LintEngine {
 
 	public async lintText(text: string, filePath: string, uri: string): Promise<Diagnostic[]> {
 		try {
-			const cwd = path.dirname(filePath);
+			const cwd = this.resolveCwd(filePath);
 			const eslint = this.getOrCreateInstance(cwd);
 
 			const results = await eslint.lintText(text, { filePath });
@@ -78,7 +111,7 @@ export class LintEngine {
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			this.log(`[Engine] Lint failed for ${filePath}: ${errorMessage}`);
 
-			const cwd = path.dirname(filePath);
+			const cwd = this.resolveCwd(filePath);
 			this.instances.delete(cwd);
 			this.clearDocumentData(uri);
 

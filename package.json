@@ -152,11 +152,11 @@
       },
       {
         "command": "atm.lint.toggle",
-        "title": "%command.eslint.toggle%"
+        "title": "%command.lint.toggle%"
       },
       {
         "command": "atm.lint.revalidateOpenFiles",
-        "title": "%command.eslint.revalidate%",
+        "title": "%command.lint.revalidate%",
         "icon": "$(refresh)"
       }
     ],

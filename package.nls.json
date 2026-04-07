@@ -19,7 +19,7 @@
   "command.env.reveal": "Env Lens: Reveal Value",
   "command.env.disableBlur": "Env Lens: Reveal .env Values",
   "command.env.enableBlur": "Env Lens: Hide .env Values",
-  "command.eslint.toggle": "ATM ESLint: Toggle Engine",
-  "command.eslint.revalidate": "ATM ESLint: Revalidate Open Files",
+  "command.lint.toggle": "ATM Lint: Toggle Engine",
+  "command.lint.revalidate": "ATM Lint: Revalidate Open Files",
   "view.music": "ATM :: Radio/Music · Pomodoro · Data"
 }
