@@ -17,7 +17,7 @@ import { activateDataId } from './ai-data-id';
 import { activateEnvLens } from './env-lens';
 import { activateMarkdownImageIcons } from './markdown-md/icons-images';
 import { activateFocus } from './focus/focus';
-import { activateEslint } from './eslint/eslint';
+import { activateEslint } from './atm-eslint/eslint';
 
 /**
  * Register all sub-extensions here.

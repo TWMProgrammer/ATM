@@ -9,7 +9,7 @@ import { deactivateColorDebugging } from './extensions/color-debugging';
 import { taskListPlugin } from './extensions/markdown-md/core/taskListPlugin';
 import { mermaidPlugin } from './extensions/markdown-md/core/mermaidPlugin';
 import { deactivateFocus } from './extensions/focus/focus';
-import { deactivateEslint } from './extensions/eslint/eslint';
+import { deactivateEslint } from './extensions/atm-eslint/eslint';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
