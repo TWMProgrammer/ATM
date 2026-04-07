@@ -4,18 +4,18 @@ import { updateStatusBar } from './statusBar';
 export function activateCommands(context: vscode.ExtensionContext, toggleClient: (enable: boolean) => void) {
     let isEnabled = true;
 
-    // 1. Comando Toggle: Enciende y apaga el motor
+    // Toggle command: Enables/disables the engine
     const toggleCommand = vscode.commands.registerCommand('atm.eslint.toggle', () => {
         isEnabled = !isEnabled;
         
-        // Llamamos a la función que apaga o prende el cliente LSP
+        // Notify the client to start or stop the LSP server
         toggleClient(isEnabled);
         
-        // Actualizamos la interfaz del Status Bar
+        // Update the Status Bar UI
         updateStatusBar(isEnabled);
         
-        const stateMsg = isEnabled ? 'Activado ✅' : 'Desactivado ❌';
-        vscode.window.showInformationMessage(`[ATM] ESLint ha sido ${stateMsg}`);
+        const stateMsg = isEnabled ? 'Activated ✅' : 'Deactivated ❌';
+        vscode.window.showInformationMessage(`[ATM] ESLint has been ${stateMsg}`);
     });
 
     context.subscriptions.push(toggleCommand);

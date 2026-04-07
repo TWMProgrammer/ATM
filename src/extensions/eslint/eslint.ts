@@ -1,17 +1,17 @@
-// ARCHIVO BARRIL: Orquesta el inicio del cliente e integra con ATM
+// Barrel file to orchestrate the ESLint client and ATM integration
 import { ExtensionContext } from 'vscode';
 import { activateEslintClient, deactivateEslintClient, startClient, stopClient } from './client/eslintClient';
 import { activateStatusBar } from './client/statusBar';
 import { activateCommands } from './client/commands';
 
 export function activateEslint(context: ExtensionContext) {
-    // 1. Configuramos el cliente LSP
+    // 1. Setup LSP client
     activateEslintClient(context);
 
-    // 2. Encendemos el ícono de la Status Bar
+    // 2. Initialize Status Bar icon
     activateStatusBar(context);
 
-    // 3. Registramos el comando para apagar/prender e iniciamos el servidor la primera vez
+    // 3. Register commands and start the server initially
     activateCommands(context, async (enable: boolean) => {
         if (enable) {
             await startClient();
@@ -20,7 +20,7 @@ export function activateEslint(context: ExtensionContext) {
         }
     });
 
-    // Arrancamos el servidor por defecto al iniciar VS Code
+    // Start the server by default
     startClient();
 }
 

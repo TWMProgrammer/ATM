@@ -3,32 +3,31 @@ import * as vscode from 'vscode';
 let statusBarItem: vscode.StatusBarItem;
 
 export function activateStatusBar(context: vscode.ExtensionContext) {
-    // Creamos el ícono en la parte inferior derecha de VS Code
+    // Create the icon in the bottom right of VS Code
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     
-    // Le asignamos el comando que ejecutará al hacerle click
+    // Assign the toggle command
     statusBarItem.command = 'atm.eslint.toggle';
     context.subscriptions.push(statusBarItem);
     
-    // Inicialmente encendido
+    // Initially enabled
     updateStatusBar(true);
     statusBarItem.show();
 }
 
 /**
- * Cambia el estado visual del botón según si ESLint está corriendo o pausado.
+ * Updates the Status Bar UI based on the engine state
  */
 export function updateStatusBar(isEnabled: boolean) {
     if (isEnabled) {
-        // Estado Encendido (Verde / Normal)
+        // Active State (Normal)
         statusBarItem.text = '$(check) ATM ESLint';
-        statusBarItem.tooltip = 'ESLint (ATM) está activo. Haz clic para apagarlo.';
-        statusBarItem.color = undefined; // Usa el color normal del tema
+        statusBarItem.tooltip = 'ESLint (ATM) is active. Click to disable.';
+        statusBarItem.color = undefined;
     } else {
-        // Estado Apagado (Rojo / Error)
+        // Disabled State (Error color)
         statusBarItem.text = '$(circle-slash) ATM ESLint';
-        statusBarItem.tooltip = 'ESLint (ATM) está pausado. Haz clic para encenderlo.';
-        // Lo pintamos de rojo o del color de error del tema del usuario
+        statusBarItem.tooltip = 'ESLint (ATM) is paused. Click to enable.';
         statusBarItem.color = new vscode.ThemeColor('errorForeground');
     }
 }

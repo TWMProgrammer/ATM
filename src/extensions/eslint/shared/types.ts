@@ -1,1 +1,1 @@
-// Tipos de mensajes IPC, configuraciones, interfaces, etc.
+// Shared types for IPC messages, configuration, and common interfaces

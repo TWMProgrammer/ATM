@@ -13,9 +13,7 @@ import {
 type LogFn = (message: string) => void;
 
 export class EslintEngine {
-	// Cache ESLint instances by working directory for performance
 	private instances: Map<string, ESLint> = new Map();
-	// Cache lint messages per URI for Code Actions
 	private lastReportedMessages: Map<string, Linter.LintMessage[]> = new Map();
 	private log: LogFn;
 
@@ -23,14 +21,10 @@ export class EslintEngine {
 		this.log = log;
 	}
 
-	/**
-	 * Gets or creates a cached ESLint instance for the given directory.
-	 * The cwd is critical: ESLint searches for config files (eslint.config.mjs, etc.)
-	 * starting from the cwd and going up the directory tree.
-	 */
 	private getOrCreateInstance(cwd: string): ESLint {
 		let instance = this.instances.get(cwd);
 		if (!instance) {
+			// Initialize ESLint focused on the directory where the file is located
 			instance = new ESLint({ fix: false, cwd });
 			this.instances.set(cwd, instance);
 			this.log(`[Engine] ESLint instance created for cwd: ${cwd}`);
@@ -38,18 +32,11 @@ export class EslintEngine {
 		return instance;
 	}
 
-	/**
-	 * Clears all cached ESLint instances.
-	 * Called when eslint config files change on disk.
-	 */
 	public resetInstances(): void {
 		this.instances.clear();
 		this.log('[Engine] All cached ESLint instances cleared.');
 	}
 
-	/**
-	 * Validates text content and returns VS Code diagnostics.
-	 */
 	public async lintText(text: string, filePath: string, uri: string): Promise<Diagnostic[]> {
 		try {
 			const cwd = path.dirname(filePath);
@@ -57,11 +44,8 @@ export class EslintEngine {
 
 			const results = await eslint.lintText(text, { filePath });
 			const result = results[0];
-			if (!result) {
-				return [];
-			}
+			if (!result) return [];
 
-			// Store messages for Code Actions
 			this.lastReportedMessages.set(uri, result.messages);
 
 			this.log(`[Engine] Linted ${path.basename(filePath)}: ${result.messages.length} issues found.`);
@@ -71,7 +55,6 @@ export class EslintEngine {
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			this.log(`[Engine] Lint failed for ${filePath}: ${errorMessage}`);
 
-			// Clear the cached instance for this cwd, in case the config changed
 			const cwd = path.dirname(filePath);
 			this.instances.delete(cwd);
 
@@ -79,18 +62,12 @@ export class EslintEngine {
 		}
 	}
 
-	/**
-	 * Generates Code Actions (Quick Fix lightbulb) for a diagnostic.
-	 */
 	public getCodeActions(uri: string, diagnostic: Diagnostic): CodeAction[] {
 		const messages = this.lastReportedMessages.get(uri);
-		if (!messages) {
-			return [];
-		}
+		if (!messages) return [];
 
 		const actions: CodeAction[] = [];
 
-		// Find the original ESLint message that triggered this diagnostic
 		const match = messages.find(m =>
 			m.ruleId !== null &&
 			String(m.ruleId) === String(diagnostic.code) &&

@@ -10,13 +10,10 @@ import {
 let client: LanguageClient;
 
 export function activateEslintClient(context: ExtensionContext) {
-	// 1. RUTA AL SERVIDOR
-	// context.asAbsolutePath resuelve la ruta relativa hacia la carpeta 'dist' desde la
-	// raíz de tu extensión, donde esbuild acaba de empaquetar nuestro servidor.
+	// 1. Path to the server
 	const serverModule = context.asAbsolutePath(path.join('dist', 'eslintServer.js'));
 
-	// 2. OPCIONES DE EJECUCIÓN DEL PROCESO
-	// Si lo corremos en modo 'debug' (Start Debugging en VS Code), abriremos el inspector de Node.
+	// 2. Process execution options
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 	const serverOptions: ServerOptions = {
 		run: { module: serverModule, transport: TransportKind.ipc },
@@ -27,10 +24,8 @@ export function activateEslintClient(context: ExtensionContext) {
 		}
 	};
 
-	// 3. COMUNICACIÓN Y REGLAS CLIENTE->SERVIDOR
+	// 3. Client -> Server communication rules
 	const clientOptions: LanguageClientOptions = {
-		// Aquí definimos en qué archivos se activará el servidor LSP.
-		// En el futuro, lo conectaremos con las configuraciones (probe) que definiste en package.json.
 		documentSelector: [
 			{ scheme: 'file', language: 'javascript' },
 			{ scheme: 'file', language: 'typescript' },
@@ -42,17 +37,15 @@ export function activateEslintClient(context: ExtensionContext) {
 			{ scheme: 'file', language: 'astro' }
 		],
 		synchronize: {
-			// Le avisamos al servidor si el usuario modifica cualquier archivo ".eslint*" 
-			// en su disco, para poder reiniciar o limpiar cachés.
+			// Notify the server about ".eslint*" file changes to clear caches
 			fileEvents: workspace.createFileSystemWatcher('**/.eslint*')
 		}
 	};
 
-	// Creamos el cliente, pero no lo arrancamos inmediatamente aquí, 
-	// dejaremos que el ciclo de vida lo maneje startClient().
+	// 4. Instantiation
 	client = new LanguageClient(
-		'atmEslintServer',       // ID interno
-		'ATM ESLint Server',     // Nombre visible al usuario
+		'atmEslintServer',
+		'ATM ESLint Server',
 		serverOptions,
 		clientOptions
 	);

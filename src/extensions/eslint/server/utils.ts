@@ -1,1 +1,1 @@
-// Utilidades de rutas, caché de configuraciones, etc.
+// Utility functions for path and config management
