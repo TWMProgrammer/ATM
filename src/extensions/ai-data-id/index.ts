@@ -67,7 +67,9 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	/** Selects the appropriate status bar icon based on the engineered percentage. */
 	function getStatusBarIcon(minRemaining: number): string {
 		// 20% is considered a danger zone (quota might be exhausted shortly).
-		if (minRemaining <= 20) { return ICON_ERROR; }
+		if (minRemaining <= 20) { 
+			return `$(warning)`; 
+		}
 		return ICON_DEFAULT;
 	}
 
