@@ -38,7 +38,8 @@ export function activateEslintClient(context: ExtensionContext) {
 			{ scheme: 'file', language: 'typescriptreact' },
 			{ scheme: 'file', language: 'vue' },
 			{ scheme: 'file', language: 'html' },
-			{ scheme: 'file', language: 'mdx' }
+			{ scheme: 'file', language: 'mdx' },
+			{ scheme: 'file', language: 'astro' }
 		],
 		synchronize: {
 			// Le avisamos al servidor si el usuario modifica cualquier archivo ".eslint*" 
