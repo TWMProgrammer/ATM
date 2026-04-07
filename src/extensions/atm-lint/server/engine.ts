@@ -267,10 +267,23 @@ export class LintEngine {
 	}
 
 	private convertToDiagnostic(msg: Linter.LintMessage, uri: string): Diagnostic {
-		const startLine = Math.max(0, msg.line - 1);
-		const startChar = Math.max(0, msg.column - 1);
-		const endLine = msg.endLine ? Math.max(0, msg.endLine - 1) : startLine;
-		const endChar = msg.endColumn ? Math.max(0, msg.endColumn - 1) : startChar + 1;
+		const msgLine = typeof msg.line === 'number' ? msg.line : 1;
+		const msgColumn = typeof msg.column === 'number' ? msg.column : 1;
+		const startLine = Math.max(0, msgLine - 1);
+		const startChar = Math.max(0, msgColumn - 1);
+
+		const msgEndLine = typeof msg.endLine === 'number' ? msg.endLine : msgLine;
+		const msgEndColumn = typeof msg.endColumn === 'number' ? msg.endColumn : msgColumn + 1;
+		let endLine = Math.max(0, msgEndLine - 1);
+		let endChar = Math.max(0, msgEndColumn - 1);
+
+		if (endLine < startLine) {
+			endLine = startLine;
+		}
+		if (endLine === startLine && endChar < startChar) {
+			endChar = startChar + 1;
+		}
+
 		const messageSuffix = msg.ruleId ? ` (${msg.ruleId})` : '';
 
 		return {

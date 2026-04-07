@@ -107,7 +107,7 @@ async function main() {
 		sourcesContent: false,
 		platform: 'node',
 		outfile: 'dist/lintServer.js',
-		external: ['vscode', 'eslint'],
+		external: ['vscode'],
 		logLevel: 'silent',
 		plugins: [extensionEsbuildProblemMatcherPlugin],
 	});
