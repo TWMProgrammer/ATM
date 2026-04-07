@@ -152,7 +152,12 @@
       },
       {
         "command": "atm.eslint.toggle",
-        "title": "ATM: Toggle ESLint"
+        "title": "%command.eslint.toggle%"
+      },
+      {
+        "command": "atm.eslint.revalidateOpenFiles",
+        "title": "%command.eslint.revalidate%",
+        "icon": "$(refresh)"
       }
     ],
     "configuration": {
@@ -235,6 +240,11 @@
           },
           "default": [],
           "description": "Array of custom words added to the ATM Code-Spell dictionary."
+        },
+        "atm.eslint.enableSuggestions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable suggestion-based ESLint Quick Fixes (for example, == to ===)."
         },
         "atm.colorBgTag.enabled": {
           "type": "boolean",

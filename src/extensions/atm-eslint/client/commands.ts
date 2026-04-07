@@ -1,7 +1,11 @@
 import * as vscode from 'vscode';
 import { updateStatusBar } from './statusBar';
 
-export function activateCommands(context: vscode.ExtensionContext, toggleClient: (enable: boolean) => Promise<void>) {
+export function activateCommands(
+    context: vscode.ExtensionContext,
+    toggleClient: (enable: boolean) => Promise<void>,
+    revalidateDiagnostics: () => Promise<number>
+) {
     let isEnabled = true;
 
     // Toggle command: Enables/disables the engine
@@ -21,5 +25,15 @@ export function activateCommands(context: vscode.ExtensionContext, toggleClient:
         }
     });
 
-    context.subscriptions.push(toggleCommand);
+    const revalidateCommand = vscode.commands.registerCommand('atm.eslint.revalidateOpenFiles', async () => {
+        try {
+            const revalidatedDocuments = await revalidateDiagnostics();
+            vscode.window.showInformationMessage(`ATM ESLint revalidated ${revalidatedDocuments} open file(s).`);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(`ATM ESLint revalidation failed: ${errorMessage}`);
+        }
+    });
+
+    context.subscriptions.push(toggleCommand, revalidateCommand);
 }

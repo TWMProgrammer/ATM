@@ -6,6 +6,7 @@ import {
 	ServerOptions,
 	TransportKind
 } from 'vscode-languageclient/node';
+import { ATM_ESLINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
 
 let client: LanguageClient;
 
@@ -38,7 +39,8 @@ export function activateEslintClient(context: ExtensionContext) {
 		],
 		synchronize: {
 			// Notify the server about ".eslint*" file changes to clear caches
-			fileEvents: workspace.createFileSystemWatcher('**/.eslint*')
+			fileEvents: workspace.createFileSystemWatcher('**/.eslint*'),
+			configurationSection: 'atm.eslint'
 		}
 	};
 
@@ -61,6 +63,15 @@ export async function stopClient(): Promise<void> {
 	if (client) {
 		await client.stop();
 	}
+}
+
+export async function revalidateOpenDocuments(): Promise<number> {
+	if (!client) {
+		return 0;
+	}
+
+	const response = await client.sendRequest<RevalidateOpenDocumentsResponse>(ATM_ESLINT_REVALIDATE_REQUEST);
+	return response.revalidatedDocuments;
 }
 
 export function deactivateEslintClient(): Thenable<void> | undefined {

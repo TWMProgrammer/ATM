@@ -1,6 +1,6 @@
 // Barrel file to orchestrate the ESLint client and ATM integration
 import { ExtensionContext } from 'vscode';
-import { activateEslintClient, deactivateEslintClient, startClient, stopClient } from './client/eslintClient';
+import { activateEslintClient, deactivateEslintClient, revalidateOpenDocuments, startClient, stopClient } from './client/eslintClient';
 import { activateStatusBar } from './client/statusBar';
 import { activateCommands } from './client/commands';
 
@@ -18,7 +18,7 @@ export function activateEslint(context: ExtensionContext) {
         } else {
             await stopClient();
         }
-    });
+    }, async () => revalidateOpenDocuments());
 
     // Start the server by default
     void startClient().catch((error: unknown) => {
