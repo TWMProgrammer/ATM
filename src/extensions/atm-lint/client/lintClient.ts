@@ -10,9 +10,9 @@ import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '..
 
 let client: LanguageClient;
 
-	export function activateLintClient(context: ExtensionContext) {
-		// 1. Path to the server
-		const serverModule = context.asAbsolutePath(path.join('dist', 'lintServer.js'));
+export function activateLintClient(context: ExtensionContext) {
+	// 1. Path to the server
+	const serverModule = context.asAbsolutePath(path.join('dist', 'lintServer.js'));
 
 	// 2. Process execution options
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
