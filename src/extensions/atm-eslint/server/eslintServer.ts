@@ -5,7 +5,8 @@ import {
 	InitializeParams,
 	DidChangeConfigurationNotification,
 	TextDocumentSyncKind,
-	InitializeResult
+	InitializeResult,
+	CodeActionKind
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -46,7 +47,9 @@ connection.onInitialize((params: InitializeParams) => {
 				change: TextDocumentSyncKind.Incremental,
 				save: true
 			},
-			codeActionProvider: true,
+			codeActionProvider: {
+				codeActionKinds: [CodeActionKind.QuickFix]
+			},
 		}
 	};
 	if (hasWorkspaceFolderCapability) {

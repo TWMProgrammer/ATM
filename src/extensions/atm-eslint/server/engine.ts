@@ -22,7 +22,7 @@ type CodeActionOptions = {
 
 export class EslintEngine {
 	private instances: Map<string, ESLint> = new Map();
-	private lastReportedMessages: Map<string, Linter.LintMessage[]> = new Map();
+	private documentVersion: Map<string, number> = new Map();
 	private lastDocumentText: Map<string, string> = new Map();
 	private log: LogFn;
 
@@ -47,8 +47,8 @@ export class EslintEngine {
 	}
 
 	public clearDocumentData(uri: string): void {
-		this.lastReportedMessages.delete(uri);
 		this.lastDocumentText.delete(uri);
+		this.documentVersion.delete(uri);
 	}
 
 	public async lintText(text: string, filePath: string, uri: string): Promise<Diagnostic[]> {
@@ -63,7 +63,8 @@ export class EslintEngine {
 				return [];
 			}
 
-			this.lastReportedMessages.set(uri, result.messages);
+			const version = (this.documentVersion.get(uri) ?? 0) + 1;
+			this.documentVersion.set(uri, version);
 			this.lastDocumentText.set(uri, text);
 			const directFixCount = result.messages.reduce((total, message) => total + (message.fix ? 1 : 0), 0);
 			const suggestionCount = result.messages.reduce((total, message) => total + (message.suggestions?.length ?? 0), 0);
@@ -71,7 +72,7 @@ export class EslintEngine {
 			this.log(
 				`[Engine] Linted ${path.basename(filePath)}: ${result.messages.length} issues found (${directFixCount} direct fixes, ${suggestionCount} suggestions).`
 			);
-			return result.messages.map(msg => this.convertToDiagnostic(msg));
+			return result.messages.map(msg => this.convertToDiagnostic(msg, uri));
 
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
@@ -87,28 +88,28 @@ export class EslintEngine {
 
 	public getCodeActions(uri: string, diagnostic: Diagnostic, options: CodeActionOptions = {}): CodeAction[] {
 		const includeSuggestions = options.includeSuggestions ?? true;
-		const messages = this.lastReportedMessages.get(uri);
 		const text = this.lastDocumentText.get(uri);
-		if (!messages || !text) {
+		const data = diagnostic.data as { fix?: EslintFix; suggestions?: { desc: string; fix: EslintFix }[]; textVersion?: number } | undefined;
+
+		if (!text || !data) {
+			return [];
+		}
+
+		// Prevent applying stale fixes from a previous lint pass
+		const currentVersion = this.documentVersion.get(uri);
+		if (data.textVersion !== undefined && data.textVersion !== currentVersion) {
 			return [];
 		}
 
 		const actions: CodeAction[] = [];
-
-		const match = messages.find(m =>
-			m.ruleId !== null &&
-			String(m.ruleId) === String(diagnostic.code) &&
-			m.line - 1 === diagnostic.range.start.line &&
-			m.column - 1 === diagnostic.range.start.character
-		);
-
 		let hasPreferred = false;
+		const ruleId = diagnostic.code ? String(diagnostic.code) : null;
 
-		if (match && match.fix) {
-			const edit = this.buildEditFromFix(uri, text, match.fix as EslintFix);
+		if (data.fix) {
+			const edit = this.buildEditFromFix(uri, text, data.fix);
 			if (edit) {
 				actions.push({
-					title: this.buildFixTitle(match.ruleId),
+					title: this.buildFixTitle(ruleId),
 					kind: CodeActionKind.QuickFix,
 					diagnostics: [diagnostic],
 					isPreferred: true,
@@ -118,19 +119,19 @@ export class EslintEngine {
 			}
 		}
 
-		if (includeSuggestions) {
-			for (const suggestion of match?.suggestions ?? []) {
+		if (includeSuggestions && data.suggestions) {
+			for (const suggestion of data.suggestions) {
 				if (!suggestion.fix) {
 					continue;
 				}
 
-				const edit = this.buildEditFromFix(uri, text, suggestion.fix as EslintFix);
+				const edit = this.buildEditFromFix(uri, text, suggestion.fix);
 				if (!edit) {
 					continue;
 				}
 
 				actions.push({
-					title: this.buildSuggestionTitle(suggestion.desc, match?.ruleId),
+					title: this.buildSuggestionTitle(suggestion.desc, ruleId),
 					kind: CodeActionKind.QuickFix,
 					diagnostics: [diagnostic],
 					isPreferred: !hasPreferred,
@@ -209,7 +210,7 @@ export class EslintEngine {
 		return { line, character };
 	}
 
-	private convertToDiagnostic(msg: Linter.LintMessage): Diagnostic {
+	private convertToDiagnostic(msg: Linter.LintMessage, uri: string): Diagnostic {
 		const startLine = Math.max(0, msg.line - 1);
 		const startChar = Math.max(0, msg.column - 1);
 		const endLine = msg.endLine ? Math.max(0, msg.endLine - 1) : startLine;
@@ -223,7 +224,12 @@ export class EslintEngine {
 			message: `${msg.message} (${msg.ruleId})`,
 			severity: this.mapSeverity(msg.severity),
 			source: 'ESLint (ATM)',
-			code: msg.ruleId || undefined
+			code: msg.ruleId || undefined,
+			data: {
+				fix: msg.fix,
+				suggestions: msg.suggestions,
+				textVersion: this.documentVersion.get(uri)
+			}
 		};
 	}
 
