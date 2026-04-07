@@ -28,15 +28,15 @@ export interface ModelQuotaInfo {
 	timeUntilResetFormatted: string;
 }
 
-/** Prompt credit information for the user's plan. */
-export interface PromptCreditsInfo {
-	/** Credits currently available */
+/** Prompt token information for the user's plan. */
+export interface PromptTokensInfo {
+	/** Tokens currently available */
 	available: number;
-	/** Total monthly credit allowance */
+	/** Total monthly token allowance */
 	monthly: number;
-	/** Percentage of credits consumed [0, 100] */
+	/** Percentage of tokens consumed [0, 100] */
 	usedPercentage: number;
-	/** Percentage of credits remaining [0, 100] */
+	/** Percentage of tokens remaining [0, 100] */
 	remainingPercentage: number;
 }
 
@@ -44,8 +44,8 @@ export interface PromptCreditsInfo {
 export interface QuotaSnapshot {
 	/** When the snapshot was captured */
 	timestamp: Date;
-	/** Prompt credit info, if available in the plan */
-	promptCredits?: PromptCreditsInfo;
+	/** Prompt token info, if available in the plan */
+	promptTokens?: PromptTokensInfo;
 	/** User's current plan name as returned by the server (e.g. "Google AI Pro") */
 	planName?: string;
 	/** Raw teams tier string from planInfo (e.g. "CONSUMER", "PRO", "ULTRA") */
@@ -83,11 +83,11 @@ export interface ServerUserStatusResponse {
 			planInfo: {
 				teamsTier: string;
 				planName: string;
-				monthlyPromptCredits: number;
-				monthlyFlowCredits: number;
+				monthlyPromptTokens: number;
+				monthlyFlowTokens: number;
 			};
-			availablePromptCredits: number;
-			availableFlowCredits: number;
+			availablePromptTokens: number;
+			availableFlowTokens: number;
 		};
 		cascadeModelConfigData?: {
 			clientModelConfigs: ServerClientModelConfig[];

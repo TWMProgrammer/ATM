@@ -107,9 +107,9 @@ function buildPlanBadge(teamsTier: string | undefined, planName: string | undefi
 	return `<span style="color:${color};">AI (${label})</span>`;
 }
 
-// ── Engineered credits ───────────────────────────────────────────────
+// ── Engineered tokens ────────────────────────────────────────────────
 
-export type EngineeredCreditsResult =
+export type EngineeredTokensResult =
 	| { type: 'measured'; available: number; monthly: number; percentage: number }
 	| { type: 'unlimited' };
 
@@ -133,11 +133,11 @@ const MODEL_BASKETS = {
 };
 
 /**
- * Computes a synthetic credit score from model quotas.
+ * Computes a synthetic token score from model quotas.
  * FREE: 5 000 max · PRO: 50 000 max · ULTRA: unlimited.
  * Links connected models by treating them as aggregated "Baskets".
  */
-export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 'FREE' | 'PRO' | 'ULTRA'): EngineeredCreditsResult {
+export function computeEngineeredTokens(models: QuotaSnapshot['models'], tier: 'FREE' | 'PRO' | 'ULTRA'): EngineeredTokensResult {
 	if (tier === 'ULTRA') { return { type: 'unlimited' }; }
 
 	const tierMultiplier = tier === 'PRO' ? 10 : 1;
@@ -188,7 +188,7 @@ export function computeEngineeredCredits(models: QuotaSnapshot['models'], tier: 
 			}
 		} else {
 			// CRITICAL FIX: If a basket is missing from the server, 
-			// we assume 0 credits for it, we do NOT assume 100%.
+			// we assume 0 tokens for it, we do NOT assume 100%.
 			basketAvailablePct = 0;
 		}
 
@@ -214,17 +214,17 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 	const critical     = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
 
 	const tier       = resolvePlanTier(snapshot.teamsTier, snapshot.planName);
-	const engineered = computeEngineeredCredits(snapshot.models, tier);
+	const engineered = computeEngineeredTokens(snapshot.models, tier);
 	const parts: string[] = [];
 
 	if (engineered.type === 'unlimited') {
 		parts.push(
-			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_PLAN_ULTRA};">**∞ Unlimited**</span>`,
+			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Tokens:</span> <span style="color:${COLOR_PLAN_ULTRA};">**∞ Unlimited**</span>`,
 			`$(pass) <span style="color:${COLOR_HEALTHY};">Ultra Access</span>`
 		);
 	} else {
 		parts.push(
-			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Credits:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${engineered.available}/${engineered.monthly}**</span>`,
+			`$(account) <span style="color:${COLOR_TEXT_SECONDARY};">Tokens:</span> <span style="color:${COLOR_TEXT_PRIMARY};">**${engineered.available}/${engineered.monthly}**</span>`,
 			`$(pulse) <span style="color:${getStatusColor(Math.round(engineered.percentage))};">${Math.round(engineered.percentage)}% left</span>`
 		);
 	}

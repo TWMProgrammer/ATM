@@ -3,7 +3,7 @@ import {
 	QuotaSnapshot,
 	ServerUserStatusResponse,
 	ModelQuotaInfo,
-	PromptCreditsInfo,
+	PromptTokensInfo,
 	ServerClientModelConfig,
 } from './types';
 
@@ -146,7 +146,7 @@ export class QuotaManager {
 				timestamp: new Date(),
 				planName,
 				teamsTier,
-				promptCredits: this.parsePromptCredits(data),
+				promptTokens: this.parsePromptTokens(data),
 				models: [],
 			};
 		}
@@ -184,17 +184,17 @@ export class QuotaManager {
 			timestamp: new Date(),
 			planName,
 			teamsTier,
-			promptCredits: this.parsePromptCredits(data),
+			promptTokens: this.parsePromptTokens(data),
 			models,
 		};
 	}
 
-	private parsePromptCredits(data: ServerUserStatusResponse): PromptCreditsInfo | undefined {
+	private parsePromptTokens(data: ServerUserStatusResponse): PromptTokensInfo | undefined {
 		const planStatus = data.userStatus?.planStatus;
 		if (!planStatus) { return undefined; }
 
-		const monthly = planStatus.planInfo?.monthlyPromptCredits;
-		const available = planStatus.availablePromptCredits;
+		const monthly = planStatus.planInfo?.monthlyPromptTokens;
+		const available = planStatus.availablePromptTokens;
 		if (!Number.isFinite(monthly) || !Number.isFinite(available) || monthly <= 0) {
 			return undefined;
 		}
