@@ -135,7 +135,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 						const globalPct = Math.round(engineered.percentage);
 						lastReportedPercentage = globalPct;
 						statusBarItem.text = `${getStatusBarIcon(globalPct)} AI ${globalPct}%`;
-						statusBarItem.color = globalPct <= 20 ? new vscode.ThemeColor('errorForeground') : undefined;
+						statusBarItem.color = globalPct <= 20 ? new vscode.ThemeColor('editorWarning.foreground') : undefined;
 					}
 				}
 			}

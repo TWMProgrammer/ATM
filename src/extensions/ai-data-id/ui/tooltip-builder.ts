@@ -52,10 +52,14 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 	md.supportHtml = true;
 	md.supportThemeIcons = true;
 
+	const peakWarning = isClaudePeakHour(snapshot.timestamp) 
+		? ` ${'&nbsp;'.repeat(24)}<span style="color:${COLOR_DANGER};">**Claude** ⏰</span>`
+		: '';
+
 	md.appendMarkdown(
 		`### <span style="color:${COLOR_TEXT_PRIMARY}; font-weight:700;">Antigravity Quota</span>` +
 		`<span style="color:${COLOR_SEPARATOR};"> · </span>` +
-		`${buildPlanBadge(snapshot.teamsTier, snapshot.planName)}\n\n`
+		`${buildPlanBadge(snapshot.teamsTier, snapshot.planName)}${peakWarning}\n\n`
 	);
 	md.appendMarkdown(`${buildTopSummary(snapshot)}\n\n`);
 	md.appendMarkdown(DIVIDER);
@@ -291,6 +295,16 @@ function buildFooter(timestamp: Date, isRefreshing: boolean): string {
 
 // ── Utilities ────────────────────────────────────────────────────────
 
+function isClaudePeakHour(date: Date): boolean {
+	const day = date.getUTCDay();
+	// Los fines de semana (0 = Domingo, 6 = Sábado) no hay horas pico según el artículo
+	if (day === 0 || day === 6) { return false; }
+	
+	const hour = date.getUTCHours();
+	// Las horas pico son de 13:00 a 19:00 GMT (5:00 AM a 11:00 AM Pacífico)
+	return hour >= 13 && hour < 19;
+}
+
 function sortModelsByDisplayOrder(models: QuotaSnapshot['models']): QuotaSnapshot['models'] {
 	return [...models].sort((a, b) => {
 		const ai = MODEL_DISPLAY_ORDER.indexOf(a.label);
@@ -379,5 +393,5 @@ export function getStatusColor(percentage: number): string {
 }
 
 function joinWithSeparator(parts: string[]): string {
-	return parts.join(` &nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; `);
+	return parts.join(` &nbsp;&nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp;&nbsp; `);
 }
