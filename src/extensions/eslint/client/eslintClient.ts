@@ -48,22 +48,28 @@ export function activateEslintClient(context: ExtensionContext) {
 		}
 	};
 
-	// 4. INSTANCIACIÓN Y ENCENDIDO
+	// Creamos el cliente, pero no lo arrancamos inmediatamente aquí, 
+	// dejaremos que el ciclo de vida lo maneje startClient().
 	client = new LanguageClient(
 		'atmEslintServer',       // ID interno
 		'ATM ESLint Server',     // Nombre visible al usuario
 		serverOptions,
 		clientOptions
 	);
+}
 
-	// Start the client. This will also launch the server process.
-	client.start();
+export async function startClient() {
+	if (client) {
+		await client.start();
+	}
+}
+
+export async function stopClient(): Promise<void> {
+	if (client) {
+		await client.stop();
+	}
 }
 
 export function deactivateEslintClient(): Thenable<void> | undefined {
-	if (!client) {
-		return undefined;
-	}
-	// Apaga ordenadamente el proceso del servidor al cerrar el editor
-	return client.stop();
+	return stopClient();
 }
