@@ -98,7 +98,7 @@ async function main() {
 
 	const serverCtx = await esbuild.context({
 		entryPoints: [
-			'src/extensions/eslint/server/eslintServer.ts'
+			'src/extensions/atm-eslint/server/eslintServer.ts'
 		],
 		bundle: true,
 		format: 'cjs',

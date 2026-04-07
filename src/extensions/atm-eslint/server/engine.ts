@@ -6,15 +6,20 @@ import {
 	Range,
 	CodeAction,
 	CodeActionKind,
-	TextEdit,
 	WorkspaceEdit
 } from 'vscode-languageserver/node';
 
 type LogFn = (message: string) => void;
 
+type EslintFix = {
+	range: [number, number];
+	text: string;
+};
+
 export class EslintEngine {
 	private instances: Map<string, ESLint> = new Map();
 	private lastReportedMessages: Map<string, Linter.LintMessage[]> = new Map();
+	private lastDocumentText: Map<string, string> = new Map();
 	private log: LogFn;
 
 	constructor(log: LogFn) {
@@ -47,6 +52,7 @@ export class EslintEngine {
 			if (!result) return [];
 
 			this.lastReportedMessages.set(uri, result.messages);
+			this.lastDocumentText.set(uri, text);
 
 			this.log(`[Engine] Linted ${path.basename(filePath)}: ${result.messages.length} issues found.`);
 			return result.messages.map(msg => this.convertToDiagnostic(msg));
@@ -64,7 +70,8 @@ export class EslintEngine {
 
 	public getCodeActions(uri: string, diagnostic: Diagnostic): CodeAction[] {
 		const messages = this.lastReportedMessages.get(uri);
-		if (!messages) return [];
+		const text = this.lastDocumentText.get(uri);
+		if (!messages || !text) return [];
 
 		const actions: CodeAction[] = [];
 
@@ -75,24 +82,87 @@ export class EslintEngine {
 			m.column - 1 === diagnostic.range.start.character
 		);
 
+		let hasPreferred = false;
+
 		if (match && match.fix) {
+			const edit = this.buildEditFromFix(uri, text, match.fix as EslintFix);
+			if (edit) {
+				actions.push({
+					title: `Fix ATM: ${match.message} (${match.ruleId})`,
+					kind: CodeActionKind.QuickFix,
+					diagnostics: [diagnostic],
+					isPreferred: true,
+					edit
+				});
+				hasPreferred = true;
+			}
+		}
+
+		for (const suggestion of match?.suggestions ?? []) {
+			if (!suggestion.fix) continue;
+
+			const edit = this.buildEditFromFix(uri, text, suggestion.fix as EslintFix);
+			if (!edit) continue;
+
 			actions.push({
-				title: `Fix ATM: ${match.message} (${match.ruleId})`,
+				title: `Fix ATM: ${suggestion.desc} (${match?.ruleId})`,
 				kind: CodeActionKind.QuickFix,
 				diagnostics: [diagnostic],
-				isPreferred: true,
-				edit: {
-					changes: {
-						[uri]: [{
-							range: diagnostic.range,
-							newText: match.fix.text
-						}]
-					}
-				}
+				isPreferred: !hasPreferred,
+				edit
 			});
+
+			hasPreferred = true;
 		}
 
 		return actions;
+	}
+
+	private buildEditFromFix(uri: string, text: string, fix: EslintFix): WorkspaceEdit | undefined {
+		const [startOffset, endOffset] = fix.range;
+		const range = this.toRangeFromOffsets(text, startOffset, endOffset);
+		if (!range) return undefined;
+
+		return {
+			changes: {
+				[uri]: [{
+					range,
+					newText: fix.text
+				}]
+			}
+		};
+	}
+
+	private toRangeFromOffsets(text: string, startOffset: number, endOffset: number): Range | undefined {
+		if (!Number.isFinite(startOffset) || !Number.isFinite(endOffset) || endOffset < startOffset) {
+			return undefined;
+		}
+
+		return {
+			start: this.offsetToPosition(text, startOffset),
+			end: this.offsetToPosition(text, endOffset)
+		};
+	}
+
+	private offsetToPosition(text: string, offset: number): { line: number; character: number } {
+		const safeOffset = Math.max(0, Math.min(offset, text.length));
+		let line = 0;
+		let character = 0;
+
+		for (let i = 0; i < safeOffset; i++) {
+			const current = text.charCodeAt(i);
+			if (current === 10) {
+				line += 1;
+				character = 0;
+				continue;
+			}
+
+			if (current !== 13) {
+				character += 1;
+			}
+		}
+
+		return { line, character };
 	}
 
 	private convertToDiagnostic(msg: Linter.LintMessage): Diagnostic {
