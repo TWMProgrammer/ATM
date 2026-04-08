@@ -147,8 +147,8 @@ export class AtmMusicController {
     private playNext(silent = false) {
         const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
 
-        // Live radio mode: reconnect same stream if it ends.
-        if (currentTrack && this.isRadioTrack(currentTrack) && this.tracks.length === 1) {
+        // Live radio mode: reconnect same stream if it naturally ends and we are at the newest station.
+        if (currentTrack && this.isRadioTrack(currentTrack) && this.currentIndex === this.tracks.length - 1) {
             this.retryRadioStream(currentTrack);
             return;
         }
@@ -329,11 +329,24 @@ export class AtmMusicController {
             const [, stationId] = this.currentRadioStationKey.split(':');
             this.lastAmStationId = stationId || null;
         }
-        this.tracks = [radioTrack];
+
+        if (this.tracks.length === 0 || !this.isRadioTrack(this.tracks[0])) {
+            this.tracks = [radioTrack];
+            this.currentIndex = 0;
+        } else {
+            // Cut future history if moving to a new station from the past
+            this.tracks = this.tracks.slice(0, this.currentIndex + 1);
+            
+            const currentHistoryTrack = this.tracks[this.currentIndex];
+            if (!currentHistoryTrack || currentHistoryTrack.id !== radioTrack.id) {
+                this.tracks.push(radioTrack);
+                this.currentIndex++;
+            }
+        }
         this.hasCachedSearch = false;
-        this.currentIndex = 0;
+        
         this.showScreen('player');
-        this.playerUI.playTrack(radioTrack, false, false);
+        this.playerUI.playTrack(radioTrack, this.currentIndex > 0, this.currentIndex < this.tracks.length - 1);
         this.updateMusicLabelState();
 
         // Notify global listeners about the station change (useful for UI flag updates)
