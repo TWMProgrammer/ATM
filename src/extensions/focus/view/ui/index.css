@@ -135,6 +135,39 @@ body.vscode-light .radio-mode-btn:hover {
     color: var(--vscode-button-foreground);
     border-color: transparent;
     box-shadow: 0 3px 10px color-mix(in srgb, var(--vscode-button-background) 35%, transparent);
+    min-width: 68px; /* Ensures width stability when text is hidden */
+}
+
+/* EQ Animation */
+.btn-eq {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 12px;
+}
+.btn-eq span {
+    width: 2.5px;
+    height: 12px;
+    background-color: var(--vscode-button-foreground);
+    border-radius: 2px;
+    animation: eq-bounce 1s infinite ease-in-out;
+}
+.btn-eq span:nth-child(1) { animation-delay: -0.2s; }
+.btn-eq span:nth-child(2) { animation-delay: -0.5s; height: 14px; }
+.btn-eq span:nth-child(3) { animation-delay: -0.8s; }
+
+@keyframes eq-bounce {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
+}
+
+/* Toggle visibility when active */
+.radio-mode-btn.is-active .btn-text {
+    display: none;
+}
+.radio-mode-btn.is-active .btn-eq {
+    display: flex;
 }
 
 .search-container.api-loading::after {
