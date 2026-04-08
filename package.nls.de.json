@@ -1,6 +1,6 @@
 {
   "extension.displayName": "ATM 👻 Geist — ᐱ T ꓟ",
-  "extension.description": "👻 Ghost Helper — Alles-in-Einem Mehrsprachiges Toolkit: Error Lens · Git Blame · Env-Schutz · Bildvorschau · Code-Screenshot · Stimme TTS · Pomodoro · SVG-Optimierer · MDX · KI-Daten · Rechtschreibprüfung · Übersetzung · Lint und mehr. Schnell wie ein Geist. Für VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
+  "extension.description": "Alles-in-Einem Mehrsprachiges Toolkit: Error Lens · Git Blame · Env-Schutz · Bildvorschau · Code-Screenshot · Stimme TTS · Pomodoro · SVG-Optimierer · MDX · KI-Daten · Rechtschreibprüfung · Übersetzung · Lint und mehr. Schnell wie ein Geist. Für VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
   "command.voiceTts.read": "ATM Stimme TTS: Kopieren & Lesen",
   "command.comments.list": "ATM: TODO / FIXME Anmerkungen auflisten",
   "command.translate": "ATM: Übersetzen",
