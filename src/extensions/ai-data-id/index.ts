@@ -237,10 +237,8 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 			void fetchAndUpdateQuota();
 		} else {
 			// Pause polling to save resources while in background
-			if (fetchTimer) {
-				clearTimeout(fetchTimer);
-				fetchTimer = null;
-			}
+			if (fetchTimer)    { clearTimeout(fetchTimer);   fetchTimer    = null; }
+			if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
 		}
 	});
 
@@ -248,6 +246,10 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	let debounceTimer: NodeJS.Timeout | null = null;
 	const textDocSub = vscode.workspace.onDidChangeTextDocument((e) => {
 		if (e.document.uri.scheme !== 'file') { return; }
+
+		// Ignore changes in build outputs, dependencies and VCS internals
+		const filePath = e.document.uri.fsPath;
+		if (/[/\\](?:node_modules|dist|build|out|\.git)[/\\]/.test(filePath)) { return; }
 
 		const hasLargeInsert = e.contentChanges.some(change => {
 			const text = change.text;
