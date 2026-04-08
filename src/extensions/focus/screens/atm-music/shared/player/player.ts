@@ -659,12 +659,7 @@ export class MusicPlayerUI {
         const countEl = favBtn.querySelector('.fav-count');
         if (countEl) {
             countEl.textContent = String(remainingCount);
-            countEl.classList.toggle('is-hidden', remainingCount <= 0);
         }
-
-        // Disable if 0 remaining AND not already a favorite
-        const shouldDisable = !isFavorited && remainingCount <= 0;
-        favBtn.disabled = shouldDisable;
     }
 }
 

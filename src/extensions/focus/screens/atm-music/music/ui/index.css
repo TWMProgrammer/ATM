@@ -75,6 +75,10 @@
     cursor: pointer;
 }
 
+#player-favorite-btn[hidden] {
+    display: none;
+}
+
 #player-favorite-btn * {
     pointer-events: none;
 }

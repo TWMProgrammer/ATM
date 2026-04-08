@@ -168,6 +168,17 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         originalStationKey: string;
     }
     let favorites: (FavoriteStation | null)[] = [null, null, null];
+    let nextReplacementSlot = 0;
+
+    const isAmStation = (stationKey: string | undefined, track: { id: string; title: string }) => {
+        if (stationKey?.startsWith('am:') || stationKey?.startsWith('am-peru:')) {
+            return true;
+        }
+        if (/^radio_am[:_-]/i.test(track.id || '')) {
+            return true;
+        }
+        return /^AM\s*-\s*/i.test(track.title || '');
+    };
 
     const updateFavoritesUI = () => {
         const remaining = favorites.filter(f => f === null).length;
@@ -199,16 +210,25 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     window.addEventListener('atm_toggle_favorite', ((event: CustomEvent) => {
         const { track, stationKey } = event.detail;
         if (!track || !track.id.startsWith('radio_')) { return; }
+        if (!isAmStation(stationKey, track)) { return; }
 
         const existingIndex = favorites.findIndex(f => f?.id === track.id);
 
         if (existingIndex > -1) {
             // Remove from favorites
             favorites[existingIndex] = null;
+
+            if (favorites.every(f => f === null)) {
+                nextReplacementSlot = 0;
+            }
         } else {
-            // Add to favorites: finding the first empty slot.
-            const targetIndex = favorites.indexOf(null);
-            if (targetIndex === -1) { return; } // Should be handled by disabled button in UI
+            // Add to favorites: use first empty slot, otherwise rotate replacement.
+            const emptyIndex = favorites.indexOf(null);
+            const targetIndex = emptyIndex > -1 ? emptyIndex : nextReplacementSlot;
+
+            if (emptyIndex === -1) {
+                nextReplacementSlot = (nextReplacementSlot + 1) % favorites.length;
+            }
 
             let favTitle = track.title;
             const flagMatch = favTitle.match(/[\u{1F1E6}-\u{1F1FF}]{2}/u);
