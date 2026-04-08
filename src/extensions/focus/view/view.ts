@@ -156,22 +156,13 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	}
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
-		// Asset paths
-		const styles = [
-			['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
-			['src', 'extensions', 'focus', 'screens', 'atm-music', 'music', 'ui', 'index.css'],
-			['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
-			['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.css'],
-		];
-
-		const styleUris = styles.map(s => webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, ...s)));
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'dist', 'atm-music-webview.js'));
 
 		const csp = [
 			`default-src 'none'`,
 			`connect-src http://127.0.0.1:*`,
 			`style-src ${webview.cspSource} 'unsafe-inline'`,
-			`script-src ${webview.cspSource}`,
+			`script-src ${webview.cspSource} 'unsafe-inline'`,
 			`img-src ${webview.cspSource} https://*.ytimg.com https://*.googleusercontent.com https://*.dzcdn.net https://*.fastly.net data:`,
 			`media-src ${webview.cspSource} https://*.dzcdn.net http://127.0.0.1:* blob: data:`,
 			`font-src ${webview.cspSource}`,
@@ -180,6 +171,21 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		// Read and assemble the raw template once, cache for subsequent resolves.
 		// These files are part of the extension bundle and never change at runtime.
 		if (!this._cachedRawHtml) {
+			const stylesPaths = [
+				['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
+				['src', 'extensions', 'focus', 'screens', 'atm-music', 'music', 'ui', 'index.css'],
+				['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
+				['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.css'],
+			];
+
+			let combinedCss = '';
+			for (const s of stylesPaths) {
+				const cssPath = path.join(this._extensionUri.fsPath, ...s);
+				if (fs.existsSync(cssPath)) {
+					combinedCss += fs.readFileSync(cssPath, 'utf8') + '\n';
+				}
+			}
+
 			const htmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'view', 'ui', 'index.html');
 			let rawHtml = fs.readFileSync(htmlPath, 'utf8');
 
@@ -191,19 +197,19 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 			const dataHtml = fs.readFileSync(dataHtmlPath, 'utf8');
 			rawHtml = rawHtml.replace('<div id="atm-data-root" class="center-screen-message"></div>', `\n${dataHtml}\n`);
 
+			rawHtml = rawHtml.replace('</head>', `<style>\n${combinedCss}</style>\n</head>`);
+
 			this._cachedRawHtml = rawHtml;
 		}
 
 		// Inject dynamic webview-specific parts (CSP + URIs change per webview instance)
 		let html = this._cachedRawHtml;
 
-		const styleLinks = styleUris.map(uri => `<link rel="stylesheet" href="${uri}">`).join('\n');
-
 		html = html.replace(
 			'</head>',
-			`<meta http-equiv="Content-Security-Policy" content="${csp}">\n${styleLinks}\n</head>`,
+			`<meta http-equiv="Content-Security-Policy" content="${csp}">\n</head>`,
 		);
-		html = html.replace('</body>', `<script src="${scriptUri}"></script>\n</body>`);
+		html = html.replace('</body>', `<script src="${scriptUri}"></script>\n<script>\nsetTimeout(() => document.body.classList.remove('is-app-loading'), 50);\n</script>\n</body>`);
 
 		return html;
 	}

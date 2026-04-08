@@ -116,7 +116,14 @@ export class AtmMusicController {
             } else if (msg.type === 'error') {
                 this.showError(msg.message || 'Unknown error');
             } else if (msg.type === 'togglePlayPause') {
-                this.playerUI.togglePlaybackIfNeeded();
+                if (this.currentIndex === -1) {
+                    const firstRadioBtn = document.querySelector('#mode-panel-radio .radio-mode-btn') as HTMLElement;
+                    if (firstRadioBtn) {
+                        firstRadioBtn.click();
+                    }
+                } else {
+                    this.playerUI.togglePlaybackIfNeeded();
+                }
             }
         });
 
