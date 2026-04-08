@@ -52,8 +52,8 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 	md.supportHtml = true;
 	md.supportThemeIcons = true;
 
-	const peakWarning = isClaudePeakHour(snapshot.timestamp) 
-		? ` ${'&nbsp;'.repeat(24)}<span style="color:${COLOR_DANGER};">**Claude** ⏰</span>`
+	const peakWarning = isClaudePeakHour(snapshot.timestamp)
+		? `${'&nbsp;'.repeat(22)}<span style="color:${COLOR_DANGER};">**Claude** ⏰</span>`
 		: '';
 
 	md.appendMarkdown(
@@ -226,7 +226,7 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 
 	const safeZone = Math.max(totalMeasured - exhausted - critical, 0);
 	parts.push(
-		`$(heart) <span style="color:${COLOR_TEXT_SECONDARY};">Healthy:</span> <span style="color:${COLOR_HEALTHY};">**${safeZone}/${totalMeasured}**</span>`,
+		`&ensp;$(heart) <span style="color:${COLOR_TEXT_SECONDARY};">Healthy:</span> <span style="color:${COLOR_HEALTHY};">**${safeZone}/${totalMeasured}**</span>`,
 		...(critical  > 0 ? [`$(warning) <span style="color:${COLOR_WARNING};">Low: ${critical}</span>`]         : []),
 		...(exhausted > 0 ? [`$(error) <span style="color:${COLOR_DANGER};">Exhausted: ${exhausted}</span>`]     : []),
 	);
@@ -292,7 +292,9 @@ function isClaudePeakHour(date: Date): boolean {
 	
 	const hour = date.getUTCHours();
 	// Las horas pico son de 13:00 a 19:00 GMT (5:00 AM a 11:00 AM Pacífico)
-	return hour >= 13 && hour < 19;
+	// TEMP: always return true for visual alignment testing
+	void hour;
+	return true;
 }
 
 function sortModelsByDisplayOrder(models: QuotaSnapshot['models']): QuotaSnapshot['models'] {
@@ -383,5 +385,5 @@ export function getStatusColor(percentage: number): string {
 }
 
 function joinWithSeparator(parts: string[]): string {
-	return parts.join(` &nbsp;&nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp;&nbsp; `);
+	return parts.join(` &nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; `);
 }
