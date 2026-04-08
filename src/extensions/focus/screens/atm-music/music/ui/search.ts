@@ -1,4 +1,4 @@
-import { $, escapeHtml } from '../../../../shared/utils';
+import { $ } from '../../../../shared/utils';
 
 export type SearchButtonMode = 'disabled' | 'search' | 'forward';
 
@@ -53,8 +53,9 @@ export class MusicSearchUI {
 
         if (this.searchInput) {
             this.searchInput.addEventListener('input', () => this.updateState());
-            this.searchInput.addEventListener('keypress', (e) => {
+            this.searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     if (this.mode === 'forward') {
                         this.onForward();
                         return;

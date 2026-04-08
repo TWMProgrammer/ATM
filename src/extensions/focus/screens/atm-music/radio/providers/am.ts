@@ -495,7 +495,7 @@ export const AM_STATIONS: AmPeruStation[] = [
 // Backward-compatible default for existing imports.
 export const AM_PERU_STREAM_URL = AM_PERU_STATIONS[0].streamUrl;
 
-export function getRandomPeruAmStation(previousStationId: string | null): AmPeruStation {
+export function getRandomAmStation(previousStationId: string | null): AmPeruStation {
 	if (AM_STATIONS.length === 0) {
 		return {
 			id: 'peru-fallback',
@@ -521,25 +521,7 @@ export function getRandomPeruAmStation(previousStationId: string | null): AmPeru
 	return candidates[randomIndex];
 }
 
-export function getNextPeruAmStation(previousStationId: string | null): AmPeruStation {
-	if (AM_PERU_STATIONS.length === 0) {
-		return {
-			id: 'peru-fallback',
-			label: 'AM - Perú 🇵🇪 | Norte',
-			displayName: 'Fallback Peru Station',
-			streamUrl: AM_PERU_STREAM_URL,
-		};
-	}
-
-	if (!previousStationId) {
-		return AM_PERU_STATIONS[0];
-	}
-
-	const currentIndex = AM_PERU_STATIONS.findIndex((station) => station.id === previousStationId);
-	if (currentIndex < 0) {
-		return AM_PERU_STATIONS[0];
-	}
-
-	const nextIndex = (currentIndex + 1) % AM_PERU_STATIONS.length;
-	return AM_PERU_STATIONS[nextIndex];
+/** @deprecated Use getRandomAmStation instead. */
+export function getRandomPeruAmStation(previousStationId: string | null): AmPeruStation {
+	return getRandomAmStation(previousStationId);
 }

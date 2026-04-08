@@ -9,10 +9,9 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
 (function () {
     const vscode = acquireVsCodeApi();
-    (window as any).vscode = vscode;
+    window.vscode = vscode;
 
-    // Mount Time and Game screens
-    const atmTimeRoot = document.querySelector('#atm-time-root') as HTMLElement | null;
+    // Mount Data screen
     const atmGameRoot = document.querySelector('#atm-data-root') as HTMLElement | null;
 
     let isScreenshotOpen = false;
@@ -79,7 +78,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
     // Quick Access buttons (Music / Time / Game)
     const quickAccessButtons = Array.from(document.querySelectorAll('.qa-btn')) as HTMLButtonElement[];
-    const musicQuickButton = quickAccessButtons[0] || null;
+    const musicQuickButton = document.querySelector('#qa-music-tab') as HTMLButtonElement | null;
     const musicLabel = document.querySelector('#qa-music-label') as HTMLElement | null;
     const musicSearchPanel = document.querySelector('#mode-panel-music-search') as HTMLElement | null;
     const radioPanel = document.querySelector('#mode-panel-radio') as HTMLElement | null;
@@ -97,10 +96,12 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
         if (mode === 'music') {
             musicSearchPanel?.classList.add('is-active');
+            musicSearchPanel?.setAttribute('aria-hidden', 'false');
             radioPanel?.classList.remove('is-active');
             radioPanel?.setAttribute('aria-hidden', 'true');
         } else {
             musicSearchPanel?.classList.remove('is-active');
+            musicSearchPanel?.setAttribute('aria-hidden', 'true');
             radioPanel?.classList.add('is-active');
             radioPanel?.setAttribute('aria-hidden', 'false');
 
@@ -109,10 +110,12 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         }
     };
 
-    const setActiveRadioButton = (btn: HTMLButtonElement) => {
-        radioButtons.forEach((b) => {
-            b.classList.toggle('is-active', b === btn);
-        });
+    const parseFavoriteIndex = (stationKey: string): number | null => {
+        if (!stationKey.startsWith('fav-')) {
+            return null;
+        }
+        const value = Number.parseInt(stationKey.slice(4), 10);
+        return Number.isNaN(value) ? null : value;
     };
 
     // Helper: re-sync is-active AND is-playing for all radio buttons
@@ -123,7 +126,11 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             let isPlaying = false;
             
             if (station.startsWith('fav-')) {
-                const favIndex = parseInt(station.split('-')[1]);
+                const favIndex = parseFavoriteIndex(station);
+                if (favIndex === null) {
+                    button.classList.remove('is-active', 'is-playing');
+                    return;
+                }
                 const fav = favorites[favIndex];
                 if (fav) {
                     isActive = musicController.isCurrentRadioStation(fav.originalStationKey);
@@ -216,7 +223,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
                 id: track.id,
                 title: favTitle,
                 preview: track.preview,
-                originalStationKey: stationKey || `fav-${targetIndex}`
+                originalStationKey: stationKey || track.id
             };
         }
 
@@ -227,7 +234,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     // Initial sync
     updateFavoritesUI();
 
-    radioButtons.forEach((button, index) => {
+    radioButtons.forEach((button) => {
         button.addEventListener('click', () => {
             const station = button.dataset.radioStation || '';
 
@@ -239,7 +246,10 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
             // Check if it's a favorite button
             if (station.startsWith('fav-')) {
-                const favIndex = parseInt(station.split('-')[1]);
+                const favIndex = parseFavoriteIndex(station);
+                if (favIndex === null) {
+                    return;
+                }
                 const fav = favorites[favIndex];
                 if (fav) {
                     if (musicController.isPlayingRadioStation(fav.originalStationKey)) {
@@ -251,7 +261,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
                 }
             }
 
-            if (station === 'am-peru') {
+            if (station === 'am') {
                 musicController.playRandomAmStation();
                 return;
             }
@@ -278,7 +288,11 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             let isActive = false;
             
             if (station.startsWith('fav-')) {
-                const favIndex = parseInt(station.split('-')[1]);
+                const favIndex = parseFavoriteIndex(station);
+                if (favIndex === null) {
+                    button.classList.remove('is-active', 'is-playing');
+                    return;
+                }
                 const fav = favorites[favIndex];
                 if (fav) {
                     isActive = musicController.isCurrentRadioStation(fav.originalStationKey);
@@ -293,7 +307,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         const amButton = document.querySelector('.radio-mode-btn-am') as HTMLButtonElement | null;
         if (!amButton) {return;}
 
-        if (stationKey?.startsWith('am-peru')) {
+        if (stationKey?.startsWith('am:') || stationKey?.startsWith('am-peru')) {
             const flagMatch = title.match(/[\u{1F1E6}-\u{1F1FF}]{2}/u);
             const flag = flagMatch ? flagMatch[0] : 'AM';
             amButton.textContent = flag;

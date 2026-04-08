@@ -3,7 +3,7 @@ import { MusicSearchUI } from './search';
 import { MusicResultsUI } from './results';
 import { MusicPlayerUI } from '../../shared/player/player';
 import { $, escapeHtml } from '../../../../shared/utils';
-import { getRandomPeruAmStation } from '../../radio/providers/am';
+import { getRandomAmStation } from '../../radio/providers/am';
 
 export interface VSCodeApi {
     postMessage: (message: WebviewMessage) => void;
@@ -314,8 +314,13 @@ export class AtmMusicController {
             ? `http://127.0.0.1:${port}/radio?streamUrl=${encodeURIComponent(safeStreamUrl)}`
             : safeStreamUrl;
 
+        const stationTokenSource = (stationKey || safeTitle).toLowerCase();
+        const stationToken = stationTokenSource
+            .replace(/[^a-z0-9:_-]+/g, '_')
+            .replace(/^_+|_+$/g, '');
+
         const radioTrack: Track = {
-            id: `radio_${safeTitle.toLowerCase().replace(/\s+/g, '_')}`,
+            id: `radio_${stationToken || 'station'}`,
             videoId: '',
             title: safeTitle,
             artist: 'Radio',
@@ -323,7 +328,7 @@ export class AtmMusicController {
             thumbnail: '',
             duration: 0,
             preview: proxiedUrl,
-            provider: 'deezer',
+            provider: 'radio',
             canPlay: true,
             isFullTrack: true,
         };
@@ -335,7 +340,7 @@ export class AtmMusicController {
         this.clearRadioReconnectTimer();
         this.resetRadioRetryState();
         this.currentRadioStationKey = stationKey || null;
-        if (this.currentRadioStationKey?.startsWith('am-peru:')) {
+        if (this.currentRadioStationKey?.startsWith('am:') || this.currentRadioStationKey?.startsWith('am-peru:')) {
             const [, stationId] = this.currentRadioStationKey.split(':');
             this.lastAmStationId = stationId || null;
         }
@@ -373,9 +378,9 @@ export class AtmMusicController {
     }
 
     public playRandomAmStation(): void {
-        const nextAmStation = getRandomPeruAmStation(this.lastAmStationId);
+        const nextAmStation = getRandomAmStation(this.lastAmStationId);
         this.lastAmStationId = nextAmStation.id;
-        this.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am-peru:${nextAmStation.id}`);
+        this.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am:${nextAmStation.id}`);
     }
 
     /** True if this station is the currently loaded one, regardless of play/pause state. */
