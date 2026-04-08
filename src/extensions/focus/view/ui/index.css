@@ -131,10 +131,10 @@ body.vscode-light .radio-mode-btn:hover {
 }
 
 .radio-mode-btn.is-active {
-    background: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    border-color: transparent;
-    box-shadow: 0 3px 10px color-mix(in srgb, var(--vscode-button-background) 35%, transparent);
+    background: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-background);
+    border-color: var(--vscode-button-background);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 .radio-mode-btn.is-active:not(.radio-mode-btn-am) {
     min-width: 68px; /* Ensures width stability when text is hidden */
@@ -151,7 +151,7 @@ body.vscode-light .radio-mode-btn:hover {
 .btn-eq span {
     width: 2.5px;
     height: 12px;
-    background-color: var(--vscode-button-foreground);
+    background-color: var(--vscode-button-background);
     border-radius: 2px;
     animation: eq-bounce 1s infinite ease-in-out;
 }
