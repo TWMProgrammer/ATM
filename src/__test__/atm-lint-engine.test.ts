@@ -10,42 +10,6 @@ function seedEngine(engine: LintEngine, uri: string, text: string, version: numb
 }
 
 suite('ATM Lint Engine - Quick Fixes', () => {
-	test('filters non-code "file ignored" warnings from ESLint internals', () => {
-		const engine = new LintEngine(() => undefined);
-		const internals = engine as any;
-
-		const ignoredByConfigMessage = {
-			message: 'File ignored because no matching configuration was supplied.',
-			ruleId: null
-		};
-
-		const ignoredByPatternMessage = {
-			message: 'File ignored because of a matching ignore pattern. Use "--no-ignore" to disable file ignore settings or use "--no-warn-ignored" to suppress this warning.',
-			ruleId: null
-		};
-
-		assert.strictEqual(internals.isNonCodeEslintMessage(ignoredByConfigMessage), true);
-		assert.strictEqual(internals.isNonCodeEslintMessage(ignoredByPatternMessage), true);
-	});
-
-	test('keeps parser and rule diagnostics that represent real code issues', () => {
-		const engine = new LintEngine(() => undefined);
-		const internals = engine as any;
-
-		const parserErrorMessage = {
-			message: 'Parsing error: Unexpected token <',
-			ruleId: null
-		};
-
-		const ruleMessage = {
-			message: 'Missing semicolon.',
-			ruleId: 'semi'
-		};
-
-		assert.strictEqual(internals.isNonCodeEslintMessage(parserErrorMessage), false);
-		assert.strictEqual(internals.isNonCodeEslintMessage(ruleMessage), false);
-	});
-
 	test('returns eqeqeq suggestion quick fix when suggestions are enabled', () => {
 		const engine = new LintEngine(() => undefined);
 		const uri = 'file:///tmp/test.ts';

@@ -99,29 +99,21 @@ export class LintEngine {
 				return [];
 			}
 
-			const filteredMessages = result.messages.filter(msg => !this.isNonCodeEslintMessage(msg));
-			const suppressedMessages = result.messages.length - filteredMessages.length;
-			if (suppressedMessages > 0) {
-				this.log(
-					`[Engine] Suppressed ${suppressedMessages} non-code ESLint warning(s) for ${path.basename(filePath)}.`
-				);
-			}
-
 			const version = (this.documentVersion.get(uri) ?? 0) + 1;
 			this.documentVersion.set(uri, version);
 			this.lastDocumentText.set(uri, text);
-			const directFixCount = filteredMessages.reduce((total, message) => total + (message.fix ? 1 : 0), 0);
-			const suggestionCount = filteredMessages.reduce((total, message) => total + (message.suggestions?.length ?? 0), 0);
+			const directFixCount = result.messages.reduce((total, message) => total + (message.fix ? 1 : 0), 0);
+			const suggestionCount = result.messages.reduce((total, message) => total + (message.suggestions?.length ?? 0), 0);
 
 			this.log(
-				`[Engine] Linted ${path.basename(filePath)}: ${filteredMessages.length} issues found (${directFixCount} direct fixes, ${suggestionCount} suggestions).`
+				`[Engine] Linted ${path.basename(filePath)}: ${result.messages.length} issues found (${directFixCount} direct fixes, ${suggestionCount} suggestions).`
 			);
 			
 			if (this.onStatusChange) {
 				this.onStatusChange('ok');
 			}
 			
-			return filteredMessages.map(msg => this.convertToDiagnostic(msg, uri));
+			return result.messages.map(msg => this.convertToDiagnostic(msg, uri));
 
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
@@ -267,31 +259,6 @@ export class LintEngine {
 			start: this.offsetToPosition(text, startOffset),
 			end: this.offsetToPosition(text, endOffset)
 		};
-	}
-
-	/**
-	 * Filters ESLint operational warnings that are not tied to actual source-code issues.
-	 * Example: "File ignored because no matching configuration was supplied".
-	 */
-	private isNonCodeEslintMessage(msg: Linter.LintMessage): boolean {
-		if (msg.ruleId) {
-			return false;
-		}
-
-		const normalizedMessage = (msg.message || '').toLowerCase();
-		if (!normalizedMessage) {
-			return false;
-		}
-
-		if (normalizedMessage.includes('file ignored because no matching configuration was supplied')) {
-			return true;
-		}
-
-		if (normalizedMessage.includes('file ignored by default') || normalizedMessage.includes('file ignored because of a matching ignore pattern')) {
-			return true;
-		}
-
-		return false;
 	}
 
 	private offsetToPosition(text: string, offset: number): { line: number; character: number } {
