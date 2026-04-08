@@ -108,6 +108,8 @@ export class AtmMusicController {
                 this.updateMusicLabelState();
             } else if (msg.type === 'error') {
                 this.showError(msg.message || 'Unknown error');
+            } else if (msg.type === 'togglePlayPause') {
+                this.playerUI.togglePlaybackIfNeeded();
             }
         });
 

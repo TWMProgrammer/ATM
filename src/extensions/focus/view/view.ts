@@ -8,7 +8,7 @@ import { ATMDataProvider } from '../screens/atm-data/core/provider';
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'atm-yt-music-view';
 
-	/** Cached raw HTML template (read from disk once, reused on every resolve) */
+	private _view?: vscode.WebviewView;
 	private _cachedRawHtml: string | null = null;
 
 	constructor(
@@ -20,6 +20,8 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		_context: vscode.WebviewViewResolveContext,
 		_token: vscode.CancellationToken,
 	) {
+		this._view = webviewView;
+
 		webviewView.webview.options = {
 			enableScripts: true,
 			localResourceRoots: [this._extensionUri],
@@ -56,6 +58,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 			}
 			handleWebviewMessage(webviewView, message);
 		});
+	}
+
+	public togglePlayPause() {
+		this._view?.webview.postMessage({ type: 'togglePlayPause' });
 	}
 
 	private _getHtmlForWebview(webview: vscode.Webview) {

@@ -33,7 +33,8 @@ export type WebviewMessageType =
     | 'validateAndSaveApi'
     | 'openUrl'
     | 'clearApiKey'
-    | 'apiKeyValidationResult';
+    | 'apiKeyValidationResult'
+    | 'togglePlayPause';
 
 export interface WebviewMessage {
     type: WebviewMessageType;

@@ -389,6 +389,12 @@ export class MusicPlayerUI {
         }, { passive: true });
     }
 
+    public togglePlaybackIfNeeded() {
+        if (this.audioPlayer && this.audioPlayer.src) {
+            this.togglePlayback();
+        }
+    }
+
     private togglePlayback() {
         if (this.isPlaying) {
             this.pause();

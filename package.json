@@ -158,6 +158,10 @@
         "command": "atm.lint.revalidateOpenFiles",
         "title": "%command.lint.revalidate%",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "atm.music.togglePlayPause",
+        "title": "%command.music.togglePlayPause%"
       }
     ],
     "configuration": {
@@ -397,6 +401,11 @@
         "key": "ctrl+shift+r",
         "mac": "cmd+shift+r",
         "when": "atm.releaseNotes.active"
+      },
+      {
+        "command": "atm.music.togglePlayPause",
+        "key": "ctrl+shift+space",
+        "mac": "cmd+shift+space"
       }
     ],
     "languages": [
