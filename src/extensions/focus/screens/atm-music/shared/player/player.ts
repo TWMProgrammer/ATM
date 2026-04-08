@@ -651,7 +651,7 @@ export class MusicPlayerUI {
     }
 
     public updateFavoriteButtonState(isFavorited: boolean, remainingCount: number): void {
-        const favBtn = this.$c<HTMLElement>('#player-favorite-btn');
+        const favBtn = this.$c<HTMLButtonElement>('#player-favorite-btn');
         if (!favBtn) { return; }
 
         favBtn.classList.toggle('is-favorited', isFavorited);
@@ -660,5 +660,10 @@ export class MusicPlayerUI {
         if (countEl) {
             countEl.textContent = String(remainingCount);
         }
+
+        // Disable if 0 remaining AND not already a favorite
+        const shouldDisable = !isFavorited && remainingCount <= 0;
+        favBtn.disabled = shouldDisable;
     }
 }
+

@@ -79,22 +79,35 @@
 }
 
 #player-favorite-btn .heart-icon {
-    transition: fill 0.2s ease, stroke 0.2s ease, transform 0.2s ease;
+    transition: fill 0.2s ease, stroke 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+    stroke: #ff7eb9;
 }
 
-#player-favorite-btn:hover .heart-icon {
-    stroke: #ff7eb9;
-    fill: rgba(255, 126, 185, 0.2);
+#player-favorite-btn:hover:not(:disabled) .heart-icon {
+    stroke: #ff00ff;
+    fill: rgba(255, 0, 255, 0.2);
     transform: scale(1.1);
 }
 
 #player-favorite-btn.is-favorited .heart-icon {
-    stroke: #ff7eb9;
-    fill: #ff7eb9;
+    stroke: #ff00ff;
+    fill: #ff00ff;
 }
 
-#player-favorite-btn.is-favorited:hover .heart-icon {
-    transform: scale(1.2);
+#player-favorite-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+    background: transparent;
+}
+
+#player-favorite-btn:disabled .heart-icon {
+    stroke: var(--vscode-disabledForeground);
+    fill: transparent;
+    transform: none;
+}
+
+#player-favorite-btn:disabled .fav-count {
+    display: none;
 }
 
 

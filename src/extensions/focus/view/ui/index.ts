@@ -161,7 +161,6 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         originalStationKey: string;
     }
     let favorites: (FavoriteStation | null)[] = [null, null, null];
-    let favSlotIndex = 0;
 
     const updateFavoritesUI = () => {
         const remaining = favorites.filter(f => f === null).length;
@@ -200,6 +199,10 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             // Remove from favorites
             favorites[existingIndex] = null;
         } else {
+            // Add to favorites: finding the first empty slot.
+            const targetIndex = favorites.indexOf(null);
+            if (targetIndex === -1) { return; } // Should be handled by disabled button in UI
+
             let favTitle = track.title;
             const flagMatch = favTitle.match(/[\u{1F1E6}-\u{1F1FF}]{2}/u);
             if (flagMatch) {
@@ -209,21 +212,12 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
                 favTitle = parts.length > 1 ? `AM - ${parts[parts.length - 1].substring(0, 5)}` : 'AM';
             }
 
-            // Add to favorites: finding the first empty slot, otherwise replacement.
-            const firstEmptyIndex = favorites.indexOf(null);
-            const targetIndex = firstEmptyIndex !== -1 ? firstEmptyIndex : favSlotIndex;
-
             favorites[targetIndex] = {
                 id: track.id,
                 title: favTitle,
                 preview: track.preview,
                 originalStationKey: stationKey || `fav-${targetIndex}`
             };
-
-            // If we replaced, advance the pointer for next replacement.
-            if (firstEmptyIndex === -1) {
-                favSlotIndex = (favSlotIndex + 1) % 3;
-            }
         }
 
         updateFavoritesUI();
