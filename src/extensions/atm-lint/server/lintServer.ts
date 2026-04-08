@@ -23,12 +23,12 @@ const engine = new LintEngine(
 		if (errorMessage.includes('Could not find config file')) {
 			if (!warnedErrors.has('missing-config')) {
 				warnedErrors.add('missing-config');
-				connection.window.showWarningMessage(`⚠️ ATMLint need eslint, ${fileName}`);
+				connection.window.showInformationMessage(`ATMLint: No ESLint configuration found for '${fileName}'.`);
 			}
 		} else {
 			if (!warnedErrors.has(errorMessage)) {
 				warnedErrors.add(errorMessage);
-				connection.window.showErrorMessage(`⚠️ ATMLint Error: ${errorMessage}`);
+				connection.window.showErrorMessage(`ATMLint Error: ${errorMessage}`);
 			}
 		}
 	}
