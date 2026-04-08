@@ -75,7 +75,8 @@
     font-size: 10px;
     font-weight: 700;
     font-family: var(--vscode-font-family);
-    opacity: 0.8;
+    color: #ff7eb9;
+    opacity: 0.9;
 }
 
 #player-favorite-btn .heart-icon {
@@ -86,7 +87,6 @@
 #player-favorite-btn:hover:not(:disabled) .heart-icon {
     stroke: #ff00ff;
     fill: rgba(255, 0, 255, 0.2);
-    transform: scale(1.1);
 }
 
 #player-favorite-btn.is-favorited .heart-icon {
@@ -103,10 +103,9 @@
 #player-favorite-btn:disabled .heart-icon {
     stroke: var(--vscode-disabledForeground);
     fill: transparent;
-    transform: none;
 }
 
-#player-favorite-btn:disabled .fav-count {
+#player-favorite-btn .fav-count.is-hidden {
     display: none;
 }
 
