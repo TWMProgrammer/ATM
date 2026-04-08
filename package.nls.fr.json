@@ -1,6 +1,6 @@
 {
   "extension.displayName": "ᐱ T ꓟ",
-  "extension.description": "⚡ Boîte à outils tout-en-un — Error Lens · Git Blame · Protection Env · Aperçu d'image · Capture de code · Voix TTS · Pomodoro · Optimiseur SVG · MDX · Données AI · Correction et plus. Fonctionne sur VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
+  "extension.description": "👻 Boîte à outils tout-en-un — Error Lens · Git Blame · Protection Env · Aperçu d'image · Capture de code · Voix TTS · Pomodoro · Optimiseur SVG · MDX · Données AI · Correction et plus. Fonctionne sur VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
   "command.voiceTts.read": "ATM TTS Vocale: Copier & Lire",
   "command.comments.list": "ATM: Lister les annotations TODO / FIXME",
   "command.translate": "ATM: Traduire",
