@@ -142,12 +142,23 @@ export class AtmMusicController {
         this.currentIndex = index;
         const track = this.tracks[index];
         if (track) {
-            if (!this.isRadioTrack(track)) {
+            if (this.isRadioTrack(track)) {
+                this.currentRadioStationKey = this.getStationKeyFromRadioTrack(track);
+            } else {
                 this.currentRadioStationKey = null;
             }
             this.showScreen('player');
             this.playerUI.playTrack(track, index > 0, index < this.tracks.length - 1);
             this.updateMusicLabelState();
+
+            if (this.isRadioTrack(track)) {
+                window.dispatchEvent(new CustomEvent('atm_station_changed', {
+                    detail: {
+                        title: track.title,
+                        stationKey: this.currentRadioStationKey,
+                    },
+                }));
+            }
         }
     }
 
@@ -432,6 +443,19 @@ export class AtmMusicController {
 
     private isRadioTrack(track: Track): boolean {
         return track.id.startsWith('radio_');
+    }
+
+    private getStationKeyFromRadioTrack(track: Track): string | null {
+        if (!this.isRadioTrack(track)) {
+            return null;
+        }
+
+        const keyFromId = (track.id || '').replace(/^radio_/, '').trim();
+        if (keyFromId) {
+            return keyFromId;
+        }
+
+        return this.currentRadioStationKey;
     }
 
     private retryRadioStream(track: Track): void {
