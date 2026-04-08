@@ -25,10 +25,12 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 type AtmLintSettings = {
 	enableSuggestions: boolean;
+	showOperationalWarnings: boolean;
 };
 
 const defaultSettings: AtmLintSettings = {
-	enableSuggestions: true
+	enableSuggestions: true,
+	showOperationalWarnings: false
 };
 
 let hasConfigurationCapability = false;
@@ -152,18 +154,24 @@ function clearDebounce(uri: string): void {
 async function refreshSettings(): Promise<void> {
 	if (!hasConfigurationCapability) {
 		globalSettings = defaultSettings;
+		engine.setShowOperationalWarnings(globalSettings.showOperationalWarnings);
 		return;
 	}
 
 	try {
 		const userConfig = await connection.workspace.getConfiguration('atm.lint') as Partial<AtmLintSettings> | undefined;
 		globalSettings = {
-			enableSuggestions: userConfig?.enableSuggestions ?? defaultSettings.enableSuggestions
+			enableSuggestions: userConfig?.enableSuggestions ?? defaultSettings.enableSuggestions,
+			showOperationalWarnings: userConfig?.showOperationalWarnings ?? defaultSettings.showOperationalWarnings
 		};
-		connection.console.log(`[Server] Settings loaded: enableSuggestions=${globalSettings.enableSuggestions}`);
+		engine.setShowOperationalWarnings(globalSettings.showOperationalWarnings);
+		connection.console.log(
+			`[Server] Settings loaded: enableSuggestions=${globalSettings.enableSuggestions}, showOperationalWarnings=${globalSettings.showOperationalWarnings}`
+		);
 	} catch (error: unknown) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		globalSettings = defaultSettings;
+		engine.setShowOperationalWarnings(globalSettings.showOperationalWarnings);
 		connection.console.log(`[Server] Failed to load settings, using defaults: ${errorMessage}`);
 	}
 }

@@ -28,6 +28,7 @@ export class LintEngine {
 	private workspaceRoots: string[] = [];
 	private log: LogFn;
 	private onStatusChange?: StatusEventFn;
+	private showOperationalWarnings: boolean = false;
 
 	constructor(log: LogFn, onStatusChange?: StatusEventFn) {
 		this.log = log;
@@ -87,6 +88,11 @@ export class LintEngine {
 		this.documentVersion.delete(uri);
 	}
 
+	public setShowOperationalWarnings(enabled: boolean): void {
+		this.showOperationalWarnings = enabled;
+		this.log(`[Engine] showOperationalWarnings=${enabled}`);
+	}
+
 	public async lintText(text: string, filePath: string, uri: string): Promise<Diagnostic[]> {
 		try {
 			const cwd = this.resolveCwd(filePath);
@@ -99,21 +105,35 @@ export class LintEngine {
 				return [];
 			}
 
+			const diagnosticsSourceMessages = this.showOperationalWarnings
+				? result.messages
+				: result.messages.filter(message => !this.isOperationalEslintMessage(message));
+			const suppressedOperationalWarnings = result.messages.length - diagnosticsSourceMessages.length;
+			if (suppressedOperationalWarnings > 0) {
+				this.log(
+					`[Engine] Suppressed ${suppressedOperationalWarnings} operational ESLint warning(s) for ${path.basename(filePath)}.`
+				);
+			}
+
 			const version = (this.documentVersion.get(uri) ?? 0) + 1;
 			this.documentVersion.set(uri, version);
 			this.lastDocumentText.set(uri, text);
-			const directFixCount = result.messages.reduce((total, message) => total + (message.fix ? 1 : 0), 0);
-			const suggestionCount = result.messages.reduce((total, message) => total + (message.suggestions?.length ?? 0), 0);
+			const directFixCount = diagnosticsSourceMessages.reduce((total, message) => total + (message.fix ? 1 : 0), 0);
+			const suggestionCount = diagnosticsSourceMessages.reduce((total, message) => total + (message.suggestions?.length ?? 0), 0);
 
 			this.log(
-				`[Engine] Linted ${path.basename(filePath)}: ${result.messages.length} issues found (${directFixCount} direct fixes, ${suggestionCount} suggestions).`
+				`[Engine] Linted ${path.basename(filePath)}: ${diagnosticsSourceMessages.length} issues found (${directFixCount} direct fixes, ${suggestionCount} suggestions).`
 			);
 			
 			if (this.onStatusChange) {
-				this.onStatusChange('ok');
+				if (!this.showOperationalWarnings && suppressedOperationalWarnings > 0 && diagnosticsSourceMessages.length === 0) {
+					this.onStatusChange('missing-config');
+				} else {
+					this.onStatusChange('ok');
+				}
 			}
 			
-			return result.messages.map(msg => this.convertToDiagnostic(msg, uri));
+			return diagnosticsSourceMessages.map(msg => this.convertToDiagnostic(msg, uri));
 
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : String(error);
@@ -259,6 +279,31 @@ export class LintEngine {
 			start: this.offsetToPosition(text, startOffset),
 			end: this.offsetToPosition(text, endOffset)
 		};
+	}
+
+	private isOperationalEslintMessage(msg: Linter.LintMessage): boolean {
+		if (msg.ruleId) {
+			return false;
+		}
+
+		const normalizedMessage = (msg.message || '').toLowerCase();
+		if (!normalizedMessage) {
+			return false;
+		}
+
+		if (normalizedMessage.includes('file ignored because no matching configuration was supplied')) {
+			return true;
+		}
+
+		if (normalizedMessage.includes('file ignored by default')) {
+			return true;
+		}
+
+		if (normalizedMessage.includes('file ignored because of a matching ignore pattern')) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private offsetToPosition(text: string, offset: number): { line: number; character: number } {

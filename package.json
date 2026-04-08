@@ -250,6 +250,11 @@
           "default": true,
           "description": "Enable suggestion-based Lint Quick Fixes (for example, == to ===)."
         },
+        "atm.lint.showOperationalWarnings": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show operational ESLint warnings as diagnostics (for example, file ignored because no matching configuration was supplied)."
+        },
         "atm.colorBgTag.enabled": {
           "type": "boolean",
           "default": true,
