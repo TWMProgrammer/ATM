@@ -18,6 +18,7 @@ export function activateFocus(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('atm.music.togglePlayPause', () => {
+            vscode.commands.executeCommand('atm-yt-music-view.focus');
             provider.togglePlayPause();
         })
     );
