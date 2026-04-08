@@ -12,10 +12,15 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { LintEngine } from './engine';
-import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
+import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse, ATM_LINT_STATUS_NOTIFICATION, AtmLintStatusParams } from '../shared/types';
 
 const connection = createConnection(ProposedFeatures.all);
-const engine = new LintEngine((msg) => connection.console.log(msg));
+const engine = new LintEngine(
+	(msg) => connection.console.log(msg),
+	(status, message) => {
+		connection.sendNotification(ATM_LINT_STATUS_NOTIFICATION, { status, message } as AtmLintStatusParams);
+	}
+);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 type AtmLintSettings = {

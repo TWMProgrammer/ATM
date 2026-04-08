@@ -10,6 +10,7 @@ import {
 } from 'vscode-languageserver/node';
 
 type LogFn = (message: string) => void;
+type StatusEventFn = (status: 'ok' | 'missing-config' | 'error', message?: string) => void;
 
 type LintFix = {
 	range: [number, number];
@@ -26,9 +27,11 @@ export class LintEngine {
 	private lastDocumentText: Map<string, string> = new Map();
 	private workspaceRoots: string[] = [];
 	private log: LogFn;
+	private onStatusChange?: StatusEventFn;
 
-	constructor(log: LogFn) {
+	constructor(log: LogFn, onStatusChange?: StatusEventFn) {
 		this.log = log;
+		this.onStatusChange = onStatusChange;
 	}
 
 	/**
@@ -105,6 +108,11 @@ export class LintEngine {
 			this.log(
 				`[Engine] Linted ${path.basename(filePath)}: ${result.messages.length} issues found (${directFixCount} direct fixes, ${suggestionCount} suggestions).`
 			);
+			
+			if (this.onStatusChange) {
+				this.onStatusChange('ok');
+			}
+			
 			return result.messages.map(msg => this.convertToDiagnostic(msg, uri));
 
 		} catch (error: unknown) {
@@ -114,6 +122,14 @@ export class LintEngine {
 			const cwd = this.resolveCwd(filePath);
 			this.instances.delete(cwd);
 			this.clearDocumentData(uri);
+
+			if (this.onStatusChange) {
+				if (errorMessage.includes('Could not find config file')) {
+					this.onStatusChange('missing-config');
+				} else {
+					this.onStatusChange('error', errorMessage);
+				}
+			}
 
 			return [];
 		}
