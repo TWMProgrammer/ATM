@@ -364,6 +364,15 @@ export class AtmMusicController {
         this.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am-peru:${nextAmStation.id}`);
     }
 
+    /** True if this station is the currently loaded one, regardless of play/pause state. */
+    public isCurrentRadioStation(stationKey: string): boolean {
+        if (!stationKey || !this.currentRadioStationKey) { return false; }
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+        if (!currentTrack || !this.isRadioTrack(currentTrack)) { return false; }
+        return this.currentRadioStationKey.startsWith(stationKey);
+    }
+
+    /** True only when this station is loaded AND audio is actively playing. */
     public isPlayingRadioStation(stationKey: string): boolean {
         if (!stationKey) {
             return false;

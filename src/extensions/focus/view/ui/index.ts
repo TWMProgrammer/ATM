@@ -103,13 +103,25 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             musicSearchPanel?.classList.remove('is-active');
             radioPanel?.classList.add('is-active');
             radioPanel?.setAttribute('aria-hidden', 'false');
-            radioButtons.forEach((button) => button.classList.remove('is-active'));
+
+            // Sync is-active (selected) and is-playing (EQ) when returning to radio panel
+            syncRadioButtonStates();
         }
     };
 
-    const setActiveRadioButton = (activeButton: HTMLButtonElement) => {
+    const setActiveRadioButton = (btn: HTMLButtonElement) => {
+        radioButtons.forEach((b) => {
+            b.classList.toggle('is-active', b === btn);
+            b.classList.remove('is-playing');
+        });
+    };
+
+    // Helper: re-sync is-active AND is-playing for all radio buttons
+    const syncRadioButtonStates = () => {
         radioButtons.forEach((button) => {
-            button.classList.toggle('is-active', button === activeButton);
+            const station = button.dataset.radioStation || '';
+            button.classList.toggle('is-active', musicController.isCurrentRadioStation(station));
+            button.classList.toggle('is-playing', musicController.isPlayingRadioStation(station));
         });
     };
 
@@ -157,14 +169,22 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         });
     });
 
-    // Listen for station changes to update the 'AM' flag
+    // Listen for station changes: new station loaded → mark as selected, remove EQ until play fires
     window.addEventListener('atm_station_changed', ((event: CustomEvent) => {
         const { title, stationKey } = event.detail;
+
+        // Mark the matching button as selected (but not playing yet — audio may still be loading)
+        radioButtons.forEach((button) => {
+            const station = button.dataset.radioStation || '';
+            const isStationActive = musicController.isCurrentRadioStation(station);
+            button.classList.toggle('is-active', isStationActive);
+            if (!isStationActive) { button.classList.remove('is-playing'); }
+        });
+
         const amButton = document.querySelector('.radio-mode-btn-am') as HTMLButtonElement | null;
         if (!amButton) {return;}
 
         if (stationKey?.startsWith('am-peru')) {
-            // Extract flag from title (e.g. 'AM - Perú 🇵🇪' -> '🇵🇪')
             const flagMatch = title.match(/[\u{1F1E6}-\u{1F1FF}]{2}/u);
             const flag = flagMatch ? flagMatch[0] : 'AM';
             amButton.textContent = flag;
@@ -173,6 +193,16 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             amButton.textContent = 'AM';
             amButton.classList.remove('has-flag');
         }
+    }) as EventListener);
+
+    // Listen for play/pause: toggle EQ animation (is-playing) on the active button
+    window.addEventListener('atm_playback_changed', ((event: CustomEvent) => {
+        const { isPlaying } = event.detail;
+        radioButtons.forEach((button) => {
+            if (button.classList.contains('is-active')) {
+                button.classList.toggle('is-playing', isPlaying);
+            }
+        });
     }) as EventListener);
 
     const showGlobalScreen = (target: 'search' | 'time' | 'game') => {

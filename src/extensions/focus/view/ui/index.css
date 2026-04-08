@@ -165,11 +165,11 @@ body.vscode-light .radio-mode-btn:hover {
     50% { transform: scaleY(1); }
 }
 
-/* Toggle visibility when active */
-.radio-mode-btn.is-active .btn-text {
+/* is-playing controls the EQ — only visible when actually playing */
+.radio-mode-btn.is-active.is-playing .btn-text {
     display: none;
 }
-.radio-mode-btn.is-active .btn-eq {
+.radio-mode-btn.is-active.is-playing .btn-eq {
     display: flex;
 }
 

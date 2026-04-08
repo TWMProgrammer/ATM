@@ -169,6 +169,7 @@ export class MusicPlayerUI {
             this.isPlaying = true;
             this.updateIcons();
             this.startProgressLoop();
+            window.dispatchEvent(new CustomEvent('atm_playback_changed', { detail: { isPlaying: true } }));
         };
 
         this.audioPlayer.onplaying = () => {
@@ -191,6 +192,7 @@ export class MusicPlayerUI {
             this.isPlaying = false;
             this.updateIcons();
             this.stopProgressLoop();
+            window.dispatchEvent(new CustomEvent('atm_playback_changed', { detail: { isPlaying: false } }));
         };
 
         // When the browser finishes seeking to the new position
