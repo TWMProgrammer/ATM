@@ -6,10 +6,12 @@ import { buildTooltip, computeEngineeredTokens, resolvePlanTier } from './ui/too
 
 // ── Constants ────────────────────────────────────────────────────────
 
-/** How often (ms) to poll for updated quota data (normal). */
-const POLLING_INTERVAL_NORMAL_MS = 60_000; // 1 minute
-/** How often (ms) to poll when quota is <= 20% (danger zone). */
-const POLLING_INTERVAL_FAST_MS = 30_000; // 30 seconds
+/** How often (ms) to poll — all key models healthy. */
+const POLLING_INTERVAL_NORMAL_MS    = 60_000;       // 1 minute
+/** How often (ms) to poll — any key model (Pro / Claude / GPT-OSS) at ≤ 20%. */
+const POLLING_INTERVAL_ALERT_MS     = 15_000;       // 15 seconds
+/** How often (ms) to poll — global quota ≤ 20% (exhausted, nothing left to watch). */
+const POLLING_INTERVAL_EXHAUSTED_MS = 30 * 60_000;  // 30 minutes
 
 /** Delay (ms) before the first fetch to avoid blocking IDE startup. */
 const INITIAL_DELAY_MS = 3_000;
@@ -20,6 +22,40 @@ const ICON_DEFAULT = '$(sparkle-filled)';
 const ICON_ERROR = '$(error)';
 const ICON_WARNING = '$(warning)';
 const ICON_REFRESH = '$(sync~spin)';
+
+// ── Polling tier ─────────────────────────────────────────────────────
+
+type PollingTier = 'normal' | 'alert' | 'exhausted';
+
+/**
+ * Keywords identifying "key" models for quota monitoring.
+ * Excludes Flash/fast models — they have much larger allocations and
+ * rarely determine whether real coding work is possible.
+ */
+const KEY_MODEL_KEYWORDS = ['pro', 'ultra', 'claude', 'sonnet', 'opus', 'gpt-oss', 'llama', 'deepseek'];
+
+/**
+ * Resolves the adaptive polling tier from the latest snapshot.
+ *
+ * Priority (highest first):
+ *   - `exhausted` → global ≤ 20%: most tokens gone, poll every 30 min.
+ *   - `alert`     → any key model ≤ 20% or exhausted: poll every 15 s.
+ *   - `normal`    → everything healthy: poll every 60 s.
+ *
+ * Key models = PRO basket (Gemini Pro) + THIRD_PARTY basket (Claude, GPT-OSS).
+ * Gemini Flash is intentionally excluded from alert triggering.
+ */
+function resolvePollingTier(snapshot: QuotaSnapshot, globalPct: number): PollingTier {
+	if (globalPct <= 20) { return 'exhausted'; }
+
+	const inDanger = snapshot.models.some(m => {
+		const idOrLabel = (m.modelId + ' ' + m.label).toLowerCase();
+		if (!KEY_MODEL_KEYWORDS.some(kw => idOrLabel.includes(kw))) { return false; }
+		return m.isExhausted || (m.remainingPercentage !== undefined && m.remainingPercentage <= 20);
+	});
+
+	return inDanger ? 'alert' : 'normal';
+}
 
 /**
  * Activates the AI Data status bar extension.
@@ -160,10 +196,16 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					void fetchAndUpdateQuota(true);
 				}, 0);
 			} else {
-				// Adaptive Polling:
+				// Adaptive 3-Tier Polling:
 				// Only schedule if the window is focused (performance optimization).
 				if (vscode.window.state.focused) {
-					const nextInterval = lastReportedPercentage <= 20 ? POLLING_INTERVAL_FAST_MS : POLLING_INTERVAL_NORMAL_MS;
+					const tier = lastSnapshot
+						? resolvePollingTier(lastSnapshot, lastReportedPercentage)
+						: 'normal';
+					const nextInterval =
+						tier === 'exhausted' ? POLLING_INTERVAL_EXHAUSTED_MS :
+						tier === 'alert'     ? POLLING_INTERVAL_ALERT_MS :
+						POLLING_INTERVAL_NORMAL_MS;
 					fetchTimer = setTimeout(() => {
 						void fetchAndUpdateQuota();
 					}, nextInterval);

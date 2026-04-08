@@ -147,9 +147,8 @@ export function computeEngineeredTokens(models: QuotaSnapshot['models'], tier: '
 	let totalMonthly = 0;
 
 	// Process each basket
-	for (const [basketName, config] of Object.entries(MODEL_BASKETS)) {
+	for (const [, config] of Object.entries(MODEL_BASKETS)) {
 		const monthlyForBasket = config.monthlyAllocation * tierMultiplier;
-		totalMonthly += monthlyForBasket;
 
 		// Find ALL models belonging to this basket
 		const matchingModels = models.filter(m => {
@@ -157,41 +156,32 @@ export function computeEngineeredTokens(models: QuotaSnapshot['models'], tier: '
 			return config.keywords.some(kw => idOrLabel.includes(kw));
 		});
 
-		let basketAvailablePct = 0;
+		// If the server returned no models for this basket, exclude it from the
+		// calculation entirely — a missing basket is a server gap, not a 0% quota.
+		// Counting it as 0 would produce false low-quota warnings.
+		if (matchingModels.length === 0) { continue; }
 
-		if (matchingModels.length > 0) {
-			// If connected models share quota, they usually drain at the same rate or
-			// getting exhausted in one affects the others.
-			// We take the minimum remaining percentage among matching models to be safe,
-			// or average them. Let's use the first non-exhausted one, or 0 if all exhausted,
-			// or average. Taking the minimum is safest.
-			let minPct = 100;
-			let foundFinite = false;
+		totalMonthly += monthlyForBasket;
 
-			for (const m of matchingModels) {
-				if (m.isExhausted) {
-					minPct = 0;
-					foundFinite = true;
-					break; // If one is exhausted, the whole connected pool is usually exhausted
-				}
-				if (m.remainingPercentage !== undefined) {
-					minPct = Math.min(minPct, m.remainingPercentage);
-					foundFinite = true;
-				}
+		// Use the minimum remaining % across matching models (safest conservative estimate).
+		// If any model is exhausted, the whole basket is treated as 0.
+		let minPct = 100;
+		let foundFinite = false;
+
+		for (const m of matchingModels) {
+			if (m.isExhausted) {
+				minPct = 0;
+				foundFinite = true;
+				break; // One exhausted model drains the whole connected pool
 			}
-
-			if (foundFinite) {
-				basketAvailablePct = minPct / 100;
-			} else {
-				// All matching models have undefined percentage (unlimited but not exhausted)
-				basketAvailablePct = 1.0;
+			if (m.remainingPercentage !== undefined) {
+				minPct = Math.min(minPct, m.remainingPercentage);
+				foundFinite = true;
 			}
-		} else {
-			// CRITICAL FIX: If a basket is missing from the server, 
-			// we assume 0 tokens for it, we do NOT assume 100%.
-			basketAvailablePct = 0;
 		}
 
+		// foundFinite = false means all models in this basket are fully unlimited
+		const basketAvailablePct = foundFinite ? minPct / 100 : 1.0;
 		totalAvailable += (basketAvailablePct * monthlyForBasket);
 	}
 
