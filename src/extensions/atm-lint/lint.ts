@@ -22,7 +22,7 @@ export function activateLint(context: ExtensionContext) {
 
     // Start the server by default
     void startClient().catch((error: unknown) => {
-        updateStatusBar(false);
+        updateStatusBar(false, 'error');
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[ATM Lint] Failed to start client: ${errorMessage}`);
     });

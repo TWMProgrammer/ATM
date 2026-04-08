@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { ProcessFinder } from './core/process-finder';
 import { QuotaManager } from './core/quota-manager';
 import { QuotaSnapshot } from './core/types';
-import { buildTooltip, computeEngineeredCredits, resolvePlanTier } from './ui/tooltip-builder';
+import { buildTooltip, computeEngineeredTokens, resolvePlanTier } from './ui/tooltip-builder';
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -125,7 +125,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 				} else {
 					// Use the new, robust global engineered algorithm!
 					const tier = resolvePlanTier(snapshot.teamsTier, snapshot.planName);
-					const engineered = computeEngineeredCredits(snapshot.models, tier);
+					const engineered = computeEngineeredTokens(snapshot.models, tier);
 					
 					if (engineered.type === 'unlimited') {
 						statusBarItem.text = `✨ AI ∞%`;

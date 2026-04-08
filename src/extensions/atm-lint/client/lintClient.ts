@@ -6,7 +6,8 @@ import {
 	ServerOptions,
 	TransportKind
 } from 'vscode-languageclient/node';
-import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
+import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse, ATM_LINT_STATUS_NOTIFICATION, AtmLintStatusParams } from '../shared/types';
+import { updateStatusBar } from './statusBar';
 
 let client: LanguageClient;
 
@@ -55,6 +56,11 @@ export function activateLintClient(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
+
+	// Listen for status updates from the server
+	client.onNotification(ATM_LINT_STATUS_NOTIFICATION, (params: AtmLintStatusParams) => {
+		updateStatusBar(true, params.status);
+	});
 
 	// Register for automatic cleanup on deactivation
 	context.subscriptions.push(client);

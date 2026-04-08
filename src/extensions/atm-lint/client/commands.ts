@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { updateStatusBar } from './statusBar';
+import { updateStatusBar, getStatusBarState } from './statusBar';
 
 export function activateCommands(
     context: vscode.ExtensionContext,
@@ -9,6 +9,14 @@ export function activateCommands(
 ) {
     // Toggle command: Enables/disables the engine
     const toggleCommand = vscode.commands.registerCommand('atm.lint.toggle', async () => {
+        const state = getStatusBarState();
+
+        // If we are in "missing-config" state, clicking just shows the explanation message
+        if (state.isEnabled && state.status === 'missing-config') {
+            vscode.window.showInformationMessage(`ATMLint: No ESLint configuration found for this project.`);
+            return;
+        }
+
         const nextState = !isClientEnabled();
 
         try {
@@ -16,10 +24,10 @@ export function activateCommands(
             await toggleClient(nextState);
 
             // Reflect real client state after toggling.
-            updateStatusBar(isClientEnabled());
+            updateStatusBar(isClientEnabled(), state.status);
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            updateStatusBar(isClientEnabled());
+            updateStatusBar(isClientEnabled(), state.status);
             vscode.window.showErrorMessage(`ATM Lint toggle failed: ${errorMessage}`);
         }
     });

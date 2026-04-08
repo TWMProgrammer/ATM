@@ -10,6 +10,7 @@ import {
 } from 'vscode-languageserver/node';
 
 type LogFn = (message: string) => void;
+type StatusEventFn = (status: 'ok' | 'missing-config' | 'error', message?: string) => void;
 
 type LintFix = {
 	range: [number, number];
@@ -26,9 +27,11 @@ export class LintEngine {
 	private lastDocumentText: Map<string, string> = new Map();
 	private workspaceRoots: string[] = [];
 	private log: LogFn;
+	private onStatusChange?: StatusEventFn;
 
-	constructor(log: LogFn) {
+	constructor(log: LogFn, onStatusChange?: StatusEventFn) {
 		this.log = log;
+		this.onStatusChange = onStatusChange;
 	}
 
 	/**
@@ -105,6 +108,11 @@ export class LintEngine {
 			this.log(
 				`[Engine] Linted ${path.basename(filePath)}: ${result.messages.length} issues found (${directFixCount} direct fixes, ${suggestionCount} suggestions).`
 			);
+			
+			if (this.onStatusChange) {
+				this.onStatusChange('ok');
+			}
+			
 			return result.messages.map(msg => this.convertToDiagnostic(msg, uri));
 
 		} catch (error: unknown) {
@@ -115,7 +123,15 @@ export class LintEngine {
 			this.instances.delete(cwd);
 			this.clearDocumentData(uri);
 
-			return [this.createEngineFailureDiagnostic(errorMessage)];
+			if (this.onStatusChange) {
+				if (errorMessage.includes('Could not find config file')) {
+					this.onStatusChange('missing-config');
+				} else {
+					this.onStatusChange('error', errorMessage);
+				}
+			}
+
+			return [];
 		}
 	}
 
@@ -303,18 +319,7 @@ export class LintEngine {
 		};
 	}
 
-	private createEngineFailureDiagnostic(errorMessage: string): Diagnostic {
-		return {
-			range: {
-				start: { line: 0, character: 0 },
-				end: { line: 0, character: 0 }
-			},
-			message: `ATM Lint could not run ESLint: ${errorMessage}`,
-			severity: DiagnosticSeverity.Warning,
-			source: 'Lint (ATM)',
-			code: 'atm-lint/eslint-runtime'
-		};
-	}
+
 
 	private mapSeverity(severity: number): DiagnosticSeverity {
 		switch (severity) {
