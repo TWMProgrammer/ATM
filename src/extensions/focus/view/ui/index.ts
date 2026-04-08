@@ -119,8 +119,22 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     const syncRadioButtonStates = () => {
         radioButtons.forEach((button) => {
             const station = button.dataset.radioStation || '';
-            button.classList.toggle('is-active', musicController.isCurrentRadioStation(station));
-            button.classList.toggle('is-playing', musicController.isPlayingRadioStation(station));
+            let isActive = false;
+            let isPlaying = false;
+            
+            if (station.startsWith('fav-')) {
+                const favIndex = parseInt(station.split('-')[1]);
+                const fav = favorites[favIndex];
+                if (fav) {
+                    isActive = musicController.isCurrentRadioStation(fav.originalStationKey);
+                    isPlaying = musicController.isPlayingRadioStation(fav.originalStationKey);
+                }
+            } else {
+                isActive = musicController.isCurrentRadioStation(station);
+                isPlaying = musicController.isPlayingRadioStation(station);
+            }
+            button.classList.toggle('is-active', isActive);
+            button.classList.toggle('is-playing', isPlaying);
         });
     };
 
@@ -139,16 +153,101 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         },
     };
 
-    radioButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            setActiveRadioButton(button);
+    // Favorites System (3 slots)
+    interface FavoriteStation {
+        id: string;
+        title: string;
+        preview: string;
+        originalStationKey: string;
+    }
+    let favorites: (FavoriteStation | null)[] = [null, null, null];
+    let favSlotIndex = 0;
 
+    const updateFavoritesUI = () => {
+        const remaining = favorites.filter(f => f === null).length;
+        const currentTrack = musicController.getCurrentTrack();
+        const isFavorited = currentTrack ? favorites.some(f => f?.id === currentTrack.id) : false;
+        
+        musicController.updateFavoriteState(isFavorited, remaining);
+
+        // Update Radio Buttons on the main panel
+        radioButtons.forEach((btn, index) => {
+            if (index >= 3) { return; } // Only first 3 buttons are overridable
+            
+            const fav = favorites[index];
+            const btnTextEl = btn.querySelector('.btn-text');
+            if (!btnTextEl) { return; }
+
+            if (fav) {
+                btnTextEl.textContent = fav.title;
+                btn.dataset.radioStation = `fav-${index}`;
+            } else {
+                // Restore defaults
+                if (index === 0) { btnTextEl.textContent = 'FM - 111'; btn.dataset.radioStation = 'fm-111'; }
+                else if (index === 1) { btnTextEl.textContent = 'FM - LoFi'; btn.dataset.radioStation = 'lofi-2026'; }
+                else if (index === 2) { btnTextEl.textContent = 'FM - Podcast'; btn.dataset.radioStation = 'podcast'; }
+            }
+        });
+    };
+
+    window.addEventListener('atm_toggle_favorite', ((event: CustomEvent) => {
+        const { track, stationKey } = event.detail;
+        if (!track || !track.id.startsWith('radio_')) { return; }
+
+        const existingIndex = favorites.findIndex(f => f?.id === track.id);
+
+        if (existingIndex > -1) {
+            // Remove from favorites
+            favorites[existingIndex] = null;
+        } else {
+            let favTitle = track.title;
+            const flagMatch = favTitle.match(/[\u{1F1E6}-\u{1F1FF}]{2}/u);
+            if (flagMatch) {
+                favTitle = `AM - ${flagMatch[0]}`;
+            } else {
+                const parts = favTitle.split(' - ');
+                favTitle = parts.length > 1 ? `AM - ${parts[parts.length - 1].substring(0, 5)}` : 'AM';
+            }
+
+            // Add to favorites (looping replacement)
+            favorites[favSlotIndex] = {
+                id: track.id,
+                title: favTitle,
+                preview: track.preview,
+                originalStationKey: stationKey || `fav-${favSlotIndex}`
+            };
+            favSlotIndex = (favSlotIndex + 1) % 3;
+        }
+
+        updateFavoritesUI();
+        syncRadioButtonStates();
+    }) as EventListener);
+
+    // Initial sync
+    updateFavoritesUI();
+
+    radioButtons.forEach((button, index) => {
+        button.addEventListener('click', () => {
             const station = button.dataset.radioStation || '';
 
             // Optimization: avoid reloading when the same one is already playing.
             if (musicController.isPlayingRadioStation(station)) {
                 musicController.goToMusic();
                 return;
+            }
+
+            // Check if it's a favorite button
+            if (station.startsWith('fav-')) {
+                const favIndex = parseInt(station.split('-')[1]);
+                const fav = favorites[favIndex];
+                if (fav) {
+                    if (musicController.isPlayingRadioStation(fav.originalStationKey)) {
+                        musicController.goToMusic();
+                        return;
+                    }
+                    musicController.playRadioStream(fav.title, fav.preview, fav.originalStationKey);
+                    return;
+                }
             }
 
             if (station === 'am-peru') {
@@ -168,16 +267,26 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         });
     });
 
-    // Listen for station changes: new station loaded → mark as selected, remove EQ until play fires
+    // Listen for station changes: update heart icon state
     window.addEventListener('atm_station_changed', ((event: CustomEvent) => {
         const { title, stationKey } = event.detail;
 
         // Mark the matching button as selected (but not playing yet — audio may still be loading)
         radioButtons.forEach((button) => {
             const station = button.dataset.radioStation || '';
-            const isStationActive = musicController.isCurrentRadioStation(station);
-            button.classList.toggle('is-active', isStationActive);
-            if (!isStationActive) { button.classList.remove('is-playing'); }
+            let isActive = false;
+            
+            if (station.startsWith('fav-')) {
+                const favIndex = parseInt(station.split('-')[1]);
+                const fav = favorites[favIndex];
+                if (fav) {
+                    isActive = musicController.isCurrentRadioStation(fav.originalStationKey);
+                }
+            } else {
+                isActive = musicController.isCurrentRadioStation(station);
+            }
+            button.classList.toggle('is-active', isActive);
+            if (!isActive) { button.classList.remove('is-playing'); }
         });
 
         const amButton = document.querySelector('.radio-mode-btn-am') as HTMLButtonElement | null;
@@ -192,6 +301,8 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             amButton.textContent = 'AM';
             amButton.classList.remove('has-flag');
         }
+
+        updateFavoritesUI();
     }) as EventListener);
 
     // Listen for play/pause: toggle EQ animation (is-playing) on the active button

@@ -52,7 +52,8 @@ export class AtmMusicController {
             () => this.playPrev(),
             () => this.handleBackFromPlayer(),
             () => this.handlePlaybackFallback(),
-            () => this.playRandomAmStation()
+            () => this.playRandomAmStation(),
+            () => this.toggleFavorite()
         );
 
         this.bindGlobalMessages();
@@ -83,6 +84,12 @@ export class AtmMusicController {
                             <path d="M3 12h18"></path>
                             <path d="M12 3a14 14 0 0 1 0 18"></path>
                             <path d="M12 3a14 14 0 0 0 0 18"></path>
+                        </svg>
+                    </button>
+                    <button id="player-favorite-btn" class="header-icon-btn" type="button" title="Toggle Favorite" aria-label="Toggle AM Station Favorite" aria-hidden="true" hidden>
+                        <span class="fav-count">3</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                     </button>
                 </div>
@@ -465,4 +472,19 @@ export class AtmMusicController {
         }
         return null;
     }
+
+    public toggleFavorite(): void {
+        const currentTrack = this.getCurrentTrack();
+        if (!currentTrack) { return; }
+        
+        // Notify index.ts to handle the favorite logic
+        window.dispatchEvent(new CustomEvent('atm_toggle_favorite', { 
+            detail: { track: currentTrack, stationKey: this.currentRadioStationKey } 
+        }));
+    }
+
+    public updateFavoriteState(isFavorited: boolean, remainingCount: number): void {
+        this.playerUI.updateFavoriteButtonState(isFavorited, remainingCount);
+    }
 }
+

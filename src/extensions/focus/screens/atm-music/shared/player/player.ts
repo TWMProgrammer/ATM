@@ -40,7 +40,8 @@ export class MusicPlayerUI {
         private readonly onPrev: () => void,
         private readonly onBack: () => void,
         private readonly onFallback: () => void,
-        private readonly onRandomAmCountry: () => void
+        private readonly onRandomAmCountry: () => void,
+        private readonly onToggleFavorite: () => void
     ) {
         this.container = $('#player-container');
         this.trackInfo = $('#player-track-info');
@@ -549,11 +550,20 @@ export class MusicPlayerUI {
             randomBtn.setAttribute('aria-hidden', isAmRadioTrack ? 'false' : 'true');
             randomBtn.disabled = !isAmRadioTrack;
         }
+
+        const favBtn = this.$c<HTMLButtonElement>('#player-favorite-btn');
+        if (favBtn) {
+            const isAmRadioTrack = this.isRadioTrack(track) && /^AM\s*-\s*/i.test(track.title || '');
+            favBtn.hidden = !isAmRadioTrack;
+            favBtn.setAttribute('aria-hidden', isAmRadioTrack ? 'false' : 'true');
+            favBtn.disabled = !isAmRadioTrack;
+        }
     }
 
     private setupBackEvents() {
         $('#back-to-results')?.addEventListener('click', () => this.onBack());
         $('#player-random-country-btn')?.addEventListener('click', () => this.onRandomAmCountry());
+        $('#player-favorite-btn')?.addEventListener('click', () => this.onToggleFavorite());
         
         $('#qa-play-btn')?.addEventListener('click', (e: Event) => {
             e.stopPropagation();
@@ -638,5 +648,17 @@ export class MusicPlayerUI {
 
         const shouldBlink = this.isLiveRadioMode && this.isPlaying && !this.isLoadingState;
         totalTime.classList.toggle('is-live-playing', shouldBlink);
+    }
+
+    public updateFavoriteButtonState(isFavorited: boolean, remainingCount: number): void {
+        const favBtn = this.$c<HTMLElement>('#player-favorite-btn');
+        if (!favBtn) { return; }
+
+        favBtn.classList.toggle('is-favorited', isFavorited);
+        
+        const countEl = favBtn.querySelector('.fav-count');
+        if (countEl) {
+            countEl.textContent = String(remainingCount);
+        }
     }
 }
