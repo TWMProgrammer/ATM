@@ -135,6 +135,8 @@ body.vscode-light .radio-mode-btn:hover {
     color: var(--vscode-button-foreground);
     border-color: transparent;
     box-shadow: 0 3px 10px color-mix(in srgb, var(--vscode-button-background) 35%, transparent);
+}
+.radio-mode-btn.is-active:not(.radio-mode-btn-am) {
     min-width: 68px; /* Ensures width stability when text is hidden */
 }
 
