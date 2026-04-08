@@ -134,9 +134,8 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
             const station = button.dataset.radioStation || '';
 
-            // Optimization: for FM stations, avoid reloading when the same one is already playing.
-            const isAmStation = station === 'am-peru';
-            if (!isAmStation && musicController.isPlayingRadioStation(station)) {
+            // Optimization: avoid reloading when the same one is already playing.
+            if (musicController.isPlayingRadioStation(station)) {
                 musicController.goToMusic();
                 return;
             }

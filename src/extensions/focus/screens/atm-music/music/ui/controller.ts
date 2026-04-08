@@ -361,7 +361,7 @@ export class AtmMusicController {
             return false;
         }
 
-        return this.playerUI.isRunning() && this.currentRadioStationKey === stationKey;
+        return this.playerUI.isRunning() && !!this.currentRadioStationKey && this.currentRadioStationKey.startsWith(stationKey);
     }
 
     private isRadioTrack(track: Track): boolean {
