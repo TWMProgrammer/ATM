@@ -659,7 +659,13 @@ export class MusicPlayerUI {
         const countEl = favBtn.querySelector('.fav-count');
         if (countEl) {
             countEl.textContent = String(remainingCount);
+            countEl.classList.toggle('is-hidden', remainingCount <= 0);
         }
+
+        // If there are no remaining slots and this station is not already favorited,
+        // show a disabled gray heart (cannot add more favorites).
+        const shouldDisable = !isFavorited && remainingCount <= 0;
+        favBtn.disabled = shouldDisable;
     }
 }
 
