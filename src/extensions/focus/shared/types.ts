@@ -3,7 +3,7 @@
  * Unified interfaces for the entire extension and webview.
  */
 
-export type MusicProvider = 'netease' | 'jiosaavn' | 'deezer';
+export type MusicProvider = 'netease' | 'jiosaavn' | 'deezer' | 'radio';
 
 export interface Track {
     id: string;
@@ -33,7 +33,8 @@ export type WebviewMessageType =
     | 'validateAndSaveApi'
     | 'openUrl'
     | 'clearApiKey'
-    | 'apiKeyValidationResult';
+    | 'apiKeyValidationResult'
+    | 'togglePlayPause';
 
 export interface WebviewMessage {
     type: WebviewMessageType;

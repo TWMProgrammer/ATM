@@ -6,12 +6,20 @@ import { ATMDataProvider } from './screens/atm-data/core/provider';
 export function activateFocus(context: vscode.ExtensionContext) {
     ATMDataProvider.getInstance().init(context);
 
+    const provider = new YouTubeMusicViewProvider(context.extensionUri, context);
+
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
             'atm-yt-music-view',
-            new YouTubeMusicViewProvider(context.extensionUri),
+            provider,
             { webviewOptions: { retainContextWhenHidden: true } }
         )
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('atm.music.togglePlayPause', () => {
+            provider.togglePlayPause();
+        })
     );
 }
 

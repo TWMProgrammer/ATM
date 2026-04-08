@@ -1,16 +1,21 @@
 import { Track } from '../../shared/types';
 import { IMusicProvider } from './base-provider';
 
+interface NeteaseApiClient {
+    cloudsearch(params: { keywords: string; type: number; limit: number; offset: number }): Promise<{ body: unknown }>;
+    song_url(params: { id: string; br: number }): Promise<{ body: unknown }>;
+}
+
 // Lazy-load NeteaseCloudMusicApi to prevent crashing the entire extension
 // when the module is not available (e.g. packaged VSIX without node_modules).
-let neteaseApi: { cloudsearch: any; song_url: any } | null = null;
+let neteaseApi: NeteaseApiClient | null = null;
 let neteaseLoadAttempted = false;
 
-function getNeteaseApi() {
+function getNeteaseApi(): NeteaseApiClient | null {
     if (!neteaseLoadAttempted) {
         neteaseLoadAttempted = true;
         try {
-            neteaseApi = require('NeteaseCloudMusicApi');
+            neteaseApi = require('NeteaseCloudMusicApi') as NeteaseApiClient;
         } catch {
             neteaseApi = null;
         }

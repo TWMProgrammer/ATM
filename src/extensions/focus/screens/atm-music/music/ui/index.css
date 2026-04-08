@@ -63,6 +63,89 @@
     display: none;
 }
 
+#player-favorite-btn {
+    position: relative;
+    gap: 4px;
+    width: auto;
+    padding: 0 8px;
+    min-width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+#player-favorite-btn[hidden] {
+    display: none;
+}
+
+#player-favorite-btn * {
+    pointer-events: none;
+}
+
+#player-favorite-btn .fav-count {
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--vscode-font-family);
+    color: var(--vscode-button-secondaryForeground);
+    opacity: 0.9;
+    transition: color 0.2s ease;
+}
+
+#player-favorite-btn:hover:not(:disabled) .fav-count {
+    color: #ff7eb9;
+}
+
+#player-favorite-btn.is-favorited .fav-count {
+    color: #ff55cc;
+}
+
+#player-favorite-btn:hover {
+    transform: none;
+}
+
+#player-favorite-btn .heart-icon {
+    transition: fill 0.1s ease, stroke 0.1s ease, opacity 0.2s ease;
+    stroke: var(--vscode-button-secondaryForeground);
+}
+
+#player-favorite-btn:hover:not(.is-favorited):not(:disabled) .heart-icon {
+    stroke: #ff7eb9;
+    fill: rgba(255, 126, 185, 0.15);
+    animation: heart-shake 0.3s ease-in-out 3; /* ~1 second total */
+}
+
+#player-favorite-btn.is-favorited .heart-icon {
+    stroke: #ff55cc;
+    fill: #ff55cc;
+    transition: none; /* Instant fill when clicked */
+}
+
+#player-favorite-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+    background: transparent;
+}
+
+#player-favorite-btn:disabled .heart-icon {
+    stroke: var(--vscode-disabledForeground);
+    fill: transparent;
+    animation: none;
+}
+
+#player-favorite-btn .fav-count.is-hidden {
+    display: none;
+}
+
+@keyframes heart-shake {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+
 .results-query {
     display: flex;
     align-items: center;

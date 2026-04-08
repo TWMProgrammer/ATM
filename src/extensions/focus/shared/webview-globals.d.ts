@@ -4,5 +4,10 @@
  */
 interface Window {
     /** Port number of the local audio streaming proxy server */
-    STREAM_PORT: number;
+    STREAM_PORT?: number;
+
+    /** VS Code bridge injected in webview scripts */
+    vscode?: {
+        postMessage: (message: unknown) => void;
+    };
 }

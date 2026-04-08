@@ -3,7 +3,7 @@ import { MusicSearchUI } from './search';
 import { MusicResultsUI } from './results';
 import { MusicPlayerUI } from '../../shared/player/player';
 import { $, escapeHtml } from '../../../../shared/utils';
-import { getRandomPeruAmStation } from '../../radio/providers/am';
+import { getRandomAmStation } from '../../radio/providers/am';
 
 export interface VSCodeApi {
     postMessage: (message: WebviewMessage) => void;
@@ -52,7 +52,8 @@ export class AtmMusicController {
             () => this.playPrev(),
             () => this.handleBackFromPlayer(),
             () => this.handlePlaybackFallback(),
-            () => this.playRandomAmStation()
+            () => this.playRandomAmStation(),
+            () => this.toggleFavorite()
         );
 
         this.bindGlobalMessages();
@@ -77,6 +78,12 @@ export class AtmMusicController {
                 <div class="screen-header">
                     <button id="back-to-results" class="back-btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>Back</button>
                     <span id="player-track-info" class="player-track-info"></span>
+                    <button id="player-favorite-btn" class="header-icon-btn" type="button" title="Toggle Favorite" aria-label="Toggle AM Station Favorite" aria-hidden="true" hidden>
+                        <span class="fav-count">3</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </button>
                     <button id="player-random-country-btn" class="header-icon-btn" type="button" title="Random AM country" aria-label="Play random AM country" aria-hidden="true" hidden>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="9"></circle>
@@ -108,6 +115,8 @@ export class AtmMusicController {
                 this.updateMusicLabelState();
             } else if (msg.type === 'error') {
                 this.showError(msg.message || 'Unknown error');
+            } else if (msg.type === 'togglePlayPause') {
+                this.playerUI.togglePlaybackIfNeeded();
             }
         });
 
@@ -133,20 +142,31 @@ export class AtmMusicController {
         this.currentIndex = index;
         const track = this.tracks[index];
         if (track) {
-            if (!this.isRadioTrack(track)) {
+            if (this.isRadioTrack(track)) {
+                this.currentRadioStationKey = this.getStationKeyFromRadioTrack(track);
+            } else {
                 this.currentRadioStationKey = null;
             }
             this.showScreen('player');
             this.playerUI.playTrack(track, index > 0, index < this.tracks.length - 1);
             this.updateMusicLabelState();
+
+            if (this.isRadioTrack(track)) {
+                window.dispatchEvent(new CustomEvent('atm_station_changed', {
+                    detail: {
+                        title: track.title,
+                        stationKey: this.currentRadioStationKey,
+                    },
+                }));
+            }
         }
     }
 
     private playNext(silent = false) {
         const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
 
-        // Live radio mode: reconnect same stream if it ends.
-        if (currentTrack && this.isRadioTrack(currentTrack) && this.tracks.length === 1) {
+        // Live radio mode: reconnect same stream if it naturally ends and we are at the newest station.
+        if (currentTrack && this.isRadioTrack(currentTrack) && this.currentIndex === this.tracks.length - 1) {
             this.retryRadioStream(currentTrack);
             return;
         }
@@ -290,23 +310,52 @@ export class AtmMusicController {
         })();
     }
 
+    private normalizeRadioSourceUrl(rawStreamUrl: string): string {
+        const streamUrl = (rawStreamUrl || '').trim();
+        if (!streamUrl) {
+            return '';
+        }
+
+        try {
+            const parsed = new URL(streamUrl);
+            const isLocalProxyHost = parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost';
+            const isRadioProxyPath = parsed.pathname === '/radio';
+
+            if (isLocalProxyHost && isRadioProxyPath) {
+                const nestedStreamUrl = (parsed.searchParams.get('streamUrl') || '').trim();
+                if (nestedStreamUrl) {
+                    return nestedStreamUrl;
+                }
+            }
+        } catch {
+            // Keep original value if URL parsing fails.
+        }
+
+        return streamUrl;
+    }
+
     public playRadioStream(stationTitle: string, streamUrl: string, stationKey?: string) {
         const rawTitle = (stationTitle || 'Radio').trim();
         const hasBandPrefix = /^(fm|am)\s*-\s*/i.test(rawTitle) || rawTitle.toLowerCase() === 'am';
         const safeTitle = hasBandPrefix ? rawTitle : `FM - ${rawTitle}`;
-        const safeStreamUrl = (streamUrl || '').trim();
-        if (!safeStreamUrl) {
+        const sourceStreamUrl = this.normalizeRadioSourceUrl(streamUrl);
+        if (!sourceStreamUrl) {
             this.showError('Radio stream is unavailable.');
             return;
         }
 
         const port = window.STREAM_PORT || 0;
         const proxiedUrl = port > 0
-            ? `http://127.0.0.1:${port}/radio?streamUrl=${encodeURIComponent(safeStreamUrl)}`
-            : safeStreamUrl;
+            ? `http://127.0.0.1:${port}/radio?streamUrl=${encodeURIComponent(sourceStreamUrl)}`
+            : sourceStreamUrl;
+
+        const stationTokenSource = (stationKey || safeTitle).toLowerCase();
+        const stationToken = stationTokenSource
+            .replace(/[^a-z0-9:_-]+/g, '_')
+            .replace(/^_+|_+$/g, '');
 
         const radioTrack: Track = {
-            id: `radio_${safeTitle.toLowerCase().replace(/\s+/g, '_')}`,
+            id: `radio_${stationToken || 'station'}`,
             videoId: '',
             title: safeTitle,
             artist: 'Radio',
@@ -314,24 +363,45 @@ export class AtmMusicController {
             thumbnail: '',
             duration: 0,
             preview: proxiedUrl,
-            provider: 'deezer',
+            externalUrl: sourceStreamUrl,
+            provider: 'radio',
             canPlay: true,
             isFullTrack: true,
         };
+
+        // Save previous group before updating
+        const prevGroup = this.currentRadioStationKey ? this.currentRadioStationKey.split(':')[0] : null;
 
         this.clearError();
         this.clearRadioReconnectTimer();
         this.resetRadioRetryState();
         this.currentRadioStationKey = stationKey || null;
-        if (this.currentRadioStationKey?.startsWith('am-peru:')) {
+        if (this.currentRadioStationKey?.startsWith('am:') || this.currentRadioStationKey?.startsWith('am-peru:')) {
             const [, stationId] = this.currentRadioStationKey.split(':');
             this.lastAmStationId = stationId || null;
         }
-        this.tracks = [radioTrack];
+
+        // Clear history when switching between different radio groups (e.g. FM → AM)
+        const newGroup = stationKey ? stationKey.split(':')[0] : null;
+        const isSameGroup = prevGroup !== null && newGroup !== null && prevGroup === newGroup;
+
+        if (this.tracks.length === 0 || !this.isRadioTrack(this.tracks[0]) || !isSameGroup) {
+            this.tracks = [radioTrack];
+            this.currentIndex = 0;
+        } else {
+            // Cut future history if moving to a new station from the past
+            this.tracks = this.tracks.slice(0, this.currentIndex + 1);
+            
+            const currentHistoryTrack = this.tracks[this.currentIndex];
+            if (!currentHistoryTrack || currentHistoryTrack.id !== radioTrack.id) {
+                this.tracks.push(radioTrack);
+                this.currentIndex++;
+            }
+        }
         this.hasCachedSearch = false;
-        this.currentIndex = 0;
+        
         this.showScreen('player');
-        this.playerUI.playTrack(radioTrack, false, false);
+        this.playerUI.playTrack(radioTrack, this.currentIndex > 0, this.currentIndex < this.tracks.length - 1);
         this.updateMusicLabelState();
 
         // Notify global listeners about the station change (useful for UI flag updates)
@@ -344,11 +414,20 @@ export class AtmMusicController {
     }
 
     public playRandomAmStation(): void {
-        const nextAmStation = getRandomPeruAmStation(this.lastAmStationId);
+        const nextAmStation = getRandomAmStation(this.lastAmStationId);
         this.lastAmStationId = nextAmStation.id;
-        this.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am-peru:${nextAmStation.id}`);
+        this.playRadioStream(nextAmStation.label, nextAmStation.streamUrl, `am:${nextAmStation.id}`);
     }
 
+    /** True if this station is the currently loaded one, regardless of play/pause state. */
+    public isCurrentRadioStation(stationKey: string): boolean {
+        if (!stationKey || !this.currentRadioStationKey) { return false; }
+        const currentTrack = this.currentIndex > -1 ? this.tracks[this.currentIndex] : null;
+        if (!currentTrack || !this.isRadioTrack(currentTrack)) { return false; }
+        return this.currentRadioStationKey.startsWith(stationKey);
+    }
+
+    /** True only when this station is loaded AND audio is actively playing. */
     public isPlayingRadioStation(stationKey: string): boolean {
         if (!stationKey) {
             return false;
@@ -359,11 +438,24 @@ export class AtmMusicController {
             return false;
         }
 
-        return this.playerUI.isRunning() && this.currentRadioStationKey === stationKey;
+        return this.playerUI.isRunning() && !!this.currentRadioStationKey && this.currentRadioStationKey.startsWith(stationKey);
     }
 
     private isRadioTrack(track: Track): boolean {
         return track.id.startsWith('radio_');
+    }
+
+    private getStationKeyFromRadioTrack(track: Track): string | null {
+        if (!this.isRadioTrack(track)) {
+            return null;
+        }
+
+        const keyFromId = (track.id || '').replace(/^radio_/, '').trim();
+        if (keyFromId) {
+            return keyFromId;
+        }
+
+        return this.currentRadioStationKey;
     }
 
     private retryRadioStream(track: Track): void {
@@ -434,4 +526,19 @@ export class AtmMusicController {
         }
         return null;
     }
+
+    public toggleFavorite(): void {
+        const currentTrack = this.getCurrentTrack();
+        if (!currentTrack) { return; }
+        
+        // Notify index.ts to handle the favorite logic
+        window.dispatchEvent(new CustomEvent('atm_toggle_favorite', { 
+            detail: { track: currentTrack, stationKey: this.currentRadioStationKey } 
+        }));
+    }
+
+    public updateFavoriteState(isFavorited: boolean, remainingCount: number): void {
+        this.playerUI.updateFavoriteButtonState(isFavorited, remainingCount);
+    }
 }
+

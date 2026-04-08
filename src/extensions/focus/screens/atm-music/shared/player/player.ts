@@ -12,7 +12,6 @@ export class MusicPlayerUI {
     private suppressPlaybackEvents = false;
     private isSeeking = false;
     private isLoadingState = false;
-    private pendingTrack: Track | null = null;
     private currentTrackDuration = 0;
     private isLiveRadioMode = false;
     private liveProgressStartedAtMs = 0;
@@ -41,7 +40,8 @@ export class MusicPlayerUI {
         private readonly onPrev: () => void,
         private readonly onBack: () => void,
         private readonly onFallback: () => void,
-        private readonly onRandomAmCountry: () => void
+        private readonly onRandomAmCountry: () => void,
+        private readonly onToggleFavorite: () => void
     ) {
         this.container = $('#player-container');
         this.trackInfo = $('#player-track-info');
@@ -140,7 +140,6 @@ export class MusicPlayerUI {
         this.audioPlayer.load();
 
         this.isPlaying = false;
-        this.pendingTrack = null;
         this.stopProgressLoop();
         this.setLoading(false);
 
@@ -169,6 +168,7 @@ export class MusicPlayerUI {
             this.isPlaying = true;
             this.updateIcons();
             this.startProgressLoop();
+            window.dispatchEvent(new CustomEvent('atm_playback_changed', { detail: { isPlaying: true } }));
         };
 
         this.audioPlayer.onplaying = () => {
@@ -191,6 +191,7 @@ export class MusicPlayerUI {
             this.isPlaying = false;
             this.updateIcons();
             this.stopProgressLoop();
+            window.dispatchEvent(new CustomEvent('atm_playback_changed', { detail: { isPlaying: false } }));
         };
 
         // When the browser finishes seeking to the new position
@@ -238,9 +239,9 @@ export class MusicPlayerUI {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path id="vol-path" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
                     </button>
                     <button id="prev-btn" class="control-btn ${hasPrev ? '' : 'disabled'}" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-                    <button id="play-pause-btn" class="control-btn play-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path id="play-path" d="M8 5v14l11-7z"/></svg></button>
+                    <button id="play-pause-btn" class="control-btn play-btn" type="button" title="Play/Pause (Ctrl+Shift+Space)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path id="play-path" d="M8 5v14l11-7z"/></svg></button>
                     <button id="next-btn" class="control-btn ${hasNext ? '' : 'disabled'}" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-                    <button id="repeat-btn" class="control-btn control-btn-sm ${this.isLoopEnabled ? 'active' : ''}" type="button" aria-pressed="${this.isLoopEnabled ? 'true' : 'false'}">
+                    <button id="repeat-btn" class="control-btn control-btn-sm ${this.isLoopEnabled ? 'active' : ''} ${this.isLiveRadioMode ? 'disabled' : ''}" type="button" aria-pressed="${this.isLoopEnabled ? 'true' : 'false'}" ${this.isLiveRadioMode ? 'disabled' : ''}>
                         ${this.getRepeatIconSvg()}
                     </button>
                 </div>
@@ -387,6 +388,12 @@ export class MusicPlayerUI {
             document.addEventListener('touchmove', onMove, { passive: true });
             document.addEventListener('touchend', onEnd);
         }, { passive: true });
+    }
+
+    public togglePlaybackIfNeeded() {
+        if (this.audioPlayer && this.audioPlayer.src) {
+            this.togglePlayback();
+        }
     }
 
     private togglePlayback() {
@@ -543,11 +550,20 @@ export class MusicPlayerUI {
             randomBtn.setAttribute('aria-hidden', isAmRadioTrack ? 'false' : 'true');
             randomBtn.disabled = !isAmRadioTrack;
         }
+
+        const favBtn = this.$c<HTMLButtonElement>('#player-favorite-btn');
+        if (favBtn) {
+            const isAmRadioTrack = this.isRadioTrack(track) && /^AM\s*-\s*/i.test(track.title || '');
+            favBtn.hidden = !isAmRadioTrack;
+            favBtn.setAttribute('aria-hidden', isAmRadioTrack ? 'false' : 'true');
+            favBtn.disabled = !isAmRadioTrack;
+        }
     }
 
     private setupBackEvents() {
         $('#back-to-results')?.addEventListener('click', () => this.onBack());
         $('#player-random-country-btn')?.addEventListener('click', () => this.onRandomAmCountry());
+        $('#player-favorite-btn')?.addEventListener('click', () => this.onToggleFavorite());
         
         $('#qa-play-btn')?.addEventListener('click', (e: Event) => {
             e.stopPropagation();
@@ -615,6 +631,12 @@ export class MusicPlayerUI {
             progressTrack.classList.remove('is-live');
         }
 
+        const repeatBtn = this.$c<HTMLButtonElement>('#repeat-btn');
+        if (repeatBtn) {
+            repeatBtn.disabled = this.isLiveRadioMode;
+            repeatBtn.classList.toggle('disabled', this.isLiveRadioMode);
+        }
+
         this.updateLiveIndicatorState();
     }
 
@@ -627,4 +649,23 @@ export class MusicPlayerUI {
         const shouldBlink = this.isLiveRadioMode && this.isPlaying && !this.isLoadingState;
         totalTime.classList.toggle('is-live-playing', shouldBlink);
     }
+
+    public updateFavoriteButtonState(isFavorited: boolean, remainingCount: number): void {
+        const favBtn = this.$c<HTMLButtonElement>('#player-favorite-btn');
+        if (!favBtn) { return; }
+
+        favBtn.classList.toggle('is-favorited', isFavorited);
+        
+        const countEl = favBtn.querySelector('.fav-count');
+        if (countEl) {
+            countEl.textContent = String(remainingCount);
+            countEl.classList.toggle('is-hidden', remainingCount <= 0);
+        }
+
+        // If there are no remaining slots and this station is not already favorited,
+        // show a disabled gray heart (cannot add more favorites).
+        const shouldDisable = !isFavorited && remainingCount <= 0;
+        favBtn.disabled = shouldDisable;
+    }
 }
+

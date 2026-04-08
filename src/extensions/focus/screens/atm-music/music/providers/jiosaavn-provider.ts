@@ -97,7 +97,7 @@ export class JioSaavnProvider implements IMusicProvider {
                     isFullTrack: true,
                 };
             }).filter(t => t.canPlay);
-        } catch (error) {
+        } catch {
 
             return [];
         }

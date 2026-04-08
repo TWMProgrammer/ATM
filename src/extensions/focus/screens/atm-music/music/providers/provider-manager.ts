@@ -97,6 +97,12 @@ export class ProviderManager {
                     this.searchCache.delete(key);
                 }
             }
+
+            while (this.searchCache.size > 50) {
+                const oldestKey = this.searchCache.keys().next().value;
+                if (oldestKey === undefined) {break;}
+                this.searchCache.delete(oldestKey);
+            }
         }
 
         return final;
@@ -120,7 +126,10 @@ export class ProviderManager {
      */
     private deduplicateAndSort(tracks: Track[], query: string): Track[] {
         const unique = new Map<string, Track>();
-        const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const normalize = (s: string) => s
+            .toLocaleLowerCase()
+            .normalize('NFKD')
+            .replace(/[^\p{L}\p{N}]+/gu, '');
         const qNorm = normalize(query);
 
         for (const track of tracks) {

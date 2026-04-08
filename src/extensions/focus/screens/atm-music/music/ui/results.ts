@@ -124,8 +124,9 @@ export class MusicResultsUI {
 
         if (this.queryInput) {
             this.queryInput.addEventListener('input', () => this.updateButtonState());
-            this.queryInput.addEventListener('keypress', (e) => {
+            this.queryInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     const q = (this.queryInput?.value || '').trim();
                     const isUnchanged = q === this.lastQuery && q.length > 0;
                     if (isUnchanged && this.canForward) {

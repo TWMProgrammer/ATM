@@ -10,6 +10,46 @@ function seedEngine(engine: LintEngine, uri: string, text: string, version: numb
 }
 
 suite('ATM Lint Engine - Quick Fixes', () => {
+	test('classifies non-rule ESLint operational warnings correctly', () => {
+		const engine = new LintEngine(() => undefined);
+		const internals = engine as any;
+
+		assert.strictEqual(
+			internals.isOperationalEslintMessage({
+				message: 'File ignored because no matching configuration was supplied.',
+				ruleId: null
+			}),
+			true
+		);
+
+		assert.strictEqual(
+			internals.isOperationalEslintMessage({
+				message: 'File ignored because of a matching ignore pattern. Use "--no-warn-ignored" to suppress this warning.',
+				ruleId: null
+			}),
+			true
+		);
+
+		assert.strictEqual(
+			internals.isOperationalEslintMessage({
+				message: 'Missing semicolon.',
+				ruleId: 'semi'
+			}),
+			false
+		);
+	});
+
+	test('can toggle operational warning visibility mode', () => {
+		const engine = new LintEngine(() => undefined);
+		const internals = engine as any;
+
+		assert.strictEqual(internals.showOperationalWarnings, false);
+		engine.setShowOperationalWarnings(true);
+		assert.strictEqual(internals.showOperationalWarnings, true);
+		engine.setShowOperationalWarnings(false);
+		assert.strictEqual(internals.showOperationalWarnings, false);
+	});
+
 	test('returns eqeqeq suggestion quick fix when suggestions are enabled', () => {
 		const engine = new LintEngine(() => undefined);
 		const uri = 'file:///tmp/test.ts';

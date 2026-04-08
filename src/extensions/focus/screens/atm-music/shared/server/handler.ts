@@ -149,7 +149,7 @@ export function startAudioServer(): Promise<number> {
                     return res.end('Forbidden target IP');
                 }
 
-                proxyRadioStream(parsed.toString(), req, res, 0);
+                proxyRadioStream(parsed.toString(), res, 0);
 
             } else if (url.pathname === '/discover/podcast') {
                 // Restrict CORS to VS Code webview origins only
@@ -249,7 +249,6 @@ async function handleSearch(webviewView: vscode.WebviewView, query: string, sear
 
 function proxyRadioStream(
     targetUrl: string,
-    req: http.IncomingMessage,
     res: http.ServerResponse,
     redirectDepth: number,
 ): void {
@@ -282,7 +281,7 @@ function proxyRadioStream(
         if (streamRes.statusCode && streamRes.statusCode >= 300 && streamRes.statusCode < 400 && streamRes.headers.location) {
             const nextUrl = new URL(streamRes.headers.location, parsed).toString();
             streamRes.resume();
-            return proxyRadioStream(nextUrl, req, res, redirectDepth + 1);
+            return proxyRadioStream(nextUrl, res, redirectDepth + 1);
         }
 
         // Radio is treated as a live stream. Avoid range/length headers to
