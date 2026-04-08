@@ -238,9 +238,9 @@ export class MusicPlayerUI {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path id="vol-path" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
                     </button>
                     <button id="prev-btn" class="control-btn ${hasPrev ? '' : 'disabled'}" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-                    <button id="play-pause-btn" class="control-btn play-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path id="play-path" d="M8 5v14l11-7z"/></svg></button>
+                    <button id="play-pause-btn" class="control-btn play-btn" type="button" title="Play/Pause (Ctrl+Shift+Space)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path id="play-path" d="M8 5v14l11-7z"/></svg></button>
                     <button id="next-btn" class="control-btn ${hasNext ? '' : 'disabled'}" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-                    <button id="repeat-btn" class="control-btn control-btn-sm ${this.isLoopEnabled ? 'active' : ''}" type="button" aria-pressed="${this.isLoopEnabled ? 'true' : 'false'}">
+                    <button id="repeat-btn" class="control-btn control-btn-sm ${this.isLoopEnabled ? 'active' : ''} ${this.isLiveRadioMode ? 'disabled' : ''}" type="button" aria-pressed="${this.isLoopEnabled ? 'true' : 'false'}" ${this.isLiveRadioMode ? 'disabled' : ''}>
                         ${this.getRepeatIconSvg()}
                     </button>
                 </div>
@@ -619,6 +619,12 @@ export class MusicPlayerUI {
             totalTime.classList.remove('is-live');
             totalTime.classList.remove('is-live-playing');
             progressTrack.classList.remove('is-live');
+        }
+
+        const repeatBtn = this.$c<HTMLButtonElement>('#repeat-btn');
+        if (repeatBtn) {
+            repeatBtn.disabled = this.isLiveRadioMode;
+            repeatBtn.classList.toggle('disabled', this.isLiveRadioMode);
         }
 
         this.updateLiveIndicatorState();
