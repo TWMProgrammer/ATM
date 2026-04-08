@@ -1,5 +1,5 @@
 {
-  "name": "atm",
+  "name": "atm-ghost-helper",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
   "version": "1.8.6",
@@ -14,9 +14,13 @@
     "Visualization",
     "Snippets",
     "Linters",
+    "Formatters",
     "Other"
   ],
   "keywords": [
+    "atm",
+    "ghost",
+    "fantasmita",
     "error lens",
     "git blame",
     "env",
@@ -30,15 +34,14 @@
     "markdown",
     "mdx",
     "translate",
-    "tailwindcss",
     "productivity",
     "developer tools",
     "all in one",
-    "run project",
-    "atm",
-    "color",
-    "Lint",
-    "cursor"
+    "multilanguage",
+    "snippets",
+    "lint",
+    "cursor",
+    "windsurf"
   ],
   "icon": "icon.png",
   "galleryBanner": {

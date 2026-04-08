@@ -1,6 +1,6 @@
 {
-  "extension.displayName": "ᐱ T ꓟ",
-  "extension.description": "👻 Kit de Ferramentas Tudo-em-Um — Error Lens · Git Blame · Proteção Env · Pré-visualização de Imagem · Screenshot · Voz TTS · Pomodoro · Otimizador SVG · MDX · Dados AI · Corretor Ortográfico · Tradução e mais. Funciona em VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
+  "extension.displayName": "ATM 👻 Fantasminha — ᐱ T ꓟ",
+  "extension.description": "👻 Ghost Helper — Kit de Ferramentas Tudo-em-Um Multilíngue: Error Lens · Git Blame · Proteção Env · Pré-visualização de Imagem · Screenshot · Voz TTS · Pomodoro · Otimizador SVG · MDX · Dados AI · Corretor Ortográfico · Tradução · Lint e mais. Rápido como um fantasma. Funciona em VS Code, Cursor, Windsurf, Trae.ai & Kiro.",
   "command.voiceTts.read": "ATM Voz TTS: Copiar e Ler",
   "command.comments.list": "ATM: Listar Anotações TODO / FIXME",
   "command.translate": "ATM: Traduzir",

@@ -1,6 +1,6 @@
 {
-  "extension.displayName": "ᐱ T ꓟ",
-  "extension.description": "👻 オールインワン・ツールキット — Error Lens · Git Blame · Env保護 · 画像プレビュー · コード・スクリーンショット · 音声TTS · ポモドーロ · SVG最適化 · MDX · AIデータ · スペルチェック · 翻訳など。VS Code, Cursor, Windsurf, Trae.ai & Kiroに対応。",
+  "extension.displayName": "ATM 👻 ゴースト — ᐱ T ꓟ",
+  "extension.description": "👻 Ghost Helper — 多言語オールインワン・ツールキット: Error Lens · Git Blame · Env保護 · 画像プレビュー · コード・スクリーンショット · 音声TTS · ポモドーロ · SVG最適化 · MDX · AIデータ · スペルチェック · 翻訳 · Lintなど。ゴーストのように高速。VS Code, Cursor, Windsurf, Trae.ai & Kiroに対応。",
   "command.voiceTts.read": "ATM 音声TTS: コピーして読み上げ",
   "command.comments.list": "ATM: TODO / FIXME 注釈を一覧表示",
   "command.translate": "ATM: 翻訳",

@@ -1,6 +1,6 @@
 {
-  "extension.displayName": "ᐱ T ꓟ",
-  "extension.description": "👻 Универсальный инструментарий — Error Lens · Git Blame · Защита Env · Предпросмотр изображений · Скриншот кода · Голос TTS · Помодоро · Оптимизатор SVG · MDX · Данные AI · Проверка орфографии · Переводчик и др. Работает в VS Code, Cursor, Windsurf, Trae.ai и Kiro.",
+  "extension.displayName": "ATM 👻 Призрак — ᐱ T ꓟ",
+  "extension.description": "👻 Ghost Helper — Многоязычный универсальный инструментарий: Error Lens · Git Blame · Защита Env · Предпросмотр изображений · Скриншот кода · Голос TTS · Помодоро · Оптимизатор SVG · MDX · Данные AI · Проверка орфографии · Переводчик · Lint и др. Быстрый как призрак. Работает в VS Code, Cursor, Windsurf, Trae.ai и Kiro.",
   "command.voiceTts.read": "ATM Голос TTS: Копировать и читать",
   "command.comments.list": "ATM: Список аннотаций TODO / FIXME",
   "command.translate": "ATM: Перевести",

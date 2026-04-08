@@ -1,6 +1,6 @@
 {
-  "extension.displayName": "ᐱ T ꓟ",
-  "extension.description": "👻 全能工具箱 — Error Lens · Git Blame · Env 保护 · 图片预览 · 代码截图 · 语音 TTS · 番茄钟 · SVG 优化 · MDX · AI 数据 · 拼写检查 · 翻译等。支持 VS Code, Cursor, Windsurf, Trae.ai & Kiro。",
+  "extension.displayName": "ATM 👻 幽灵 — ᐱ T ꓟ",
+  "extension.description": "👻 Ghost Helper — 多语言全能工具箱: Error Lens · Git Blame · Env 保护 · 图片预览 · 代码截图 · 语音 TTS · 番茄钟 · SVG 优化 · MDX · AI 数据 · 拼写检查 · 翻译 · Lint等。快如幽灵。支持 VS Code, Cursor, Windsurf, Trae.ai & Kiro。",
   "command.voiceTts.read": "ATM 语音 TTS：复制并阅读",
   "command.comments.list": "ATM：列出 TODO / FIXME 注释",
   "command.translate": "ATM：翻译",

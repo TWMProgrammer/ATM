@@ -1,6 +1,6 @@
 {
-  "extension.displayName": "ᐱ T ꓟ",
-  "extension.description": "👻 올인원 툴킷 — Error Lens · Git Blame · Env 보호 · 이미지 미리보기 · 코드 스크린샷 · 음성 TTS · 뽀모도로 · SVG 최적화 · MDX · AI 데이터 · 맞춤법 검사 · 번역 등. VS Code, Cursor, Windsurf, Trae.ai & Kiro 지원。",
+  "extension.displayName": "ATM 👻 유령 — ᐱ T ꓟ",
+  "extension.description": "👻 Ghost Helper — 다국어 올인원 툴킷: Error Lens · Git Blame · Env 보호 · 이미지 미리보기 · 코드 스크린샷 · 음성 TTS · 뽀모도로 · SVG 최적화 · MDX · AI 데이터 · 맞춤법 검사 · 번역 · Lint 등. 유령처럼 빠름. VS Code, Cursor, Windsurf, Trae.ai & Kiro 지원.",
   "command.voiceTts.read": "ATM 음성 TTS: 복사 및 읽기",
   "command.comments.list": "ATM: TODO / FIXME 주석 목록",
   "command.translate": "ATM: 번역",
