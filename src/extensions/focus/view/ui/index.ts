@@ -78,6 +78,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             nextReplacementSlot = firstEmpty > -1 ? firstEmpty : 0;
             updateFavoritesUI();
             syncRadioButtonStates();
+            setFavoritesHydrated(true);
         }
     });
 
@@ -257,6 +258,13 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
 
     let favorites: (FavoriteStation | null)[] = [null, null, null];
     let nextReplacementSlot = 0;
+    let favoritesHydrated = false;
+    const FAVORITES_HYDRATION_TIMEOUT_MS = 1200;
+
+    const setFavoritesHydrated = (hydrated: boolean) => {
+        favoritesHydrated = hydrated;
+        radioPanel?.classList.toggle('is-hydrating-favorites', !hydrated);
+    };
 
     const persistFavorites = () => {
         const serializableFavorites = favorites.map((favorite) => {
@@ -365,8 +373,15 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         freezePrimaryRadioButtonWidths();
     });
 
-    updateFavoritesUI();
+    setFavoritesHydrated(false);
     vscode.postMessage({ type: 'atm_music_favorites_load' });
+    window.setTimeout(() => {
+        if (!favoritesHydrated) {
+            updateFavoritesUI();
+            syncRadioButtonStates();
+            setFavoritesHydrated(true);
+        }
+    }, FAVORITES_HYDRATION_TIMEOUT_MS);
 
     radioButtons.forEach((button) => {
         button.addEventListener('click', () => {
