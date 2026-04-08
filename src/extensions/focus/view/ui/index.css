@@ -7,6 +7,13 @@ body {
     height: 100vh;
     overflow: hidden;
     box-sizing: border-box;
+    transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1), transform 0.4s cubic-bezier(0.2, 0, 0, 1);
+}
+
+body.is-app-loading {
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
 }
 
 *, *::before, *::after {
