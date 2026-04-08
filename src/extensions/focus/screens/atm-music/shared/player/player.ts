@@ -12,7 +12,6 @@ export class MusicPlayerUI {
     private suppressPlaybackEvents = false;
     private isSeeking = false;
     private isLoadingState = false;
-    private pendingTrack: Track | null = null;
     private currentTrackDuration = 0;
     private isLiveRadioMode = false;
     private liveProgressStartedAtMs = 0;
@@ -140,7 +139,6 @@ export class MusicPlayerUI {
         this.audioPlayer.load();
 
         this.isPlaying = false;
-        this.pendingTrack = null;
         this.stopProgressLoop();
         this.setLoading(false);
 
