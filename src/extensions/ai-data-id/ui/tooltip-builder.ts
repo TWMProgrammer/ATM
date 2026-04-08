@@ -292,9 +292,7 @@ function isClaudePeakHour(date: Date): boolean {
 	
 	const hour = date.getUTCHours();
 	// Las horas pico son de 13:00 a 19:00 GMT (5:00 AM a 11:00 AM Pacífico)
-	// TEMP: always return true for visual alignment testing
-	void hour;
-	return true;
+	return hour >= 13 && hour < 19;
 }
 
 function sortModelsByDisplayOrder(models: QuotaSnapshot['models']): QuotaSnapshot['models'] {
