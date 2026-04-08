@@ -299,20 +299,44 @@ export class AtmMusicController {
         })();
     }
 
+    private normalizeRadioSourceUrl(rawStreamUrl: string): string {
+        const streamUrl = (rawStreamUrl || '').trim();
+        if (!streamUrl) {
+            return '';
+        }
+
+        try {
+            const parsed = new URL(streamUrl);
+            const isLocalProxyHost = parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost';
+            const isRadioProxyPath = parsed.pathname === '/radio';
+
+            if (isLocalProxyHost && isRadioProxyPath) {
+                const nestedStreamUrl = (parsed.searchParams.get('streamUrl') || '').trim();
+                if (nestedStreamUrl) {
+                    return nestedStreamUrl;
+                }
+            }
+        } catch {
+            // Keep original value if URL parsing fails.
+        }
+
+        return streamUrl;
+    }
+
     public playRadioStream(stationTitle: string, streamUrl: string, stationKey?: string) {
         const rawTitle = (stationTitle || 'Radio').trim();
         const hasBandPrefix = /^(fm|am)\s*-\s*/i.test(rawTitle) || rawTitle.toLowerCase() === 'am';
         const safeTitle = hasBandPrefix ? rawTitle : `FM - ${rawTitle}`;
-        const safeStreamUrl = (streamUrl || '').trim();
-        if (!safeStreamUrl) {
+        const sourceStreamUrl = this.normalizeRadioSourceUrl(streamUrl);
+        if (!sourceStreamUrl) {
             this.showError('Radio stream is unavailable.');
             return;
         }
 
         const port = window.STREAM_PORT || 0;
         const proxiedUrl = port > 0
-            ? `http://127.0.0.1:${port}/radio?streamUrl=${encodeURIComponent(safeStreamUrl)}`
-            : safeStreamUrl;
+            ? `http://127.0.0.1:${port}/radio?streamUrl=${encodeURIComponent(sourceStreamUrl)}`
+            : sourceStreamUrl;
 
         const stationTokenSource = (stationKey || safeTitle).toLowerCase();
         const stationToken = stationTokenSource
@@ -328,6 +352,7 @@ export class AtmMusicController {
             thumbnail: '',
             duration: 0,
             preview: proxiedUrl,
+            externalUrl: sourceStreamUrl,
             provider: 'radio',
             canPlay: true,
             isFullTrack: true,

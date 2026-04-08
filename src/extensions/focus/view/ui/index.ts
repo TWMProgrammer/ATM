@@ -164,7 +164,8 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     interface FavoriteStation {
         id: string;
         title: string;
-        preview: string;
+        streamUrl: string;
+        preview?: string;
         originalStationKey: string;
     }
     let favorites: (FavoriteStation | null)[] = [null, null, null];
@@ -242,7 +243,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             favorites[targetIndex] = {
                 id: track.id,
                 title: favTitle,
-                preview: track.preview,
+                streamUrl: (track.externalUrl || track.preview || '').trim(),
                 originalStationKey: stationKey || track.id
             };
         }
@@ -276,7 +277,11 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
                         musicController.goToMusic();
                         return;
                     }
-                    musicController.playRadioStream(fav.title, fav.preview, fav.originalStationKey);
+                    const favoriteStreamUrl = (fav.streamUrl || fav.preview || '').trim();
+                    if (!favoriteStreamUrl) {
+                        return;
+                    }
+                    musicController.playRadioStream(fav.title, favoriteStreamUrl, fav.originalStationKey);
                     return;
                 }
             }
