@@ -78,18 +78,18 @@ export class AtmMusicController {
                 <div class="screen-header">
                     <button id="back-to-results" class="back-btn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>Back</button>
                     <span id="player-track-info" class="player-track-info"></span>
+                    <button id="player-favorite-btn" class="header-icon-btn" type="button" title="Toggle Favorite" aria-label="Toggle AM Station Favorite" aria-hidden="true" hidden>
+                        <span class="fav-count">3</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </button>
                     <button id="player-random-country-btn" class="header-icon-btn" type="button" title="Random AM country" aria-label="Play random AM country" aria-hidden="true" hidden>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="9"></circle>
                             <path d="M3 12h18"></path>
                             <path d="M12 3a14 14 0 0 1 0 18"></path>
                             <path d="M12 3a14 14 0 0 0 0 18"></path>
-                        </svg>
-                    </button>
-                    <button id="player-favorite-btn" class="header-icon-btn" type="button" title="Toggle Favorite" aria-label="Toggle AM Station Favorite" aria-hidden="true" hidden>
-                        <span class="fav-count">3</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                     </button>
                 </div>

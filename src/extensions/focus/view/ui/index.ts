@@ -209,14 +209,21 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
                 favTitle = parts.length > 1 ? `AM - ${parts[parts.length - 1].substring(0, 5)}` : 'AM';
             }
 
-            // Add to favorites (looping replacement)
-            favorites[favSlotIndex] = {
+            // Add to favorites: finding the first empty slot, otherwise replacement.
+            const firstEmptyIndex = favorites.indexOf(null);
+            const targetIndex = firstEmptyIndex !== -1 ? firstEmptyIndex : favSlotIndex;
+
+            favorites[targetIndex] = {
                 id: track.id,
                 title: favTitle,
                 preview: track.preview,
-                originalStationKey: stationKey || `fav-${favSlotIndex}`
+                originalStationKey: stationKey || `fav-${targetIndex}`
             };
-            favSlotIndex = (favSlotIndex + 1) % 3;
+
+            // If we replaced, advance the pointer for next replacement.
+            if (firstEmptyIndex === -1) {
+                favSlotIndex = (favSlotIndex + 1) % 3;
+            }
         }
 
         updateFavoritesUI();
