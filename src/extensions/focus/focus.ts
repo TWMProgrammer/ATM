@@ -6,7 +6,7 @@ import { ATMDataProvider } from './screens/atm-data/core/provider';
 export function activateFocus(context: vscode.ExtensionContext) {
     ATMDataProvider.getInstance().init(context);
 
-    const provider = new YouTubeMusicViewProvider(context.extensionUri);
+    const provider = new YouTubeMusicViewProvider(context.extensionUri, context);
 
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(

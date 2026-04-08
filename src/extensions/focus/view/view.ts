@@ -5,15 +5,98 @@ import { handleWebviewMessage } from '../screens/atm-music/shared/server/handler
 import { openScreenshotPanel, refreshScreenshotPanelData } from '../screens/atm-data/screenshot/screenshot';
 import { ATMDataProvider } from '../screens/atm-data/core/provider';
 
+interface PersistedFavoriteStation {
+	id: string;
+	title: string;
+	streamUrl: string;
+	originalStationKey: string;
+}
+
 export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'atm-yt-music-view';
+	private static readonly FAVORITES_STORAGE_KEY = 'focus.atmMusic.favorites.v1';
+	private static readonly FAVORITES_MAX_SLOTS = 3;
 
 	private _view?: vscode.WebviewView;
 	private _cachedRawHtml: string | null = null;
 
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
+		private readonly _context: vscode.ExtensionContext,
 	) { }
+
+	private _normalizeFavoriteStation(entry: unknown): PersistedFavoriteStation | null {
+		if (!entry || typeof entry !== 'object') {
+			return null;
+		}
+
+		const record = entry as Record<string, unknown>;
+		const id = typeof record.id === 'string' ? record.id.trim() : '';
+		const title = typeof record.title === 'string' ? record.title.trim() : '';
+		const streamUrl = typeof record.streamUrl === 'string'
+			? record.streamUrl.trim()
+			: (typeof record.preview === 'string' ? record.preview.trim() : '');
+		const originalStationKey = typeof record.originalStationKey === 'string'
+			? record.originalStationKey.trim()
+			: '';
+
+		if (!id || !streamUrl || !originalStationKey) {
+			return null;
+		}
+
+		return {
+			id,
+			title: title || 'AM',
+			streamUrl,
+			originalStationKey,
+		};
+	}
+
+	private _sanitizeFavoritesState(value: unknown): Array<PersistedFavoriteStation | null> {
+		const raw = Array.isArray(value) ? value : [];
+		const seenIds = new Set<string>();
+		const normalized: Array<PersistedFavoriteStation | null> = [];
+
+		for (const item of raw) {
+			if (normalized.length >= YouTubeMusicViewProvider.FAVORITES_MAX_SLOTS) {
+				break;
+			}
+
+			const favorite = this._normalizeFavoriteStation(item);
+			if (!favorite || seenIds.has(favorite.id)) {
+				normalized.push(null);
+				continue;
+			}
+
+			seenIds.add(favorite.id);
+			normalized.push(favorite);
+		}
+
+		while (normalized.length < YouTubeMusicViewProvider.FAVORITES_MAX_SLOTS) {
+			normalized.push(null);
+		}
+
+		return normalized;
+	}
+
+	private async _sendFavoritesState(webview: vscode.Webview): Promise<void> {
+		const stored = this._context.globalState.get<unknown>(YouTubeMusicViewProvider.FAVORITES_STORAGE_KEY);
+		const favorites = this._sanitizeFavoritesState(stored);
+		await webview.postMessage({
+			type: 'atm_music_favorites_state',
+			favorites,
+		});
+	}
+
+	private async _saveFavoritesState(value: unknown): Promise<void> {
+		const favorites = this._sanitizeFavoritesState(value);
+		const hasAnyFavorite = favorites.some((entry) => entry !== null);
+
+		await this._context.globalState.update(
+			YouTubeMusicViewProvider.FAVORITES_STORAGE_KEY,
+			hasAnyFavorite ? favorites : undefined,
+		);
+	}
 
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,
@@ -32,6 +115,14 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		ATMDataProvider.getInstance().setWebview(webviewView);
 
 		webviewView.webview.onDidReceiveMessage(async (message) => {
+			if (message.type === 'atm_music_favorites_load') {
+				await this._sendFavoritesState(webviewView.webview);
+				return;
+			}
+			if (message.type === 'atm_music_favorites_save') {
+				await this._saveFavoritesState(message.favorites);
+				return;
+			}
 			if (message.type === 'open_screenshot') {
 				openScreenshotPanel(this._extensionUri, message.payload, (isOpen: boolean) => {
 					webviewView.webview.postMessage({ type: 'screenshot_state_changed', isOpen });

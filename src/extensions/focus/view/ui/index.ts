@@ -67,6 +67,17 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
                     shareBtn.setAttribute('title', 'Share Data');
                 }
             }
+
+            return;
+        }
+
+        if (message.type === 'atm_music_favorites_state') {
+            const payload = message as FavoriteMessagePayload;
+            favorites = normalizeFavoritesPayload(payload.favorites);
+            const firstEmpty = favorites.indexOf(null);
+            nextReplacementSlot = firstEmpty > -1 ? firstEmpty : 0;
+            updateFavoritesUI();
+            syncRadioButtonStates();
         }
     });
 
@@ -182,8 +193,90 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         preview?: string;
         originalStationKey: string;
     }
+
+    const FAVORITES_SLOT_COUNT = 3;
+
+    interface FavoriteMessagePayload {
+        favorites?: unknown;
+    }
+
+    const sanitizeFavoriteStation = (entry: unknown): FavoriteStation | null => {
+        if (!entry || typeof entry !== 'object') {
+            return null;
+        }
+
+        const raw = entry as Record<string, unknown>;
+        const id = typeof raw.id === 'string' ? raw.id.trim() : '';
+        const title = typeof raw.title === 'string' ? raw.title.trim() : '';
+        const streamUrl = typeof raw.streamUrl === 'string'
+            ? raw.streamUrl.trim()
+            : (typeof raw.preview === 'string' ? raw.preview.trim() : '');
+        const originalStationKey = typeof raw.originalStationKey === 'string'
+            ? raw.originalStationKey.trim()
+            : '';
+
+        if (!id || !streamUrl || !originalStationKey) {
+            return null;
+        }
+
+        return {
+            id,
+            title: title || 'AM',
+            streamUrl,
+            preview: typeof raw.preview === 'string' ? raw.preview.trim() : undefined,
+            originalStationKey,
+        };
+    };
+
+    const normalizeFavoritesPayload = (value: unknown): (FavoriteStation | null)[] => {
+        const source = Array.isArray(value) ? value : [];
+        const normalized: (FavoriteStation | null)[] = [];
+        const seenIds = new Set<string>();
+
+        for (const entry of source) {
+            if (normalized.length >= FAVORITES_SLOT_COUNT) {
+                break;
+            }
+
+            const favorite = sanitizeFavoriteStation(entry);
+            if (!favorite || seenIds.has(favorite.id)) {
+                normalized.push(null);
+                continue;
+            }
+
+            seenIds.add(favorite.id);
+            normalized.push(favorite);
+        }
+
+        while (normalized.length < FAVORITES_SLOT_COUNT) {
+            normalized.push(null);
+        }
+
+        return normalized;
+    };
+
     let favorites: (FavoriteStation | null)[] = [null, null, null];
     let nextReplacementSlot = 0;
+
+    const persistFavorites = () => {
+        const serializableFavorites = favorites.map((favorite) => {
+            if (!favorite) {
+                return null;
+            }
+
+            return {
+                id: favorite.id,
+                title: favorite.title,
+                streamUrl: favorite.streamUrl,
+                originalStationKey: favorite.originalStationKey,
+            };
+        });
+
+        vscode.postMessage({
+            type: 'atm_music_favorites_save',
+            favorites: serializableFavorites,
+        });
+    };
 
     const isAmStation = (stationKey: string | undefined, track: { id: string; title: string }) => {
         if (stationKey?.startsWith('am:') || stationKey?.startsWith('am-peru:')) {
@@ -262,6 +355,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
             };
         }
 
+        persistFavorites();
         updateFavoritesUI();
         syncRadioButtonStates();
     }) as EventListener);
@@ -272,6 +366,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     });
 
     updateFavoritesUI();
+    vscode.postMessage({ type: 'atm_music_favorites_load' });
 
     radioButtons.forEach((button) => {
         button.addEventListener('click', () => {
