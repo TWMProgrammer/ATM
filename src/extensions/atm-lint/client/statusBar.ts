@@ -1,6 +1,12 @@
 import * as vscode from 'vscode';
 
 let statusBarItem: vscode.StatusBarItem;
+let currentStatus: 'ok' | 'missing-config' | 'error' = 'ok';
+let currentIsEnabled: boolean = true;
+
+export function getStatusBarState() {
+    return { isEnabled: currentIsEnabled, status: currentStatus };
+}
 
 export function activateStatusBar(context: vscode.ExtensionContext) {
     // Create the icon in the bottom right of VS Code
@@ -19,6 +25,9 @@ export function activateStatusBar(context: vscode.ExtensionContext) {
  * Updates the Status Bar UI based on the engine state
  */
 export function updateStatusBar(isEnabled: boolean, status: 'ok' | 'missing-config' | 'error' = 'ok') {
+    currentIsEnabled = isEnabled;
+    currentStatus = status;
+
     if (isEnabled) {
         if (status === 'missing-config') {
             statusBarItem.text = '$(info) ATM Lint';
