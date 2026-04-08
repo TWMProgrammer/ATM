@@ -10,6 +10,7 @@ import {
 } from 'vscode-languageserver/node';
 
 type LogFn = (message: string) => void;
+type ErrorAlertFn = (fileName: string, errorMessage: string) => void;
 
 type LintFix = {
 	range: [number, number];
@@ -26,9 +27,11 @@ export class LintEngine {
 	private lastDocumentText: Map<string, string> = new Map();
 	private workspaceRoots: string[] = [];
 	private log: LogFn;
+	private errorAlert?: ErrorAlertFn;
 
-	constructor(log: LogFn) {
+	constructor(log: LogFn, errorAlert?: ErrorAlertFn) {
 		this.log = log;
+		this.errorAlert = errorAlert;
 	}
 
 	/**
@@ -115,7 +118,11 @@ export class LintEngine {
 			this.instances.delete(cwd);
 			this.clearDocumentData(uri);
 
-			return [this.createEngineFailureDiagnostic(errorMessage)];
+			if (this.errorAlert) {
+				this.errorAlert(path.basename(filePath), errorMessage);
+			}
+
+			return [];
 		}
 	}
 
@@ -303,18 +310,7 @@ export class LintEngine {
 		};
 	}
 
-	private createEngineFailureDiagnostic(errorMessage: string): Diagnostic {
-		return {
-			range: {
-				start: { line: 0, character: 0 },
-				end: { line: 0, character: 0 }
-			},
-			message: `ATM Lint could not run ESLint: ${errorMessage}`,
-			severity: DiagnosticSeverity.Warning,
-			source: 'Lint (ATM)',
-			code: 'atm-lint/eslint-runtime'
-		};
-	}
+
 
 	private mapSeverity(severity: number): DiagnosticSeverity {
 		switch (severity) {
