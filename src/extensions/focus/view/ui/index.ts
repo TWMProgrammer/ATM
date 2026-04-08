@@ -112,7 +112,6 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     const setActiveRadioButton = (btn: HTMLButtonElement) => {
         radioButtons.forEach((b) => {
             b.classList.toggle('is-active', b === btn);
-            b.classList.remove('is-playing');
         });
     };
 
@@ -201,6 +200,9 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         radioButtons.forEach((button) => {
             if (button.classList.contains('is-active')) {
                 button.classList.toggle('is-playing', isPlaying);
+            } else {
+                // Clean stale is-playing from non-active buttons
+                button.classList.remove('is-playing');
             }
         });
     }) as EventListener);
