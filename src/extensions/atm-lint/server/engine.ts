@@ -10,7 +10,6 @@ import {
 } from 'vscode-languageserver/node';
 
 type LogFn = (message: string) => void;
-type ErrorAlertFn = (fileName: string, errorMessage: string) => void;
 
 type LintFix = {
 	range: [number, number];
@@ -27,11 +26,9 @@ export class LintEngine {
 	private lastDocumentText: Map<string, string> = new Map();
 	private workspaceRoots: string[] = [];
 	private log: LogFn;
-	private errorAlert?: ErrorAlertFn;
 
-	constructor(log: LogFn, errorAlert?: ErrorAlertFn) {
+	constructor(log: LogFn) {
 		this.log = log;
-		this.errorAlert = errorAlert;
 	}
 
 	/**
@@ -117,10 +114,6 @@ export class LintEngine {
 			const cwd = this.resolveCwd(filePath);
 			this.instances.delete(cwd);
 			this.clearDocumentData(uri);
-
-			if (this.errorAlert) {
-				this.errorAlert(path.basename(filePath), errorMessage);
-			}
 
 			return [];
 		}

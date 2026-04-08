@@ -15,24 +15,7 @@ import { LintEngine } from './engine';
 import { ATM_LINT_REVALIDATE_REQUEST, RevalidateOpenDocumentsResponse } from '../shared/types';
 
 const connection = createConnection(ProposedFeatures.all);
-const warnedErrors = new Set<string>();
-
-const engine = new LintEngine(
-	(msg) => connection.console.log(msg),
-	(fileName, errorMessage) => {
-		if (errorMessage.includes('Could not find config file')) {
-			if (!warnedErrors.has('missing-config')) {
-				warnedErrors.add('missing-config');
-				connection.window.showInformationMessage(`ATMLint: No ESLint configuration found for '${fileName}'.`);
-			}
-		} else {
-			if (!warnedErrors.has(errorMessage)) {
-				warnedErrors.add(errorMessage);
-				connection.window.showErrorMessage(`ATMLint Error: ${errorMessage}`);
-			}
-		}
-	}
-);
+const engine = new LintEngine((msg) => connection.console.log(msg));
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 type AtmLintSettings = {
