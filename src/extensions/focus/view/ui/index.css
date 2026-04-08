@@ -98,6 +98,7 @@ body {
     white-space: nowrap;
     flex: 0 0 auto;
     cursor: pointer;
+    position: relative; /* needed for btn-eq overlay */
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -136,17 +137,17 @@ body.vscode-light .radio-mode-btn:hover {
     border-color: var(--vscode-button-background);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
-.radio-mode-btn.is-active:not(.radio-mode-btn-am) {
-    min-width: 68px; /* Ensures width stability when text is hidden */
-}
 
-/* EQ Animation */
+/* EQ bars: overlaid absolutely — button size always set by .btn-text */
 .btn-eq {
-    display: none;
+    position: absolute;
+    inset: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 3px;
-    height: 12px;
+    opacity: 0;
+    pointer-events: none;
 }
 .btn-eq span {
     width: 2.5px;
@@ -165,12 +166,12 @@ body.vscode-light .radio-mode-btn:hover {
     50% { transform: scaleY(1); }
 }
 
-/* is-playing controls the EQ — only visible when actually playing */
+/* is-playing: fade in EQ, fade out text — button size never changes */
 .radio-mode-btn.is-active.is-playing .btn-text {
-    display: none;
+    opacity: 0;
 }
 .radio-mode-btn.is-active.is-playing .btn-eq {
-    display: flex;
+    opacity: 1;
 }
 
 .search-container.api-loading::after {
