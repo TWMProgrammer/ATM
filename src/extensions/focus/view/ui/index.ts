@@ -83,6 +83,7 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     const musicSearchPanel = document.querySelector('#mode-panel-music-search') as HTMLElement | null;
     const radioPanel = document.querySelector('#mode-panel-radio') as HTMLElement | null;
     const radioButtons = Array.from(document.querySelectorAll('.radio-mode-btn')) as HTMLButtonElement[];
+    const primaryRadioButtons = radioButtons.slice(0, 3);
 
     type AudioUiMode = 'music' | 'radio';
     let audioUiMode: AudioUiMode = 'radio';
@@ -116,6 +117,19 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
         }
         const value = Number.parseInt(stationKey.slice(4), 10);
         return Number.isNaN(value) ? null : value;
+    };
+
+    const freezePrimaryRadioButtonWidths = () => {
+        primaryRadioButtons.forEach((button) => {
+            const width = Math.ceil(button.getBoundingClientRect().width);
+            if (width <= 0) {
+                return;
+            }
+
+            button.style.width = `${width}px`;
+            button.style.minWidth = `${width}px`;
+            button.style.maxWidth = `${width}px`;
+        });
     };
 
     // Helper: re-sync is-active AND is-playing for all radio buttons
@@ -253,6 +267,10 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     }) as EventListener);
 
     // Initial sync
+    requestAnimationFrame(() => {
+        freezePrimaryRadioButtonWidths();
+    });
+
     updateFavoritesUI();
 
     radioButtons.forEach((button) => {
