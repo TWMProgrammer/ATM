@@ -321,6 +321,9 @@ export class AtmMusicController {
             isFullTrack: true,
         };
 
+        // Save previous group before updating
+        const prevGroup = this.currentRadioStationKey ? this.currentRadioStationKey.split(':')[0] : null;
+
         this.clearError();
         this.clearRadioReconnectTimer();
         this.resetRadioRetryState();
@@ -330,7 +333,11 @@ export class AtmMusicController {
             this.lastAmStationId = stationId || null;
         }
 
-        if (this.tracks.length === 0 || !this.isRadioTrack(this.tracks[0])) {
+        // Clear history when switching between different radio groups (e.g. FM → AM)
+        const newGroup = stationKey ? stationKey.split(':')[0] : null;
+        const isSameGroup = prevGroup !== null && newGroup !== null && prevGroup === newGroup;
+
+        if (this.tracks.length === 0 || !this.isRadioTrack(this.tracks[0]) || !isSameGroup) {
             this.tracks = [radioTrack];
             this.currentIndex = 0;
         } else {
