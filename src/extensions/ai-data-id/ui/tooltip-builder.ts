@@ -52,8 +52,8 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 	md.supportHtml = true;
 	md.supportThemeIcons = true;
 
-	const peakWarning = isClaudePeakHour(snapshot.timestamp) 
-		? ` ${'&nbsp;'.repeat(24)}<span style="color:${COLOR_DANGER};">**Claude** ⏰</span>`
+	const peakWarning = isClaudePeakHour(snapshot.timestamp)
+		? `${'&nbsp;'.repeat(22)}<span style="color:${COLOR_DANGER};">**Claude** ⏰</span>`
 		: '';
 
 	md.appendMarkdown(
@@ -147,9 +147,8 @@ export function computeEngineeredTokens(models: QuotaSnapshot['models'], tier: '
 	let totalMonthly = 0;
 
 	// Process each basket
-	for (const [basketName, config] of Object.entries(MODEL_BASKETS)) {
+	for (const [, config] of Object.entries(MODEL_BASKETS)) {
 		const monthlyForBasket = config.monthlyAllocation * tierMultiplier;
-		totalMonthly += monthlyForBasket;
 
 		// Find ALL models belonging to this basket
 		const matchingModels = models.filter(m => {
@@ -157,41 +156,32 @@ export function computeEngineeredTokens(models: QuotaSnapshot['models'], tier: '
 			return config.keywords.some(kw => idOrLabel.includes(kw));
 		});
 
-		let basketAvailablePct = 0;
+		// If the server returned no models for this basket, exclude it from the
+		// calculation entirely — a missing basket is a server gap, not a 0% quota.
+		// Counting it as 0 would produce false low-quota warnings.
+		if (matchingModels.length === 0) { continue; }
 
-		if (matchingModels.length > 0) {
-			// If connected models share quota, they usually drain at the same rate or
-			// getting exhausted in one affects the others.
-			// We take the minimum remaining percentage among matching models to be safe,
-			// or average them. Let's use the first non-exhausted one, or 0 if all exhausted,
-			// or average. Taking the minimum is safest.
-			let minPct = 100;
-			let foundFinite = false;
+		totalMonthly += monthlyForBasket;
 
-			for (const m of matchingModels) {
-				if (m.isExhausted) {
-					minPct = 0;
-					foundFinite = true;
-					break; // If one is exhausted, the whole connected pool is usually exhausted
-				}
-				if (m.remainingPercentage !== undefined) {
-					minPct = Math.min(minPct, m.remainingPercentage);
-					foundFinite = true;
-				}
+		// Use the minimum remaining % across matching models (safest conservative estimate).
+		// If any model is exhausted, the whole basket is treated as 0.
+		let minPct = 100;
+		let foundFinite = false;
+
+		for (const m of matchingModels) {
+			if (m.isExhausted) {
+				minPct = 0;
+				foundFinite = true;
+				break; // One exhausted model drains the whole connected pool
 			}
-
-			if (foundFinite) {
-				basketAvailablePct = minPct / 100;
-			} else {
-				// All matching models have undefined percentage (unlimited but not exhausted)
-				basketAvailablePct = 1.0;
+			if (m.remainingPercentage !== undefined) {
+				minPct = Math.min(minPct, m.remainingPercentage);
+				foundFinite = true;
 			}
-		} else {
-			// CRITICAL FIX: If a basket is missing from the server, 
-			// we assume 0 tokens for it, we do NOT assume 100%.
-			basketAvailablePct = 0;
 		}
 
+		// foundFinite = false means all models in this basket are fully unlimited
+		const basketAvailablePct = foundFinite ? minPct / 100 : 1.0;
 		totalAvailable += (basketAvailablePct * monthlyForBasket);
 	}
 
@@ -208,7 +198,7 @@ export function computeEngineeredTokens(models: QuotaSnapshot['models'], tier: '
 // ── Tooltip sections ─────────────────────────────────────────────────
 
 function buildTopSummary(snapshot: QuotaSnapshot): string {
-	const measured     = snapshot.models.filter(m => m.remainingPercentage !== undefined);
+	const measured     = snapshot.models.filter(m => m.remainingPercentage !== undefined || m.isExhausted);
 	const totalMeasured = measured.length;
 	const exhausted    = measured.filter(m => m.isExhausted).length;
 	const critical     = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
@@ -236,24 +226,32 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 
 	const safeZone = Math.max(totalMeasured - exhausted - critical, 0);
 	parts.push(
-		`$(heart) <span style="color:${COLOR_TEXT_SECONDARY};">Healthy:</span> <span style="color:${COLOR_HEALTHY};">**${safeZone}/${totalMeasured}**</span>`,
-		...(critical  > 0 ? [`$(warning) <span style="color:${COLOR_WARNING};">Low: ${critical}</span>`]         : []),
-		...(exhausted > 0 ? [`$(error) <span style="color:${COLOR_DANGER};">Exhausted: ${exhausted}</span>`]     : []),
+		`&ensp;$(heart) <span style="color:${COLOR_TEXT_SECONDARY};">Healthy:</span> <span style="color:${COLOR_HEALTHY};">**${safeZone}/${totalMeasured}**</span>`,
+		...(critical  > 0 ? [`$(warning) <span style="color:${COLOR_WARNING};">Low: ${critical}</span>`]         : [])
 	);
 
 	return joinWithSeparator(parts);
+}
+
+/** Returns a small icon representing the model family. */
+function getModelFamilyIcon(label: string): string {
+	if (label.includes('Gemini')) { return '✦'; }
+	if (label.includes('Claude')) { return '❋'; }
+	if (label.includes('GPT'))    { return '▣'; }
+	return '◇';
 }
 
 function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 	const safeLabel   = escapeInlineMarkdown(model.label);
 	const isExhausted = model.isExhausted;
 	const isUnlimited = model.remainingPercentage === undefined && !isExhausted;
+	const icon        = getModelFamilyIcon(model.label);
 
 	if (isExhausted) {
 		const resetDate = model.resetTime.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: 'numeric' });
 		const resetTime = model.resetTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 		return (
-			`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
+			`<span style="color:${COLOR_TEXT_PRIMARY};">**${icon}&nbsp; ${safeLabel}**</span>  \n` +
 			`<span style="color:${COLOR_DANGER};">**@gohitx**</span> &nbsp;&nbsp;` +
 			`<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; ` +
 			`$(history) <span style="color:${COLOR_TEXT_SECONDARY};">Refills on ${resetDate}, ${resetTime}</span>\n\n`
@@ -262,7 +260,7 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 
 	if (isUnlimited) {
 		return (
-			`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
+			`<span style="color:${COLOR_TEXT_PRIMARY};">**${icon}&nbsp; ${safeLabel}**</span>  \n` +
 			`$(pass) <span style="color:${COLOR_TEXT_SECONDARY};">Included in plan • Unlimited</span>\n\n`
 		);
 	}
@@ -273,7 +271,7 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 	const padding  = '&ensp;'.repeat(Math.max(0, 3 - pct.toString().length));
 
 	return (
-		`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
+		`<span style="color:${COLOR_TEXT_PRIMARY};">**${icon}&nbsp; ${safeLabel}**</span>  \n` +
 		`${bar} &nbsp;&nbsp; <span style="color:${pctColor};">**${padding}${pct}%**</span> &nbsp;&nbsp;` +
 		`<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; ` +
 		`$(history) <span style="color:${COLOR_TEXT_SECONDARY};">${model.timeUntilResetFormatted}</span>\n\n`
@@ -393,5 +391,5 @@ export function getStatusColor(percentage: number): string {
 }
 
 function joinWithSeparator(parts: string[]): string {
-	return parts.join(` &nbsp;&nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp;&nbsp; `);
+	return parts.join(` &nbsp;&nbsp;<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; `);
 }

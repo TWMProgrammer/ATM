@@ -1,8 +1,8 @@
 {
-  "name": "atm-ghost-helper",
+  "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "1.8.6",
+  "version": "1.8.7",
   "publisher": "bastndev",
   "license": "MIT",
   "engines": {
@@ -21,6 +21,9 @@
     "atm",
     "ghost",
     "fantasmita",
+    "ai",
+    "trae",
+    "kiro",
     "error lens",
     "git blame",
     "env",

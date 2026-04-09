@@ -28,6 +28,9 @@
         "dotenv",
         "linters",
         "pomodoro",
-        "optimizer"
+        "optimizer",
+        "formatters",
+        "fantasmita",
+        "multilanguage"
     ]
 }
