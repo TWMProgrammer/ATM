@@ -198,7 +198,7 @@ export function computeEngineeredTokens(models: QuotaSnapshot['models'], tier: '
 // ── Tooltip sections ─────────────────────────────────────────────────
 
 function buildTopSummary(snapshot: QuotaSnapshot): string {
-	const measured     = snapshot.models.filter(m => m.remainingPercentage !== undefined);
+	const measured     = snapshot.models.filter(m => m.remainingPercentage !== undefined || m.isExhausted);
 	const totalMeasured = measured.length;
 	const exhausted    = measured.filter(m => m.isExhausted).length;
 	const critical     = measured.filter(m => (m.remainingPercentage ?? 100) < 15 && !m.isExhausted).length;
@@ -227,8 +227,7 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 	const safeZone = Math.max(totalMeasured - exhausted - critical, 0);
 	parts.push(
 		`&ensp;$(heart) <span style="color:${COLOR_TEXT_SECONDARY};">Healthy:</span> <span style="color:${COLOR_HEALTHY};">**${safeZone}/${totalMeasured}**</span>`,
-		...(critical  > 0 ? [`$(warning) <span style="color:${COLOR_WARNING};">Low: ${critical}</span>`]         : []),
-		...(exhausted > 0 ? [`$(error) <span style="color:${COLOR_DANGER};">Exhausted: ${exhausted}</span>`]     : []),
+		...(critical  > 0 ? [`$(warning) <span style="color:${COLOR_WARNING};">Low: ${critical}</span>`]         : [])
 	);
 
 	return joinWithSeparator(parts);
