@@ -233,16 +233,25 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 	return joinWithSeparator(parts);
 }
 
+/** Returns a small icon representing the model family. */
+function getModelFamilyIcon(label: string): string {
+	if (label.includes('Gemini')) { return '✦'; }
+	if (label.includes('Claude')) { return '❋'; }
+	if (label.includes('GPT'))    { return '▣'; }
+	return '◇';
+}
+
 function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 	const safeLabel   = escapeInlineMarkdown(model.label);
 	const isExhausted = model.isExhausted;
 	const isUnlimited = model.remainingPercentage === undefined && !isExhausted;
+	const icon        = getModelFamilyIcon(model.label);
 
 	if (isExhausted) {
 		const resetDate = model.resetTime.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: 'numeric' });
 		const resetTime = model.resetTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 		return (
-			`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
+			`<span style="color:${COLOR_TEXT_PRIMARY};">**${icon} ${safeLabel}**</span>  \n` +
 			`<span style="color:${COLOR_DANGER};">**@gohitx**</span> &nbsp;&nbsp;` +
 			`<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; ` +
 			`$(history) <span style="color:${COLOR_TEXT_SECONDARY};">Refills on ${resetDate}, ${resetTime}</span>\n\n`
@@ -251,7 +260,7 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 
 	if (isUnlimited) {
 		return (
-			`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
+			`<span style="color:${COLOR_TEXT_PRIMARY};">**${icon} ${safeLabel}**</span>  \n` +
 			`$(pass) <span style="color:${COLOR_TEXT_SECONDARY};">Included in plan • Unlimited</span>\n\n`
 		);
 	}
@@ -262,7 +271,7 @@ function buildModelRow(model: QuotaSnapshot['models'][number]): string {
 	const padding  = '&ensp;'.repeat(Math.max(0, 3 - pct.toString().length));
 
 	return (
-		`<span style="color:${COLOR_TEXT_PRIMARY};">**${safeLabel}**</span>  \n` +
+		`<span style="color:${COLOR_TEXT_PRIMARY};">**${icon} ${safeLabel}**</span>  \n` +
 		`${bar} &nbsp;&nbsp; <span style="color:${pctColor};">**${padding}${pct}%**</span> &nbsp;&nbsp;` +
 		`<span style="color:${COLOR_SEPARATOR};">|</span>&nbsp;&nbsp; ` +
 		`$(history) <span style="color:${COLOR_TEXT_SECONDARY};">${model.timeUntilResetFormatted}</span>\n\n`
