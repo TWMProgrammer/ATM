@@ -44,9 +44,9 @@ export function updateStatusBar(isEnabled: boolean, status: 'ok' | 'missing-conf
             statusBarItem.color = undefined;
         }
     } else {
-        // Disabled State (Error color)
+        // Disabled State (Normal/Gray color)
         statusBarItem.text = '$(circle-slash) ATM Lint';
         statusBarItem.tooltip = 'Lint (ATM) is paused. Click to enable.';
-        statusBarItem.color = new vscode.ThemeColor('errorForeground');
+        statusBarItem.color = undefined;
     }
 }
