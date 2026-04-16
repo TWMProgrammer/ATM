@@ -492,11 +492,20 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
-    opacity: 0;
-    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0.85;
     position: relative;
     overflow: hidden;
 }
+
+/* Only animate on initial page load */
+body.is-app-loading .qa-btn {
+    opacity: 0;
+    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+body.is-app-loading .qa-btn:nth-child(1) { animation-delay: 50ms; }
+body.is-app-loading .qa-btn:nth-child(2) { animation-delay: 130ms; }
+body.is-app-loading .qa-btn:nth-child(3) { animation-delay: 210ms; }
 
 .qa-btn::before {
     content: '';
@@ -508,10 +517,6 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     opacity: 0;
     transition: opacity 0.3s ease;
 }
-
-.qa-btn:nth-child(1) { animation-delay: 50ms; }
-.qa-btn:nth-child(2) { animation-delay: 130ms; }
-.qa-btn:nth-child(3) { animation-delay: 210ms; }
 
 .qa-btn:not(.is-active):hover {
     background-color: color-mix(in srgb, var(--vscode-editor-foreground) 8%, transparent);
