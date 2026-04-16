@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
+import { updateToolState } from '../../zhared/zhared';
 
-let statusBarItem: vscode.StatusBarItem;
 let currentStatus: 'ok' | 'missing-config' | 'error' = 'ok';
 let currentIsEnabled: boolean = true;
 
@@ -9,16 +9,8 @@ export function getStatusBarState() {
 }
 
 export function activateStatusBar(context: vscode.ExtensionContext) {
-    // Create the icon in the bottom right of VS Code
-    statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    
-    // Assign the toggle command
-    statusBarItem.command = 'atm.lint.toggle';
-    context.subscriptions.push(statusBarItem);
-    
-    // Initially enabled
+    // Al inicializar ahora solo enviamos el estado al gestor central
     updateStatusBar(true);
-    statusBarItem.show();
 }
 
 /**
@@ -28,25 +20,31 @@ export function updateStatusBar(isEnabled: boolean, status: 'ok' | 'missing-conf
     currentIsEnabled = isEnabled;
     currentStatus = status;
 
+    let icon = '$(check)';
+    let desc = 'Activo';
+
     if (isEnabled) {
         if (status === 'missing-config') {
-            statusBarItem.text = '$(info) ATM Lint';
-            statusBarItem.tooltip = 'ATMLint: No ESLint configuration found.';
-            statusBarItem.color = undefined;
+            icon = '$(info)';
+            desc = 'Falta configuración';
         } else if (status === 'error') {
-            statusBarItem.text = '$(error) ATM Lint';
-            statusBarItem.tooltip = 'ATMLint: Error running ESLint.';
-            statusBarItem.color = new vscode.ThemeColor('errorForeground');
+            icon = '$(error)';
+            desc = 'Error';
         } else {
-            // Active State (Normal)
-            statusBarItem.text = '$(check) ATM Lint';
-            statusBarItem.tooltip = 'Lint (ATM) is active. Click to disable.';
-            statusBarItem.color = undefined;
+            icon = '$(check)';
+            desc = 'Activo';
         }
     } else {
-        // Disabled State (Normal/Gray color)
-        statusBarItem.text = '$(circle-slash) ATM Lint';
-        statusBarItem.tooltip = 'Lint (ATM) is paused. Click to enable.';
-        statusBarItem.color = undefined;
+        icon = '$(circle-slash)';
+        desc = 'Pausado';
     }
+
+    // Le notificamos a la barril shared global
+    updateToolState({
+        id: 'atm-lint',
+        name: 'ATM Lint',
+        icon: icon,
+        command: 'atm.lint.toggle',
+        description: desc
+    });
 }
