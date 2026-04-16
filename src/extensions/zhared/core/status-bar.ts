@@ -653,7 +653,7 @@ function renderHoverUI(): void {
                 `<sub><span style="color:${statusColor};">${statusIcon}</span> ` +
                 `<span style="color:#888888;">${statusText}</span></sub>` +
                 `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;` +
-                `[$(expand-all)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Click to expand")`
+                `[$(unfold)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Click to expand")`
             );
         } else {
             md.appendMarkdown(
