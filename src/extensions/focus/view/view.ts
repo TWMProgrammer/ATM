@@ -155,6 +155,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		this._view?.webview.postMessage({ type: 'togglePlayPause' });
 	}
 
+	public playRandomAM() {
+		this._view?.webview.postMessage({ type: 'playRandomAM' });
+	}
+
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'dist', 'atm-music-webview.js'));
 

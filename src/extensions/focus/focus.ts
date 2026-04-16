@@ -22,6 +22,13 @@ export function activateFocus(context: vscode.ExtensionContext) {
             provider.togglePlayPause();
         })
     );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('atm.music.playRandomAM', () => {
+            vscode.commands.executeCommand('atm-yt-music-view.focus');
+            provider.playRandomAM();
+        })
+    );
 }
 
 export function deactivateFocus() {
