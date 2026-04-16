@@ -14,13 +14,17 @@ const toolRegistry = new Map<string, ToolState>();
 
 export function activateGlobalStatusBar(context: vscode.ExtensionContext) {
     if (globalStatusBarItem) { return; }
-
-    // Aligned to Right. Priority ~95 usually places it near AI/Copilot items.
     globalStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 95);
-    
-    //  Icon
     globalStatusBarItem.text = '$(verified-filled) ATM';
-    globalStatusBarItem.command = undefined; 
+    
+    // Dummy command for hover/pointer styles
+    const ACTION_COMMAND = 'atm.global.statusClicked';
+    context.subscriptions.push(
+        vscode.commands.registerCommand(ACTION_COMMAND, () => {
+            // Suggestion: In the future, this could open a quick-pick menu
+        })
+    );
+    globalStatusBarItem.command = ACTION_COMMAND;
     
     context.subscriptions.push(globalStatusBarItem);
     globalStatusBarItem.show();
