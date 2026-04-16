@@ -669,7 +669,6 @@ function renderHoverUI(): void {
             md.appendMarkdown(
                 `[$(collapse-all) Compact](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT})\n\n`
             );
-            md.appendMarkdown('<hr>\n\n');
         }
 
         // Footer with status indicator
