@@ -18,12 +18,16 @@ import { activateEnvLens } from './env-lens';
 import { activateMarkdownImageIcons } from './markdown-md/icons-images';
 import { activateFocus } from './focus/focus';
 import { activateLint } from './atm-lint/lint';
+import { activateGlobalStatusBar } from './zhared/zhared';
 
 /**
  * Register all sub-extensions here.
  * Each receives the shared ExtensionContext.
  */
 export function activateExtensions(context: vscode.ExtensionContext): void {
+  // Inicializamos nuestra barra global de una vez:
+  activateGlobalStatusBar(context);
+
   activateSettings(context);
   activateImagePreview(context);
   activateVoiceTts(context).catch((error) => {

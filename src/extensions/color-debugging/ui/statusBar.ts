@@ -1,18 +1,13 @@
 import * as vscode from 'vscode';
 import { applyRandomColor, clearWorkspaceColors, hasColorApplied } from '../core/manager';
+import { updateToolState } from '../../zhared/zhared';
 
 export const COMMAND_ID = 'color-debugging.changeColor';
 
 export function createStatusBarItem(context: vscode.ExtensionContext) {
     /* =========================================================
-     * 🎨 STATUS BAR ITEM INITIALIZATION
+     * 🎨 STATUS BAR ITEM INITIALIZATION (Delegated to Zhared)
      * ========================================================= */
-    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    statusBarItem.command = COMMAND_ID;
-
-    // Initial check for icon/text state
-    updateStatusBarState(statusBarItem);
-
     const commandDisposable = vscode.commands.registerCommand(COMMAND_ID, async () => {
         if (hasColorApplied()) {
             await clearWorkspaceColors();
@@ -21,7 +16,7 @@ export function createStatusBarItem(context: vscode.ExtensionContext) {
         }
         
         // Update the UI after the configuration has been modified
-        updateStatusBarState(statusBarItem);
+        updateStatusBarState();
     });
 
     /* =========================================================
@@ -30,27 +25,36 @@ export function createStatusBarItem(context: vscode.ExtensionContext) {
      * ========================================================= */
     const configListener = vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('workbench.colorCustomizations')) {
-            updateStatusBarState(statusBarItem);
+            updateStatusBarState();
         }
     });
 
     context.subscriptions.push(commandDisposable);
-    context.subscriptions.push(statusBarItem);
     context.subscriptions.push(configListener);
 
-    statusBarItem.show();
+    // Initial check for icon/text state
+    updateStatusBarState();
 }
 
 /* =========================================================
  * 🔄 UPDATE STATE
  * Helper to switch the button based on the current state
  * ========================================================= */
-function updateStatusBarState(statusBarItem: vscode.StatusBarItem) {
+function updateStatusBarState() {
+    let icon = '$(paintcan)';
+    let desc = 'Randomize on click';
+
     if (hasColorApplied()) {
-        statusBarItem.text = "$(x) Color";
-        statusBarItem.tooltip = "Remove Workspace Color";
-    } else {
-        statusBarItem.text = "$(paintcan) Color";
-        statusBarItem.tooltip = "Apply Random Workspace Color";
+        icon = '$(x)';
+        desc = 'Remove on click';
     }
+
+    // Le notificamos a la barra global
+    updateToolState({
+        id: 'color-debugging',
+        name: 'Color',
+        icon: icon,
+        command: COMMAND_ID,
+        description: desc
+    });
 }
