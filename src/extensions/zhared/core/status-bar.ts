@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 
 let globalStatusBarItem: vscode.StatusBarItem | undefined;
 let renderDebounceTimer: NodeJS.Timeout | undefined;
-let animationTimer: NodeJS.Timeout | undefined;
 let isCompactMode = false;
 
 /**
@@ -42,9 +41,7 @@ interface ToolStats {
 const CONSTANTS = {
     STATUS_BAR_PRIORITY: 95,
     STATUS_BAR_TEXT: '$(verified-filled) ATM',
-    STATUS_BAR_TEXT_ANIMATED: ['$(loading~spin)', '$(verified-filled)', '$(pulse)'],
     DEBOUNCE_DELAY: 150, // ms
-    ANIMATION_DURATION: 2000, // ms
     COMMANDS: {
         STATUS_CLICKED: 'atm.global.statusClicked',
         LAYOUT_NORMAL: 'atm.layout.normal',
@@ -77,7 +74,6 @@ const CONSTANTS = {
 
 const toolRegistry = new Map<string, ToolState>();
 let lastRenderedHash: string | undefined;
-let lastLayoutChange: number = 0;
 
 /**
  * Activates the global ATM status bar with all commands and event listeners
@@ -129,7 +125,8 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
 
         globalStatusBarItem.show();
         renderHoverUI();
-        playActivationAnimation();
+        // Animation disabled for better performance
+        // playActivationAnimation();
 
         console.log('[ATM] Status bar activated successfully');
     } catch (error) {
@@ -153,7 +150,8 @@ export function updateToolState(state: ToolState): void {
     scheduleRender();
     
     if (isNewTool) {
-        playToolRegistrationAnimation();
+        // Animation disabled for better performance
+        // playToolRegistrationAnimation();
         console.log(`[ATM] Tool registered: ${state.name} (${state.id})`);
     } else {
         console.log(`[ATM] Tool updated: ${state.name} (${state.id})`);
@@ -361,8 +359,8 @@ async function applyLayout(layout: LayoutConfig): Promise<void> {
             await new Promise(resolve => setTimeout(resolve, 300)); // Brief delay for visual feedback
         });
 
-        lastLayoutChange = Date.now();
-        playLayoutChangeAnimation();
+        // Animation disabled for better performance
+        // playLayoutChangeAnimation();
         showNotification(`${layout.displayName} activated`, 'success');
         
         console.log(`[ATM] Layout applied: ${layout.displayName}`);
@@ -519,74 +517,6 @@ function showNotification(message: string, type: 'info' | 'success' | 'error'): 
             vscode.window.showInformationMessage(fullMessage);
             break;
     }
-}
-
-/**
- * Plays activation animation
- */
-function playActivationAnimation(): void {
-    if (!globalStatusBarItem) {return;}
-    
-    let frame = 0;
-    const frames = ['$(loading~spin)', '$(sync~spin)', '$(verified-filled)'];
-    
-    const animate = () => {
-        if (!globalStatusBarItem || frame >= frames.length) {
-            if (globalStatusBarItem) {
-                globalStatusBarItem.text = CONSTANTS.STATUS_BAR_TEXT;
-            }
-            return;
-        }
-        
-        globalStatusBarItem.text = `${frames[frame]} ATM`;
-        frame++;
-        setTimeout(animate, 200);
-    };
-    
-    animate();
-}
-
-/**
- * Plays tool registration animation
- */
-function playToolRegistrationAnimation(): void {
-    if (!globalStatusBarItem) {return;}
-    
-    const originalText = globalStatusBarItem.text;
-    globalStatusBarItem.text = '$(add) ATM';
-    
-    setTimeout(() => {
-        if (globalStatusBarItem) {
-            globalStatusBarItem.text = originalText;
-            scheduleRender();
-        }
-    }, 500);
-}
-
-/**
- * Plays layout change animation
- */
-function playLayoutChangeAnimation(): void {
-    if (!globalStatusBarItem) {return;}
-    
-    const originalText = globalStatusBarItem.text;
-    let frame = 0;
-    const frames = ['$(arrow-swap)', '$(sync~spin)', '$(check)'];
-    
-    const animate = () => {
-        if (!globalStatusBarItem || frame >= frames.length) {
-            if (globalStatusBarItem) {
-                globalStatusBarItem.text = originalText;
-            }
-            return;
-        }
-        
-        globalStatusBarItem.text = `${frames[frame]} ATM`;
-        frame++;
-        setTimeout(animate, 300);
-    };
-    
-    animate();
 }
 
 /**
