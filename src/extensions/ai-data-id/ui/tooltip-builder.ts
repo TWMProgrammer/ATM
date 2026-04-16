@@ -53,7 +53,7 @@ export function buildTooltip(snapshot: QuotaSnapshot, isRefreshing = false): vsc
 	md.supportThemeIcons = true;
 
 	const peakWarning = isClaudePeakHour(snapshot.timestamp)
-		? `${'&nbsp;'.repeat(22)}<span style="color:${COLOR_DANGER};">**Claude** ⏰</span>`
+		? `${'&nbsp;'.repeat(23)}<span style="color:${COLOR_DANGER};">**Claude** ⏰</span>`
 		: '';
 
 	md.appendMarkdown(
