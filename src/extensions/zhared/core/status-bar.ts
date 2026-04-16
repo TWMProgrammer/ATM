@@ -18,8 +18,8 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext) {
     // Aligned to Right. Priority ~95 usually places it near AI/Copilot items.
     globalStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 95);
     
-    // Literal cursor icon
-    globalStatusBarItem.text = '$(coffee) ATM';
+    //  Icon
+    globalStatusBarItem.text = '$(verified-filled) ATM';
     globalStatusBarItem.command = undefined; 
     
     context.subscriptions.push(globalStatusBarItem);
