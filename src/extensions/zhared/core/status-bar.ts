@@ -39,7 +39,7 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         globalStatusBarItem,
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('workbench.sideBar.location')) {
+            if (e.affectsConfiguration('workbench.sideBar.location') || e.affectsConfiguration('workbench.activityBar.location')) {
                 renderHoverUI();
             }
         })
@@ -81,7 +81,10 @@ function renderHoverUI() {
 
     md.appendMarkdown('<hr>\n\n');
     
-    const isPro = vscode.workspace.getConfiguration('workbench').get('sideBar.location') === 'right';
+    const settings = vscode.workspace.getConfiguration('workbench');
+    const isPro = settings.get('sideBar.location') === 'right';
+    
+    // Modern indicator marks
     const normalItem = !isPro ? `$(pass-filled) **Normal**` : `$(circle-outline) [Normal](command:atm.layout.normal)`;
     const proItem = isPro ? `$(pass-filled) **Pro**` : `$(circle-outline) [Pro](command:atm.layout.pro)`;
     
@@ -94,10 +97,13 @@ function renderHoverUI() {
 
     globalStatusBarItem.tooltip = md;
 
-    // Active indicator
+    // Minimalist Status Bar Text
+    globalStatusBarItem.text = `$(verified-filled) ATM`;
+    
+    // Optional: Subtle color change when active tools exist
     if (toolRegistry.size > 0) {
-        globalStatusBarItem.text = `$(verified-filled) ATM [${toolRegistry.size}]`;
+        globalStatusBarItem.color = new vscode.ThemeColor('statusBarItem.prominentForeground');
     } else {
-        globalStatusBarItem.text = `$(verified-filled) ATM`;
+        globalStatusBarItem.color = undefined;
     }
 }
