@@ -37,6 +37,16 @@ interface ToolStats {
     categoryCounts: Map<string, number>;
 }
 
+/**
+ * FAAH Audio configuration
+ */
+interface FaahAudioOption {
+    readonly id: string;
+    readonly name: string;
+    readonly fileName: string;
+    readonly icon: string;
+}
+
 // Constants
 const CONSTANTS = {
     STATUS_BAR_PRIORITY: 95,
@@ -47,7 +57,9 @@ const CONSTANTS = {
         LAYOUT_NORMAL: 'atm.layout.normal',
         LAYOUT_PRO: 'atm.layout.pro',
         TOGGLE_COMPACT: 'atm.toggleCompactMode',
-        REFRESH_TOOLS: 'atm.refreshTools'
+        REFRESH_TOOLS: 'atm.refreshTools',
+        FAAH_CYCLE_AUDIO: 'atm.faah.cycleAudio',
+        FAAH_TEST_AUDIO: 'atm.faah.testAudio'
     },
     LAYOUTS: {
         NORMAL: { 
@@ -63,6 +75,12 @@ const CONSTANTS = {
             description: 'Optimized for wide screens with top activity bar'
         } as LayoutConfig
     },
+    FAAH_AUDIO_OPTIONS: [
+        { id: 'faah', name: 'Error Audio', fileName: 'faah.wav', icon: '$(unmute)' },
+        { id: 'ack', name: 'ACK', fileName: 'ack.wav', icon: '$(pulse)' },
+        { id: 'fatality', name: 'Fatality', fileName: 'fatality.wav', icon: '$(flame)' },
+        { id: 'windows', name: 'Windows', fileName: 'windows.wav', icon: '$(window)' }
+    ] as FaahAudioOption[],
     CATEGORIES: {
         productivity: { icon: '$(rocket)', label: 'Productivity' },
         debugging: { icon: '$(bug)', label: 'Debugging' },
@@ -74,6 +92,7 @@ const CONSTANTS = {
 
 const toolRegistry = new Map<string, ToolState>();
 let lastRenderedHash: string | undefined;
+let currentFaahAudioIndex = 0; // Index of current FAAH audio option
 
 /**
  * Activates the global ATM status bar with all commands and event listeners
@@ -99,6 +118,9 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
 
         // Load compact mode preference
         isCompactMode = context.globalState.get('atm.compactMode', false);
+        
+        // Load FAAH audio preference
+        currentFaahAudioIndex = context.globalState.get('atm.faah.audioIndex', 0);
 
         // Register commands
         context.subscriptions.push(
@@ -108,7 +130,9 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
             vscode.commands.registerCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT, () => toggleCompactMode(context)),
             vscode.commands.registerCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS, () => {
                 scheduleRender();
-            })
+            }),
+            vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO, () => cycleFaahAudio(context)),
+            vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_TEST_AUDIO, () => testFaahAudio(context))
         );
 
         // Register configuration change listener
@@ -215,6 +239,16 @@ async function showQuickMenu(): Promise<void> {
         alwaysShow: true
     });
 
+    // FAAH Audio Section
+    const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
+    items.push({ label: 'Error Audio', kind: vscode.QuickPickItemKind.Separator });
+    items.push({
+        label: `${currentAudio.icon} ${currentAudio.name}`,
+        description: 'Current error audio theme',
+        detail: 'Click to cycle through available audio options',
+        alwaysShow: true
+    });
+
     // Layout Section
     items.push({ label: 'Workspace Layouts', kind: vscode.QuickPickItemKind.Separator });
     items.push({
@@ -317,6 +351,8 @@ async function handleQuickPickSelection(selected: vscode.QuickPickItem): Promise
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS);
         } else if (selected.label.includes('Compact Mode') || selected.label.includes('Expand Mode')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT);
+        } else if (selected.description === 'Current error audio theme') {
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO);
         } else if (selected.detail?.startsWith('Execute: ')) {
             const cmd = selected.detail.replace('Execute: ', '').trim();
             if (cmd) {
@@ -486,7 +522,48 @@ async function toggleCompactMode(context: vscode.ExtensionContext): Promise<void
     vscode.window.showInformationMessage(`✓ ATM: ${message}`);
 }
 
+/**
+ * Cycles through FAAH audio options
+ */
+async function cycleFaahAudio(context: vscode.ExtensionContext): Promise<void> {
+    // Cycle to next audio option
+    currentFaahAudioIndex = (currentFaahAudioIndex + 1) % CONSTANTS.FAAH_AUDIO_OPTIONS.length;
+    
+    // Save preference
+    await context.globalState.update('atm.faah.audioIndex', currentFaahAudioIndex);
+    
+    // Get current audio option
+    const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
+    
+    // Update FAAH configuration
+    const faahConfig = vscode.workspace.getConfiguration('faah');
+    const soundPath = context.extensionPath;
+    if (soundPath) {
+        const fullPath = `${soundPath}/src/extensions/faah/sound/${currentAudio.fileName}`;
+        await faahConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
+    }
+    
+    // Update UI
+    scheduleRender();
+    
+    // Show notification
+    vscode.window.showInformationMessage(`🔊 Error Audio: ${currentAudio.name}`);
+    
+    console.log(`[ATM] FAAH audio changed to: ${currentAudio.name}`);
+}
 
+/**
+ * Tests the current FAAH audio
+ */
+async function testFaahAudio(context: vscode.ExtensionContext): Promise<void> {
+    try {
+        await vscode.commands.executeCommand('faah.testSound');
+        console.log('[ATM] FAAH audio test triggered');
+    } catch (error) {
+        console.error('[ATM] Failed to test FAAH audio:', error);
+        vscode.window.showWarningMessage('Could not test audio. Make sure FAAH extension is active.');
+    }
+}
 
 /**
  * Schedules a debounced render of the hover UI
@@ -509,7 +586,7 @@ function scheduleRender(): void {
 function generateStateHash(): string {
     const isPro = checkIsPro();
     const toolIds = Array.from(toolRegistry.keys()).sort().join(',');
-    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}`;
+    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentFaahAudioIndex}`;
 }
 
 /**
@@ -627,6 +704,14 @@ function renderHoverUI(): void {
             );
         }
 
+        // FAAH Audio Section
+        const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
+        md.appendMarkdown(`**ERROR Audio:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; | &nbsp; [$(unmute)](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO})\n\n`);
+        
+        if (!isCompactMode) {
+            // Removed the description text as requested
+        }
+
         md.appendMarkdown('<hr>\n\n');
 
         // Quick Actions (only in expanded mode)
@@ -698,6 +783,40 @@ function escapeMarkdown(text: string): string {
 }
 
 /**
+ * Gets the current FAAH audio configuration
+ * @returns The current FAAH audio option
+ */
+export function getCurrentFaahAudio(): FaahAudioOption {
+    return CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
+}
+
+/**
+ * Sets the FAAH audio by ID (for programmatic control)
+ * @param audioId - The ID of the audio to set
+ * @param context - Extension context for saving state
+ */
+export async function setFaahAudio(audioId: string, context: vscode.ExtensionContext): Promise<boolean> {
+    const audioIndex = CONSTANTS.FAAH_AUDIO_OPTIONS.findIndex(audio => audio.id === audioId);
+    if (audioIndex === -1) {
+        console.warn(`[ATM] Invalid FAAH audio ID: ${audioId}`);
+        return false;
+    }
+    
+    currentFaahAudioIndex = audioIndex;
+    await context.globalState.update('atm.faah.audioIndex', currentFaahAudioIndex);
+    
+    // Update FAAH configuration
+    const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
+    const faahConfig = vscode.workspace.getConfiguration('faah');
+    const fullPath = `${context.extensionPath}/src/extensions/faah/sound/${currentAudio.fileName}`;
+    await faahConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
+    
+    scheduleRender();
+    console.log(`[ATM] FAAH audio set to: ${currentAudio.name}`);
+    return true;
+}
+
+/**
  * Deactivates and cleans up the global status bar
  * Prevents memory leaks by clearing timers and disposing resources
  */
@@ -714,6 +833,7 @@ export function deactivateGlobalStatusBar(): void {
     // Reset state
     lastRenderedHash = undefined;
     isCompactMode = false;
+    currentFaahAudioIndex = 0;
     
     // Dispose the status bar item
     if (globalStatusBarItem) {
