@@ -295,7 +295,7 @@ function renderHoverUI(): void {
         md.supportHtml = true;
 
         // Header
-        md.appendMarkdown('### **ATM** &nbsp; $(verified-filled)\n\n');
+        md.appendMarkdown('### **ATM**\n\n');
 
         // Tools Section
         if (toolRegistry.size === 0) {
