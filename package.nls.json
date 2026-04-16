@@ -22,5 +22,6 @@
   "command.lint.toggle": "ATM Lint: Toggle Engine",
   "command.lint.revalidate": "ATM Lint: Revalidate Open Files",
   "command.music.togglePlayPause": "ATM Music: Play/Pause",
+  "command.music.playRandomAM": "ATM Music: Random AM Station",
   "view.music": "ATM :: Radio/Music · Pomodoro · Data"
 }

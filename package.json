@@ -168,6 +168,10 @@
       {
         "command": "atm.music.togglePlayPause",
         "title": "%command.music.togglePlayPause%"
+      },
+      {
+        "command": "atm.music.playRandomAM",
+        "title": "%command.music.playRandomAM%"
       }
     ],
     "configuration": {
@@ -417,6 +421,11 @@
         "command": "atm.music.togglePlayPause",
         "key": "ctrl+shift+space",
         "mac": "cmd+shift+space"
+      },
+      {
+        "command": "atm.music.playRandomAM",
+        "key": "alt+r",
+        "mac": "alt+r"
       }
     ],
     "languages": [

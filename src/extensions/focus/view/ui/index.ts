@@ -55,6 +55,12 @@ import { initDataUI, getNicknameController } from '../../screens/atm-data/data';
     // Handle messages from the extension host
     window.addEventListener('message', event => {
         const message = event.data;
+        
+        if (message.type === 'playRandomAM') {
+            musicController.playRandomAmStation();
+            return;
+        }
+
         if (message.type === 'screenshot_state_changed') {
             isScreenshotOpen = message.isOpen;
             const shareBtn = document.querySelector('#atom-share-btn');
