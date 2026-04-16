@@ -638,10 +638,11 @@ function renderHoverUI(): void {
         const isPro = checkIsPro();
         const stats = getToolStats();
 
-        // Header with branding
-        md.appendMarkdown('### $(verified-filled) **ATM Control Center**\n\n');
-        
-        if (!isCompactMode) {
+        // Header - Different for compact mode
+        if (isCompactMode) {
+            md.appendMarkdown('### **ATM**\n\n');
+        } else {
+            md.appendMarkdown('### $(verified-filled) **ATM Control Center**\n\n');
             md.appendMarkdown(
                 `<sub><span style="color:#888888;">Advanced Tool Management System</span></sub>\n\n`
             );
@@ -729,14 +730,14 @@ function renderHoverUI(): void {
 
         md.appendMarkdown('<hr>\n\n');
 
-        // Quick Actions
+        // Quick Actions (only in expanded mode)
         if (!isCompactMode) {
             md.appendMarkdown('**Quick Actions:** &nbsp; ');
             md.appendMarkdown(
                 `[$(refresh) Refresh](command:${CONSTANTS.COMMANDS.REFRESH_TOOLS}) &nbsp; | &nbsp; `
             );
             md.appendMarkdown(
-                `[${isCompactMode ? '$(expand-all) Expand' : '$(collapse-all) Compact'}](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT})\n\n`
+                `[$(collapse-all) Compact](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT})\n\n`
             );
             md.appendMarkdown('<hr>\n\n');
         }
@@ -748,10 +749,19 @@ function renderHoverUI(): void {
             ? 'All systems operational' 
             : 'Awaiting tool activation';
 
-        md.appendMarkdown(
-            `<sub><span style="color:${statusColor};">${statusIcon}</span> ` +
-            `<span style="color:#888888;">${statusText}</span></sub>`
-        );
+        // In compact mode, add expand button next to status
+        if (isCompactMode) {
+            md.appendMarkdown(
+                `<sub><span style="color:${statusColor};">${statusIcon}</span> ` +
+                `<span style="color:#888888;">${statusText}</span> &nbsp; ` +
+                `[$(expand-all)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Click to expand")</sub>`
+            );
+        } else {
+            md.appendMarkdown(
+                `<sub><span style="color:${statusColor};">${statusIcon}</span> ` +
+                `<span style="color:#888888;">${statusText}</span></sub>`
+            );
+        }
 
         globalStatusBarItem.tooltip = md;
         globalStatusBarItem.text = CONSTANTS.STATUS_BAR_TEXT;
