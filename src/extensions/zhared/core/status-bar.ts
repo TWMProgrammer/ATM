@@ -696,3 +696,30 @@ function renderHoverUI(): void {
 function escapeMarkdown(text: string): string {
     return text.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&');
 }
+
+/**
+ * Deactivates and cleans up the global status bar
+ * Prevents memory leaks by clearing timers and disposing resources
+ */
+export function deactivateGlobalStatusBar(): void {
+    // Clear any pending render timer
+    if (renderDebounceTimer) {
+        clearTimeout(renderDebounceTimer);
+        renderDebounceTimer = undefined;
+    }
+    
+    // Clear the tool registry
+    toolRegistry.clear();
+    
+    // Reset state
+    lastRenderedHash = undefined;
+    isCompactMode = false;
+    
+    // Dispose the status bar item
+    if (globalStatusBarItem) {
+        globalStatusBarItem.dispose();
+        globalStatusBarItem = undefined;
+    }
+    
+    console.log('[ATM] Status bar deactivated and cleaned up');
+}

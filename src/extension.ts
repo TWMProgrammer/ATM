@@ -10,6 +10,7 @@ import { taskListPlugin } from './extensions/markdown-md/core/taskListPlugin';
 import { mermaidPlugin } from './extensions/markdown-md/core/mermaidPlugin';
 import { deactivateFocus } from './extensions/focus/focus';
 import { deactivateLint } from './extensions/atm-lint/lint';
+import { deactivateGlobalStatusBar } from './extensions/zhared/zhared';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
@@ -32,6 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export async function deactivate(): Promise<void> {
+  deactivateGlobalStatusBar();
   deactivateSettings();
   deactivateVoiceTts();
   deactivateCommentsCode();
