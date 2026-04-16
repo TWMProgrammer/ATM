@@ -463,11 +463,11 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .quick-access {
     display: flex;
     gap: 5px;
-    margin-top: 20px;
+    margin-top: 12px;
     max-width: 600px;
     justify-content: center;
     flex-wrap: wrap;
-    padding: 4px;
+    padding: 4px; /* ~ */
     border-radius: 999px;
     border: 1px solid color-mix(in srgb, var(--vscode-editor-foreground) 10%, transparent);
     background: linear-gradient(135deg, 
