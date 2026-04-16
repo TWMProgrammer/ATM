@@ -36,7 +36,14 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext) {
     );
     globalStatusBarItem.command = ACTION_COMMAND;
     
-    context.subscriptions.push(globalStatusBarItem);
+    context.subscriptions.push(
+        globalStatusBarItem,
+        vscode.workspace.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('workbench.sideBar.location')) {
+                renderHoverUI();
+            }
+        })
+    );
     globalStatusBarItem.show();
 
     renderHoverUI();
@@ -60,17 +67,24 @@ function renderHoverUI() {
     md.supportThemeIcons = true; 
 
     // Ultra minimalist UI
-    md.appendMarkdown('**ATM Tools**\n\n');
-    md.appendMarkdown('__Layout:__ &nbsp; $(remote-explorer) [Normal](command:atm.layout.normal) &nbsp;|&nbsp; $(layout-sidebar-right) [Pro](command:atm.layout.pro)\n\n---\n\n');
+    md.appendMarkdown('**ATM Tools**\n\n---\n\n');
 
     if (toolRegistry.size === 0) {
-        md.appendMarkdown('_No tools active_');
+        md.appendMarkdown('_No tools active_\n\n');
     } else {
         for (const [_, state] of toolRegistry) {
             const desc = state.description ? ` *(${state.description})*` : '';
             md.appendMarkdown(`${state.icon} &nbsp;[${state.name}](command:${state.command})${desc}\n\n`);
         }
     }
+
+    md.appendMarkdown('---\n\n');
+    
+    const isPro = vscode.workspace.getConfiguration('workbench').get('sideBar.location') === 'right';
+    const normalItem = !isPro ? `$(pass-filled) **Normal**` : `$(remote-explorer) [Normal](command:atm.layout.normal)`;
+    const proItem = isPro ? `$(pass-filled) **Pro**` : `$(layout-sidebar-right) [Pro](command:atm.layout.pro)`;
+    
+    md.appendMarkdown(`__Layout:__ &nbsp; ${normalItem} &nbsp; | &nbsp; ${proItem}\n\n`);
 
     globalStatusBarItem.tooltip = md;
 }
