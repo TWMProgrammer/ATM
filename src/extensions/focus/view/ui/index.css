@@ -1,18 +1,18 @@
 body {
     font-family: var(--vscode-font-family);
-    background-color: transparent;
+    background: transparent;
     color: var(--vscode-editor-foreground);
     margin: 0;
     padding: 0;
     height: 100vh;
     overflow: hidden;
     box-sizing: border-box;
-    transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1), transform 0.4s cubic-bezier(0.2, 0, 0, 1);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body.is-app-loading {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(8px) scale(0.98);
     pointer-events: none;
 }
 
@@ -32,13 +32,48 @@ body.is-app-loading {
 
 .screen.active {
     display: flex;
-    animation: screenFadeIn 0.25s ease;
+    animation: screenFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #screen-search {
     align-items: center;
     justify-content: center;
-    padding: 18px;
+    padding: 20px;
+    position: relative;
+}
+
+#screen-search::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, 
+        color-mix(in srgb, var(--vscode-button-background) 8%, transparent) 0%, 
+        transparent 70%);
+    filter: blur(60px);
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+    animation: ambient-glow 8s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-glow {
+    0% { 
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.2;
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.4;
+    }
+}
+
+#screen-search > * {
+    position: relative;
+    z-index: 1;
 }
 
 .mode-panels {
@@ -48,6 +83,7 @@ body.is-app-loading {
     align-items: center;
     justify-content: center;
     min-height: 40px;
+    position: relative;
 }
 
 .mode-panel {
@@ -57,7 +93,7 @@ body.is-app-loading {
 
 .mode-panel.is-active {
     display: flex;
-    animation: modePanelIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: modePanelIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mode-panel-search {
@@ -67,29 +103,36 @@ body.is-app-loading {
 .mode-panel-radio {
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: nowrap;
 }
 
 .mode-panel-radio.is-hydrating-favorites .radio-mode-btn {
     opacity: 0;
     pointer-events: none;
+    transform: translateY(8px);
 }
 
 @keyframes modePanelIn {
     from {
         opacity: 0;
-        transform: translateY(7px);
+        transform: translateY(12px) scale(0.96);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
 @keyframes screenFadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { 
+        opacity: 0; 
+        transform: translateY(8px) scale(0.98); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
 }
 .search-container {
     position: relative;
@@ -101,54 +144,107 @@ body.is-app-loading {
 
 .radio-mode-btn {
     border: 1px solid transparent;
-    background: color-mix(in srgb, var(--vscode-editor-foreground) 5%, transparent);
-    color: color-mix(in srgb, var(--vscode-editor-foreground) 75%, transparent);
+    background: color-mix(in srgb, var(--vscode-editor-foreground) 6%, transparent);
+    color: color-mix(in srgb, var(--vscode-editor-foreground) 70%, transparent);
     border-radius: 999px;
-    padding: 6px 15px;
+    padding: 7px 16px;
     font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.2px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     white-space: nowrap;
     flex: 0 0 auto;
     cursor: pointer;
-    position: relative; /* needed for btn-eq overlay */
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.radio-mode-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, 
+        color-mix(in srgb, var(--vscode-editor-foreground) 20%, transparent) 0%, 
+        transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.radio-mode-btn:hover::before {
+    opacity: 1;
 }
 
 .radio-mode-btn-am {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .radio-mode-btn-am.has-flag {
-    font-size: 16px;
-    background: color-mix(in srgb, var(--vscode-button-secondaryBackground) 65%, transparent) !important;
-    border: 1px solid var(--vscode-button-background) !important;
-    box-shadow: 0 0 10px color-mix(in srgb, var(--vscode-button-background) 35%, transparent) !important;
+    font-size: 18px;
+    background: transparent !important;
+    border: 1.5px solid var(--vscode-button-background) !important;
+    box-shadow: 
+        0 0 20px color-mix(in srgb, var(--vscode-button-background) 45%, transparent),
+        0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    animation: flag-pulse 2s ease-in-out infinite;
+}
+
+@keyframes flag-pulse {
+    0%, 100% { 
+        box-shadow: 
+            0 0 20px color-mix(in srgb, var(--vscode-button-background) 45%, transparent),
+            0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+    50% { 
+        box-shadow: 
+            0 0 30px color-mix(in srgb, var(--vscode-button-background) 60%, transparent),
+            0 6px 20px rgba(0, 0, 0, 0.25);
+    }
 }
 
 .radio-mode-btn:hover {
-    transform: translateY(-1px);
-    background: color-mix(in srgb, var(--vscode-editor-foreground) 10%, transparent);
-    color: #ffffff;
+    transform: translateY(-2px) scale(1.02);
+    background: color-mix(in srgb, var(--vscode-editor-foreground) 12%, transparent);
+    color: var(--vscode-editor-foreground);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-color: color-mix(in srgb, var(--vscode-editor-foreground) 15%, transparent);
 }
 
-body.vscode-light .radio-mode-btn:hover {
-    color: #000000;
+.radio-mode-btn:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .radio-mode-btn.is-active {
-    background: var(--vscode-button-secondaryBackground);
-    color: var(--vscode-button-background);
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--vscode-button-background) 90%, transparent) 0%, 
+        color-mix(in srgb, var(--vscode-button-background) 75%, transparent) 100%);
+    color: var(--vscode-button-foreground);
     border-color: var(--vscode-button-background);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 
+        0 4px 16px color-mix(in srgb, var(--vscode-button-background) 35%, transparent),
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(0);
+}
+
+.radio-mode-btn.is-active:hover {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 
+        0 6px 20px color-mix(in srgb, var(--vscode-button-background) 45%, transparent),
+        0 2px 8px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 /* EQ bars: overlaid absolutely — button size always set by .btn-text */
@@ -161,27 +257,38 @@ body.vscode-light .radio-mode-btn:hover {
     gap: 3px;
     opacity: 0;
     pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-eq span {
-    width: 2.5px;
-    height: 12px;
-    background-color: var(--vscode-button-background);
-    border-radius: 2px;
-    animation: eq-bounce 1s infinite ease-in-out;
+    width: 3px;
+    height: 14px;
+    background: linear-gradient(180deg, 
+        #ffffff 0%, 
+        rgba(255, 255, 255, 0.85) 100%);
+    border-radius: 3px;
+    animation: eq-bounce 1.2s infinite ease-in-out;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 6px rgba(255, 255, 255, 0.6);
 }
-.btn-eq span:nth-child(1) { animation-delay: -0.2s; }
-.btn-eq span:nth-child(2) { animation-delay: -0.5s; height: 14px; }
-.btn-eq span:nth-child(3) { animation-delay: -0.8s; }
-.btn-eq span:nth-child(4) { animation-delay: -0.3s; }
+.btn-eq span:nth-child(1) { animation-delay: -0.2s; height: 12px; }
+.btn-eq span:nth-child(2) { animation-delay: -0.5s; height: 16px; }
+.btn-eq span:nth-child(3) { animation-delay: -0.8s; height: 13px; }
+.btn-eq span:nth-child(4) { animation-delay: -0.3s; height: 15px; }
 
 @keyframes eq-bounce {
-    0%, 100% { transform: scaleY(0.3); }
-    50% { transform: scaleY(1); }
+    0%, 100% { 
+        transform: scaleY(0.4); 
+        opacity: 0.6;
+    }
+    50% { 
+        transform: scaleY(1.1); 
+        opacity: 1;
+    }
 }
 
 /* is-playing: fade in EQ, fade out text — button size never changes */
 .radio-mode-btn.is-active.is-playing .btn-text {
     opacity: 0;
+    transition: opacity 0.3s ease;
 }
 .radio-mode-btn.is-active.is-playing .btn-eq {
     opacity: 1;
@@ -189,38 +296,55 @@ body.vscode-light .radio-mode-btn:hover {
 
 .search-icon {
     position: absolute;
-    left: 12px;
-    width: 14px;
-    height: 14px;
+    left: 14px;
+    width: 15px;
+    height: 15px;
     fill: var(--vscode-input-foreground);
-    opacity: 0.4;
+    opacity: 0.5;
     pointer-events: none;
     z-index: 1;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-container:hover .search-icon {
+    opacity: 0.7;
+    transform: scale(1.05);
 }
 
 .search-container:focus-within .search-icon {
-    opacity: 0.9;
+    opacity: 1;
     fill: var(--vscode-focusBorder);
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--vscode-focusBorder) 40%, transparent));
 }
 
 .search-input {
     flex: 1;
-    padding: 9px 10px 9px 34px;
-    font-size: 11px;
+    padding: 10px 12px 10px 36px;
+    font-size: 11.5px;
     font-family: var(--vscode-font-family);
     background-color: var(--vscode-input-background);
     color: var(--vscode-input-foreground);
     border: 1.5px solid var(--vscode-input-border, rgba(128, 128, 128, 0.15));
     border-radius: 50px;
     outline: none;
-    box-shadow: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-input:hover {
+    border-color: color-mix(in srgb, var(--vscode-focusBorder) 50%, transparent);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .search-input:focus {
     border-color: var(--vscode-focusBorder);
-    box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+    box-shadow: 
+        0 0 0 3px color-mix(in srgb, var(--vscode-focusBorder) 20%, transparent),
+        0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 .search-input.fading-out {
@@ -275,35 +399,54 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 }
 
 .search-btn {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     border: none;
-    background: var(--vscode-button-background);
+    background: linear-gradient(135deg, 
+        var(--vscode-button-background) 0%, 
+        color-mix(in srgb, var(--vscode-button-background) 85%, #000) 100%);
     color: var(--vscode-button-foreground);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 
+        0 4px 12px color-mix(in srgb, var(--vscode-button-background) 30%, transparent),
+        0 2px 6px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .search-btn:hover {
-    background: var(--vscode-button-hoverBackground);
-    transform: scale(1.05);
+    background: linear-gradient(135deg, 
+        var(--vscode-button-hoverBackground) 0%, 
+        color-mix(in srgb, var(--vscode-button-hoverBackground) 85%, #000) 100%);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 
+        0 6px 20px color-mix(in srgb, var(--vscode-button-background) 40%, transparent),
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .search-btn:active {
-    transform: scale(0.93);
+    transform: translateY(0) scale(0.95);
+    box-shadow: 
+        0 2px 8px color-mix(in srgb, var(--vscode-button-background) 25%, transparent),
+        0 1px 4px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .search-btn.is-disabled,
 .search-btn:disabled {
-    background: var(--vscode-button-secondaryBackground);
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--vscode-button-secondaryBackground) 80%, transparent) 0%, 
+        color-mix(in srgb, var(--vscode-button-secondaryBackground) 60%, transparent) 100%);
     color: var(--vscode-descriptionForeground);
     cursor: default;
-    opacity: 0.75;
+    opacity: 0.6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .search-btn.is-disabled:hover,
@@ -311,36 +454,59 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .search-btn.is-disabled:active,
 .search-btn:disabled:active {
     transform: none;
-    background: var(--vscode-button-secondaryBackground);
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--vscode-button-secondaryBackground) 80%, transparent) 0%, 
+        color-mix(in srgb, var(--vscode-button-secondaryBackground) 60%, transparent) 100%);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .quick-access {
     display: flex;
-    gap: 4px;
-    margin-top: 18px;
+    gap: 5px;
+    margin-top: 20px;
     max-width: 600px;
     justify-content: center;
     flex-wrap: wrap;
-    padding: 3px;
+    padding: 4px;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--vscode-editor-foreground) 8%, transparent);
-    background: color-mix(in srgb, var(--vscode-editor-background) 60%, transparent);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid color-mix(in srgb, var(--vscode-editor-foreground) 10%, transparent);
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--vscode-editor-background) 70%, transparent) 0%,
+        color-mix(in srgb, var(--vscode-editor-background) 50%, transparent) 100%);
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .qa-btn {
     background-color: transparent;
-    color: color-mix(in srgb, var(--vscode-editor-foreground) 75%, transparent);
+    color: color-mix(in srgb, var(--vscode-editor-foreground) 70%, transparent);
     border: none;
     border-radius: 50px;
-    padding: 6px 14px;
+    padding: 7px 16px;
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
     opacity: 0;
-    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.qa-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, 
+        color-mix(in srgb, var(--vscode-editor-foreground) 15%, transparent) 0%, 
+        transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .qa-btn:nth-child(1) { animation-delay: 50ms; }
@@ -348,20 +514,35 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .qa-btn:nth-child(3) { animation-delay: 210ms; }
 
 .qa-btn:not(.is-active):hover {
-    background-color: color-mix(in srgb, var(--vscode-editor-foreground) 6%, transparent);
+    background-color: color-mix(in srgb, var(--vscode-editor-foreground) 8%, transparent);
     color: var(--vscode-editor-foreground);
+    transform: translateY(-1px);
+}
+
+.qa-btn:not(.is-active):hover::before {
+    opacity: 1;
 }
 
 .qa-btn:active {
-    transform: scale(0.96);
+    transform: scale(0.96) translateY(0);
 }
 
 .qa-btn.is-active {
-    background: var(--vscode-button-background);
+    background: linear-gradient(135deg, 
+        var(--vscode-button-background) 0%, 
+        color-mix(in srgb, var(--vscode-button-background) 85%, #000) 100%);
     color: var(--vscode-button-foreground);
     opacity: 1;
     cursor: default;
-    box-shadow: 0 2px 10px color-mix(in srgb, var(--vscode-button-background) 35%, transparent);
+    box-shadow: 
+        0 4px 16px color-mix(in srgb, var(--vscode-button-background) 40%, transparent),
+        0 2px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.qa-btn.is-active::before {
+    opacity: 0;
 }
 
 .qa-tab-btn {
@@ -391,29 +572,33 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
     margin-right: 0;
     pointer-events: none;
     transition: 
-        width 0.45s cubic-bezier(0.4, 0, 0.2, 1), 
-        opacity 0.32s ease, 
-        margin-right 0.38s ease;
+        width 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+        opacity 0.4s ease, 
+        margin-right 0.45s ease;
 }
 
 .qa-music-icon svg {
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .qa-tab-btn:hover .qa-music-icon {
-    width: 14px;
+    width: 16px;
     opacity: 1;
-    margin-right: 5px;
+    margin-right: 6px;
 }
 
 .qa-tab-btn:hover .qa-music-icon svg {
-    animation: music-note-pulse 1.5s infinite alternate ease-in-out;
-    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+    animation: music-note-pulse 1.8s infinite alternate ease-in-out;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
 }
 
 @keyframes music-note-pulse {
-    from { transform: translateY(0.5px) scale(0.92); }
-    to { transform: translateY(-1.5px) scale(1.15); }
+    from { 
+        transform: translateY(0.5px) scale(0.9) rotate(-2deg); 
+    }
+    to { 
+        transform: translateY(-2px) scale(1.2) rotate(2deg); 
+    }
 }
 
 #qa-play-btn {
@@ -475,12 +660,19 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 .qa-btn[disabled] {
     pointer-events: none;
     cursor: default;
-    opacity: 0.55;
+    opacity: 0.4;
+    filter: grayscale(50%);
 }
 
 @keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 0.85; transform: translateY(0); }
+    from { 
+        opacity: 0; 
+        transform: translateY(10px) scale(0.95); 
+    }
+    to { 
+        opacity: 0.85; 
+        transform: translateY(0) scale(1); 
+    }
 }
 
 .center-screen-message {
@@ -494,28 +686,56 @@ body.vscode-light .results-query-input::-webkit-search-cancel-button {
 /* Responsive adjustments for narrow sidebar (e.g., when panel is reduced) */
 @media screen and (max-width: 300px) {
     .mode-panel-radio {
-        gap: 3px;
+        gap: 4px;
     }
     
     .radio-mode-btn {
-        padding: 4px 9px;
+        padding: 5px 10px;
         font-size: 10px;
     }
     
     .radio-mode-btn-am {
-        width: 26px;
-        height: 26px;
+        width: 30px;
+        height: 30px;
         font-size: 9px;
     }
 
     .quick-access {
-        gap: 2px;
-        padding: 2px;
+        gap: 3px;
+        padding: 3px;
     }
 
     .qa-btn {
-        padding: 4px 10px;
+        padding: 5px 11px;
         font-size: 10px;
+    }
+
+    .search-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .search-input {
+        padding: 8px 10px 8px 32px;
+        font-size: 10.5px;
+    }
+
+    .search-icon {
+        left: 12px;
+        width: 13px;
+        height: 13px;
+    }
+}
+
+/* Enhanced responsive for medium screens */
+@media screen and (min-width: 301px) and (max-width: 400px) {
+    .mode-panel-radio {
+        gap: 6px;
+    }
+    
+    .radio-mode-btn {
+        padding: 6px 13px;
+        font-size: 10.5px;
     }
 }
 
