@@ -87,7 +87,6 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
         console.log('[ATM] Status bar activated successfully');
     } catch (error) {
         console.error('[ATM] Failed to activate status bar:', error);
-        vscode.window.showErrorMessage('ATM: Failed to initialize status bar');
     }
 }
 
@@ -132,7 +131,6 @@ async function handleStatusBarClick(): Promise<void> {
         await showQuickMenu();
     } catch (error) {
         console.error('[ATM] Error showing quick menu:', error);
-        vscode.window.showErrorMessage('ATM: Failed to open control menu');
     }
 }
 
@@ -193,7 +191,6 @@ async function showQuickMenu(): Promise<void> {
         }
     } catch (error) {
         console.error('[ATM] Error executing command:', error);
-        vscode.window.showErrorMessage(`ATM: Failed to execute command`);
     }
 }
 
@@ -211,11 +208,9 @@ async function applyLayout(layout: LayoutConfig): Promise<void> {
         ]);
 
         const layoutName = layout === CONSTANTS.LAYOUTS.PRO ? 'Pro' : 'Normal';
-        vscode.window.showInformationMessage(`ATM: ${layoutName} layout applied`);
         console.log(`[ATM] Layout applied: ${layoutName}`);
     } catch (error) {
         console.error('[ATM] Failed to apply layout:', error);
-        vscode.window.showErrorMessage('ATM: Failed to apply layout. Check permissions.');
     }
 }
 
@@ -327,14 +322,14 @@ function renderHoverUI(): void {
             ? `$(pass-filled) **Pro**` 
             : `$(circle-outline) [Pro](command:${CONSTANTS.COMMANDS.LAYOUT_PRO})`;
 
-        md.appendMarkdown(`**Current Layout:** &nbsp; ${normalItem} &nbsp; | &nbsp; ${proItem}\n\n`);
+        md.appendMarkdown(`**Layout:** &nbsp; ${normalItem} &nbsp; | &nbsp; ${proItem}\n\n`);
 
         md.appendMarkdown('<hr>\n\n');
 
         // Footer
         md.appendMarkdown(
             `<sub><span style="color:#569CD6;">$(pulse)</span> ` +
-            `<span style="color:#888888;">Core systems online and monitoring. Click for Control Center.</span></sub>`
+            `<span style="color:#888888;">Core systems online and monitoring.</span></sub>`
         );
 
         globalStatusBarItem.tooltip = md;
