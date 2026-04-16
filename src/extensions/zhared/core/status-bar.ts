@@ -76,7 +76,7 @@ const CONSTANTS = {
         } as LayoutConfig
     },
     FAAH_AUDIO_OPTIONS: [
-        { id: 'faah', name: 'Error Audio', fileName: 'faah.wav', icon: '$(unmute)' },
+        { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(unmute)' },
         { id: 'ack', name: 'ACK', fileName: 'ack.wav', icon: '$(pulse)' },
         { id: 'fatality', name: 'Fatality', fileName: 'fatality.wav', icon: '$(flame)' },
         { id: 'windows', name: 'Windows', fileName: 'windows.wav', icon: '$(window)' }
@@ -698,15 +698,12 @@ function renderHoverUI(): void {
         md.appendMarkdown(`**Layout:** &nbsp; ${normalItem} &nbsp; | &nbsp; ${proItem}\n\n`);
 
         if (!isCompactMode) {
-            const currentLayout = isPro ? CONSTANTS.LAYOUTS.PRO : CONSTANTS.LAYOUTS.NORMAL;
-            md.appendMarkdown(
-                `<sub><span style="color:#888888;">${currentLayout.description}</span></sub>\n\n`
-            );
+            // Layout description removed as requested
         }
 
         // FAAH Audio Section
         const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
-        md.appendMarkdown(`**ERROR Audio:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; | &nbsp; [$(unmute)](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO})\n\n`);
+        md.appendMarkdown(`**Error Audio:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; | &nbsp; [$(unmute)](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO})\n\n`);
         
         if (!isCompactMode) {
             // Removed the description text as requested

@@ -16,7 +16,7 @@ export function registerCommands(
       outputChannel.appendLine('Test sound command triggered');
       const config = getSoundConfig();
       await soundPlayer.playSound(config);
-      vscode.window.showInformationMessage('FAAH: Playing test sound!');
+      // Notification removed as requested
     }
   );
 
