@@ -21,22 +21,22 @@ export function updateStatusBar(isEnabled: boolean, status: 'ok' | 'missing-conf
     currentStatus = status;
 
     let icon = '$(check)';
-    let desc = 'Activo';
+    let desc = 'Active';
 
     if (isEnabled) {
         if (status === 'missing-config') {
             icon = '$(info)';
-            desc = 'Falta configuración';
+            desc = 'Missing config';
         } else if (status === 'error') {
             icon = '$(error)';
             desc = 'Error';
         } else {
             icon = '$(check)';
-            desc = 'Activo';
+            desc = 'Active';
         }
     } else {
         icon = '$(circle-slash)';
-        desc = 'Pausado';
+        desc = 'Paused';
     }
 
     // Le notificamos a la barril shared global

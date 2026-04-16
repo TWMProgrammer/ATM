@@ -42,11 +42,11 @@ export function createStatusBarItem(context: vscode.ExtensionContext) {
  * ========================================================= */
 function updateStatusBarState() {
     let icon = '$(paintcan)';
-    let desc = 'Color aleatorio al hacer clic';
+    let desc = 'Randomize on click';
 
     if (hasColorApplied()) {
         icon = '$(x)';
-        desc = 'Remover color al hacer clic';
+        desc = 'Remove on click';
     }
 
     // Le notificamos a la barra global
