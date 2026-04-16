@@ -64,27 +64,40 @@ function renderHoverUI() {
 
     const md = new vscode.MarkdownString('', true);
     md.isTrusted = true; 
-    md.supportThemeIcons = true; 
+    md.supportThemeIcons = true;
+    md.supportHtml = true;
 
-    // Ultra minimalist UI
-    md.appendMarkdown('**ATM Tools**\n\n---\n\n');
+    // Header - Ultra Clean
+    md.appendMarkdown('### **ATM**\n\n');
 
     if (toolRegistry.size === 0) {
-        md.appendMarkdown('_No tools active_\n\n');
+        md.appendMarkdown('_No active tools_\n\n');
     } else {
         for (const [_, state] of toolRegistry) {
-            const desc = state.description ? ` *(${state.description})*` : '';
-            md.appendMarkdown(`${state.icon} &nbsp;[${state.name}](command:${state.command})${desc}\n\n`);
+            const desc = state.description ? ` <span style="color:#888888;">— ${state.description}</span>` : '';
+            md.appendMarkdown(`${state.icon} &nbsp; **[${state.name}](command:${state.command})** ${desc}\n\n`);
         }
     }
 
-    md.appendMarkdown('---\n\n');
+    md.appendMarkdown('<hr>\n\n');
     
     const isPro = vscode.workspace.getConfiguration('workbench').get('sideBar.location') === 'right';
-    const normalItem = !isPro ? `$(pass-filled) **Normal**` : `$(remote-explorer) [Normal](command:atm.layout.normal)`;
-    const proItem = isPro ? `$(pass-filled) **Pro**` : `$(layout-sidebar-right) [Pro](command:atm.layout.pro)`;
+    const normalItem = !isPro ? `$(pass-filled) **Normal**` : `$(circle-outline) [Normal](command:atm.layout.normal)`;
+    const proItem = isPro ? `$(pass-filled) **Pro**` : `$(circle-outline) [Pro](command:atm.layout.pro)`;
     
-    md.appendMarkdown(`__Layout:__ &nbsp; ${normalItem} &nbsp; | &nbsp; ${proItem}\n\n`);
+    md.appendMarkdown(`Layout &nbsp;&nbsp; ${normalItem} &nbsp; | &nbsp; ${proItem}\n\n`);
+
+    md.appendMarkdown('<hr>\n\n');
+    
+    // Requested Footer - Minimalist
+    md.appendMarkdown(`<sub>$(pulse) Core systems online and monitoring.</sub>`);
 
     globalStatusBarItem.tooltip = md;
+
+    // Active indicator
+    if (toolRegistry.size > 0) {
+        globalStatusBarItem.text = `$(verified-filled) ATM [${toolRegistry.size}]`;
+    } else {
+        globalStatusBarItem.text = `$(verified-filled) ATM`;
+    }
 }
