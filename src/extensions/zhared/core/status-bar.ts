@@ -92,8 +92,8 @@ function renderHoverUI() {
 
     md.appendMarkdown('<hr>\n\n');
     
-    // Requested Footer - Minimalist
-    md.appendMarkdown(`<sub>$(pulse) Core systems online and monitoring.</sub>`);
+    // Requested Footer - Minimalist Steel Blue & Grey
+    md.appendMarkdown(`<sub><span style="color:#569CD6;">$(pulse)</span> <span style="color:#888888;">Core systems online and monitoring.</span></sub>`);
 
     globalStatusBarItem.tooltip = md;
 
