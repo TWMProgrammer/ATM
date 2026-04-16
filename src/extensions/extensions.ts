@@ -19,6 +19,7 @@ import { activateMarkdownImageIcons } from './markdown-md/icons-images';
 import { activateFocus } from './focus/focus';
 import { activateLint } from './atm-lint/lint';
 import { activateGlobalStatusBar } from './zhared/zhared';
+import { activate as activateFaah } from './faah/faah';
 
 /**
  * Register all sub-extensions here.
@@ -49,4 +50,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateMarkdownImageIcons(context);
   activateFocus(context);
   activateLint(context);
+  activateFaah(context);
 }
