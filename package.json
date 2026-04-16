@@ -424,8 +424,8 @@
       },
       {
         "command": "atm.music.playRandomAM",
-        "key": "alt+m",
-        "mac": "alt+m"
+        "key": "alt+r",
+        "mac": "alt+r"
       }
     ],
     "languages": [
