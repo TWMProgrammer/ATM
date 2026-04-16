@@ -200,9 +200,9 @@ async function showQuickMenu(): Promise<void> {
     const stats = getToolStats();
     const items: vscode.QuickPickItem[] = [];
 
-    // Header with stats
+    // Header with stats - No icon, ATM highlighted
     items.push({ 
-        label: `$(dashboard) ATM Control Center`, 
+        label: `ATM Control Center`, 
         kind: vscode.QuickPickItemKind.Separator 
     });
 
@@ -642,7 +642,7 @@ function renderHoverUI(): void {
         if (isCompactMode) {
             md.appendMarkdown('### **ATM**\n\n');
         } else {
-            md.appendMarkdown('### $(verified-filled) **ATM Control Center**\n\n');
+            md.appendMarkdown('### **ATM** <span style="color:#888888;">Control Center</span>\n\n');
             md.appendMarkdown(
                 `<sub><span style="color:#888888;">Advanced Tool Management System</span></sub>\n\n`
             );
