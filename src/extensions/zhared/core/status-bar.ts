@@ -682,8 +682,9 @@ function renderHoverUI(): void {
         if (isCompactMode) {
             md.appendMarkdown(
                 `<sub><span style="color:${statusColor};">${statusIcon}</span> ` +
-                `<span style="color:#888888;">${statusText}</span> &nbsp; ` +
-                `[$(expand-all)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Click to expand")</sub>`
+                `<span style="color:#888888;">${statusText}</span></sub>` +
+                `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;` +
+                `[$(unfold)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Click to expand")`
             );
         } else {
             md.appendMarkdown(
