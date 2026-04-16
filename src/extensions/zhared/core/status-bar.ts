@@ -22,6 +22,16 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(ACTION_COMMAND, () => {
             // Suggestion: In the future, this could open a quick-pick menu
+        }),
+        vscode.commands.registerCommand('atm.layout.normal', async () => {
+            const config = vscode.workspace.getConfiguration('workbench');
+            await config.update('sideBar.location', 'left', vscode.ConfigurationTarget.Global);
+            await config.update('activityBar.location', 'default', vscode.ConfigurationTarget.Global);
+        }),
+        vscode.commands.registerCommand('atm.layout.pro', async () => {
+            const config = vscode.workspace.getConfiguration('workbench');
+            await config.update('sideBar.location', 'right', vscode.ConfigurationTarget.Global);
+            await config.update('activityBar.location', 'top', vscode.ConfigurationTarget.Global);
         })
     );
     globalStatusBarItem.command = ACTION_COMMAND;
@@ -50,7 +60,8 @@ function renderHoverUI() {
     md.supportThemeIcons = true; 
 
     // Ultra minimalist UI
-    md.appendMarkdown('**ATM Tools**\n\n---\n\n');
+    md.appendMarkdown('**ATM Tools**\n\n');
+    md.appendMarkdown('__Layout:__ &nbsp; $(remote-explorer) [Normal](command:atm.layout.normal) &nbsp;|&nbsp; $(layout-sidebar-right) [Pro](command:atm.layout.pro)\n\n---\n\n');
 
     if (toolRegistry.size === 0) {
         md.appendMarkdown('_No tools active_');
