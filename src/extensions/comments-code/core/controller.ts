@@ -364,9 +364,12 @@ export class CommentsCodeController {
         if (lineMatch) {
           const tag = this.tagByText.get(lineMatch[0]);
           if (tag?.type === 'line') {
-            const startChar = slIdx;
-            let arr = lineRanges.get(tag.text);
-            if (!arr) { arr = []; lineRanges.set(tag.text, arr); }
+            // Detect if there is code before the comment marker
+            const isInline = text.substring(0, slIdx).trim().length > 0;
+            const decorKey = isInline ? tag.text + ':inline' : tag.text;
+            const startChar = isInline ? slIdx : 0;
+            let arr = lineRanges.get(decorKey);
+            if (!arr) { arr = []; lineRanges.set(decorKey, arr); }
             arr.push({
               range: new vscode.Range(
                 new vscode.Position(lineIndex, startChar),
@@ -396,9 +399,12 @@ export class CommentsCodeController {
       if (lineMatch) {
         const tag = this.tagByText.get(lineMatch[0]);
         if (tag?.type === 'line') {
-          const startChar = region.spanStart;
-          let arr = lineRanges.get(tag.text);
-          if (!arr) { arr = []; lineRanges.set(tag.text, arr); }
+          // Detect if there is code before the block comment opener
+          const isInline = text.substring(0, region.spanStart).trim().length > 0;
+          const decorKey = isInline ? tag.text + ':inline' : tag.text;
+          const startChar = isInline ? region.spanStart : 0;
+          let arr = lineRanges.get(decorKey);
+          if (!arr) { arr = []; lineRanges.set(decorKey, arr); }
           arr.push({
             range: new vscode.Range(
               new vscode.Position(lineIndex, startChar),

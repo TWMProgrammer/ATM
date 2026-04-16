@@ -33,78 +33,96 @@ export class Decorator {
   private decorationTypes = new Map<string, vscode.TextEditorDecorationType>();
 
   /**
+   * Builds DecorationRenderOptions for a tag.
+   * For 'line' type tags, isWholeLine controls whether the full line is painted.
+   */
+  private buildOptions(tag: CommentTag, isWholeLine: boolean): vscode.DecorationRenderOptions {
+    const options: vscode.DecorationRenderOptions = {
+      color: tag.color,
+      backgroundColor: tag.backgroundColor,
+    };
+
+    if (tag.type === 'line') {
+      options.isWholeLine = isWholeLine;
+      // If no explicit backgroundColor, derive a transparent one from the main color
+      if (!options.backgroundColor && tag.color) {
+        let baseColor = tag.color;
+        // Strip alpha channel if present (e.g. #3297fbff → #3297fb)
+        if (baseColor.length === 9) {
+          baseColor = baseColor.slice(0, 7);
+        }
+        // ~13% opacity background
+        options.backgroundColor = baseColor + '22';
+      }
+    }
+
+    if (tag.strikethrough) {
+      options.textDecoration = 'line-through';
+    }
+    if (tag.fontWeight) {
+      options.fontWeight = tag.fontWeight;
+    }
+    if (tag.fontStyle) {
+      options.fontStyle = tag.fontStyle;
+    }
+
+    // Rounded corners for word/badge tags
+    if (tag.type === 'word') {
+      options.borderRadius = '3px';
+    }
+
+    // Overview ruler (scrollbar markers)
+    if (tag.type === 'word' && tag.backgroundColor) {
+      options.overviewRulerLane = vscode.OverviewRulerLane.Full;
+      options.overviewRulerColor = tag.backgroundColor;
+    } else if (tag.type === 'line' && tag.color) {
+      options.overviewRulerLane = vscode.OverviewRulerLane.Right;
+      options.overviewRulerColor = tag.color;
+    }
+
+    // Gutter icon
+    if (tag.gutterIcon) {
+      const iconColor = tag.backgroundColor || tag.color;
+      const uri = getSvgDataUri(tag.gutterIcon, iconColor);
+      if (uri) {
+        options.gutterIconPath = uri;
+        options.gutterIconSize = 'contain';
+      }
+    }
+
+    return options;
+  }
+
+  /**
    * Initializes TextEditorDecorationType objects based on loaded tags.
+   * For 'line' type tags, two types are created:
+   *   - tag.text          → isWholeLine: true  (pure comment lines)
+   *   - tag.text+':inline'→ isWholeLine: false (inline comments after code)
    */
   public initializeTags(tags: CommentTag[]) {
-    // Clear existing decoration types if needed
     for (const dec of this.decorationTypes.values()) {
       dec.dispose();
     }
     this.decorationTypes.clear();
 
     for (const tag of tags) {
-      const options: vscode.DecorationRenderOptions = {
-        color: tag.color,
-        backgroundColor: tag.backgroundColor,
-      };
-
-      // OPTION 1: "Whole Line" highlighted
       if (tag.type === 'line') {
-        options.isWholeLine = true;
-        
-        // If it doesn't have an explicit backgroundColor, derive from main color
-        if (!options.backgroundColor && tag.color) {
-          let baseColor = tag.color;
-          // If color has alpha channel (e.g. #3297fbff), strip it
-          if (baseColor.length === 9) {
-            baseColor = baseColor.slice(0, 7);
-          }
-          // Add highly transparent alpha channel (e.g., 22 = ~13% opacity)
-          options.backgroundColor = baseColor + '22';
-        }
+        // Whole-line version: paints the entire row (for pure comment lines)
+        this.decorationTypes.set(
+          tag.text,
+          vscode.window.createTextEditorDecorationType(this.buildOptions(tag, true)),
+        );
+        // Inline version: paints only the comment range (for inline comments)
+        this.decorationTypes.set(
+          tag.text + ':inline',
+          vscode.window.createTextEditorDecorationType(this.buildOptions(tag, false)),
+        );
+      } else {
+        this.decorationTypes.set(
+          tag.text,
+          vscode.window.createTextEditorDecorationType(this.buildOptions(tag, false)),
+        );
       }
-
-      if (tag.strikethrough) {
-        options.textDecoration = 'line-through';
-      }
-
-      if (tag.fontWeight) {
-        options.fontWeight = tag.fontWeight;
-      }
-
-      if (tag.fontStyle) {
-        options.fontStyle = tag.fontStyle;
-      }
-
-      // OPTION 2: "Word" highlighted tags (Badges)
-      if (tag.type === 'word') {
-        options.borderRadius = '3px';
-      }
-
-      // Add overview ruler markers on the scrollbar (scroll line)
-      if (tag.type === 'word' && tag.backgroundColor) {
-        // Use 'Full' lane for word tags (TODO, FIXME, MARK) to make them more striking!
-        options.overviewRulerLane = vscode.OverviewRulerLane.Full;
-        options.overviewRulerColor = tag.backgroundColor;
-      } else if (tag.type === 'line' && tag.color) {
-        // Normal lane (Right) for line annotations (~, !, etc.)
-        options.overviewRulerLane = vscode.OverviewRulerLane.Right;
-        options.overviewRulerColor = tag.color;
-      }
-
-      // Gutter Icon
-      if (tag.gutterIcon) {
-        // Prefer backgroundColor for word tags, fallback to primary color
-        const iconColor = tag.backgroundColor || tag.color;
-        const uri = getSvgDataUri(tag.gutterIcon, iconColor);
-        if (uri) {
-           options.gutterIconPath = uri;
-           options.gutterIconSize = 'contain';
-        }
-      }
-
-      const decoration = vscode.window.createTextEditorDecorationType(options);
-      this.decorationTypes.set(tag.text, decoration);
     }
   }
 
