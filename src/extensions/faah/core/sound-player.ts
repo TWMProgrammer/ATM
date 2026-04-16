@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { exec } from 'child_process';
+import { exec, ChildProcess } from 'child_process';
 
 export interface SoundPlayerConfig {
   customSoundPath?: string;
@@ -10,6 +10,7 @@ export interface SoundPlayerConfig {
 
 export class SoundPlayer {
   private isPlaying: boolean = false;
+  private currentProcess: ChildProcess | null = null;
   private readonly platform: NodeJS.Platform;
   private failureCount: number = 0;
   private readonly MAX_FAILURES = 5;
@@ -22,12 +23,13 @@ export class SoundPlayer {
   }
 
   /**
-   * Play sound with overlap prevention
+   * Play sound with interruption support
    */
   public async playSound(config: SoundPlayerConfig): Promise<void> {
-    if (this.isPlaying) {
-      this.outputChannel.appendLine('Sound skipped: already playing');
-      return;
+    // Kill previous sound if still playing (interrupt behavior)
+    if (this.isPlaying && this.currentProcess) {
+      this.outputChannel.appendLine('Interrupting previous sound');
+      this.killCurrentProcess();
     }
 
     // Circuit breaker pattern
@@ -50,6 +52,21 @@ export class SoundPlayer {
       this.outputChannel.appendLine(`Playback failed: ${error}`);
     } finally {
       this.isPlaying = false;
+      this.currentProcess = null;
+    }
+  }
+
+  /**
+   * Kill the current audio process
+   */
+  private killCurrentProcess(): void {
+    if (this.currentProcess && !this.currentProcess.killed) {
+      try {
+        this.currentProcess.kill('SIGTERM');
+        this.outputChannel.appendLine('Previous audio process terminated');
+      } catch (error) {
+        this.outputChannel.appendLine(`Failed to kill process: ${error}`);
+      }
     }
   }
 
@@ -144,8 +161,9 @@ export class SoundPlayer {
     return new Promise((resolve, reject) => {
       this.outputChannel.appendLine(`Executing: ${command}`);
       
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
+      this.currentProcess = exec(command, (error, stdout, stderr) => {
+        if (error && !error.killed) {
+          // Ignore errors from killed processes
           reject(error);
         } else {
           resolve();
