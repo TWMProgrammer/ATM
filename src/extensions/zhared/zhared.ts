@@ -1,1 +1,7 @@
-export * from './core/status-bar';
+export { 
+    activateGlobalStatusBar, 
+    deactivateGlobalStatusBar,
+    updateToolState,
+    removeToolState,
+    type ToolState 
+} from './core/status-bar';

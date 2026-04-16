@@ -108,7 +108,6 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
             vscode.commands.registerCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT, () => toggleCompactMode(context)),
             vscode.commands.registerCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS, () => {
                 scheduleRender();
-                showNotification('Tools refreshed', 'info');
             })
         );
 
@@ -173,9 +172,6 @@ export function removeToolState(id: string): void {
     if (removed) {
         scheduleRender();
         console.log(`[ATM] Tool removed: ${id}`);
-        if (tool) {
-            showNotification(`${tool.name} deactivated`, 'info');
-        }
     }
 }
 
@@ -325,12 +321,10 @@ async function handleQuickPickSelection(selected: vscode.QuickPickItem): Promise
             const cmd = selected.detail.replace('Execute: ', '').trim();
             if (cmd) {
                 await vscode.commands.executeCommand(cmd);
-                showNotification(`Executed: ${selected.label.replace(/\$\([^)]+\)\s*/, '')}`, 'info');
             }
         }
     } catch (error) {
         console.error('[ATM] Error executing command:', error);
-        showNotification('Failed to execute command', 'error');
     }
 }
 
@@ -361,12 +355,10 @@ async function applyLayout(layout: LayoutConfig): Promise<void> {
 
         // Animation disabled for better performance
         // playLayoutChangeAnimation();
-        showNotification(`${layout.displayName} activated`, 'success');
         
         console.log(`[ATM] Layout applied: ${layout.displayName}`);
     } catch (error) {
         console.error('[ATM] Failed to apply layout:', error);
-        showNotification('Failed to apply layout', 'error');
     }
 }
 
@@ -478,7 +470,6 @@ async function showToolInfo(tool: ToolState): Promise<void> {
         await vscode.commands.executeCommand(tool.command);
     } else if (action === 'Copy Command') {
         await vscode.env.clipboard.writeText(tool.command);
-        showNotification('Command copied to clipboard', 'info');
     }
 }
 
@@ -489,35 +480,13 @@ async function toggleCompactMode(context: vscode.ExtensionContext): Promise<void
     isCompactMode = !isCompactMode;
     await context.globalState.update('atm.compactMode', isCompactMode);
     scheduleRender();
-    showNotification(
-        isCompactMode ? 'Compact mode enabled' : 'Expanded mode enabled',
-        'info'
-    );
+    
+    // Show notification for mode change
+    const message = isCompactMode ? 'Compact mode enabled' : 'Expanded mode enabled';
+    vscode.window.showInformationMessage(`✓ ATM: ${message}`);
 }
 
-/**
- * Shows a notification with emoji icon (VSCode icons don't render in notifications)
- */
-function showNotification(message: string, type: 'info' | 'success' | 'error'): void {
-    const icons = {
-        info: 'ℹ️',
-        success: '✓',
-        error: '✗'
-    };
-    
-    const fullMessage = `${icons[type]} ATM: ${message}`;
-    
-    switch (type) {
-        case 'error':
-            vscode.window.showErrorMessage(fullMessage);
-            break;
-        case 'success':
-        case 'info':
-        default:
-            vscode.window.showInformationMessage(fullMessage);
-            break;
-    }
-}
+
 
 /**
  * Schedules a debounced render of the hover UI
@@ -669,7 +638,6 @@ function renderHoverUI(): void {
             md.appendMarkdown(
                 `[$(collapse-all) Compact](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT})\n\n`
             );
-            md.appendMarkdown('<hr>\n\n');
         }
 
         // Footer with status indicator
@@ -683,8 +651,9 @@ function renderHoverUI(): void {
         if (isCompactMode) {
             md.appendMarkdown(
                 `<sub><span style="color:${statusColor};">${statusIcon}</span> ` +
-                `<span style="color:#888888;">${statusText}</span> &nbsp; ` +
-                `[$(expand-all)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Click to expand")</sub>`
+                `<span style="color:#888888;">${statusText}</span></sub>` +
+                `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;` +
+                `[$(unfold)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Click to expand")`
             );
         } else {
             md.appendMarkdown(
@@ -726,4 +695,31 @@ function renderHoverUI(): void {
  */
 function escapeMarkdown(text: string): string {
     return text.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&');
+}
+
+/**
+ * Deactivates and cleans up the global status bar
+ * Prevents memory leaks by clearing timers and disposing resources
+ */
+export function deactivateGlobalStatusBar(): void {
+    // Clear any pending render timer
+    if (renderDebounceTimer) {
+        clearTimeout(renderDebounceTimer);
+        renderDebounceTimer = undefined;
+    }
+    
+    // Clear the tool registry
+    toolRegistry.clear();
+    
+    // Reset state
+    lastRenderedHash = undefined;
+    isCompactMode = false;
+    
+    // Dispose the status bar item
+    if (globalStatusBarItem) {
+        globalStatusBarItem.dispose();
+        globalStatusBarItem = undefined;
+    }
+    
+    console.log('[ATM] Status bar deactivated and cleaned up');
 }
