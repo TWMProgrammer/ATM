@@ -483,7 +483,7 @@ async function toggleCompactMode(context: vscode.ExtensionContext): Promise<void
     
     // Show notification for mode change
     const message = isCompactMode ? 'Compact mode enabled' : 'Expanded mode enabled';
-    vscode.window.showInformationMessage(`ℹ️ ATM: ${message}`);
+    vscode.window.showInformationMessage(`✓ ATM: ${message}`);
 }
 
 
