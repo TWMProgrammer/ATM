@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 import { renderMinimalTooltip, showMinimalQuickMenu } from './minimal';
 import { renderAdvancedTooltip, showAdvancedQuickMenu } from './advanced';
 
@@ -323,7 +325,7 @@ export async function cycleFaahAudio(): Promise<void> {
     
     const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
     const faahConfig = vscode.workspace.getConfiguration('faah');
-    const fullPath = `${extensionContext.extensionPath}/src/extensions/faah/sound/${currentAudio.fileName}`;
+    const fullPath = resolveBundledFaahAudioPath(currentAudio.fileName, extensionContext);
     await faahConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
     
     scheduleRender();
@@ -439,12 +441,32 @@ export async function setFaahAudio(audioId: string, context: vscode.ExtensionCon
     
     const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
     const faahConfig = vscode.workspace.getConfiguration('faah');
-    const fullPath = `${context.extensionPath}/src/extensions/faah/sound/${currentAudio.fileName}`;
+    const fullPath = resolveBundledFaahAudioPath(currentAudio.fileName, context);
     await faahConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
     
     scheduleRender();
     console.log(`[ATM] FAAH audio set to: ${currentAudio.name}`);
     return true;
+}
+
+/**
+ * Resolves FAAH bundled audio from known extension locations
+ */
+function resolveBundledFaahAudioPath(fileName: string, context: vscode.ExtensionContext): string {
+    const candidates = [
+        path.join(context.extensionPath, 'src', 'extensions', 'faah', 'sound', fileName),
+        path.join(context.extensionPath, 'dist', 'extensions', 'faah', 'sound', fileName),
+        path.join(context.extensionPath, 'dist', 'faah', 'sound', fileName),
+        path.join(context.extensionPath, 'sound', fileName)
+    ];
+
+    for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+    }
+
+    return candidates[0];
 }
 
 /**

@@ -39,6 +39,12 @@ export class SoundPlayer {
     }
 
     const soundPath = this.resolveSoundPath(config.customSoundPath);
+    if (!soundPath) {
+      this.failureCount++;
+      this.outputChannel.appendLine('Playback skipped: no valid sound file was found');
+      return;
+    }
+
     const command = this.buildAudioCommand(soundPath);
 
     this.isPlaying = true;
@@ -73,22 +79,53 @@ export class SoundPlayer {
   /**
    * Resolve sound file path with validation
    */
-  private resolveSoundPath(customPath?: string): string {
+  private resolveSoundPath(customPath?: string): string | undefined {
     if (customPath && this.validateSoundPath(customPath)) {
       return customPath;
     }
 
-    // Try WAV first (better compatibility), then fallback to MP3
-    const wavPath = path.join(this.context.extensionPath, 'src', 'extensions', 'faah', 'sound', 'faah.wav');
-    if (fs.existsSync(wavPath)) {
-      this.outputChannel.appendLine(`Using WAV file: ${wavPath}`);
-      return wavPath;
+    if (customPath) {
+      const recoveredPath = this.resolveBundledSoundPath(path.basename(customPath));
+      if (recoveredPath) {
+        this.outputChannel.appendLine(`Recovered bundled sound file: ${recoveredPath}`);
+        return recoveredPath;
+      }
     }
-    
-    // Fallback to MP3 if WAV doesn't exist
-    const mp3Path = path.join(this.context.extensionPath, 'src', 'extensions', 'faah', 'sound', 'faah.mp3');
-    this.outputChannel.appendLine(`Using MP3 file: ${mp3Path}`);
-    return mp3Path;
+
+    const defaultWavPath = this.resolveBundledSoundPath('faah.wav');
+    if (defaultWavPath) {
+      this.outputChannel.appendLine(`Using WAV file: ${defaultWavPath}`);
+      return defaultWavPath;
+    }
+
+    const defaultMp3Path = this.resolveBundledSoundPath('faah.mp3');
+    if (defaultMp3Path) {
+      this.outputChannel.appendLine(`Using MP3 file: ${defaultMp3Path}`);
+      return defaultMp3Path;
+    }
+
+    this.outputChannel.appendLine('No bundled FAAH sound file found in expected locations');
+    return undefined;
+  }
+
+  /**
+   * Resolve bundled sound file from known extension locations
+   */
+  private resolveBundledSoundPath(fileName: string): string | undefined {
+    const candidates = [
+      path.join(this.context.extensionPath, 'src', 'extensions', 'faah', 'sound', fileName),
+      path.join(this.context.extensionPath, 'dist', 'extensions', 'faah', 'sound', fileName),
+      path.join(this.context.extensionPath, 'dist', 'faah', 'sound', fileName),
+      path.join(this.context.extensionPath, 'sound', fileName)
+    ];
+
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+    }
+
+    return undefined;
   }
 
   /**
@@ -149,7 +186,7 @@ export class SoundPlayer {
         if (ext === '.mp3') {
           return `mpg123 -q "${soundPath}" 2>/dev/null || ffplay -nodisp -autoexit -loglevel quiet "${soundPath}" 2>/dev/null || paplay "${soundPath}"`;
         } else {
-          return `aplay -q "${soundPath}"`;
+          return `aplay -q "${soundPath}" 2>/dev/null || paplay "${soundPath}" 2>/dev/null || ffplay -nodisp -autoexit -loglevel quiet "${soundPath}" 2>/dev/null`;
         }
     }
   }
