@@ -69,7 +69,6 @@ export const CONSTANTS = {
         LAYOUT_PRO: 'atm.layout.pro',
         TOGGLE_COMPACT: 'atm.toggleCompactMode',
         REFRESH_TOOLS: 'atm.refreshTools',
-        TERMINAL_SOUND_CYCLE_AUDIO: 'atm.terminalSound.cycleAudio',
         TERMINAL_SOUND_TEST_AUDIO: 'atm.terminalSound.testAudio',
         TERMINAL_SOUND_TOGGLE_MUTE: 'atm.terminalSound.toggleMute'
     },
@@ -88,9 +87,7 @@ export const CONSTANTS = {
         } as LayoutConfig
     },
     TERMINAL_SOUND_AUDIO_OPTIONS: [
-        { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(megaphone)' },
-        { id: 'ack', name: 'ACK', fileName: 'ack.wav', icon: '$(pulse)' },
-        { id: 'boo', name: 'Boo', fileName: 'boo.wav', icon: '$(flame)' }
+        { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(megaphone)' }
     ] as TerminalSoundAudioOption[],
     CATEGORIES: {
         productivity: { icon: '$(rocket)', label: 'Productivity' },
@@ -175,7 +172,6 @@ function registerCommands(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.LAYOUT_PRO, () => applyLayout(CONSTANTS.LAYOUTS.PRO)),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT, toggleCompactMode),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS, handleRefreshTools),
-        vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_CYCLE_AUDIO, cycleTerminalSoundAudio),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO, testTerminalSoundAudio),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE, toggleTerminalSoundMute)
     );
@@ -322,41 +318,6 @@ async function toggleCompactMode(): Promise<void> {
 }
 
 /**
- * Cycles through Terminal Sound audio options
- */
-export async function cycleTerminalSoundAudio(): Promise<void> {
-    const totalAudioOptions = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.length;
-    if (totalAudioOptions === 0) {
-        vscode.window.showWarningMessage('No terminal sound audio options available.');
-        return;
-    }
-
-    currentTerminalSoundAudioIndex = normalizeTerminalSoundAudioIndex(currentTerminalSoundAudioIndex);
-    const previousAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
-    currentTerminalSoundAudioIndex = (currentTerminalSoundAudioIndex + 1) % totalAudioOptions;
-    
-    await extensionContext.globalState.update('atm.terminalSound.audioIndex', currentTerminalSoundAudioIndex);
-    
-    const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
-    const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
-    const fullPath = resolveBundledTerminalSoundAudioPath(currentAudio.fileName, extensionContext);
-    await terminalSoundConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
-    
-    scheduleRender();
-    
-    // Show a brief auto-dismissing notification
-    await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: `Audio: ${previousAudio.name} → ${currentAudio.name}`,
-        cancellable: false
-    }, async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    });
-    
-    console.log(`[ATM] Terminal Sound audio changed: ${previousAudio.name} → ${currentAudio.name}`);
-}
-
-/**
  * Tests the current Terminal Sound audio
  */
 async function testTerminalSoundAudio(): Promise<void> {
@@ -448,7 +409,7 @@ function renderHoverUI(): void {
 export function getCurrentTerminalSoundAudio(): TerminalSoundAudioOption {
     const options = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS;
     if (options.length === 0) {
-        return { id: 'default', name: 'Default', fileName: 'faah.wav', icon: '$(bell)' };
+        return { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(megaphone)' };
     }
 
     currentTerminalSoundAudioIndex = normalizeTerminalSoundAudioIndex(currentTerminalSoundAudioIndex);

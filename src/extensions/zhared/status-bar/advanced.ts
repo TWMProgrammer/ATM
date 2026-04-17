@@ -5,8 +5,7 @@ import {
     CONSTANTS, 
     getToolStats, 
     organizeToolsByCategory,
-    escapeMarkdown,
-    setTerminalSoundAudio
+    escapeMarkdown
 } from './utils';
 
 /**
@@ -107,11 +106,11 @@ export function renderAdvancedTooltip(
     
     if (context.isTerminalSoundEnabled) {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; [${currentAudio.icon} <span style="color:#CE9178;">${currentAudio.name}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_CYCLE_AUDIO} "Cycle audio theme") &nbsp; $(chevron-right) &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO} "Test current audio") &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon}](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#CE9178;">${currentAudio.icon} ${currentAudio.name}</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO} "Test current audio") &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon}](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
         );
     } else {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; $(chevron-right) &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon} Muted](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} (Silent) &nbsp; l &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon} Muted](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
         );
     }
 
@@ -172,8 +171,8 @@ export async function showAdvancedQuickMenu(context: RenderContext): Promise<voi
         alwaysShow: true
     });
 
-    // Audio Section - All options visible
-    items.push({ label: '$(unmute) Error Audio Themes', kind: vscode.QuickPickItemKind.Separator });
+    // Audio Section - Faah and silence only
+    items.push({ label: '$(unmute) Error Audio Modes', kind: vscode.QuickPickItemKind.Separator });
     
     items.push({
         label: context.isTerminalSoundEnabled ? '$(mute) Mute Audio' : '$(unmute) Unmute Audio',
@@ -183,21 +182,18 @@ export async function showAdvancedQuickMenu(context: RenderContext): Promise<voi
     });
 
     if (context.isTerminalSoundEnabled) {
-        for (let i = 0; i < CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.length; i++) {
-            const audio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[i];
-            const isActive = i === context.currentTerminalSoundAudioIndex;
-            items.push({
-                label: isActive ? `$(pass-filled) ${audio.icon} ${audio.name}` : `$(circle-outline) ${audio.icon} ${audio.name}`,
-                description: isActive ? 'Currently active' : 'Click to activate',
-                detail: `Error audio theme: ${audio.name}`,
-                alwaysShow: true
-            });
-        }
+        const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex];
+        items.push({
+            label: `$(pass-filled) ${currentAudio.icon} ${currentAudio.name} Mode`,
+            description: 'Currently active',
+            detail: 'Only available sound mode',
+            alwaysShow: true
+        });
         
         items.push({
             label: `$(play) Test Current Audio`,
-            description: `Preview ${CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex].name}`,
-            detail: 'Play the currently selected error audio',
+            description: `Preview ${currentAudio.name}`,
+            detail: 'Play the active error audio',
             alwaysShow: true
         });
     }
@@ -316,12 +312,6 @@ async function handleAdvancedSelection(
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO);
         } else if (selected.label.includes('Mute Audio') || selected.label.includes('Unmute Audio')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE);
-        } else if (selected.detail?.includes('Error audio theme:')) {
-            const audioName = selected.label.replace(/\$\([^)]+\)\s*/g, '').trim();
-            const audioOption = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.find(a => a.name === audioName);
-            if (audioOption) {
-                await setTerminalSoundAudio(audioOption.id, context.extensionContext);
-            }
         }
         // Tool executions
         else if (selected.detail?.startsWith('$(terminal) ')) {
