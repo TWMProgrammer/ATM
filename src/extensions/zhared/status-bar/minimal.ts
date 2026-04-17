@@ -78,15 +78,18 @@ export function renderMinimalTooltip(
 
     md.appendMarkdown('---\n\n');
 
-    // Footer with expand button
+    // Footer with expand button - aligned properly
     const statusColor = stats.totalTools > 0 ? '#4EC9B0' : '#888888';
     const statusIcon = stats.totalTools > 0 ? '$(pulse)' : '$(circle-outline)';
-    const statusText = stats.totalTools > 0 ? 'Active' : 'Idle';
-    const spacing = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    const statusText = stats.totalTools > 0 ? 'All systems operational' : 'Awaiting tool activation';
     
     md.appendMarkdown(
-        `<sub><span style="color:${statusColor};">${statusIcon} ${statusText}</span></sub>${spacing}[$(unfold)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Expand")`
+        `<span style="color:${statusColor};">${statusIcon} ${statusText}</span>`
     );
+    
+    // Add expand button on the right side
+    const spacing = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    md.appendMarkdown(`${spacing}[$(unfold)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Expand")`);
 
     statusBarItem.tooltip = md;
 }
