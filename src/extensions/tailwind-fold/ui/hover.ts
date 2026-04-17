@@ -16,7 +16,20 @@ export class TailwindFoldHoverProvider implements vscode.HoverProvider {
             if (range.contains(position)) {
                 const text = document.getText(range);
                 const md = new vscode.MarkdownString();
-                md.appendCodeblock(text, "html");
+                
+                const matchQuote = text.match(/['"`{]/);
+                const splitIndex = matchQuote ? matchQuote.index : -1;
+
+                if (splitIndex !== undefined && splitIndex > 0) {
+                    const attr = text.substring(0, splitIndex);
+                    const classes = text.substring(splitIndex);
+                    
+                    // Formato Markdown nativo sin espacio entre el atributo y el código
+                    md.appendMarkdown(`**${attr}**\`${classes}\``);
+                } else {
+                    md.appendCodeblock(text, "html");
+                }
+
                 return new vscode.Hover(md, range);
             }
         }
