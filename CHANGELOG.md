@@ -1,16 +1,15 @@
-# ATM Changelog
+# 🏧 ATM Changelog
 
-ATM is a modular VS Code extension suite with many tools and configurations ready to use.
+ATM is a powerful, all-in-one modular extension suite designed to streamline your development workflow. 
+It seamlessly integrates productivity enhancements, advanced diagnostics, documentation features, and core editor utilities into a single, cohesive package.
 
-It includes productivity, diagnostics, documentation, and editor utilities in one package.
+🚀 **Compatibility:** Fully supported on VS Code, Cursor, Windsurf, Trae.ai, Kiro, and Firebase Studio.
 
-Compatible with VS Code, Cursor, Windsurf, Trae.ai, Kiro, and Firebase Studio.
+🌐 Discover more extensions at [gohit.xyz](https://gohit.xyz/).
 
-Discover more extensions [here](https://gohit.xyz/)
+## 📋 Changelog
 
-## Changelog
-
-Following VS Code best practices, ATM uses semantic versioning for all releases.
+Following best practices, ATM adheres to strict semantic versioning for all updates and releases.
 
 <br>
 <!-- --- -->
