@@ -70,14 +70,15 @@ export function renderMinimalTooltip(
     // Audio - Simple indicator
     const muteIcon = context.isTerminalSoundEnabled ? '$(unmute)' : '$(mute)';
     const audioStatus = context.isTerminalSoundEnabled ? 'Mute' : 'Unmute';
+    const muteIconColor = context.isTerminalSoundEnabled ? '#888888' : '#4EC9B0';
 
     if (context.isTerminalSoundEnabled) {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#CE9178;">${currentAudio.icon} ${currentAudio.name}</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO}) &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon}](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus}")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#CE9178;">${currentAudio.icon} ${currentAudio.name}</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO}) &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus}")\n\n`
         );
     } else {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} (Silent) &nbsp; l &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon} Muted](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus}")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; l &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus}")\n\n`
         );
     }
 
