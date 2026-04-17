@@ -109,7 +109,10 @@ export function renderAdvancedTooltip(
 
     md.appendMarkdown('---\n\n');
 
-    // Quick Actions
+    // Quick Actions with GitHub link
+    md.appendMarkdown(
+        `[$(github) GitHub](https://github.com/bastndev/ATM "Open ATM repository") &nbsp; l &nbsp; `
+    );
     md.appendMarkdown(
         `[$(refresh) Refresh](command:${CONSTANTS.COMMANDS.REFRESH_TOOLS} "Reload all tools") &nbsp; l &nbsp; `
     );
