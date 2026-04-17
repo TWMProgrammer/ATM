@@ -18,7 +18,7 @@ export async function createFoldedDecorationType(): Promise<vscode.TextEditorDec
         iconPath = await Icons.generateScaledSVGDataURI();
     }
 
-    const defaultBg = "rgba(50, 150, 255, 0.15)"; // Soft blueish background across the pill
+    const defaultBg = "rgba(50, 150, 255, 0.05)"; // Soft blueish background across the pill
     const bgColor = Config.get<string>(Settings.FoldedTextBackgroundColor, defaultBg);
 
     return vscode.window.createTextEditorDecorationType({

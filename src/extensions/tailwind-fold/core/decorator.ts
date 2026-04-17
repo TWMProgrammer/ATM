@@ -8,7 +8,7 @@ import { StatusBar } from "../ui/status-bar";
 export class Decorator {
     activeEditor: vscode.TextEditor | undefined;
 
-    autoFold: boolean = false;
+    autoFold: boolean = true;
     unfoldIfLineSelected: boolean = false;
     supportedLanguages: string[] = [];
 
@@ -45,7 +45,7 @@ export class Decorator {
     }
 
     public async loadConfig() {
-        this.autoFold = Config.get<boolean>(Settings.AutoFold, false);
+        this.autoFold = Config.get<boolean>(Settings.AutoFold, true);
         this.unfoldIfLineSelected = Config.get<boolean>(Settings.UnfoldIfLineSelected, false);
         this.supportedLanguages = Config.get<string[]>(Settings.SupportedLanguages, ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"]);
 
