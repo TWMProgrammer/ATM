@@ -142,25 +142,53 @@ export class Decorator {
                 const lastQuoteMatch = text.match(/["'`](?=[^"'`]*$)/);
                 
                 if (lastQuoteMatch && lastQuoteMatch.index !== undefined) {
-                    // Position cursor just before the closing quote
-                    const cursorOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
-                    const cursorPosition = this.activeEditor.document.positionAt(cursorOffset);
+                    // Check if there's already a space before the closing quote
+                    const charBeforeQuote = lastQuoteMatch.index > 0 ? text[lastQuoteMatch.index - 1] : '';
+                    const needsSpace = charBeforeQuote !== ' ' && charBeforeQuote !== '\t';
                     
-                    // Set the cursor position
-                    this.activeEditor.selection = new vscode.Selection(cursorPosition, cursorPosition);
-                    
-                    // Reveal the cursor position
-                    this.activeEditor.revealRange(
-                        new vscode.Range(cursorPosition, cursorPosition),
-                        vscode.TextEditorRevealType.InCenterIfOutsideViewport
-                    );
+                    if (needsSpace) {
+                        // Insert a space before the closing quote
+                        const quoteOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
+                        const quotePosition = this.activeEditor.document.positionAt(quoteOffset);
+                        
+                        this.activeEditor.edit((editBuilder) => {
+                            editBuilder.insert(quotePosition, ' ');
+                        }).then(() => {
+                            // Position cursor after the inserted space
+                            const cursorPosition = this.activeEditor!.document.positionAt(quoteOffset + 1);
+                            this.activeEditor!.selection = new vscode.Selection(cursorPosition, cursorPosition);
+                            
+                            // Reveal the cursor position
+                            this.activeEditor!.revealRange(
+                                new vscode.Range(cursorPosition, cursorPosition),
+                                vscode.TextEditorRevealType.InCenterIfOutsideViewport
+                            );
+                            
+                            // Force update decorations to unfold
+                            this.updateDecorations();
+                        });
+                    } else {
+                        // Space already exists, just position cursor before the closing quote
+                        const cursorOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
+                        const cursorPosition = this.activeEditor.document.positionAt(cursorOffset);
+                        
+                        this.activeEditor.selection = new vscode.Selection(cursorPosition, cursorPosition);
+                        
+                        // Reveal the cursor position
+                        this.activeEditor.revealRange(
+                            new vscode.Range(cursorPosition, cursorPosition),
+                            vscode.TextEditorRevealType.InCenterIfOutsideViewport
+                        );
+                        
+                        // Force update decorations to unfold
+                        this.updateDecorations();
+                    }
                 } else {
                     // Fallback: position at the end of the range
                     this.activeEditor.selection = new vscode.Selection(range.end, range.end);
+                    this.updateDecorations();
                 }
                 
-                // Force update decorations to unfold
-                this.updateDecorations();
                 break;
             }
         }
