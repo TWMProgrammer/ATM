@@ -4,7 +4,7 @@ export class Parser {
     static regEx = /(?:class|className|:class|\[ngClass\]|class:list)(?:=|:|:\s)((({\s*?.*?\()([\s\S]*?)(\)\s*?}))|(({?\s*?(['"`]))([\s\S]*?)(\8|\9\s*?})))/g;
     
     static regExGroupsAll = [0];
-    static regExGroupsQuotes = [5, 10];
+    static regExGroupsQuotes = [4, 9];
     
     static getMatches(text: string, foldStyle: "ALL" | "QUOTES") {
         const matches: { start: number, length: number, textToFold: string }[] = [];

@@ -100,7 +100,7 @@ export class Decorator {
 
         for (const cache of this.cachedMatches) {
             const range = cache.range;
-            const textLength = range.end.character - range.start.character; // simple approximation
+            const textLength = this.activeEditor.document.offsetAt(range.end) - this.activeEditor.document.offsetAt(range.start);
 
             if (
                 !this.autoFold ||
@@ -125,8 +125,7 @@ export class Decorator {
 
     private isRangeSelected(range: vscode.Range): boolean {
         return !!(
-            this.activeEditor!.selection.contains(range) ||
-            this.activeEditor!.selections.find((s) => range.contains(s))
+            this.activeEditor!.selections.find((s) => s.intersection(range) !== undefined)
         );
     }
 
