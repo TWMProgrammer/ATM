@@ -83,70 +83,105 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 ---
 
 ## [1.8.0] - 2026-04-06
+### Added
+- **ESLint LSP**: Brought Astro support to the ESLint client document selector and implemented Code Actions.
+- **Client/Server ESLint Architecture**: Built the initial build configuration and established client-server communication via a robust LSP setup.
+- **AI Data ID**: Added model basket aggregation for more accurate credit consumption tracking.
+
 ### Improved
-- Core logic update and presentation fixes.
+- **Translate Doc**: Added progressive opacity fade-out to the UI, improved translation caching with hash keys and size limits, and fixed a release-notes memory leak.
+- **Music View**: Redesigned skeleton loading UI for dynamic layout representations.
 
 ---
 
 ## [1.7.0] - 2026-04-06
 ### Added
-- Feature updates and performance optimization patches.
+- **Multi-language Support**: Added translations for `RU`, `PO`, `FR`, and `DE` along with new NLS dictionaries for complete UI coverage. 
+- **Translate Doc Features**: Added translation abort support, TTS feedback badges, localized media hints, and support for additional languages in the Quick Pick menu.
+
+### Improved
+- **Notifications**: Polished notification deletion interactions.
+- **I18n Architecture**: Massively refactored to internationalize extension commands and views using NLS localization keys.
 
 ---
 
 ## [1.6.0] - 2026-04-06
 ### Improved
-- Settings: Adjusted internal configurations.
+- **Iconography**: Redesigned warning icons (e.g., "20% AI data left").
+- **Performace**: Stripped unused event activations from the `package.json` map.
 
 ---
 
 ## [1.5.5] - 2026-04-05
+### Added
+- **Music UI**: Added an animated music icon to the radio tab button inside the Quick Access menu.
+
 ### Improved
-- Further refined behaviors and visual changes.
+- **Focus UI**: Enhanced overall aesthetics with typography tweaks, better tab padding, and customized cursor pointers for music states. Re-balanced the ATM-time display glow, and introduced dynamic playback state animations.
 
 ---
 
 ## [1.5.1] - 2026-04-05
 ### Added
-- **Code Spell**: Updated custom spellcheck words.
-- **Marketplace**: Reordered extension categories.
+- **Streams**: Added and updated several stream URLs for global AM stations, including Singapore and Mexico.
+- **Local Stats Tracking**: Replaced GitHub streak calculation with local daily coding streak state management.
+
+### Improved
+- **TTS Logic**: Prioritized focused UI element selection over text editor selection during voice invocation.
+- **Bento UI**: Refreshed UI elements around streak tracking, renaming default placeholder strings, and ensuring transparent themes mirror VS Code environment vars.
 
 ---
 
 ## [1.4.0] - 2026-04-03
+### Added
+- **Comments Code**: Added dynamic gutter icons to comment decorators. Supported styling for specific tag detection patterns (like TODO, FIXME, MARK) and whole-line highlighting with dynamic background generation.
+- **Screenshot Code**: Enhanced the screenshot panel with new logic and better CSS layouts. Included ATM brand footers to outputs.
+
 ### Improved
-- Internal architecture optimizations.
+- **Image Validation**: Hardened validation logic filtering non-data URIs securely.
+- **Split Views**: Guarded against file operation collisions to prevent interference during split-view rename actions.
 
 ---
 
 ## [1.3.0] - 2026-04-02
+### Added
+- **Github Bento UI**: Implemented a dynamic heatmap grid rendering with month labels and optimized scrolling behaviors.
+- **Performance**: Built a memory cache for data providers to heavily optimize the UI rendering path. Updates now happen via dynamic DOM repaints instead of complete webview reloads.
+
 ### Improved
-- **Internationalization (i18n)**: Changed display name to "ᐱ T ꓟ" across locales and implemented NLS keys for translations.
-- Core: Comprehensive update covering commands and views.
+- **Music Visualization**: Swapped out static glow orbs with interactive, frame-driven audio wave animations under the music player.
+- **API Reuse**: Prevented webview crashes by securely reusing existing `vscode` API instances from window bounds.
 
 ---
 
 ## [1.2.6] - 2026-03-31
 ### Improved
-- General optimization updates.
+- **Screenshot**: Further centralized VS Code API access points across modules for better stability.
 
 ---
 
 ## [1.2.5] - 2026-03-31
 ### Improved
-- **Dependencies**: Removed `NeteaseCloudMusicApi` dependency to optimize bundle.
+- **Dependencies**: Excluded bloated dependencies from compilation (like `NeteaseCloudMusicApi`), switching strategies for lazy loading instead to drastically decrease the extension bundle load speed.
 
 ---
 
 ## [1.2.3] - 2026-03-31
+### Added
+- **Pomodoro Timer**: Introduced Pomodoro functionalities right into the native extension state! Includes UI connections.
+
 ### Improved
-- **Config**: Removed source file exclusion patterns from `.vscodeignore`.
+- **Git Blame**: Hardened Git blame functionality with filters explicitly checking for nested error boundaries.
 
 ---
 
 ## [1.2.2] - 2026-03-31
 ### Added
-- **Screenshot Code**: Implemented ready-state validation for screenshot download button.
+- **Markdown Tools**: Created Markdown image icon providers. Introduced full autocomplete enhancements and better caching behaviors.
+
+### Improved
+- **Hover Definitions**: Changed mapped loops to execute sequentially on native components to prevent async collisions during path resolutions inside Hover providers.
+- **Decorations**: Optimized decorators by grouping gutters into distinct rendering passes, solving UI tearing during tab switching.
 
 ---
 ## [1.1.2] - 2025-03-17
