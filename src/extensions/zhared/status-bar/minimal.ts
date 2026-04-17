@@ -68,7 +68,7 @@ export function renderMinimalTooltip(
     md.appendMarkdown(`**Layout:** &nbsp; ${normalItem} &nbsp; $(chevron-right) &nbsp; ${proItem}\n\n`);
 
     // Audio - Simple indicator
-    const muteIcon = context.isTerminalSoundEnabled ? '$(unmute)' : '$(mute)';
+    const muteIcon = context.isTerminalSoundEnabled ? '$(mute)' : '$(unmute)';
     const audioStatus = context.isTerminalSoundEnabled ? 'Mute' : 'Unmute';
     const muteIconColor = context.isTerminalSoundEnabled ? '#888888' : '#4EC9B0';
 
