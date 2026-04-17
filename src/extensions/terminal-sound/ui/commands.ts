@@ -11,7 +11,7 @@ export function registerCommands(
 ): void {
   // Test sound command
   const testCommand = vscode.commands.registerCommand(
-    'faah.testSound',
+    'terminalSound.testSound',
     async () => {
       outputChannel.appendLine('Test sound command triggered');
       const config = getSoundConfig();
@@ -22,27 +22,27 @@ export function registerCommands(
 
   // Toggle enable/disable command
   const toggleCommand = vscode.commands.registerCommand(
-    'faah.toggle',
+    'terminalSound.toggle',
     async () => {
-      const config = vscode.workspace.getConfiguration('faah');
+      const config = vscode.workspace.getConfiguration('terminalSound');
       const current = config.get<boolean>('enabled', true);
       await config.update('enabled', !current, vscode.ConfigurationTarget.Global);
 
       const status = !current ? 'Enabled' : 'Disabled';
-      vscode.window.showInformationMessage(`FAAH: ${status}`);
+      vscode.window.showInformationMessage(`Terminal Sound: ${status}`);
       outputChannel.appendLine(`Extension ${status.toLowerCase()} by user`);
     }
   );
 
   context.subscriptions.push(testCommand, toggleCommand);
-  outputChannel.appendLine('Commands registered: faah.testSound, faah.toggle');
+  outputChannel.appendLine('Commands registered: terminalSound.testSound, terminalSound.toggle');
 }
 
 /**
  * Get sound player configuration from VSCode settings
  */
 function getSoundConfig(): SoundPlayerConfig {
-  const config = vscode.workspace.getConfiguration('faah');
+  const config = vscode.workspace.getConfiguration('terminalSound');
   return {
     customSoundPath: config.get<string>('customSoundPath'),
     volume: config.get<number>('volume', 1.0)

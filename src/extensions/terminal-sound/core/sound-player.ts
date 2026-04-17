@@ -104,7 +104,7 @@ export class SoundPlayer {
       return defaultMp3Path;
     }
 
-    this.outputChannel.appendLine('No bundled FAAH sound file found in expected locations');
+    this.outputChannel.appendLine('No bundled Terminal Sound file found in expected locations');
     return undefined;
   }
 
@@ -113,9 +113,9 @@ export class SoundPlayer {
    */
   private resolveBundledSoundPath(fileName: string): string | undefined {
     const candidates = [
-      path.join(this.context.extensionPath, 'src', 'extensions', 'faah', 'sound', fileName),
-      path.join(this.context.extensionPath, 'dist', 'extensions', 'faah', 'sound', fileName),
-      path.join(this.context.extensionPath, 'dist', 'faah', 'sound', fileName),
+      path.join(this.context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', fileName),
+      path.join(this.context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', fileName),
+      path.join(this.context.extensionPath, 'dist', 'terminal-sound', 'sound', fileName),
       path.join(this.context.extensionPath, 'sound', fileName)
     ];
 

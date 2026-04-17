@@ -8,9 +8,9 @@ src/**
 !src/**/*.svg
 !src/**/*.png
 !src/**/*.json
-!src/extensions/faah/
-!src/extensions/faah/sound/
-!src/extensions/faah/sound/**
+!src/extensions/terminal-sound/
+!src/extensions/terminal-sound/sound/
+!src/extensions/terminal-sound/sound/**
 !src/**/*.tmLanguage
 .gitignore
 .yarnrc

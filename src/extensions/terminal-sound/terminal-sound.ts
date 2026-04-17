@@ -8,18 +8,18 @@ import { registerCommands } from './ui/commands';
  */
 export function activate(context: vscode.ExtensionContext): void {
   // Create output channel for logging
-  const outputChannel = vscode.window.createOutputChannel('FAAH');
+  const outputChannel = vscode.window.createOutputChannel('Terminal Sound');
   context.subscriptions.push(outputChannel);
 
   outputChannel.appendLine('=================================');
-  outputChannel.appendLine('FAAH Extension Activated');
+  outputChannel.appendLine('Terminal Sound Extension Activated');
   outputChannel.appendLine('=================================');
 
   // Check if Terminal Shell Integration API is available
   if (!vscode.window.onDidEndTerminalShellExecution) {
     const msg = 'Terminal shell integration API unavailable. Please update VS Code and ensure shell integration is enabled.';
     outputChannel.appendLine(`ERROR: ${msg}`);
-    vscode.window.showWarningMessage(`FAAH: ${msg}`);
+    vscode.window.showWarningMessage(`Terminal Sound: ${msg}`);
     return;
   }
 
@@ -50,11 +50,11 @@ export function activate(context: vscode.ExtensionContext): void {
     });
 
     outputChannel.appendLine('=================================');
-    outputChannel.appendLine('FAAH Extension Ready!');
+    outputChannel.appendLine('Terminal Sound Extension Ready!');
     outputChannel.appendLine('=================================');
   } catch (error) {
     outputChannel.appendLine(`FATAL ERROR: ${error}`);
-    vscode.window.showErrorMessage(`FAAH: Failed to activate - ${error}`);
+    vscode.window.showErrorMessage(`Terminal Sound: Failed to activate - ${error}`);
   }
 }
 

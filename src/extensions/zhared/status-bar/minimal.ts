@@ -7,7 +7,7 @@ import {
     organizeToolsByCategory,
     escapeMarkdown,
     applyLayout,
-    cycleFaahAudio
+    cycleTerminalSoundAudio
 } from './utils';
 
 /**
@@ -24,7 +24,7 @@ export function renderMinimalTooltip(
     md.supportHtml = true;
 
     const stats = getToolStats();
-    const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[context.currentFaahAudioIndex];
+    const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex];
 
     // Simple header
     md.appendMarkdown('### **ATM**\n\n');
@@ -72,16 +72,16 @@ export function renderMinimalTooltip(
     md.appendMarkdown(`**Layout:** &nbsp; ${normalItem} &nbsp; $(chevron-right) &nbsp; ${proItem}\n\n`);
 
     // Audio - Simple indicator
-    const muteIcon = context.isFaahEnabled ? '$(unmute)' : '$(mute)';
-    const audioStatus = context.isFaahEnabled ? 'Mute' : 'Unmute';
+    const muteIcon = context.isTerminalSoundEnabled ? '$(unmute)' : '$(mute)';
+    const audioStatus = context.isTerminalSoundEnabled ? 'Mute' : 'Unmute';
 
-    if (context.isFaahEnabled) {
+    if (context.isTerminalSoundEnabled) {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; $(chevron-right) &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO}) &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon}](command:${CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE} "${audioStatus}")\n\n`
+            `**T-Sound:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_CYCLE_AUDIO}) &nbsp; $(chevron-right) &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO}) &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon}](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus}")\n\n`
         );
     } else {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; $(chevron-right) &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon} Muted](command:${CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE} "${audioStatus}")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; $(chevron-right) &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon} Muted](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus}")\n\n`
         );
     }
 
@@ -149,15 +149,15 @@ export async function showMinimalQuickMenu(context: RenderContext): Promise<void
     items.push({ label: '$(unmute) Error Audio', kind: vscode.QuickPickItemKind.Separator });
     
     items.push({
-        label: context.isFaahEnabled ? '$(mute) Mute' : '$(unmute) Unmute',
-        description: context.isFaahEnabled ? 'Silence errors' : 'Enable errors',
+        label: context.isTerminalSoundEnabled ? '$(mute) Mute' : '$(unmute) Unmute',
+        description: context.isTerminalSoundEnabled ? 'Silence errors' : 'Enable errors',
         alwaysShow: true
     });
 
-    if (context.isFaahEnabled) {
-        for (let i = 0; i < CONSTANTS.FAAH_AUDIO_OPTIONS.length; i++) {
-            const audio = CONSTANTS.FAAH_AUDIO_OPTIONS[i];
-            const isActive = i === context.currentFaahAudioIndex;
+    if (context.isTerminalSoundEnabled) {
+        for (let i = 0; i < CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.length; i++) {
+            const audio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[i];
+            const isActive = i === context.currentTerminalSoundAudioIndex;
             items.push({
                 label: isActive ? `$(pass-filled) ${audio.icon} ${audio.name}` : `$(circle-outline) ${audio.icon} ${audio.name}`,
                 description: isActive ? 'Active' : '',
@@ -166,7 +166,7 @@ export async function showMinimalQuickMenu(context: RenderContext): Promise<void
         }
         items.push({
             label: `$(play) Test Audio`,
-            description: `Preview ${CONSTANTS.FAAH_AUDIO_OPTIONS[context.currentFaahAudioIndex].name}`,
+            description: `Preview ${CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex].name}`,
             alwaysShow: true
         });
     }
@@ -242,17 +242,17 @@ async function handleMinimalSelection(
         }
         // Audio
         else if (selected.label.includes('Test Audio')) {
-            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.FAAH_TEST_AUDIO);
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO);
         } else if (selected.label.includes('Mute') || selected.label.includes('Unmute')) {
-            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE);
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE);
         } else if (selected.detail?.includes('Error audio theme:') || 
                    (selected.label.match(/Faah|ACK|Fatality|Windows/) && !selected.label.includes('Test'))) {
             const audioName = selected.label.replace(/\$\([^)]+\)\s*/g, '').trim();
-            const audioOption = CONSTANTS.FAAH_AUDIO_OPTIONS.find(a => a.name === audioName);
+            const audioOption = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.find((a: any) => a.name === audioName);
             if (audioOption) {
-                const audioIndex = CONSTANTS.FAAH_AUDIO_OPTIONS.indexOf(audioOption);
-                if (audioIndex !== context.currentFaahAudioIndex) {
-                    await cycleFaahAudio();
+                const audioIndex = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.indexOf(audioOption);
+                if (audioIndex !== context.currentTerminalSoundAudioIndex) {
+                    await cycleTerminalSoundAudio();
                 }
             }
         }

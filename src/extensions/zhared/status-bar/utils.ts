@@ -38,9 +38,9 @@ export interface ToolStats {
 }
 
 /**
- * FAAH Audio configuration
+ * Terminal Sound Audio configuration
  */
-export interface FaahAudioOption {
+export interface TerminalSoundAudioOption {
     readonly id: string;
     readonly name: string;
     readonly fileName: string;
@@ -53,8 +53,8 @@ export interface FaahAudioOption {
 export interface RenderContext {
     toolRegistry: Map<string, ToolState>;
     isPro: boolean;
-    currentFaahAudioIndex: number;
-    isFaahEnabled: boolean;
+    currentTerminalSoundAudioIndex: number;
+    isTerminalSoundEnabled: boolean;
     extensionContext: vscode.ExtensionContext;
 }
 
@@ -69,9 +69,9 @@ export const CONSTANTS = {
         LAYOUT_PRO: 'atm.layout.pro',
         TOGGLE_COMPACT: 'atm.toggleCompactMode',
         REFRESH_TOOLS: 'atm.refreshTools',
-        FAAH_CYCLE_AUDIO: 'atm.faah.cycleAudio',
-        FAAH_TEST_AUDIO: 'atm.faah.testAudio',
-        FAAH_TOGGLE_MUTE: 'atm.faah.toggleMute'
+        TERMINAL_SOUND_CYCLE_AUDIO: 'atm.terminalSound.cycleAudio',
+        TERMINAL_SOUND_TEST_AUDIO: 'atm.terminalSound.testAudio',
+        TERMINAL_SOUND_TOGGLE_MUTE: 'atm.terminalSound.toggleMute'
     },
     LAYOUTS: {
         NORMAL: { 
@@ -87,12 +87,12 @@ export const CONSTANTS = {
             description: 'Optimized for wide screens with top activity bar'
         } as LayoutConfig
     },
-    FAAH_AUDIO_OPTIONS: [
+    TERMINAL_SOUND_AUDIO_OPTIONS: [
         { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(megaphone)' },
         { id: 'ack', name: 'ACK', fileName: 'ack.wav', icon: '$(pulse)' },
         { id: 'fatality', name: 'Fatality', fileName: 'fatality.wav', icon: '$(flame)' },
         { id: 'windows', name: 'Windows', fileName: 'windows.wav', icon: '$(window)' }
-    ] as FaahAudioOption[],
+    ] as TerminalSoundAudioOption[],
     CATEGORIES: {
         productivity: { icon: '$(rocket)', label: 'Productivity' },
         debugging: { icon: '$(bug)', label: 'Debugging' },
@@ -107,7 +107,7 @@ let globalStatusBarItem: vscode.StatusBarItem | undefined;
 let renderDebounceTimer: NodeJS.Timeout | undefined;
 let isCompactMode = false;
 let lastRenderedHash: string | undefined;
-let currentFaahAudioIndex = 0;
+let currentTerminalSoundAudioIndex = 0;
 let extensionContext: vscode.ExtensionContext;
 
 export const toolRegistry = new Map<string, ToolState>();
@@ -137,7 +137,7 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
 
         // Load preferences
         isCompactMode = context.globalState.get('atm.compactMode', false);
-        currentFaahAudioIndex = context.globalState.get('atm.faah.audioIndex', 0);
+        currentTerminalSoundAudioIndex = context.globalState.get('atm.terminalSound.audioIndex', 0);
 
         // Register commands
         registerCommands(context);
@@ -172,9 +172,9 @@ function registerCommands(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.LAYOUT_PRO, () => applyLayout(CONSTANTS.LAYOUTS.PRO)),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT, toggleCompactMode),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS, handleRefreshTools),
-        vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO, cycleFaahAudio),
-        vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_TEST_AUDIO, testFaahAudio),
-        vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE, toggleFaahMute)
+        vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_CYCLE_AUDIO, cycleTerminalSoundAudio),
+        vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO, testTerminalSoundAudio),
+        vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE, toggleTerminalSoundMute)
     );
 }
 
@@ -318,18 +318,18 @@ async function toggleCompactMode(): Promise<void> {
 }
 
 /**
- * Cycles through FAAH audio options
+ * Cycles through Terminal Sound audio options
  */
-export async function cycleFaahAudio(): Promise<void> {
-    const previousAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
-    currentFaahAudioIndex = (currentFaahAudioIndex + 1) % CONSTANTS.FAAH_AUDIO_OPTIONS.length;
+export async function cycleTerminalSoundAudio(): Promise<void> {
+    const previousAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
+    currentTerminalSoundAudioIndex = (currentTerminalSoundAudioIndex + 1) % CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.length;
     
-    await extensionContext.globalState.update('atm.faah.audioIndex', currentFaahAudioIndex);
+    await extensionContext.globalState.update('atm.terminalSound.audioIndex', currentTerminalSoundAudioIndex);
     
-    const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
-    const faahConfig = vscode.workspace.getConfiguration('faah');
-    const fullPath = resolveBundledFaahAudioPath(currentAudio.fileName, extensionContext);
-    await faahConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
+    const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
+    const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
+    const fullPath = resolveBundledTerminalSoundAudioPath(currentAudio.fileName, extensionContext);
+    await terminalSoundConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
     
     scheduleRender();
     
@@ -344,27 +344,27 @@ export async function cycleFaahAudio(): Promise<void> {
     });
     
     vscode.window.showInformationMessage(`✓ Error Audio: ${previousAudio.name} → ${currentAudio.name}`);
-    console.log(`[ATM] FAAH audio changed: ${previousAudio.name} → ${currentAudio.name}`);
+    console.log(`[ATM] Terminal Sound audio changed: ${previousAudio.name} → ${currentAudio.name}`);
 }
 
 /**
- * Tests the current FAAH audio
+ * Tests the current Terminal Sound audio
  */
-async function testFaahAudio(): Promise<void> {
+async function testTerminalSoundAudio(): Promise<void> {
     try {
-        await vscode.commands.executeCommand('faah.testSound');
-        console.log('[ATM] FAAH audio test triggered');
+        await vscode.commands.executeCommand('terminalSound.testSound');
+        console.log('[ATM] Terminal Sound audio test triggered');
     } catch (error) {
-        console.error('[ATM] Failed to test FAAH audio:', error);
-        vscode.window.showWarningMessage('Could not test audio. Make sure FAAH extension is active.');
+        console.error('[ATM] Failed to test Terminal Sound audio:', error);
+        vscode.window.showWarningMessage('Could not test audio. Make sure Terminal Sound extension is active.');
     }
 }
 
 /**
- * Toggles FAAH mute state directly
+ * Toggles Terminal Sound mute state directly
  */
-async function toggleFaahMute(): Promise<void> {
-    const config = vscode.workspace.getConfiguration('faah');
+async function toggleTerminalSoundMute(): Promise<void> {
+    const config = vscode.workspace.getConfiguration('terminalSound');
     const isCurrentlyEnabled = config.get<boolean>('enabled', true);
     await config.update('enabled', !isCurrentlyEnabled, vscode.ConfigurationTarget.Global);
     scheduleRender();
@@ -434,43 +434,43 @@ function renderHoverUI(): void {
 }
 
 /**
- * Gets the current FAAH audio configuration
+ * Gets the current Terminal Sound audio configuration
  */
-export function getCurrentFaahAudio(): FaahAudioOption {
-    return CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
+export function getCurrentTerminalSoundAudio(): TerminalSoundAudioOption {
+    return CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
 }
 
 /**
- * Sets the FAAH audio by ID
+ * Sets the Terminal Sound audio by ID
  */
-export async function setFaahAudio(audioId: string, context: vscode.ExtensionContext): Promise<boolean> {
-    const audioIndex = CONSTANTS.FAAH_AUDIO_OPTIONS.findIndex(audio => audio.id === audioId);
+export async function setTerminalSoundAudio(audioId: string, context: vscode.ExtensionContext): Promise<boolean> {
+    const audioIndex = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.findIndex(audio => audio.id === audioId);
     if (audioIndex === -1) {
-        console.warn(`[ATM] Invalid FAAH audio ID: ${audioId}`);
+        console.warn(`[ATM] Invalid Terminal Sound audio ID: ${audioId}`);
         return false;
     }
     
-    currentFaahAudioIndex = audioIndex;
-    await context.globalState.update('atm.faah.audioIndex', currentFaahAudioIndex);
+    currentTerminalSoundAudioIndex = audioIndex;
+    await context.globalState.update('atm.terminalSound.audioIndex', currentTerminalSoundAudioIndex);
     
-    const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
-    const faahConfig = vscode.workspace.getConfiguration('faah');
-    const fullPath = resolveBundledFaahAudioPath(currentAudio.fileName, context);
-    await faahConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
+    const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
+    const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
+    const fullPath = resolveBundledTerminalSoundAudioPath(currentAudio.fileName, context);
+    await terminalSoundConfig.update('customSoundPath', fullPath, vscode.ConfigurationTarget.Global);
     
     scheduleRender();
-    console.log(`[ATM] FAAH audio set to: ${currentAudio.name}`);
+    console.log(`[ATM] Terminal Sound audio set to: ${currentAudio.name}`);
     return true;
 }
 
 /**
- * Resolves FAAH bundled audio from known extension locations
+ * Resolves Terminal Sound bundled audio from known extension locations
  */
-function resolveBundledFaahAudioPath(fileName: string, context: vscode.ExtensionContext): string {
+function resolveBundledTerminalSoundAudioPath(fileName: string, context: vscode.ExtensionContext): string {
     const candidates = [
-        path.join(context.extensionPath, 'src', 'extensions', 'faah', 'sound', fileName),
-        path.join(context.extensionPath, 'dist', 'extensions', 'faah', 'sound', fileName),
-        path.join(context.extensionPath, 'dist', 'faah', 'sound', fileName),
+        path.join(context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', fileName),
+        path.join(context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', fileName),
+        path.join(context.extensionPath, 'dist', 'terminal-sound', 'sound', fileName),
         path.join(context.extensionPath, 'sound', fileName)
     ];
 
@@ -495,7 +495,7 @@ export function deactivateGlobalStatusBar(): void {
     toolRegistry.clear();
     lastRenderedHash = undefined;
     isCompactMode = false;
-    currentFaahAudioIndex = 0;
+    currentTerminalSoundAudioIndex = 0;
     
     if (globalStatusBarItem) {
         globalStatusBarItem.dispose();
@@ -592,10 +592,10 @@ export function organizeToolsByCategory(): Map<string, ToolState[]> {
  */
 function generateStateHash(): string {
     const isPro = checkIsPro();
-    const faahConfig = vscode.workspace.getConfiguration('faah');
-    const isFaahEnabled = faahConfig.get<boolean>('enabled', true);
+    const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
+    const isTerminalSoundEnabled = terminalSoundConfig.get<boolean>('enabled', true);
     const toolIds = Array.from(toolRegistry.keys()).sort().join(',');
-    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentFaahAudioIndex}:${isFaahEnabled}`;
+    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentTerminalSoundAudioIndex}:${isTerminalSoundEnabled}`;
 }
 
 /**
@@ -609,13 +609,13 @@ export function escapeMarkdown(text: string): string {
  * Gets the render context for minimal/advanced modes
  */
 function getRenderContext(): RenderContext {
-    const faahConfig = vscode.workspace.getConfiguration('faah');
-    const isFaahEnabled = faahConfig.get<boolean>('enabled', true);
+    const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
+    const isTerminalSoundEnabled = terminalSoundConfig.get<boolean>('enabled', true);
     return {
         toolRegistry,
         isPro: checkIsPro(),
-        currentFaahAudioIndex,
-        isFaahEnabled,
+        currentTerminalSoundAudioIndex,
+        isTerminalSoundEnabled,
         extensionContext
     };
 }

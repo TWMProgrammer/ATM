@@ -174,12 +174,12 @@
         "title": "%command.music.playRandomAM%"
       },
       {
-        "command": "faah.testSound",
-        "title": "FAAH: Test Sound"
+        "command": "terminalSound.testSound",
+        "title": "Terminal Sound: Test Sound"
       },
       {
-        "command": "faah.toggle",
-        "title": "FAAH: Toggle Enable/Disable"
+        "command": "terminalSound.toggle",
+        "title": "Terminal Sound: Toggle Enable/Disable"
       }
     ],
     "configuration": {
@@ -335,24 +335,24 @@
           "default": "",
           "description": "YouTube V3 API Key for ATM Music Search"
         },
-        "faah.enabled": {
+        "terminalSound.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable terminal error sound notifications"
         },
-        "faah.debounceMs": {
+        "terminalSound.debounceMs": {
           "type": "number",
           "default": 1500,
           "minimum": 0,
           "maximum": 10000,
           "description": "Debounce time in milliseconds (per terminal)"
         },
-        "faah.customSoundPath": {
+        "terminalSound.customSoundPath": {
           "type": "string",
           "default": "",
           "description": "Path to custom sound file (MP3, WAV, OGG). Leave empty to use default sound."
         },
-        "faah.volume": {
+        "terminalSound.volume": {
           "type": "number",
           "default": 1.0,
           "minimum": 0.0,

@@ -19,7 +19,7 @@ import { activateMarkdownImageIcons } from './markdown-md/icons-images';
 import { activateFocus } from './focus/focus';
 import { activateLint } from './atm-lint/lint';
 import { activateGlobalStatusBar } from './zhared/zhared';
-import { activate as activateFaah } from './faah/faah';
+import { activate as activateTerminalSound } from './terminal-sound/terminal-sound';
 import { activateTailwindFold } from './tailwind-fold/tailwind-fold';
 
 /**
@@ -51,7 +51,7 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateMarkdownImageIcons(context);
   activateFocus(context);
   activateLint(context);
-  activateFaah(context);
+  activateTerminalSound(context);
   activateTailwindFold(context).catch((error) => {
     console.error('[tailwind-fold] Activation error:', error);
   });
