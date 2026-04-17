@@ -703,7 +703,7 @@ function renderHoverUI(): void {
 
         // FAAH Audio Section
         const currentAudio = CONSTANTS.FAAH_AUDIO_OPTIONS[currentFaahAudioIndex];
-        md.appendMarkdown(`**Error Audio:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; | &nbsp; [$(unmute)](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO})\n\n`);
+        md.appendMarkdown(`**Error Audio:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; | &nbsp; [$(play)](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO})\n\n`);
         
         if (!isCompactMode) {
             // Removed the description text as requested
