@@ -77,11 +77,11 @@ export function renderMinimalTooltip(
 
     if (context.isFaahEnabled) {
         md.appendMarkdown(
-            `**Error Audio:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; $(chevron-right) &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO}) &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon}](command:${CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE} "${audioStatus}")\n\n`
+            `**T-Sound:** &nbsp; [${currentAudio.icon} ${currentAudio.name}](command:${CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO}) &nbsp; $(chevron-right) &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.FAAH_TEST_AUDIO}) &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon}](command:${CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE} "${audioStatus}")\n\n`
         );
     } else {
         md.appendMarkdown(
-            `**Error Audio:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; $(chevron-right) &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon} Muted](command:${CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE} "${audioStatus}")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; $(chevron-right) &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [${muteIcon} Muted](command:${CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE} "${audioStatus}")\n\n`
         );
     }
 
