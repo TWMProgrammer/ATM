@@ -21,11 +21,11 @@ export class TailwindFoldHoverProvider implements vscode.HoverProvider {
                 const splitIndex = matchQuote ? matchQuote.index : -1;
 
                 if (splitIndex !== undefined && splitIndex > 0) {
-                    const attr = text.substring(0, splitIndex);
+                    const attr = text.substring(0, splitIndex).trim();
                     const classes = text.substring(splitIndex);
                     
-                    // Formato Markdown nativo sin espacio entre el atributo y el código
-                    md.appendMarkdown(`**${attr}**\`${classes}\``);
+                    md.supportHtml = true;
+                    md.appendMarkdown(`<code><span style="color: var(--vscode-textLink-foreground);"><b>${attr}</b></span>${classes}</code>`);
                 } else {
                     md.appendCodeblock(text, "html");
                 }
