@@ -8,7 +8,7 @@ import {
     escapeMarkdown,
     applyLayout,
     cycleFaahAudio
-} from './status-bar';
+} from './utils';
 
 /**
  * Renders the advanced tooltip for the status bar

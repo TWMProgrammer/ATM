@@ -4,4 +4,4 @@ export {
     updateToolState,
     removeToolState,
     type ToolState 
-} from './status-bar/status-bar';
+} from './status-bar/utils';
