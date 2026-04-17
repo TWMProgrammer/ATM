@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { defaultTags, CommentTag } from '../ui/styles';
 import { Decorator } from '../ui/decorator';
 import { getLanguageConfig, LanguageConfig } from './languages';
+import { shouldExcludeDocument } from './ignore';
 
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -153,6 +154,16 @@ export class CommentsCodeController {
   private updateDecorations(document: vscode.TextDocument) {
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor || activeEditor.document !== document) {
+      return;
+    }
+
+    if (shouldExcludeDocument(document)) {
+      this.lineCache.clear();
+      this.cachedDocUri = '';
+      this.decorator.applyDecorations(
+        activeEditor,
+        new Map<string, vscode.DecorationOptions[]>(),
+      );
       return;
     }
 
