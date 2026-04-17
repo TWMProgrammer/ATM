@@ -854,11 +854,12 @@ function renderHoverUI(): void {
             ? 'All systems operational' 
             : 'Awaiting tool activation';
 
-        // In compact mode, add expand button with better positioning
+        // In compact mode, add expand button on the same line, aligned right
         if (isCompactMode) {
+            // Use non-breaking spaces to push the icon to the right
+            const spacing = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             md.appendMarkdown(
-                `<sub><span style="color:${statusColor};">${statusIcon} ${statusText}</span></sub>\n\n` +
-                `[$(unfold) Expand](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Show detailed view")`
+                `<sub><span style="color:${statusColor};">${statusIcon} ${statusText}</span></sub>${spacing}[$(unfold)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Show detailed view")`
             );
         } else {
             md.appendMarkdown(
