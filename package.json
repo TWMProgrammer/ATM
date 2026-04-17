@@ -419,11 +419,13 @@
     "keybindings": [
       {
         "command": "atm.voiceTts.copyAndRead",
-        "key": "shift+space"
+        "key": "shift+space",
+        "mac": "cmd+shift+space"
       },
       {
         "command": "atm.voiceTts.selectVoice",
-        "key": "shift+alt+space"
+        "key": "shift+alt+space",
+        "mac": "cmd+shift+alt+space"
       },
       {
         "command": "atm.translate-doc.translateExtension",
