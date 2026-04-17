@@ -175,12 +175,7 @@ export function updateToolState(state: ToolState): void {
     
     if (isNewTool) {
         console.log(`[ATM] Tool registered: ${state.name} (${state.id})`);
-        
-        // Show subtle notification for new tool
-        vscode.window.showInformationMessage(
-            `$(check) ATM: ${state.icon} ${state.name} registered`,
-            { modal: false }
-        );
+        // Notification removed for cleaner UX
     } else {
         console.log(`[ATM] Tool updated: ${state.name} (${state.id})`);
         
@@ -844,7 +839,7 @@ function renderHoverUI(): void {
         // Quick Actions (only in expanded mode) - centered without header
         if (!isCompactMode) {
             md.appendMarkdown(
-                `[$(refresh) Refresh](command:${CONSTANTS.COMMANDS.REFRESH_TOOLS} "Reload all tools") &nbsp; $(chevron-right) &nbsp; `
+                `[$(refresh) Refresh](command:${CONSTANTS.COMMANDS.REFRESH_TOOLS} "Reload all tools") &nbsp; l &nbsp; `
             );
             md.appendMarkdown(
                 `[$(collapse-all) Compact](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Switch to compact mode")\n\n`
@@ -873,12 +868,8 @@ function renderHoverUI(): void {
 
         globalStatusBarItem.tooltip = md;
         
-        // Dynamic status bar text based on tool count
-        if (stats.totalTools > 0) {
-            globalStatusBarItem.text = `$(verified-filled) ATM (${stats.totalTools})`;
-        } else {
-            globalStatusBarItem.text = CONSTANTS.STATUS_BAR_TEXT;
-        }
+        // Status bar text - always simple without count
+        globalStatusBarItem.text = CONSTANTS.STATUS_BAR_TEXT;
 
         // Visual feedback for active tools with subtle animation effect
         if (toolRegistry.size > 0) {
