@@ -113,10 +113,10 @@ export class SoundPlayer {
    */
   private resolveBundledSoundPath(fileName: string): string | undefined {
     const candidates = [
-      path.join(this.context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', fileName),
-      path.join(this.context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', fileName),
-      path.join(this.context.extensionPath, 'dist', 'terminal-sound', 'sound', fileName),
-      path.join(this.context.extensionPath, 'sound', fileName)
+      path.join(this.context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', 'error', fileName),
+      path.join(this.context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', 'error', fileName),
+      path.join(this.context.extensionPath, 'dist', 'terminal-sound', 'sound', 'error', fileName),
+      path.join(this.context.extensionPath, 'sound', 'error', fileName)
     ];
 
     for (const candidate of candidates) {
