@@ -378,7 +378,7 @@ async function handleQuickPickSelection(selected: vscode.QuickPickItem): Promise
         // Handle quick actions
         else if (selected.label.includes('Refresh Tools')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS);
-            vscode.window.showInformationMessage('$(check) ATM: Tools refreshed successfully');
+            vscode.window.showInformationMessage('✓ ATM: Tools refreshed successfully');
         } else if (selected.label.includes('Compact Mode') || selected.label.includes('Expand Mode')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT);
         } 
@@ -447,7 +447,7 @@ async function applyLayout(layout: LayoutConfig): Promise<void> {
         scheduleRender();
         
         vscode.window.showInformationMessage(
-            `$(check) ${layout.displayName} activated — ${layout.description}`
+            `✓ ${layout.displayName} activated — ${layout.description}`
         );
         
         console.log(`[ATM] Layout applied: ${layout.displayName}`);
@@ -574,13 +574,13 @@ async function showToolInfo(tool: ToolState): Promise<void> {
     if (action === '$(play) Execute') {
         try {
             await vscode.commands.executeCommand(tool.command);
-            vscode.window.showInformationMessage(`$(check) Executed: ${tool.name}`);
+            vscode.window.showInformationMessage(`✓ Executed: ${tool.name}`);
         } catch (error) {
-            vscode.window.showErrorMessage(`$(error) Failed to execute: ${tool.name}`);
+            vscode.window.showErrorMessage(`✗ Failed to execute: ${tool.name}`);
         }
     } else if (action === '$(copy) Copy Command') {
         await vscode.env.clipboard.writeText(tool.command);
-        vscode.window.showInformationMessage(`$(check) Command copied to clipboard`);
+        vscode.window.showInformationMessage(`✓ Command copied to clipboard`);
     } else if (action === '$(info) More Info') {
         // Show extended info in output channel
         const outputChannel = vscode.window.createOutputChannel('ATM Tool Info');
@@ -631,7 +631,7 @@ async function toggleCompactMode(context: vscode.ExtensionContext): Promise<void
     });
     
     vscode.window.showInformationMessage(
-        `$(check) ATM: ${mode} mode — ${description}`
+        `✓ ATM: ${mode} mode — ${description}`
     );
     
     console.log(`[ATM] Display mode changed: ${previousMode ? 'Compact' : 'Expanded'} → ${mode}`);
@@ -676,7 +676,7 @@ async function cycleFaahAudio(context: vscode.ExtensionContext): Promise<void> {
     });
     
     vscode.window.showInformationMessage(
-        `$(check) Error Audio: ${previousAudio.name} → ${currentAudio.name}`
+        `✓ Error Audio: ${previousAudio.name} → ${currentAudio.name}`
     );
     
     console.log(`[ATM] FAAH audio changed: ${previousAudio.name} → ${currentAudio.name}`);
