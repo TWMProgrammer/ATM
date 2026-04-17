@@ -262,7 +262,14 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
         const targetIsPro = layout.sideBarLocation === 'right' && layout.activityBarLocation === 'top';
         
         if (currentIsPro === targetIsPro) {
-            vscode.window.showInformationMessage(`${layout.displayName} is already active`);
+            // Show brief notification for already active layout
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: `${layout.displayName} is already active`,
+                cancellable: false
+            }, async () => {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            });
             return;
         }
         
@@ -271,7 +278,16 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
         await config.update('activityBar.location', layout.activityBarLocation, vscode.ConfigurationTarget.Global);
 
         scheduleRender();
-        vscode.window.showInformationMessage(`${layout.displayName} activated`);
+        
+        // Show brief auto-dismissing notification
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `${layout.displayName} activated`,
+            cancellable: false
+        }, async () => {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        });
+        
         console.log(`[ATM] Layout applied: ${layout.displayName}`);
     } catch (error) {
         console.error('[ATM] Failed to apply layout:', error);
@@ -290,7 +306,15 @@ async function toggleCompactMode(): Promise<void> {
     
     const mode = isCompactMode ? 'Compact' : 'Expanded';
     
-    vscode.window.showInformationMessage(`ATM: ${mode} mode activated`);
+    // Show a brief auto-dismissing notification
+    await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: `ATM: ${mode} mode activated`,
+        cancellable: false
+    }, async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    });
+    
     console.log(`[ATM] Display mode changed: ${previousMode ? 'Compact' : 'Expanded'} → ${mode}`);
 }
 
@@ -310,10 +334,14 @@ export async function cycleTerminalSoundAudio(): Promise<void> {
     
     scheduleRender();
     
-    // Show a simple notification without icons
-    vscode.window.showInformationMessage(
-        `Audio: ${previousAudio.name} → ${currentAudio.name}`
-    );
+    // Show a brief auto-dismissing notification
+    await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: `Audio: ${previousAudio.name} → ${currentAudio.name}`,
+        cancellable: false
+    }, async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    });
     
     console.log(`[ATM] Terminal Sound audio changed: ${previousAudio.name} → ${currentAudio.name}`);
 }
