@@ -39,27 +39,46 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 ---
 
 ## [1.9.1] - 2026-04-15
+### Added
+- **Global Status Bar**: Centralized status bar items into a unified global hover UI via a new `zhared` module. Includes "Normal" and "Pro" layout presets, dynamic auto-refresh, and a debounced architecture.
+- **AI Data ID**: Added model family icons to tooltip rows and included exhausted models in summary calculations.
+
 ### Improved
-- **I18N**: Extended localization config for `package.json` updating extension descriptions.
+- **UI/UX**: Updated hover UI to display "ATM Control Center", streamlined compact mode, and disabled unnecessary animations to boost performance.
+- **ESLint**: Added an operational warning visibility toggle and simplified plugin configurations.
+- **Music View**: Added a loading transition, inline CSS injection for faster webview startup, and automatic focus to radio mode if no track is selected.
 
 ---
 
 ## [1.8.6] - 2026-04-08
 ### Improved
-- **Music Controls**: Updated random AM station playback keybinding.
-- **Focus UI**: Refined quick-access button animations inside the focus screen and adjusted spacing.
+- **Linting**: Added filtering for non-code ESLint warnings to reduce noise and enhanced overall linting feedback.
+- **Dependencies**: Updated ESLint configurations and underlying packages.
 
 ---
 
 ## [1.8.5] - 2026-04-08
 ### Added
-- **Comments Code**: Added support for inline comment highlighting logic.
+- **Radio & Favorites**: Built an AM station favorites system with UI toggles, state persistence, and URL normalization for seamless music streaming.
+- **Audio Visualizer**: Added a 4-bar animated equalizer visualizer to active radio station buttons, synchronized with audio events.
+- **Global Music Toggle**: Added a global command to toggle music playback via keyboard shortcuts.
+
+### Improved
+- **Music UI Layout**: Center-aligned items in the radio panel, frozen primary button widths, and updated the favorite button states for full/empty slots.
+- **Status Warnings**: Replaced engine failure diagnostics with window notifications and implemented server-to-client status tracking in the status bar.
+- **Iconography**: Updated the main extension icon asset.
 
 ---
 
 ## [1.8.1] - 2026-04-07
+### Added
+- **ATM Lint Integration**: Massive native ESLint Language Server integration (client & server) with Astro support, Code Actions for fixes, and workspace-aware `cwd` resolution.
+- **Spell Check**: Implemented the Dice coefficient algorithm for significantly improved spell-check suggestion accuracy.
+- **Claude Warnings**: Added a Claude peak hour warning badge to the AI data quota tooltip.
+
 ### Improved
-- General bugfixes, tooltip formatting, and extension polishing.
+- **Lint UI**: Reduced left margins for decorators and added rule-based emojis to lint Code Action titles for quicker visual parsing.
+- **Performance**: Added document linting debounce, document versioning to prevent stale code actions, and robust LSP client lifecycle management.
 
 ---
 
