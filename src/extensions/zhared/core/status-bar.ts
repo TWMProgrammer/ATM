@@ -748,7 +748,7 @@ function renderHoverUI(): void {
         if (isCompactMode) {
             md.appendMarkdown('### **ATM**\n\n');
         } else {
-            md.appendMarkdown('### **ATM** <span style="color:#7B68EE;">Control Center</span>\n\n');
+            md.appendMarkdown('### **ATM** <span style="color:#888888;">Control Center</span>\n\n');
             md.appendMarkdown(
                 `<sub><span style="color:#9370DB;">Advanced Tool Management System</span></sub>\n\n`
             );
