@@ -172,6 +172,14 @@
       {
         "command": "atm.music.playRandomAM",
         "title": "%command.music.playRandomAM%"
+      },
+      {
+        "command": "faah.testSound",
+        "title": "FAAH: Test Sound"
+      },
+      {
+        "command": "faah.toggle",
+        "title": "FAAH: Toggle Enable/Disable"
       }
     ],
     "configuration": {
@@ -326,6 +334,30 @@
           "type": "string",
           "default": "",
           "description": "YouTube V3 API Key for ATM Music Search"
+        },
+        "faah.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable terminal error sound notifications"
+        },
+        "faah.debounceMs": {
+          "type": "number",
+          "default": 1500,
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Debounce time in milliseconds (per terminal)"
+        },
+        "faah.customSoundPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to custom sound file (MP3, WAV, OGG). Leave empty to use default sound."
+        },
+        "faah.volume": {
+          "type": "number",
+          "default": 1.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Volume level (0.0 to 1.0)"
         }
       }
     },
