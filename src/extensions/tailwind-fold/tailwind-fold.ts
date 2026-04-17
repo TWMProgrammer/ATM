@@ -25,7 +25,26 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         }
     });
 
-    const changeTextEditorSelection = vscode.window.onDidChangeTextEditorSelection(() => {
+    const changeTextEditorSelection = vscode.window.onDidChangeTextEditorSelection((event) => {
+        // Check if this is a click (single cursor, no selection)
+        if (event.selections.length === 1 && event.selections[0].isEmpty) {
+            const position = event.selections[0].active;
+            
+            // Check if the click was on a folded range
+            const foldedRanges = decorator.getFoldedRanges();
+            for (const range of foldedRanges) {
+                // Check if click is within or near the folded decoration
+                if (position.line === range.start.line &&
+                    position.character >= range.start.character - 3 &&
+                    position.character <= range.end.character + 3) {
+                    
+                    // Unfold and position cursor correctly
+                    decorator.unfoldAndPositionCursor(position);
+                    return;
+                }
+            }
+        }
+        
         // Here we iterata cached ranges instead of full RegEx parse, increasing perf 100x vs legacy.
         decorator.updateDecorations();
     });

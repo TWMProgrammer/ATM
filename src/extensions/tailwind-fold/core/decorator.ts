@@ -123,6 +123,49 @@ export class Decorator {
         return this.foldedRanges;
     }
 
+    public unfoldAndPositionCursor(position: vscode.Position) {
+        if (!this.activeEditor) {
+            return;
+        }
+
+        // Find the folded range that contains this position
+        for (const range of this.foldedRanges) {
+            if (range.contains(position) || 
+                (position.line === range.start.line && 
+                 position.character >= range.start.character - 3 && 
+                 position.character <= range.end.character + 3)) {
+                
+                // Get the text to find the closing quote
+                const text = this.activeEditor.document.getText(range);
+                
+                // Find the last quote character (", ', or `)
+                const lastQuoteMatch = text.match(/["'`](?=[^"'`]*$)/);
+                
+                if (lastQuoteMatch && lastQuoteMatch.index !== undefined) {
+                    // Position cursor just before the closing quote
+                    const cursorOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
+                    const cursorPosition = this.activeEditor.document.positionAt(cursorOffset);
+                    
+                    // Set the cursor position
+                    this.activeEditor.selection = new vscode.Selection(cursorPosition, cursorPosition);
+                    
+                    // Reveal the cursor position
+                    this.activeEditor.revealRange(
+                        new vscode.Range(cursorPosition, cursorPosition),
+                        vscode.TextEditorRevealType.InCenterIfOutsideViewport
+                    );
+                } else {
+                    // Fallback: position at the end of the range
+                    this.activeEditor.selection = new vscode.Selection(range.end, range.end);
+                }
+                
+                // Force update decorations to unfold
+                this.updateDecorations();
+                break;
+            }
+        }
+    }
+
     private isRangeSelected(range: vscode.Range): boolean {
         return !!(
             this.activeEditor!.selections.find((s) => s.intersection(range) !== undefined)
