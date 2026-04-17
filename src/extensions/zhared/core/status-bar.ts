@@ -857,7 +857,7 @@ function renderHoverUI(): void {
         // In compact mode, add expand button on the same line, aligned right
         if (isCompactMode) {
             // Use non-breaking spaces to push the icon to the right
-            const spacing = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+            const spacing = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             md.appendMarkdown(
                 `<sub><span style="color:${statusColor};">${statusIcon} ${statusText}</span></sub>${spacing}[$(unfold)](command:${CONSTANTS.COMMANDS.TOGGLE_COMPACT} "Show detailed view")`
             );
