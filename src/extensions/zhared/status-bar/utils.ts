@@ -90,7 +90,7 @@ export const CONSTANTS = {
     TERMINAL_SOUND_AUDIO_OPTIONS: [
         { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(megaphone)' },
         { id: 'ack', name: 'ACK', fileName: 'ack.wav', icon: '$(pulse)' },
-        { id: 'boo', name: 'Boo', fileName: 'boo.wav', icon: '$(ghost)' }
+        { id: 'boo', name: 'Boo', fileName: 'boo.wav', icon: '$(flame)' }
     ] as TerminalSoundAudioOption[],
     CATEGORIES: {
         productivity: { icon: '$(rocket)', label: 'Productivity' },
