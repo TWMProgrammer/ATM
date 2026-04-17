@@ -54,6 +54,7 @@ export interface RenderContext {
     toolRegistry: Map<string, ToolState>;
     isPro: boolean;
     currentFaahAudioIndex: number;
+    isFaahEnabled: boolean;
     extensionContext: vscode.ExtensionContext;
 }
 
@@ -69,7 +70,8 @@ export const CONSTANTS = {
         TOGGLE_COMPACT: 'atm.toggleCompactMode',
         REFRESH_TOOLS: 'atm.refreshTools',
         FAAH_CYCLE_AUDIO: 'atm.faah.cycleAudio',
-        FAAH_TEST_AUDIO: 'atm.faah.testAudio'
+        FAAH_TEST_AUDIO: 'atm.faah.testAudio',
+        FAAH_TOGGLE_MUTE: 'atm.faah.toggleMute'
     },
     LAYOUTS: {
         NORMAL: { 
@@ -86,7 +88,7 @@ export const CONSTANTS = {
         } as LayoutConfig
     },
     FAAH_AUDIO_OPTIONS: [
-        { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(unmute)' },
+        { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(megaphone)' },
         { id: 'ack', name: 'ACK', fileName: 'ack.wav', icon: '$(pulse)' },
         { id: 'fatality', name: 'Fatality', fileName: 'fatality.wav', icon: '$(flame)' },
         { id: 'windows', name: 'Windows', fileName: 'windows.wav', icon: '$(window)' }
@@ -171,7 +173,8 @@ function registerCommands(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT, toggleCompactMode),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS, handleRefreshTools),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_CYCLE_AUDIO, cycleFaahAudio),
-        vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_TEST_AUDIO, testFaahAudio)
+        vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_TEST_AUDIO, testFaahAudio),
+        vscode.commands.registerCommand(CONSTANTS.COMMANDS.FAAH_TOGGLE_MUTE, toggleFaahMute)
     );
 }
 
@@ -355,6 +358,17 @@ async function testFaahAudio(): Promise<void> {
         console.error('[ATM] Failed to test FAAH audio:', error);
         vscode.window.showWarningMessage('Could not test audio. Make sure FAAH extension is active.');
     }
+}
+
+/**
+ * Toggles FAAH mute state directly
+ */
+async function toggleFaahMute(): Promise<void> {
+    const config = vscode.workspace.getConfiguration('faah');
+    const isCurrentlyEnabled = config.get<boolean>('enabled', true);
+    await config.update('enabled', !isCurrentlyEnabled, vscode.ConfigurationTarget.Global);
+    scheduleRender();
+    vscode.window.showInformationMessage(`Terminal Audio ${isCurrentlyEnabled ? 'Muted' : 'Unmuted'}`);
 }
 
 /**
@@ -578,8 +592,10 @@ export function organizeToolsByCategory(): Map<string, ToolState[]> {
  */
 function generateStateHash(): string {
     const isPro = checkIsPro();
+    const faahConfig = vscode.workspace.getConfiguration('faah');
+    const isFaahEnabled = faahConfig.get<boolean>('enabled', true);
     const toolIds = Array.from(toolRegistry.keys()).sort().join(',');
-    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentFaahAudioIndex}`;
+    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentFaahAudioIndex}:${isFaahEnabled}`;
 }
 
 /**
@@ -593,10 +609,13 @@ export function escapeMarkdown(text: string): string {
  * Gets the render context for minimal/advanced modes
  */
 function getRenderContext(): RenderContext {
+    const faahConfig = vscode.workspace.getConfiguration('faah');
+    const isFaahEnabled = faahConfig.get<boolean>('enabled', true);
     return {
         toolRegistry,
         isPro: checkIsPro(),
         currentFaahAudioIndex,
+        isFaahEnabled,
         extensionContext
     };
 }
