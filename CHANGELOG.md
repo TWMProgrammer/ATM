@@ -33,7 +33,7 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 ---
 ## [1.9.2] - 2026-04-16
 ### Improved
-- **FAAH**: Enhanced sound file resolution and adding process interruption support for sound player. 
+- **FAAH**: Enhanced sound file resolution and added process interruption support for the sound player. 
 - **Status Bar**: Added FAAH audio configuration management and simplified audio UI.
 
 ---
@@ -64,7 +64,7 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 - **Global Music Toggle**: Added a global command to toggle music playback via keyboard shortcuts.
 
 ### Improved
-- **Music UI Layout**: Center-aligned items in the radio panel, frozen primary button widths, and updated the favorite button states for full/empty slots.
+- **Music UI Layout**: Center-aligned items in the radio panel, froze primary button widths, and updated the favorite button states for full/empty slots.
 - **Status Warnings**: Replaced engine failure diagnostics with window notifications and implemented server-to-client status tracking in the status bar.
 - **Iconography**: Updated the main extension icon asset.
 
@@ -72,7 +72,7 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 
 ## [1.8.1] - 2026-04-07
 ### Added
-- **ATM Lint Integration**: Massive native ESLint Language Server integration (client & server) with Astro support, Code Actions for fixes, and workspace-aware `cwd` resolution.
+- **ATM Lint Integration**: Comprehensive native ESLint Language Server integration (client & server) with Astro support, Code Actions for fixes, and workspace-aware `cwd` resolution.
 - **Spell Check**: Implemented the Dice coefficient algorithm for significantly improved spell-check suggestion accuracy.
 - **Claude Warnings**: Added a Claude peak hour warning badge to the AI data quota tooltip.
 
@@ -96,7 +96,7 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 
 ## [1.7.0] - 2026-04-06
 ### Added
-- **Multi-language Support**: Added translations for `RU`, `PO`, `FR`, and `DE` along with new NLS dictionaries for complete UI coverage. 
+- **Multi-language Support**: Added translations for `RU`, `PT-BR`, `FR`, and `DE` along with new NLS dictionaries for complete UI coverage. 
 - **Translate Doc Features**: Added translation abort support, TTS feedback badges, localized media hints, and support for additional languages in the Quick Pick menu.
 
 ### Improved
@@ -108,7 +108,7 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 ## [1.6.0] - 2026-04-06
 ### Improved
 - **Iconography**: Redesigned warning icons (e.g., "20% AI data left").
-- **Performace**: Stripped unused event activations from the `package.json` map.
+- **Performance**: Stripped unused event activations from the `package.json` map.
 
 ---
 
@@ -185,16 +185,18 @@ Following VS Code best practices, ATM uses semantic versioning for all releases.
 
 ---
 ## [1.1.2] - 2025-03-17
-
-- Refactor readme, and better Docs, ES & ZH
+### Improved
+- **Documentation**: Refactored README and improved Spanish (ES) and Chinese (ZH) documentation.
 
 ---
 
 ## [1.1.1] - 2025-03-13
+### Added
+- **Documentation**: Added Spanish (ES) and Chinese (ZH) documentation files.
 
-- Add two doc  ES & SH
-- Update icons "Liquid glass
-- Update version v0.1.2 to v1.1.1
+### Improved
+- **Iconography**: Updated icons to the "Liquid glass" style.
+- Version bumped from 0.1.2 to 1.1.1.
 
 ---
 
