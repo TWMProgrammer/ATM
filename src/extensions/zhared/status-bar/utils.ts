@@ -262,31 +262,20 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
         const targetIsPro = layout.sideBarLocation === 'right' && layout.activityBarLocation === 'top';
         
         if (currentIsPro === targetIsPro) {
-            vscode.window.showInformationMessage(`$(info) ${layout.displayName} is already active`);
+            vscode.window.showInformationMessage(`${layout.displayName} is already active`);
             return;
         }
         
-        await vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: `$(layout) Applying ${layout.displayName}...`,
-            cancellable: false
-        }, async (progress) => {
-            progress.report({ increment: 0, message: 'Configuring sidebar...' });
-            await config.update('sideBar.location', layout.sideBarLocation, vscode.ConfigurationTarget.Global);
-            
-            progress.report({ increment: 50, message: 'Configuring activity bar...' });
-            await config.update('activityBar.location', layout.activityBarLocation, vscode.ConfigurationTarget.Global);
-            
-            progress.report({ increment: 100, message: 'Complete!' });
-            await new Promise(resolve => setTimeout(resolve, 300));
-        });
+        // Apply layout changes
+        await config.update('sideBar.location', layout.sideBarLocation, vscode.ConfigurationTarget.Global);
+        await config.update('activityBar.location', layout.activityBarLocation, vscode.ConfigurationTarget.Global);
 
         scheduleRender();
-        vscode.window.showInformationMessage(`✓ ${layout.displayName} activated — ${layout.description}`);
+        vscode.window.showInformationMessage(`${layout.displayName} activated`);
         console.log(`[ATM] Layout applied: ${layout.displayName}`);
     } catch (error) {
         console.error('[ATM] Failed to apply layout:', error);
-        vscode.window.showErrorMessage(`$(error) Failed to apply ${layout.displayName}`);
+        vscode.window.showErrorMessage(`Failed to apply ${layout.displayName}`);
     }
 }
 
@@ -299,21 +288,9 @@ async function toggleCompactMode(): Promise<void> {
     await extensionContext.globalState.update('atm.compactMode', isCompactMode);
     scheduleRender();
     
-    const icon = isCompactMode ? '$(collapse-all)' : '$(expand-all)';
     const mode = isCompactMode ? 'Compact' : 'Expanded';
-    const description = isCompactMode ? 'Minimal display activated' : 'Detailed view activated';
     
-    await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: `${icon} Switching to ${mode} mode...`,
-        cancellable: false
-    }, async (progress) => {
-        progress.report({ increment: 0 });
-        await new Promise(resolve => setTimeout(resolve, 200));
-        progress.report({ increment: 100 });
-    });
-    
-    vscode.window.showInformationMessage(`✓ ATM: ${mode} mode — ${description}`);
+    vscode.window.showInformationMessage(`ATM: ${mode} mode activated`);
     console.log(`[ATM] Display mode changed: ${previousMode ? 'Compact' : 'Expanded'} → ${mode}`);
 }
 
@@ -333,17 +310,11 @@ export async function cycleTerminalSoundAudio(): Promise<void> {
     
     scheduleRender();
     
-    await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: `${currentAudio.icon} Switching to ${currentAudio.name}...`,
-        cancellable: false
-    }, async (progress) => {
-        progress.report({ increment: 0 });
-        await new Promise(resolve => setTimeout(resolve, 300));
-        progress.report({ increment: 100 });
-    });
+    // Show a simple notification without icons
+    vscode.window.showInformationMessage(
+        `Audio: ${previousAudio.name} → ${currentAudio.name}`
+    );
     
-    vscode.window.showInformationMessage(`✓ Error Audio: ${previousAudio.name} → ${currentAudio.name}`);
     console.log(`[ATM] Terminal Sound audio changed: ${previousAudio.name} → ${currentAudio.name}`);
 }
 
