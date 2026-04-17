@@ -20,6 +20,7 @@ import { activateFocus } from './focus/focus';
 import { activateLint } from './atm-lint/lint';
 import { activateGlobalStatusBar } from './zhared/zhared';
 import { activate as activateFaah } from './faah/faah';
+import { activateTailwindFold } from './tailwind-fold/tailwind-fold';
 
 /**
  * Register all sub-extensions here.
@@ -51,4 +52,7 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateFocus(context);
   activateLint(context);
   activateFaah(context);
+  activateTailwindFold(context).catch((error) => {
+    console.error('[tailwind-fold] Activation error:', error);
+  });
 }
