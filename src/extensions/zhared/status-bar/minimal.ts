@@ -1,13 +1,10 @@
 import * as vscode from 'vscode';
 import { 
     RenderContext, 
-    ToolState, 
     CONSTANTS, 
     getToolStats, 
-    organizeToolsByCategory,
     escapeMarkdown,
-    applyLayout,
-    cycleTerminalSoundAudio
+    setTerminalSoundAudio
 } from './utils';
 
 /**
@@ -161,6 +158,7 @@ export async function showMinimalQuickMenu(context: RenderContext): Promise<void
             items.push({
                 label: isActive ? `$(pass-filled) ${audio.icon} ${audio.name}` : `$(circle-outline) ${audio.icon} ${audio.name}`,
                 description: isActive ? 'Active' : '',
+                detail: `Error audio theme: ${audio.name}`,
                 alwaysShow: true
             });
         }
@@ -245,15 +243,11 @@ async function handleMinimalSelection(
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO);
         } else if (selected.label.includes('Mute') || selected.label.includes('Unmute')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE);
-        } else if (selected.detail?.includes('Error audio theme:') || 
-                   (selected.label.match(/Faah|ACK|Fatality|Windows/) && !selected.label.includes('Test'))) {
+        } else if (selected.detail?.includes('Error audio theme:')) {
             const audioName = selected.label.replace(/\$\([^)]+\)\s*/g, '').trim();
-            const audioOption = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.find((a: any) => a.name === audioName);
+            const audioOption = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.find(a => a.name === audioName);
             if (audioOption) {
-                const audioIndex = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.indexOf(audioOption);
-                if (audioIndex !== context.currentTerminalSoundAudioIndex) {
-                    await cycleTerminalSoundAudio();
-                }
+                await setTerminalSoundAudio(audioOption.id, context.extensionContext);
             }
         }
         // Tool execution

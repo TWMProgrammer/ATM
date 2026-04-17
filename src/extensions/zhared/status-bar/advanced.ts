@@ -6,8 +6,7 @@ import {
     getToolStats, 
     organizeToolsByCategory,
     escapeMarkdown,
-    applyLayout,
-    cycleTerminalSoundAudio
+    setTerminalSoundAudio
 } from './utils';
 
 /**
@@ -319,12 +318,9 @@ async function handleAdvancedSelection(
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE);
         } else if (selected.detail?.includes('Error audio theme:')) {
             const audioName = selected.label.replace(/\$\([^)]+\)\s*/g, '').trim();
-            const audioOption = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.find((a: any) => a.name === audioName);
+            const audioOption = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.find(a => a.name === audioName);
             if (audioOption) {
-                const audioIndex = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.indexOf(audioOption);
-                if (audioIndex !== context.currentTerminalSoundAudioIndex) {
-                    await cycleTerminalSoundAudio();
-                }
+                await setTerminalSoundAudio(audioOption.id, context.extensionContext);
             }
         }
         // Tool executions

@@ -90,8 +90,7 @@ export const CONSTANTS = {
     TERMINAL_SOUND_AUDIO_OPTIONS: [
         { id: 'faah', name: 'Faah', fileName: 'faah.wav', icon: '$(megaphone)' },
         { id: 'ack', name: 'ACK', fileName: 'ack.wav', icon: '$(pulse)' },
-        { id: 'fatality', name: 'Fatality', fileName: 'fatality.wav', icon: '$(flame)' },
-        { id: 'windows', name: 'Windows', fileName: 'windows.wav', icon: '$(window)' }
+        { id: 'boo', name: 'Boo', fileName: 'boo.wav', icon: '$(ghost)' }
     ] as TerminalSoundAudioOption[],
     CATEGORIES: {
         productivity: { icon: '$(rocket)', label: 'Productivity' },
@@ -137,7 +136,11 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
 
         // Load preferences
         isCompactMode = context.globalState.get('atm.compactMode', false);
-        currentTerminalSoundAudioIndex = context.globalState.get('atm.terminalSound.audioIndex', 0);
+        const savedAudioIndex = context.globalState.get<number>('atm.terminalSound.audioIndex', 0);
+        currentTerminalSoundAudioIndex = normalizeTerminalSoundAudioIndex(savedAudioIndex);
+        if (savedAudioIndex !== currentTerminalSoundAudioIndex) {
+            void context.globalState.update('atm.terminalSound.audioIndex', currentTerminalSoundAudioIndex);
+        }
 
         // Register commands
         registerCommands(context);
@@ -322,8 +325,15 @@ async function toggleCompactMode(): Promise<void> {
  * Cycles through Terminal Sound audio options
  */
 export async function cycleTerminalSoundAudio(): Promise<void> {
+    const totalAudioOptions = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.length;
+    if (totalAudioOptions === 0) {
+        vscode.window.showWarningMessage('No terminal sound audio options available.');
+        return;
+    }
+
+    currentTerminalSoundAudioIndex = normalizeTerminalSoundAudioIndex(currentTerminalSoundAudioIndex);
     const previousAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
-    currentTerminalSoundAudioIndex = (currentTerminalSoundAudioIndex + 1) % CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.length;
+    currentTerminalSoundAudioIndex = (currentTerminalSoundAudioIndex + 1) % totalAudioOptions;
     
     await extensionContext.globalState.update('atm.terminalSound.audioIndex', currentTerminalSoundAudioIndex);
     
@@ -436,7 +446,13 @@ function renderHoverUI(): void {
  * Gets the current Terminal Sound audio configuration
  */
 export function getCurrentTerminalSoundAudio(): TerminalSoundAudioOption {
-    return CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[currentTerminalSoundAudioIndex];
+    const options = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS;
+    if (options.length === 0) {
+        return { id: 'default', name: 'Default', fileName: 'faah.wav', icon: '$(bell)' };
+    }
+
+    currentTerminalSoundAudioIndex = normalizeTerminalSoundAudioIndex(currentTerminalSoundAudioIndex);
+    return options[currentTerminalSoundAudioIndex];
 }
 
 /**
@@ -467,9 +483,13 @@ export async function setTerminalSoundAudio(audioId: string, context: vscode.Ext
  */
 function resolveBundledTerminalSoundAudioPath(fileName: string, context: vscode.ExtensionContext): string {
     const candidates = [
+        path.join(context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', 'error', fileName),
         path.join(context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', fileName),
+        path.join(context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', 'error', fileName),
         path.join(context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', fileName),
+        path.join(context.extensionPath, 'dist', 'terminal-sound', 'sound', 'error', fileName),
         path.join(context.extensionPath, 'dist', 'terminal-sound', 'sound', fileName),
+        path.join(context.extensionPath, 'sound', 'error', fileName),
         path.join(context.extensionPath, 'sound', fileName)
     ];
 
@@ -507,6 +527,16 @@ export function deactivateGlobalStatusBar(): void {
 // ============================================================================
 // Utility Functions
 // ============================================================================
+
+function normalizeTerminalSoundAudioIndex(index: number): number {
+    const totalAudioOptions = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS.length;
+    if (totalAudioOptions === 0 || !Number.isFinite(index)) {
+        return 0;
+    }
+
+    const normalized = Math.trunc(index) % totalAudioOptions;
+    return normalized < 0 ? normalized + totalAudioOptions : normalized;
+}
 
 /**
  * Validates a ToolState object
