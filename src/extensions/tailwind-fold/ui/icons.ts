@@ -57,9 +57,13 @@ export class Icons {
         const dotsHeight = fontSize * scaleFactor * 0.3; // Smaller height for dots
         const dotsWidth = dotsHeight * (76 / 10); // Maintain aspect ratio
         
-        // Total width is logo + dots (no gap)
-        const totalWidth = logoWidth + dotsWidth;
-        const totalHeight = Math.max(logoHeight, dotsHeight);
+        // Add spacing for dots
+        const dotsPaddingLeft = 10; // Separation from logo
+        const dotsPaddingTop = 10; // Move dots down
+        
+        // Total width includes logo + padding + dots
+        const totalWidth = logoWidth + dotsPaddingLeft + dotsWidth;
+        const totalHeight = Math.max(logoHeight, dotsHeight + dotsPaddingTop);
         
         // Extract viewBox and paths from both SVGs
         const logoViewBox = svgLogo.match(/viewBox="([^"]+)"/)?.[1] || "0 0 54 32";
@@ -68,14 +72,18 @@ export class Icons {
         const logoContent = svgLogo.replace(/<svg[^>]*>|<\/svg>/g, "");
         const dotsContent = svgDots.replace(/<svg[^>]*>|<\/svg>/g, "");
         
-        // Combine both SVGs side by side with no gap
-        const combinedSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${54 + 76} 32">
+        // Calculate dots position (logo width + padding left, and padding top)
+        const dotsX = 54 + dotsPaddingLeft;
+        const dotsY = 11 + dotsPaddingTop;
+        
+        // Combine both SVGs with spacing
+        const combinedSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${54 + dotsPaddingLeft + 76} 32">
   <g transform="translate(0, 0)">
     <svg viewBox="${logoViewBox}" width="54" height="32" x="0" y="0">
       ${logoContent}
     </svg>
   </g>
-  <g transform="translate(54, 11)">
+  <g transform="translate(${dotsX}, ${dotsY})">
     <svg viewBox="${dotsViewBox}" width="76" height="10" x="0" y="0">
       ${dotsContent}
     </svg>
