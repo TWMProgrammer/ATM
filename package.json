@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "2.0.0",
+  "version": "1.9.4",
   "publisher": "bastndev",
   "license": "MIT",
   "engines": {
@@ -180,6 +180,14 @@
       {
         "command": "terminalSound.toggle",
         "title": "Terminal Sound: Toggle Enable/Disable"
+      },
+      {
+        "command": "tailwind-css.toggleAutoFold",
+        "title": "Tailwind CSS: Toggle Fold/Unfold"
+      },
+      {
+        "command": "tailwind-css.toggleEnabled",
+        "title": "Tailwind CSS: Enable/Disable"
       }
     ],
     "configuration": {
@@ -334,6 +342,11 @@
           "type": "string",
           "default": "",
           "description": "YouTube V3 API Key for ATM Music Search"
+        },
+        "tailwind-css.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable Tailwind CSS completely."
         },
         "terminalSound.enabled": {
           "type": "boolean",

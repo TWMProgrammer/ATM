@@ -55,6 +55,8 @@ export interface RenderContext {
     isPro: boolean;
     currentTerminalSoundAudioIndex: number;
     isTerminalSoundEnabled: boolean;
+    isTailwindFoldEnabled: boolean;
+    isTailwindAutoFold: boolean;
     extensionContext: vscode.ExtensionContext;
 }
 
@@ -70,7 +72,9 @@ export const CONSTANTS = {
         TOGGLE_COMPACT: 'atm.toggleCompactMode',
         REFRESH_TOOLS: 'atm.refreshTools',
         TERMINAL_SOUND_TEST_AUDIO: 'atm.terminalSound.testAudio',
-        TERMINAL_SOUND_TOGGLE_MUTE: 'atm.terminalSound.toggleMute'
+        TERMINAL_SOUND_TOGGLE_MUTE: 'atm.terminalSound.toggleMute',
+        TAILWIND_TOGGLE_AUTO_FOLD: 'tailwind-css.toggleAutoFold',
+        TAILWIND_TOGGLE_ENABLED: 'tailwind-css.toggleEnabled'
     },
     LAYOUTS: {
         NORMAL: { 
@@ -147,7 +151,9 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
             globalStatusBarItem,
             vscode.workspace.onDidChangeConfiguration(e => {
                 if (e.affectsConfiguration('workbench.sideBar.location') || 
-                    e.affectsConfiguration('workbench.activityBar.location')) {
+                    e.affectsConfiguration('workbench.activityBar.location') ||
+                    e.affectsConfiguration('tailwind-css.enabled') ||
+                    e.affectsConfiguration('tailwind-css.autoFold')) {
                     scheduleRender();
                 }
             })
@@ -538,15 +544,22 @@ export function checkIsPro(): boolean {
  */
 export function getToolStats(): ToolStats {
     const categoryCounts = new Map<string, number>();
+    let activeCount = 0;
     
     for (const tool of toolRegistry.values()) {
         const category = tool.category || 'other';
         categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
+        
+        // Count as active if description indicates active state
+        const desc = tool.description?.toLowerCase() || '';
+        if (desc.includes('active') || desc.includes('enabled') || desc.includes('running')) {
+            activeCount++;
+        }
     }
 
     return {
         totalTools: toolRegistry.size,
-        activeTools: toolRegistry.size,
+        activeTools: activeCount,
         categoryCounts
     };
 }
@@ -584,8 +597,11 @@ function generateStateHash(): string {
     const isPro = checkIsPro();
     const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
     const isTerminalSoundEnabled = terminalSoundConfig.get<boolean>('enabled', true);
+    const tailwindConfig = vscode.workspace.getConfiguration('tailwind-css');
+    const isTailwindFoldEnabled = tailwindConfig.get<boolean>('enabled', true);
+    const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
     const toolIds = Array.from(toolRegistry.keys()).sort().join(',');
-    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentTerminalSoundAudioIndex}:${isTerminalSoundEnabled}`;
+    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentTerminalSoundAudioIndex}:${isTerminalSoundEnabled}:${isTailwindFoldEnabled}:${isTailwindAutoFold}`;
 }
 
 /**
@@ -601,11 +617,16 @@ export function escapeMarkdown(text: string): string {
 function getRenderContext(): RenderContext {
     const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
     const isTerminalSoundEnabled = terminalSoundConfig.get<boolean>('enabled', true);
+    const tailwindConfig = vscode.workspace.getConfiguration('tailwind-css');
+    const isTailwindFoldEnabled = tailwindConfig.get<boolean>('enabled', true);
+    const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
     return {
         toolRegistry,
         isPro: checkIsPro(),
         currentTerminalSoundAudioIndex,
         isTerminalSoundEnabled,
+        isTailwindFoldEnabled,
+        isTailwindAutoFold,
         extensionContext
     };
 }

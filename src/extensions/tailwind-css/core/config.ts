@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 
 export enum Settings {
-    Identifier = "tailwind-fold",
+    Identifier = "tailwind-css",
+    Enabled = "enabled",
     AutoFold = "autoFold",
     UnfoldIfLineSelected = "unfoldIfLineSelected",
     SupportedLanguages = "supportedLanguages",
@@ -14,8 +15,8 @@ export enum Settings {
     FoldLengthThreshold = "foldLengthThreshold",
 }
 
-export function set(key: Settings, value: any) {
-    vscode.workspace.getConfiguration(Settings.Identifier).update(key, value, true);
+export function set(key: Settings, value: unknown): Thenable<void> {
+    return vscode.workspace.getConfiguration(Settings.Identifier).update(key, value, true);
 }
 
 export function get<T>(key: Settings, defaultValue?: T): T {

@@ -7,6 +7,7 @@ import {
     organizeToolsByCategory,
     escapeMarkdown
 } from './utils';
+import { SvgIcons } from './svg-icons';
 
 /**
  * Renders the advanced tooltip for the status bar
@@ -25,17 +26,35 @@ export function renderAdvancedTooltip(
     const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex];
 
     // Rich header
-    md.appendMarkdown('### **ATM** <span style="color:#888888;">Control Center</span>\n\n');
+    md.appendMarkdown(
+        '<table width="100%"><tr><td><span style="font-size:1.1em;font-weight:700;">ATM</span> <span style="color:#888888;">Control Center</span></td><td align="right"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NiIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDQ2IDE4Ij48cmVjdCB4PSIwLjUiIHk9IjAuNSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjE3IiByeD0iOC41IiBmaWxsPSIjQzBDMEMwIiBzdHJva2U9IiNBRkFGQUYiLz48dGV4dCB4PSIyMyIgeT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJTZWdvZSBVSSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjkiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMwMDAwMDAiPkJFVEE8L3RleHQ+PC9zdmc+" width="46" height="18" alt="BETA" /></td></tr></table>\n\n'
+    );
     md.appendMarkdown(
         `<sub><span style="color:#9370DB;">Advanced Tool Management System</span></sub>\n\n`
     );
     md.appendMarkdown('---\n\n');
 
-    // Status with stats
-    if (stats.totalTools > 0) {
+    // Status with stats - count all active features in the panel
+    // Count dynamically based on actual active state
+    let totalActiveFeatures = stats.activeTools; // Tools that are actually active
+    
+    // Add Tailwind Fold only if enabled
+    if (context.isTailwindFoldEnabled) {
+        totalActiveFeatures++;
+    }
+    
+    // Layout is always active (one mode is always selected)
+    totalActiveFeatures++;
+    
+    // Add T-Sound only if enabled
+    if (context.isTerminalSoundEnabled) {
+        totalActiveFeatures++;
+    }
+    
+    if (totalActiveFeatures > 0) {
         md.appendMarkdown('**Status:** ');
         md.appendMarkdown(
-            `<span style="color:#4EC9B0;">$(check) ${stats.totalTools} tool${stats.totalTools !== 1 ? 's' : ''} active</span>\n\n`
+            `<span style="color:#4EC9B0;">$(check) ${totalActiveFeatures} tool${totalActiveFeatures !== 1 ? 's' : ''} active</span>\n\n`
         );
     }
 
@@ -87,6 +106,23 @@ export function renderAdvancedTooltip(
 
     md.appendMarkdown('---\n\n');
 
+    // Tailwind Fold controls
+    const tailwindToggleAction = context.isTailwindFoldEnabled
+        ? `[${context.isTailwindAutoFold ? '$(unfold) Unfold' : '$(fold) Fold'}](command:${CONSTANTS.COMMANDS.TAILWIND_TOGGLE_AUTO_FOLD} "Toggle Tailwind fold")`
+        : '';
+    const tailwindEnableAction = context.isTailwindFoldEnabled
+        ? `[$(circle-slash) Disable](command:${CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED} "Disable Tailwind Fold")`
+        : `[$(play) Enable](command:${CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED} "Enable Tailwind Fold")`;
+    const tailwindControls = context.isTailwindFoldEnabled
+        ? `${tailwindToggleAction} &nbsp; ${tailwindEnableAction}`
+        : `${tailwindEnableAction}`;
+
+    md.appendMarkdown(
+        `**Tailwind Fold:** &nbsp; ${tailwindControls}\n\n`
+    );
+
+    md.appendMarkdown('---\n\n');
+
     // Layout with visual indicators
     const normalIcon = !context.isPro ? '$(pass-filled)' : '$(circle-outline)';
     const proIcon = context.isPro ? '$(pass-filled)' : '$(circle-outline)';
@@ -100,18 +136,19 @@ export function renderAdvancedTooltip(
 
     md.appendMarkdown(`**Layout:** &nbsp; ${normalItem} &nbsp; $(chevron-right) &nbsp; ${proItem}\n\n`);
 
-    // Audio with test button
+    // Audio with test button and animated wave icon
     const muteIcon = context.isTerminalSoundEnabled ? '$(mute)' : '$(unmute)';
     const audioStatus = context.isTerminalSoundEnabled ? 'Mute' : 'Unmute';
     const muteIconColor = context.isTerminalSoundEnabled ? '#888888' : '#4EC9B0';
+    const audioWaveImg = `<img src="${SvgIcons.getAudioWave()}" width="16" height="12" style="vertical-align:middle;" />`;
     
     if (context.isTerminalSoundEnabled) {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#CE9178;">${currentAudio.icon} ${currentAudio.name}</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO} "Test current audio") &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
+            `**T-Sound:** &nbsp; ${audioWaveImg} <span style="color:#CE9178;">${currentAudio.name}</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO} "Test current audio") &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
         );
     } else {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; l &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.name} &nbsp; l &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
         );
     }
 
@@ -169,6 +206,25 @@ export async function showAdvancedQuickMenu(context: RenderContext): Promise<voi
         label: `$(collapse-all) Compact Mode`,
         description: 'Minimize display',
         detail: 'Switch to compact mode for minimal display',
+        alwaysShow: true
+    });
+
+    // Tailwind Fold controls
+    items.push({ label: '$(symbol-color) Tailwind Fold', kind: vscode.QuickPickItemKind.Separator });
+    items.push({
+        label: '$(fold) Tailwind: Toggle Fold/Unfold',
+        description: context.isTailwindFoldEnabled
+            ? (context.isTailwindAutoFold ? 'Currently folded by default' : 'Currently unfolded by default')
+            : 'Disabled',
+        detail: context.isTailwindFoldEnabled
+            ? 'Toggle class folding in supported files'
+            : 'Enable Tailwind Fold first to use this action',
+        alwaysShow: true
+    });
+    items.push({
+        label: context.isTailwindFoldEnabled ? '$(circle-slash) Tailwind: Disable' : '$(play) Tailwind: Enable',
+        description: context.isTailwindFoldEnabled ? 'Disable Tailwind Fold globally' : 'Enable Tailwind Fold globally',
+        detail: 'This setting persists after restart',
         alwaysShow: true
     });
 
@@ -308,6 +364,12 @@ async function handleAdvancedSelection(
         } else if (selected.label.includes('Compact Mode')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT);
         } 
+        // Tailwind Fold selections
+        else if (selected.label.includes('Tailwind: Toggle Fold/Unfold')) {
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_AUTO_FOLD);
+        } else if (selected.label.includes('Tailwind: Disable') || selected.label.includes('Tailwind: Enable')) {
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED);
+        }
         // Audio selections
         else if (selected.label.includes('Test Current Audio')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO);

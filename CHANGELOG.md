@@ -16,6 +16,27 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ---
 
+## [1.9.4] - 2026-04-18
+
+### Added
+
+- **Tailwind CSS Integration**: Added Tailwind CSS support with fold commands and configuration options for better class management.
+- **Tailwind Fold Commands**: Implemented commands to fold/unfold Tailwind class strings for cleaner code viewing.
+- **Dynamic Hover Provider**: Implemented dynamic hover provider registration for supported languages with HTML escaping.
+- **Tailwind Icon**: Added new `tainwd-icon.svg` asset for Tailwind-related UI elements.
+
+### Improved
+
+- **Advanced Tooltip Rendering**: Updated tooltip rendering with rich HTML formatting and better visual presentation.
+- **SVG Animations**: Enhanced SVG animations with BETA animated features and improved 3-point rendering.
+- **Notification Styling**: Improved Tailwind notification CSS for better visual consistency.
+- **Hover Provider**: Enhanced hover provider with HTML escaping and updated status bar initialization logic.
+- **Performance**: Implemented debounced reparse and update mechanisms for improved performance.
+- **Decorator Logic**: Streamlined folded range detection and cursor positioning in decorators.
+- **Function Architecture**: Refactored core functions from logic 3 to 4 for better maintainability.
+
+---
+
 ## [1.9.3] - 2026-04-17
 
 ### Added
