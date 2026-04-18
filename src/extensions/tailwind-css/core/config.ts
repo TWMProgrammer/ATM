@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 export enum Settings {
-    Identifier = "tailwind-fold",
+    Identifier = "tailwind-css",
     Enabled = "enabled",
     AutoFold = "autoFold",
     UnfoldIfLineSelected = "unfoldIfLineSelected",

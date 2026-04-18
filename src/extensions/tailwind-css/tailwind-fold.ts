@@ -6,8 +6,8 @@ import { Icons } from "./ui/icons";
 import { TailwindFoldHoverProvider } from "./ui/hover";
 
 
-const COMMAND_TOGGLE_AUTO_FOLD = "tailwind-fold.toggleAutoFold";
-const COMMAND_TOGGLE_ENABLED = "tailwind-fold.toggleEnabled";
+const COMMAND_TOGGLE_AUTO_FOLD = "tailwind-css.toggleAutoFold";
+const COMMAND_TOGGLE_ENABLED = "tailwind-css.toggleEnabled";
 const DEFAULT_SUPPORTED_LANGUAGES = ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"];
 
 export async function activateTailwindFold(context: vscode.ExtensionContext) {

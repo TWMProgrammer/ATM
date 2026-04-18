@@ -73,8 +73,8 @@ export const CONSTANTS = {
         REFRESH_TOOLS: 'atm.refreshTools',
         TERMINAL_SOUND_TEST_AUDIO: 'atm.terminalSound.testAudio',
         TERMINAL_SOUND_TOGGLE_MUTE: 'atm.terminalSound.toggleMute',
-        TAILWIND_TOGGLE_AUTO_FOLD: 'tailwind-fold.toggleAutoFold',
-        TAILWIND_TOGGLE_ENABLED: 'tailwind-fold.toggleEnabled'
+        TAILWIND_TOGGLE_AUTO_FOLD: 'tailwind-css.toggleAutoFold',
+        TAILWIND_TOGGLE_ENABLED: 'tailwind-css.toggleEnabled'
     },
     LAYOUTS: {
         NORMAL: { 
@@ -152,8 +152,8 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
             vscode.workspace.onDidChangeConfiguration(e => {
                 if (e.affectsConfiguration('workbench.sideBar.location') || 
                     e.affectsConfiguration('workbench.activityBar.location') ||
-                    e.affectsConfiguration('tailwind-fold.enabled') ||
-                    e.affectsConfiguration('tailwind-fold.autoFold')) {
+                    e.affectsConfiguration('tailwind-css.enabled') ||
+                    e.affectsConfiguration('tailwind-css.autoFold')) {
                     scheduleRender();
                 }
             })
@@ -590,7 +590,7 @@ function generateStateHash(): string {
     const isPro = checkIsPro();
     const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
     const isTerminalSoundEnabled = terminalSoundConfig.get<boolean>('enabled', true);
-    const tailwindConfig = vscode.workspace.getConfiguration('tailwind-fold');
+    const tailwindConfig = vscode.workspace.getConfiguration('tailwind-css');
     const isTailwindFoldEnabled = tailwindConfig.get<boolean>('enabled', true);
     const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
     const toolIds = Array.from(toolRegistry.keys()).sort().join(',');
@@ -610,7 +610,7 @@ export function escapeMarkdown(text: string): string {
 function getRenderContext(): RenderContext {
     const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
     const isTerminalSoundEnabled = terminalSoundConfig.get<boolean>('enabled', true);
-    const tailwindConfig = vscode.workspace.getConfiguration('tailwind-fold');
+    const tailwindConfig = vscode.workspace.getConfiguration('tailwind-css');
     const isTailwindFoldEnabled = tailwindConfig.get<boolean>('enabled', true);
     const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
     return {

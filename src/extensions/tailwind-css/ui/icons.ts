@@ -15,12 +15,12 @@ export class Icons {
         }
         
         try {
-            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "tailwind-fold", "icons", "tailwind-logo.svg");
+            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "tailwind-css", "icons", "tailwind-logo.svg");
             const data = await vscode.workspace.fs.readFile(svgPath);
             this._svgLogoCache = Buffer.from(data).toString("utf8");
             return this._svgLogoCache;
         } catch (error) {
-            console.error("Error reading SVG logo tailwind-fold", error);
+            console.error("Error reading SVG logo tailwind-css", error);
             return `<svg viewBox="0 0 54 32" width="54" height="32"><rect fill="#41A0C9" width="54" height="32"/></svg>`;
         }
     }
@@ -31,12 +31,12 @@ export class Icons {
         }
         
         try {
-            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "tailwind-fold", "icons", "tailwind-dots.svg");
+            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "tailwind-css", "icons", "tailwind-dots.svg");
             const data = await vscode.workspace.fs.readFile(svgPath);
             this._svgDotsCache = Buffer.from(data).toString("utf8");
             return this._svgDotsCache;
         } catch (error) {
-            console.error("Error reading SVG dots tailwind-fold", error);
+            console.error("Error reading SVG dots tailwind-css", error);
             return `<svg viewBox="0 0 76 10" width="76" height="10"><circle cx="5" cy="5" r="5" fill="#41A0C9"/></svg>`;
         }
     }
