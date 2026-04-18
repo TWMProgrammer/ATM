@@ -2,5 +2,5 @@
   <circle cx="5" cy="5" r="5" fill="#41A0C9" opacity="1"/>
   <circle cx="27" cy="5" r="5" fill="#41A0C9" opacity="1"/>
   <circle cx="49" cy="5" r="5" fill="#41A0C9" opacity="0.5"/>
-  <circle cx="71" cy="5" r="5" fill="#41A0C9" opacity="0.2"/>
+  <circle cx="71" cy="5" r="5" fill="#41A0C9" opacity="0.1"/>
 </svg>
