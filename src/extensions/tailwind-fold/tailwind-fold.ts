@@ -20,6 +20,9 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
 
     const changeTextDocument = vscode.workspace.onDidChangeTextDocument((event) => {
         if (event.document === vscode.window.activeTextEditor?.document) {
+            // Track if user typed on the line with auto-inserted space
+            decorator.onTextChanged(event);
+            
             decorator.recalculateMatches();
             decorator.updateDecorations();
         }
@@ -40,10 +43,16 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
                     
                     // Unfold and position cursor correctly
                     decorator.unfoldAndPositionCursor(position);
+                    
+                    // Update decorations and return early
+                    decorator.updateDecorations();
                     return;
                 }
             }
         }
+        
+        // Check if we need to remove auto-inserted space (user moved away without typing)
+        decorator.onSelectionChanged();
         
         // Here we iterata cached ranges instead of full RegEx parse, increasing perf 100x vs legacy.
         decorator.updateDecorations();
