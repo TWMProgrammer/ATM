@@ -22,7 +22,7 @@ export class TerminalMonitor {
    * Load configuration from VSCode settings
    */
   private loadConfig(): TerminalMonitorConfig {
-    const config = vscode.workspace.getConfiguration('faah');
+    const config = vscode.workspace.getConfiguration('terminalSound');
     return {
       enabled: config.get<boolean>('enabled', true),
       debounceMs: config.get<number>('debounceMs', 1500)
@@ -33,7 +33,7 @@ export class TerminalMonitor {
    * Get sound player configuration
    */
   private getSoundConfig(): SoundPlayerConfig {
-    const config = vscode.workspace.getConfiguration('faah');
+    const config = vscode.workspace.getConfiguration('terminalSound');
     return {
       customSoundPath: config.get<string>('customSoundPath'),
       volume: config.get<number>('volume', 1.0)

@@ -20,7 +20,7 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ### Added
 
-- **FAAH Module**: Added audio alerts for terminal error notifications ("T-Sound"). Includes custom sound files (`faah.wav`), process interruption support, and mute/unmute functionality.
+- **Terminal Sound Module**: Added audio alerts for terminal error notifications ("T-Sound"). Includes custom sound files (`faah.wav`), process interruption support, and mute/unmute functionality.
 - **Music Controls**: Added keybindings and commands for "Random AM station" playback.
 - **Ignored Files**: Integrated document exclusion logic to safely ignore unneeded files.
 
@@ -37,8 +37,8 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ### Improved
 
-- **FAAH**: Enhanced sound file resolution and added process interruption support for the sound player.
-- **Status Bar**: Added FAAH audio configuration management and simplified audio UI.
+- **Terminal Sound**: Enhanced sound file resolution and added process interruption support for the sound player.
+- **Status Bar**: Added Terminal Sound audio configuration management and simplified audio UI.
 
 ---
 
