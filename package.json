@@ -180,6 +180,14 @@
       {
         "command": "terminalSound.toggle",
         "title": "Terminal Sound: Toggle Enable/Disable"
+      },
+      {
+        "command": "tailwind-fold.toggleAutoFold",
+        "title": "Tailwind Fold: Toggle Fold/Unfold"
+      },
+      {
+        "command": "tailwind-fold.toggleEnabled",
+        "title": "Tailwind Fold: Enable/Disable"
       }
     ],
     "configuration": {
@@ -334,6 +342,11 @@
           "type": "string",
           "default": "",
           "description": "YouTube V3 API Key for ATM Music Search"
+        },
+        "tailwind-fold.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable Tailwind Fold completely."
         },
         "terminalSound.enabled": {
           "type": "boolean",

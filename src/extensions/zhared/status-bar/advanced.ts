@@ -87,6 +87,23 @@ export function renderAdvancedTooltip(
 
     md.appendMarkdown('---\n\n');
 
+    // Tailwind Fold controls
+    const tailwindToggleAction = context.isTailwindFoldEnabled
+        ? `[${context.isTailwindAutoFold ? '$(unfold) Unfold' : '$(fold) Fold'}](command:${CONSTANTS.COMMANDS.TAILWIND_TOGGLE_AUTO_FOLD} "Toggle Tailwind fold")`
+        : '';
+    const tailwindEnableAction = context.isTailwindFoldEnabled
+        ? `[$(circle-slash) Disable](command:${CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED} "Disable Tailwind Fold")`
+        : `[$(play) Enable](command:${CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED} "Enable Tailwind Fold")`;
+    const tailwindControls = context.isTailwindFoldEnabled
+        ? `${tailwindToggleAction} &nbsp; ${tailwindEnableAction}`
+        : `${tailwindEnableAction}`;
+
+    md.appendMarkdown(
+        `**Tailwind Fold:** &nbsp; ${tailwindControls}\n\n`
+    );
+
+    md.appendMarkdown('---\n\n');
+
     // Layout with visual indicators
     const normalIcon = !context.isPro ? '$(pass-filled)' : '$(circle-outline)';
     const proIcon = context.isPro ? '$(pass-filled)' : '$(circle-outline)';
@@ -169,6 +186,25 @@ export async function showAdvancedQuickMenu(context: RenderContext): Promise<voi
         label: `$(collapse-all) Compact Mode`,
         description: 'Minimize display',
         detail: 'Switch to compact mode for minimal display',
+        alwaysShow: true
+    });
+
+    // Tailwind Fold controls
+    items.push({ label: '$(symbol-color) Tailwind Fold', kind: vscode.QuickPickItemKind.Separator });
+    items.push({
+        label: '$(fold) Tailwind: Toggle Fold/Unfold',
+        description: context.isTailwindFoldEnabled
+            ? (context.isTailwindAutoFold ? 'Currently folded by default' : 'Currently unfolded by default')
+            : 'Disabled',
+        detail: context.isTailwindFoldEnabled
+            ? 'Toggle class folding in supported files'
+            : 'Enable Tailwind Fold first to use this action',
+        alwaysShow: true
+    });
+    items.push({
+        label: context.isTailwindFoldEnabled ? '$(circle-slash) Tailwind: Disable' : '$(play) Tailwind: Enable',
+        description: context.isTailwindFoldEnabled ? 'Disable Tailwind Fold globally' : 'Enable Tailwind Fold globally',
+        detail: 'This setting persists after restart',
         alwaysShow: true
     });
 
@@ -308,6 +344,12 @@ async function handleAdvancedSelection(
         } else if (selected.label.includes('Compact Mode')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT);
         } 
+        // Tailwind Fold selections
+        else if (selected.label.includes('Tailwind: Toggle Fold/Unfold')) {
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_AUTO_FOLD);
+        } else if (selected.label.includes('Tailwind: Disable') || selected.label.includes('Tailwind: Enable')) {
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED);
+        }
         // Audio selections
         else if (selected.label.includes('Test Current Audio')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO);

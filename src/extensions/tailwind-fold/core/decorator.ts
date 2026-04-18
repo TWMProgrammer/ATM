@@ -3,7 +3,6 @@ import { Parser } from "./parser";
 import { createFoldedDecorationType, createUnfoldedDecorationType } from "./decorations";
 import * as Config from "./config";
 import { Settings } from "./config";
-import { StatusBar } from "../ui/status-bar";
 
 export class Decorator {
     private static readonly foldedClickHitSlopChars = 12;
@@ -68,7 +67,6 @@ export class Decorator {
     public toggleAutoFold(): boolean {
         this.autoFold = !this.autoFold;
         Config.set(Settings.AutoFold, this.autoFold);
-        StatusBar.update(this.autoFold);
         this.updateDecorations();
         return this.autoFold;
     }
@@ -83,9 +81,6 @@ export class Decorator {
 
         this.unfoldedDecorationType = await createUnfoldedDecorationType();
         this.foldedDecorationType = await createFoldedDecorationType();
-
-        StatusBar.initialize();
-        StatusBar.update(this.autoFold);
 
         this.recalculateMatches();
         this.updateDecorations();
