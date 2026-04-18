@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "1.9.4",
+  "version": "2.0.0",
   "publisher": "bastndev",
   "license": "MIT",
   "engines": {
