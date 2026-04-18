@@ -35,9 +35,22 @@ export function renderAdvancedTooltip(
     md.appendMarkdown('---\n\n');
 
     // Status with stats - count all active features in the panel
-    // stats.activeTools = tools that are actually active (not just available)
-    // + 3 fixed features: Tailwind Fold, Layout, T-Sound
-    const totalActiveFeatures = stats.activeTools + 3;
+    // Count dynamically based on actual active state
+    let totalActiveFeatures = stats.activeTools; // Tools that are actually active
+    
+    // Add Tailwind Fold only if enabled
+    if (context.isTailwindFoldEnabled) {
+        totalActiveFeatures++;
+    }
+    
+    // Layout is always active (one mode is always selected)
+    totalActiveFeatures++;
+    
+    // Add T-Sound only if enabled
+    if (context.isTerminalSoundEnabled) {
+        totalActiveFeatures++;
+    }
+    
     if (totalActiveFeatures > 0) {
         md.appendMarkdown('**Status:** ');
         md.appendMarkdown(
