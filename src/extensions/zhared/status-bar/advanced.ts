@@ -7,6 +7,7 @@ import {
     organizeToolsByCategory,
     escapeMarkdown
 } from './utils';
+import { SvgIcons } from './svg-icons';
 
 /**
  * Renders the advanced tooltip for the status bar
@@ -119,18 +120,19 @@ export function renderAdvancedTooltip(
 
     md.appendMarkdown(`**Layout:** &nbsp; ${normalItem} &nbsp; $(chevron-right) &nbsp; ${proItem}\n\n`);
 
-    // Audio with test button
+    // Audio with test button and animated wave icon
     const muteIcon = context.isTerminalSoundEnabled ? '$(mute)' : '$(unmute)';
     const audioStatus = context.isTerminalSoundEnabled ? 'Mute' : 'Unmute';
     const muteIconColor = context.isTerminalSoundEnabled ? '#888888' : '#4EC9B0';
+    const audioWaveImg = `<img src="${SvgIcons.getAudioWave()}" width="16" height="12" style="vertical-align:middle;" />`;
     
     if (context.isTerminalSoundEnabled) {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#CE9178;">${currentAudio.icon} ${currentAudio.name}</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO} "Test current audio") &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
+            `**T-Sound:** &nbsp; ${audioWaveImg} <span style="color:#CE9178;">${currentAudio.name}</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [$(play) Test](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO} "Test current audio") &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
         );
     } else {
         md.appendMarkdown(
-            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.icon} ${currentAudio.name} &nbsp; l &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
+            `**T-Sound:** &nbsp; <span style="color:#888888;">${currentAudio.name} &nbsp; l &nbsp; $(play) Test</span> &nbsp; <span style="color:#888888;">l</span> &nbsp; [<span style="color:${muteIconColor};">${muteIcon}</span>](command:${CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE} "${audioStatus} Audio")\n\n`
         );
     }
 
