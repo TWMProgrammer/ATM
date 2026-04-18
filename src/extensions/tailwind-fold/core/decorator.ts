@@ -6,6 +6,8 @@ import { Settings } from "./config";
 import { StatusBar } from "../ui/status-bar";
 
 export class Decorator {
+    private static readonly foldedClickHitSlopChars = 12;
+
     activeEditor: vscode.TextEditor | undefined;
 
     autoFold: boolean = true;
@@ -155,7 +157,51 @@ export class Decorator {
         return this.foldedRanges;
     }
 
-    public unfoldAndPositionCursor(position: vscode.Position) {
+    public findFoldedRangeAtPosition(position: vscode.Position): vscode.Range | undefined {
+        const hitSlop = Decorator.foldedClickHitSlopChars;
+
+        for (const range of this.foldedRanges) {
+            if (range.contains(position)) {
+                return range;
+            }
+
+            // Decorations are rendered around the range boundaries, so we accept near-boundary clicks.
+            if (range.start.line === range.end.line) {
+                if (
+                    position.line === range.start.line &&
+                    position.character >= Math.max(0, range.start.character - hitSlop) &&
+                    position.character <= range.end.character + hitSlop
+                ) {
+                    return range;
+                }
+                continue;
+            }
+
+            if (
+                position.line === range.start.line &&
+                position.character >= Math.max(0, range.start.character - hitSlop) &&
+                position.character <= range.start.character + hitSlop
+            ) {
+                return range;
+            }
+
+            if (
+                position.line === range.end.line &&
+                position.character >= Math.max(0, range.end.character - hitSlop) &&
+                position.character <= range.end.character + hitSlop
+            ) {
+                return range;
+            }
+
+            if (position.line > range.start.line && position.line < range.end.line) {
+                return range;
+            }
+        }
+
+        return undefined;
+    }
+
+    public unfoldAndPositionCursor(range: vscode.Range) {
         if (!this.activeEditor) {
             return;
         }
@@ -163,77 +209,66 @@ export class Decorator {
         // FIRST: Clean up any previous auto-inserted space before inserting a new one
         this.cleanupAutoInsertedSpace();
 
-        // Find the folded range that contains this position
-        for (const range of this.foldedRanges) {
-            if (range.contains(position) || 
-                (position.line === range.start.line && 
-                 position.character >= range.start.character - 3 && 
-                 position.character <= range.end.character + 3)) {
-                
-                // Get the text to find the closing quote
-                const text = this.activeEditor.document.getText(range);
-                
-                // Find the last quote character (", ', or `)
-                const lastQuoteMatch = text.match(/["'`](?=[^"'`]*$)/);
-                
-                if (lastQuoteMatch && lastQuoteMatch.index !== undefined) {
-                    // Check if there's already a space before the closing quote
-                    const charBeforeQuote = lastQuoteMatch.index > 0 ? text[lastQuoteMatch.index - 1] : '';
-                    const needsSpace = charBeforeQuote !== ' ' && charBeforeQuote !== '\t';
-                    
-                    if (needsSpace) {
-                        // Insert a space before the closing quote
-                        const quoteOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
-                        const quotePosition = this.activeEditor.document.positionAt(quoteOffset);
-                        
-                        this.activeEditor.edit((editBuilder) => {
-                            editBuilder.insert(quotePosition, ' ');
-                        }).then(() => {
-                            // Position cursor after the inserted space
-                            const cursorPosition = this.activeEditor!.document.positionAt(quoteOffset + 1);
-                            this.activeEditor!.selection = new vscode.Selection(cursorPosition, cursorPosition);
-                            
-                            // Track this auto-inserted space
-                            this.autoInsertedSpace = { 
-                                position: quotePosition, 
-                                line: quotePosition.line 
-                            };
-                            
-                            // Reveal the cursor position
-                            this.activeEditor!.revealRange(
-                                new vscode.Range(cursorPosition, cursorPosition),
-                                vscode.TextEditorRevealType.InCenterIfOutsideViewport
-                            );
-                            
-                            // Force update decorations to unfold
-                            this.updateDecorations();
-                        });
-                    } else {
-                        // Space already exists, just position cursor before the closing quote
-                        const cursorOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
-                        const cursorPosition = this.activeEditor.document.positionAt(cursorOffset);
-                        
-                        this.autoInsertedSpace = null;
-                        this.activeEditor.selection = new vscode.Selection(cursorPosition, cursorPosition);
-                        
-                        // Reveal the cursor position
-                        this.activeEditor.revealRange(
-                            new vscode.Range(cursorPosition, cursorPosition),
-                            vscode.TextEditorRevealType.InCenterIfOutsideViewport
-                        );
-                        
-                        // Force update decorations to unfold
-                        this.updateDecorations();
-                    }
-                } else {
-                    // Fallback: position at the end of the range
-                    this.autoInsertedSpace = null;
-                    this.activeEditor.selection = new vscode.Selection(range.end, range.end);
+        // Get the text to find the closing quote
+        const text = this.activeEditor.document.getText(range);
+
+        // Find the last quote character (", ', or `)
+        const lastQuoteMatch = text.match(/["'`](?=[^"'`]*$)/);
+
+        if (lastQuoteMatch && lastQuoteMatch.index !== undefined) {
+            // Check if there's already a space before the closing quote
+            const charBeforeQuote = lastQuoteMatch.index > 0 ? text[lastQuoteMatch.index - 1] : "";
+            const needsSpace = charBeforeQuote !== " " && charBeforeQuote !== "\t";
+
+            if (needsSpace) {
+                // Insert a space before the closing quote
+                const quoteOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
+                const quotePosition = this.activeEditor.document.positionAt(quoteOffset);
+
+                this.activeEditor.edit((editBuilder) => {
+                    editBuilder.insert(quotePosition, " ");
+                }).then(() => {
+                    // Position cursor after the inserted space
+                    const cursorPosition = this.activeEditor!.document.positionAt(quoteOffset + 1);
+                    this.activeEditor!.selection = new vscode.Selection(cursorPosition, cursorPosition);
+
+                    // Track this auto-inserted space
+                    this.autoInsertedSpace = {
+                        position: quotePosition,
+                        line: quotePosition.line
+                    };
+
+                    // Reveal the cursor position
+                    this.activeEditor!.revealRange(
+                        new vscode.Range(cursorPosition, cursorPosition),
+                        vscode.TextEditorRevealType.InCenterIfOutsideViewport
+                    );
+
+                    // Force update decorations to unfold
                     this.updateDecorations();
-                }
-                
-                break;
+                });
+            } else {
+                // Space already exists, just position cursor before the closing quote
+                const cursorOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
+                const cursorPosition = this.activeEditor.document.positionAt(cursorOffset);
+
+                this.autoInsertedSpace = null;
+                this.activeEditor.selection = new vscode.Selection(cursorPosition, cursorPosition);
+
+                // Reveal the cursor position
+                this.activeEditor.revealRange(
+                    new vscode.Range(cursorPosition, cursorPosition),
+                    vscode.TextEditorRevealType.InCenterIfOutsideViewport
+                );
+
+                // Force update decorations to unfold
+                this.updateDecorations();
             }
+        } else {
+            // Fallback: position at the end of the range
+            this.autoInsertedSpace = null;
+            this.activeEditor.selection = new vscode.Selection(range.end, range.end);
+            this.updateDecorations();
         }
     }
 
