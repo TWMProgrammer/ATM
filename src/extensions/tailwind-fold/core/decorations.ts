@@ -29,7 +29,7 @@ export async function createFoldedDecorationType(): Promise<vscode.TextEditorDec
             textDecoration: "none; padding: 1px 2px 1px 6px; border-radius: 6px 0 0 6px; cursor: pointer;", // Left side inner padding and rounded border
         },
         after: {
-            contentText: Config.get<string>(Settings.FoldedText, "..."),
+            contentText: Config.get<string>(Settings.FoldedText, ""),
             backgroundColor: bgColor, // Connect background over the text
             color: Config.get<string>(Settings.FoldedTextColor, "#7cdbfe"),
             margin: "0", // Remove margin to connect smoothly to 'before'

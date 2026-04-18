@@ -31,8 +31,9 @@ export class Icons {
         const svgContent = await this.getSvgContent();
         
         const fontSize = vscode.workspace.getConfiguration("editor").get<number>("fontSize", 14);
-        const scaleFactor = 0.9;
-        const width = fontSize * scaleFactor;
+        const scaleFactor = 1.4; // Increased from 0.9 to make it bigger
+        const horizontalScale = 1.8; // Make it wider horizontally
+        const width = fontSize * scaleFactor * horizontalScale;
         const height = fontSize * scaleFactor;
 
         // Naive scalable replacement to fit the text height
