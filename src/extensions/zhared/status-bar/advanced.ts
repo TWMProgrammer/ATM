@@ -34,11 +34,14 @@ export function renderAdvancedTooltip(
     );
     md.appendMarkdown('---\n\n');
 
-    // Status with stats
-    if (stats.totalTools > 0) {
+    // Status with stats - count all active features in the panel
+    // stats.activeTools = tools that are actually active (not just available)
+    // + 3 fixed features: Tailwind Fold, Layout, T-Sound
+    const totalActiveFeatures = stats.activeTools + 3;
+    if (totalActiveFeatures > 0) {
         md.appendMarkdown('**Status:** ');
         md.appendMarkdown(
-            `<span style="color:#4EC9B0;">$(check) ${stats.totalTools} tool${stats.totalTools !== 1 ? 's' : ''} active</span>\n\n`
+            `<span style="color:#4EC9B0;">$(check) ${totalActiveFeatures} tool${totalActiveFeatures !== 1 ? 's' : ''} active</span>\n\n`
         );
     }
 

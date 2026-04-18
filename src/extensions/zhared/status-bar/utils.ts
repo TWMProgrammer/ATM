@@ -544,15 +544,22 @@ export function checkIsPro(): boolean {
  */
 export function getToolStats(): ToolStats {
     const categoryCounts = new Map<string, number>();
+    let activeCount = 0;
     
     for (const tool of toolRegistry.values()) {
         const category = tool.category || 'other';
         categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
+        
+        // Count as active if description indicates active state
+        const desc = tool.description?.toLowerCase() || '';
+        if (desc.includes('active') || desc.includes('enabled') || desc.includes('running')) {
+            activeCount++;
+        }
     }
 
     return {
         totalTools: toolRegistry.size,
-        activeTools: toolRegistry.size,
+        activeTools: activeCount,
         categoryCounts
     };
 }
