@@ -10,6 +10,7 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
     StatusBar.initialize();
 
     const decorator = new Decorator(context);
+    let lastActiveSelectionLine: number | undefined;
 
     let hoverProvider: vscode.Disposable | undefined;
 
@@ -29,6 +30,7 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
     // Register event handlers
     const changeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
         if (editor) {
+            lastActiveSelectionLine = undefined;
             decorator.setActiveEditor(editor);
         }
     });
@@ -37,13 +39,15 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         if (event.document === vscode.window.activeTextEditor?.document) {
             // Track if user typed on the line with auto-inserted space
             decorator.onTextChanged(event);
-            
-            decorator.recalculateMatches();
-            decorator.updateDecorations();
+
+            // Debounce full parser execution while typing.
+            decorator.scheduleReparseAndUpdate(300);
         }
     });
 
     const changeTextEditorSelection = vscode.window.onDidChangeTextEditorSelection((event) => {
+        const activeLine = event.selections.length > 0 ? event.selections[0].active.line : undefined;
+
         // Check if this is a click (single cursor, no selection)
         if (event.selections.length === 1 && event.selections[0].isEmpty) {
             const position = event.selections[0].active;
@@ -58,6 +62,7 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
                     
                     // Unfold and position cursor correctly
                     decorator.unfoldAndPositionCursor(position);
+                    lastActiveSelectionLine = activeLine;
                     
                     // Update decorations and return early
                     decorator.updateDecorations();
@@ -68,6 +73,13 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         
         // Check if we need to remove auto-inserted space (user moved away without typing)
         decorator.onSelectionChanged();
+
+        // Skip expensive decoration refresh when cursor is still on the same line.
+        if (activeLine === lastActiveSelectionLine) {
+            return;
+        }
+
+        lastActiveSelectionLine = activeLine;
         
         // Here we iterata cached ranges instead of full RegEx parse, increasing perf 100x vs legacy.
         decorator.updateDecorations();

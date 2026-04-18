@@ -24,6 +24,9 @@ export class Decorator {
     // Track auto-inserted space for cleanup if unused
     private autoInsertedSpace: { position: vscode.Position; line: number } | null = null;
 
+    // Debounce full document reparsing to avoid running the parser on every keystroke.
+    private reparseDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+
     constructor(private context: vscode.ExtensionContext) {
         this.loadConfig().then(() => {
             this.setActiveEditor(vscode.window.activeTextEditor);
@@ -34,9 +37,30 @@ export class Decorator {
         if (!textEditor) {
             return;
         }
+
+        this.cancelScheduledReparse();
         this.activeEditor = textEditor;
         this.recalculateMatches(); // Run RegEx only when document/editor changes
         this.updateDecorations();
+    }
+
+    public scheduleReparseAndUpdate(delayMs: number = 300) {
+        this.cancelScheduledReparse();
+
+        this.reparseDebounceTimer = setTimeout(() => {
+            this.reparseDebounceTimer = undefined;
+            this.recalculateMatches();
+            this.updateDecorations();
+        }, delayMs);
+    }
+
+    public cancelScheduledReparse() {
+        if (!this.reparseDebounceTimer) {
+            return;
+        }
+
+        clearTimeout(this.reparseDebounceTimer);
+        this.reparseDebounceTimer = undefined;
     }
 
     public toggleAutoFold(): boolean {
@@ -269,6 +293,7 @@ export class Decorator {
     }
 
     public dispose() {
+        this.cancelScheduledReparse();
         this.unfoldedDecorationType?.dispose();
         this.foldedDecorationType?.dispose();
     }
