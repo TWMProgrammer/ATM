@@ -11,6 +11,21 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
 
     const decorator = new Decorator(context);
 
+    let hoverProvider: vscode.Disposable | undefined;
+
+    const registerHoverProvider = () => {
+        hoverProvider?.dispose();
+
+        const supportedLangs = vscode.workspace
+            .getConfiguration(Settings.Identifier)
+            .get<string[]>(Settings.SupportedLanguages, ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"]);
+
+        const selectors = supportedLangs.map((lang) => ({ language: lang }));
+        hoverProvider = selectors.length > 0
+            ? vscode.languages.registerHoverProvider(selectors, new TailwindFoldHoverProvider(decorator))
+            : undefined;
+    };
+
     // Register event handlers
     const changeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
         if (editor) {
@@ -61,6 +76,10 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
     const changeConfiguration = vscode.workspace.onDidChangeConfiguration(async (event) => {
         if (event.affectsConfiguration(Settings.Identifier)) {
             await decorator.loadConfig();
+
+            if (event.affectsConfiguration(`${Settings.Identifier}.${Settings.SupportedLanguages}`)) {
+                registerHoverProvider();
+            }
         }
     });
 
@@ -69,11 +88,8 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         decorator.toggleAutoFold();
     });
 
-    const supportedLangs = vscode.workspace.getConfiguration(Settings.Identifier).get<string[]>(Settings.SupportedLanguages, ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"]);
-    
     // Register Hover Provider
-    const selectors = supportedLangs.map((lang) => ({ language: lang }));
-    const hoverProvider = vscode.languages.registerHoverProvider(selectors, new TailwindFoldHoverProvider(decorator));
+    registerHoverProvider();
 
     context.subscriptions.push(
         changeActiveTextEditor,
@@ -81,7 +97,7 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         changeTextEditorSelection,
         changeConfiguration,
         toggleCommand,
-        hoverProvider,
+        { dispose: () => hoverProvider?.dispose() },
         { dispose: () => decorator.dispose() },
         { dispose: () => StatusBar.dispose() }
     );

@@ -93,7 +93,12 @@ export class Decorator {
         }
 
         if (this.supportedLanguages.length > 0 && !this.supportedLanguages.includes(this.activeEditor.document.languageId)) {
-            return; // Do nothing for unsupported files
+            // Clear stale decorations when switching into unsupported files.
+            this.foldedRanges = [];
+            this.unfoldedRanges = [];
+            this.activeEditor.setDecorations(this.unfoldedDecorationType, []);
+            this.activeEditor.setDecorations(this.foldedDecorationType, []);
+            return;
         }
 
         this.foldedRanges = [];
