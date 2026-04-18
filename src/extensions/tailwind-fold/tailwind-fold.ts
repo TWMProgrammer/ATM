@@ -10,10 +10,27 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
     StatusBar.initialize();
 
     const decorator = new Decorator(context);
+    let lastActiveSelectionLine: number | undefined;
+
+    let hoverProvider: vscode.Disposable | undefined;
+
+    const registerHoverProvider = () => {
+        hoverProvider?.dispose();
+
+        const supportedLangs = vscode.workspace
+            .getConfiguration(Settings.Identifier)
+            .get<string[]>(Settings.SupportedLanguages, ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"]);
+
+        const selectors = supportedLangs.map((lang) => ({ language: lang }));
+        hoverProvider = selectors.length > 0
+            ? vscode.languages.registerHoverProvider(selectors, new TailwindFoldHoverProvider(decorator))
+            : undefined;
+    };
 
     // Register event handlers
     const changeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
         if (editor) {
+            lastActiveSelectionLine = undefined;
             decorator.setActiveEditor(editor);
         }
     });
@@ -22,37 +39,40 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         if (event.document === vscode.window.activeTextEditor?.document) {
             // Track if user typed on the line with auto-inserted space
             decorator.onTextChanged(event);
-            
-            decorator.recalculateMatches();
-            decorator.updateDecorations();
+
+            // Debounce full parser execution while typing.
+            decorator.scheduleReparseAndUpdate(300);
         }
     });
 
     const changeTextEditorSelection = vscode.window.onDidChangeTextEditorSelection((event) => {
+        const activeLine = event.selections.length > 0 ? event.selections[0].active.line : undefined;
+
         // Check if this is a click (single cursor, no selection)
         if (event.selections.length === 1 && event.selections[0].isEmpty) {
             const position = event.selections[0].active;
-            
-            // Check if the click was on a folded range
-            const foldedRanges = decorator.getFoldedRanges();
-            for (const range of foldedRanges) {
-                // Check if click is within or near the folded decoration
-                if (position.line === range.start.line &&
-                    position.character >= range.start.character - 3 &&
-                    position.character <= range.end.character + 3) {
-                    
-                    // Unfold and position cursor correctly
-                    decorator.unfoldAndPositionCursor(position);
-                    
-                    // Update decorations and return early
-                    decorator.updateDecorations();
-                    return;
-                }
+
+            const clickedFoldedRange = decorator.findFoldedRangeAtPosition(position);
+            if (clickedFoldedRange) {
+                // Unfold and position cursor correctly
+                decorator.unfoldAndPositionCursor(clickedFoldedRange);
+                lastActiveSelectionLine = activeLine;
+
+                // Update decorations and return early
+                decorator.updateDecorations();
+                return;
             }
         }
         
         // Check if we need to remove auto-inserted space (user moved away without typing)
         decorator.onSelectionChanged();
+
+        // Skip expensive decoration refresh when cursor is still on the same line.
+        if (activeLine === lastActiveSelectionLine) {
+            return;
+        }
+
+        lastActiveSelectionLine = activeLine;
         
         // Here we iterata cached ranges instead of full RegEx parse, increasing perf 100x vs legacy.
         decorator.updateDecorations();
@@ -61,6 +81,10 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
     const changeConfiguration = vscode.workspace.onDidChangeConfiguration(async (event) => {
         if (event.affectsConfiguration(Settings.Identifier)) {
             await decorator.loadConfig();
+
+            if (event.affectsConfiguration(`${Settings.Identifier}.${Settings.SupportedLanguages}`)) {
+                registerHoverProvider();
+            }
         }
     });
 
@@ -69,11 +93,8 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         decorator.toggleAutoFold();
     });
 
-    const supportedLangs = vscode.workspace.getConfiguration(Settings.Identifier).get<string[]>(Settings.SupportedLanguages, ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"]);
-    
     // Register Hover Provider
-    const selectors = supportedLangs.map((lang) => ({ language: lang }));
-    const hoverProvider = vscode.languages.registerHoverProvider(selectors, new TailwindFoldHoverProvider(decorator));
+    registerHoverProvider();
 
     context.subscriptions.push(
         changeActiveTextEditor,
@@ -81,7 +102,7 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         changeTextEditorSelection,
         changeConfiguration,
         toggleCommand,
-        hoverProvider,
+        { dispose: () => hoverProvider?.dispose() },
         { dispose: () => decorator.dispose() },
         { dispose: () => StatusBar.dispose() }
     );

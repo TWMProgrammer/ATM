@@ -4,6 +4,15 @@ import { Decorator } from "../core/decorator";
 export class TailwindFoldHoverProvider implements vscode.HoverProvider {
     constructor(private decorator: Decorator) {}
 
+    private static escapeHtml(value: string): string {
+        return value
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
     provideHover(
         document: vscode.TextDocument,
         position: vscode.Position,
@@ -23,9 +32,11 @@ export class TailwindFoldHoverProvider implements vscode.HoverProvider {
                 if (splitIndex !== undefined && splitIndex > 0) {
                     const attr = text.substring(0, splitIndex).trim();
                     const classes = text.substring(splitIndex);
+                    const escapedAttr = TailwindFoldHoverProvider.escapeHtml(attr);
+                    const escapedClasses = TailwindFoldHoverProvider.escapeHtml(classes);
                     
                     md.supportHtml = true;
-                    md.appendMarkdown(`<code><span style="color: var(--vscode-textLink-foreground);"><b>${attr}</b></span>${classes}</code>`);
+                    md.appendMarkdown(`<code><span style="color: var(--vscode-textLink-foreground);"><b>${escapedAttr}</b></span>${escapedClasses}</code>`);
                 } else {
                     md.appendCodeblock(text, "html");
                 }
