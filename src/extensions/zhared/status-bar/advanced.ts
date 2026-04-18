@@ -25,7 +25,9 @@ export function renderAdvancedTooltip(
     const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex];
 
     // Rich header
-    md.appendMarkdown('### **ATM** <span style="color:#888888;">Control Center</span>\n\n');
+    md.appendMarkdown(
+        '<table width="100%"><tr><td><span style="font-size:1.1em;font-weight:700;">ATM</span> <span style="color:#888888;">Control Center</span></td><td align="right"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NiIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDQ2IDE4Ij48cmVjdCB4PSIwLjUiIHk9IjAuNSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjE3IiByeD0iOC41IiBmaWxsPSIjQzBDMEMwIiBzdHJva2U9IiNBRkFGQUYiLz48dGV4dCB4PSIyMyIgeT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJTZWdvZSBVSSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjkiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMwMDAwMDAiPkJFVEE8L3RleHQ+PC9zdmc+" width="46" height="18" alt="BETA" /></td></tr></table>\n\n'
+    );
     md.appendMarkdown(
         `<sub><span style="color:#9370DB;">Advanced Tool Management System</span></sub>\n\n`
     );
