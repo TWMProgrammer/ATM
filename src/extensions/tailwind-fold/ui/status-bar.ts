@@ -8,7 +8,12 @@ export class StatusBar {
             this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
             this.statusBarItem.command = "tailwind-fold.toggleAutoFold";
         }
-        this.update(true); // default to true, can be checked against config
+
+        const autoFoldEnabled = vscode.workspace
+            .getConfiguration("tailwind-fold")
+            .get<boolean>("autoFold", true);
+
+        this.update(autoFoldEnabled);
     }
 
     static update(isFolded: boolean) {

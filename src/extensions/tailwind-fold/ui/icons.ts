@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { Utils } from "vscode-uri";
 
 export class Icons {
     private static _extensionContext: vscode.ExtensionContext;
