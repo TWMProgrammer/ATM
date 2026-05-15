@@ -1,14 +1,13 @@
 import * as vscode from "vscode";
 import { Decorator } from "./core/decorator";
 import * as Config from "./core/config";
-import { Settings } from "./core/config";
+import { DEFAULT_SUPPORTED_LANGUAGES, Settings } from "./core/config";
 import { Icons } from "./ui/icons";
 import { TailwindFoldHoverProvider } from "./ui/hover";
 
 
 const COMMAND_TOGGLE_AUTO_FOLD = "tailwind-css.toggleAutoFold";
 const COMMAND_TOGGLE_ENABLED = "tailwind-css.toggleEnabled";
-const DEFAULT_SUPPORTED_LANGUAGES = ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"];
 
 export async function activateTailwindFold(context: vscode.ExtensionContext) {
     Icons.initialize(context);
@@ -55,9 +54,9 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
             return;
         }
 
-        decorator = new Decorator(context);
+        decorator = new Decorator();
 
-        // Register event handlers
+        // Register editor event handlers.
         const changeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((editor) => {
             if (editor && decorator) {
                 lastActiveSelectionLine = undefined;
@@ -83,18 +82,14 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
 
             const activeLine = event.selections.length > 0 ? event.selections[0].active.line : undefined;
 
-            // Check if this is a click (single cursor, no selection)
+            // A single empty selection can be a click on the folded Tailwind pill.
             if (event.selections.length === 1 && event.selections[0].isEmpty) {
                 const position = event.selections[0].active;
 
                 const clickedFoldedRange = decorator.findFoldedRangeAtPosition(position);
                 if (clickedFoldedRange) {
-                    // Unfold and position cursor correctly
                     decorator.unfoldAndPositionCursor(clickedFoldedRange);
                     lastActiveSelectionLine = activeLine;
-
-                    // Update decorations and return early
-                    decorator.updateDecorations();
                     return;
                 }
             }
@@ -106,7 +101,7 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
 
             lastActiveSelectionLine = activeLine;
 
-            // Here we iterata cached ranges instead of full RegEx parse, increasing perf 100x vs legacy.
+            // Selection changes only need to reapply cached parser ranges.
             decorator.updateDecorations();
         });
 

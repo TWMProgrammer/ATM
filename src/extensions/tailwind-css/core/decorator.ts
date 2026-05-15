@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { Parser } from "./parser";
 import { createFoldedDecorationType, createUnfoldedDecorationType } from "./decorations";
 import * as Config from "./config";
-import { Settings } from "./config";
+import { DEFAULT_SUPPORTED_LANGUAGES, Settings } from "./config";
 
 export class Decorator {
     private static readonly foldedIconLeftHitSlopChars = 2;
@@ -25,7 +25,7 @@ export class Decorator {
     // Debounce full document reparsing to avoid running the parser on every keystroke.
     private reparseDebounceTimer: ReturnType<typeof setTimeout> | undefined;
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor() {
         this.loadConfig().then(() => {
             this.setActiveEditor(vscode.window.activeTextEditor);
         });
@@ -38,7 +38,7 @@ export class Decorator {
 
         this.cancelScheduledReparse();
         this.activeEditor = textEditor;
-        this.recalculateMatches(); // Run RegEx only when document/editor changes
+        this.recalculateMatches();
         this.updateDecorations();
     }
 
@@ -71,7 +71,7 @@ export class Decorator {
     public async loadConfig() {
         this.autoFold = Config.get<boolean>(Settings.AutoFold, true);
         this.unfoldIfLineSelected = Config.get<boolean>(Settings.UnfoldIfLineSelected, false);
-        this.supportedLanguages = Config.get<string[]>(Settings.SupportedLanguages, ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"]);
+        this.supportedLanguages = Config.get<string[]>(Settings.SupportedLanguages, DEFAULT_SUPPORTED_LANGUAGES);
 
         if (this.unfoldedDecorationType) {this.unfoldedDecorationType.dispose();}
         if (this.foldedDecorationType) {this.foldedDecorationType.dispose();}
