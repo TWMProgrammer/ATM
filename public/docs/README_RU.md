@@ -323,6 +323,16 @@
 ext install bastndev.atm
 ```
 
+### Способ 2 — Представление расширений
+
+1. Откройте расширения (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. Найдите **"ATM"**
+3. Нажмите **Установить**
+
+<br>
+
+---
+
 ## Обо мне
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |

@@ -323,6 +323,16 @@ _Quick Open_ を開きます
 ext install bastndev.atm
 ```
 
+### 方法 2 — 拡張機能ビュー
+
+1. 拡張機能を開く (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. **"ATM"** を検索
+3. **インストール** をクリック
+
+<br>
+
+---
+
 ## 私について
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |

@@ -323,6 +323,16 @@
 ext install bastndev.atm
 ```
 
+### الطريقة الثانية — عرض الإضافات
+
+1. افتح الإضافات (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. ابحث عن **"ATM"**
+3. اضغط على **تثبيت**
+
+<br>
+
+---
+
 ## نبذة عني
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |

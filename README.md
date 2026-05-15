@@ -326,7 +326,7 @@ ext install bastndev.atm
 ### Method 2 — Extensions View
 
 1. Open Extensions (`Ctrl+Shift+X` / `⌘+Shift+X`)
-2. Search **"Lynx Keymap 75%"**
+2. Search **"ATM"**
 3. Click **Install**
 
 <br>

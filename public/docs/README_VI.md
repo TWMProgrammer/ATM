@@ -323,6 +323,16 @@ Dán lệnh sau và nhấn `Enter`:
 ext install bastndev.atm
 ```
 
+### Cách 2 — Xem tiện ích
+
+1. Mở tiện ích (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. Tìm kiếm **"ATM"**
+3. Nhấn **Cài đặt**
+
+<br>
+
+---
+
 ## Về tôi
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |

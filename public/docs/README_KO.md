@@ -323,6 +323,16 @@ _Quick Open_ 실행
 ext install bastndev.atm
 ```
 
+### 방법 2 — 확장 보기
+
+1. 확장 열기 (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. **"ATM"** 검색
+3. **설치** 클릭
+
+<br>
+
+---
+
 ## 소개
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |

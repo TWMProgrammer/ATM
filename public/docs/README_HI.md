@@ -323,6 +323,16 @@ _Quick Open_ लॉन्च करें
 ext install bastndev.atm
 ```
 
+### विधि 2 — Extensions View
+
+1. Extensions खोलें (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. **"ATM"** खोजें
+3. **Install** पर क्लिक करें
+
+<br>
+
+---
+
 ## मेरे बारे में
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |

@@ -323,6 +323,16 @@ Cole o comando abaixo e pressione `Enter`:
 ext install bastndev.atm
 ```
 
+### Método 2 — Vista de extensões
+
+1. Abra as extensões (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. Pesquise **"ATM"**
+3. Clique em **Instalar**
+
+<br>
+
+---
+
 ## Sobre mim
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |
