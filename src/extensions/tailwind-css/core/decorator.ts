@@ -5,7 +5,7 @@ import * as Config from "./config";
 import { Settings } from "./config";
 
 export class Decorator {
-    private static readonly foldedClickHitSlopChars = 12;
+    private static readonly foldedIconLeftHitSlopChars = 2;
 
     activeEditor: vscode.TextEditor | undefined;
 
@@ -150,19 +150,14 @@ export class Decorator {
     }
 
     public findFoldedRangeAtPosition(position: vscode.Position): vscode.Range | undefined {
-        const hitSlop = Decorator.foldedClickHitSlopChars;
+        const leftHitSlop = Decorator.foldedIconLeftHitSlopChars;
 
         for (const range of this.foldedRanges) {
-            if (range.contains(position)) {
-                return range;
-            }
-
-            // Decorations are rendered around the range boundaries, so we accept near-boundary clicks.
             if (range.start.line === range.end.line) {
                 if (
                     position.line === range.start.line &&
-                    position.character >= Math.max(0, range.start.character - hitSlop) &&
-                    position.character <= range.end.character + hitSlop
+                    position.character >= Math.max(0, range.start.character - leftHitSlop) &&
+                    position.character <= range.end.character
                 ) {
                     return range;
                 }
@@ -171,21 +166,9 @@ export class Decorator {
 
             if (
                 position.line === range.start.line &&
-                position.character >= Math.max(0, range.start.character - hitSlop) &&
-                position.character <= range.start.character + hitSlop
+                position.character >= Math.max(0, range.start.character - leftHitSlop) &&
+                position.character <= range.start.character
             ) {
-                return range;
-            }
-
-            if (
-                position.line === range.end.line &&
-                position.character >= Math.max(0, range.end.character - hitSlop) &&
-                position.character <= range.end.character + hitSlop
-            ) {
-                return range;
-            }
-
-            if (position.line > range.start.line && position.line < range.end.line) {
                 return range;
             }
         }
