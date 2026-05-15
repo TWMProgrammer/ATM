@@ -19,5 +19,9 @@
   "command.env.reveal": "Env Lens: Wert anzeigen",
   "command.env.disableBlur": "Env Lens: .env-Werte anzeigen",
   "command.env.enableBlur": "Env Lens: .env-Werte ausblenden",
+  "command.lint.toggle": "ATM Lint: Engine umschalten",
+  "command.lint.revalidate": "ATM Lint: Geöffnete Dateien erneut prüfen",
+  "command.music.togglePlayPause": "ATM Musik: Wiedergabe/Pause",
+  "command.music.playRandomAM": "ATM Musik: Zufälliger AM-Sender",
   "view.music": "ATM :: Radio/Musik · Pomodoro · Daten"
 }

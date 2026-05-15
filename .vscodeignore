@@ -24,7 +24,6 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 package-lock.json
-ARCHITECTURE.md
 docs/**
 
 # Voice TTS: no incluir modelos de voz en el .vsix (cada usuario los descarga con "Download Voice")
@@ -32,5 +31,9 @@ docs/**
 voices
 piper
 
-# Public: imágenes del README (se jalan desde GitHub)
-public
+# gohitx
+public/**
+src/__test__/**
+ARCHITECTURE.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md

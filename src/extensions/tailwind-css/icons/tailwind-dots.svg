@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="76" height="10" viewBox="0 0 76 10">
-  <circle cx="5" cy="5" r="5" fill="#41A0C9" opacity="1"/>
-  <circle cx="27" cy="5" r="5" fill="#41A0C9" opacity="1"/>
-  <circle cx="49" cy="5" r="5" fill="#41A0C9" opacity="0.5"/>
-  <circle cx="71" cy="5" r="5" fill="#41A0C9" opacity="0.1"/>
+  <defs>
+    <linearGradient id="softMauveDots" x1="0" y1="0" x2="76" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="50%" stop-color="#C084FC"/>
+      <stop offset="100%" stop-color="#DDD6FE"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="5" cy="5" r="5" fill="url(#softMauveDots)" opacity="1"/>
+  <circle cx="27" cy="5" r="5" fill="url(#softMauveDots)" opacity="0.82"/>
+  <circle cx="49" cy="5" r="5" fill="url(#softMauveDots)" opacity="0.42"/>
+  <circle cx="71" cy="5" r="5" fill="url(#softMauveDots)" opacity="0.14"/>
 </svg>

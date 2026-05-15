@@ -19,5 +19,9 @@
   "command.env.reveal": "Env Lens: 値を表示",
   "command.env.disableBlur": "Env Lens: .envの値を表示",
   "command.env.enableBlur": "Env Lens: .envの値を非表示",
+  "command.lint.toggle": "ATM Lint: エンジンを切り替え",
+  "command.lint.revalidate": "ATM Lint: 開いているファイルを再検証",
+  "command.music.togglePlayPause": "ATM 音楽: 再生/一時停止",
+  "command.music.playRandomAM": "ATM 音楽: ランダムAM局",
   "view.music": "ATM :: ラジオ/音楽 · ポモドーロ · データ"
 }

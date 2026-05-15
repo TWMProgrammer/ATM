@@ -15,6 +15,8 @@ export enum Settings {
     FoldLengthThreshold = "foldLengthThreshold",
 }
 
+export const DEFAULT_SUPPORTED_LANGUAGES = ["html", "vue", "javascriptreact", "typescriptreact", "svelte", "astro"];
+
 export function set(key: Settings, value: unknown): Thenable<void> {
     return vscode.workspace.getConfiguration(Settings.Identifier).update(key, value, true);
 }
