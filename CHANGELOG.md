@@ -16,6 +16,23 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ---
 
+## [1.9.5] - 2026-04-18
+
+### Added
+
+- Improved Tailwind CSS support and detection.
+- Enhanced autocomplete and parsing behavior for utility classes.
+- Added new dictionary words:
+  - `tailwind`
+  - `cli`
+  - `emit`
+  - `vscodeignore`
+  - `prettierignore`
+  - `keymap`
+  - `keymaps`
+
+---
+
 ## [1.9.4] - 2026-04-18
 
 ### Added
