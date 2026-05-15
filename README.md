@@ -11,7 +11,16 @@
 
 <p align="center">
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ES.md">Español 🇪🇸</a> |
-  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ZH.md">中文 🇨🇳</a>
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ZH.md">中文 🇨🇳</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_DE.md">Deutsch 🇩🇪</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_FR.md">Français 🇫🇷</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_JA.md">日本語 🇯🇵</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_KO.md">한국어 🇰🇷</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_PT.md">Português 🇧🇷</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_RU.md">Русский 🇷🇺</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_VI.md">Tiếng Việt 🇻🇳</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_HI.md">हिन्दी 🇮🇳</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_AR.md">العربية 🇸🇦</a><span>...</span>
 </p>
 
 <div align="center">
@@ -371,11 +380,11 @@ Thank you to everyone who supports this project! Your contributions make updates
   🧩 Complementary Extensions
 </h2>
 
-| Icon                                                                                                                                                                                                                                     | Extension                                                          | Description                                                                                                                                                         |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)   | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**       | A sleek, professional theme pack with 6 visual variants (Dark, Light, Night, Ghibli, Coffee, Kiro) and integrated icons.                                            |
-| [![Lynx Keymap Pro](https://raw.githubusercontent.com/bastndev/Lynx-Keymap-Pro/refs/heads/main/assets/images/logo.png)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap)                                        | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | Ultimate keymap standardization across all code editors. Maximizes your muscle memory and supercharges workflow.                                                    |
-| [![Compare Code](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/compare-code/0.1.0/1759529717256/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code) | [Compare Code](https://github.com/bastndev/Compare-Code)           | Lets you compare code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. |
+| Icon                                                                                                                                                                                                                                      | Extension                                                          | Description                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)    | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**       | A sleek, professional theme pack with 6 visual variants (Dark, Light, Night, Ghibli, Coffee, Kiro) and integrated icons.                                            |
+| [![Lynx Keymap Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-keymap/2.3.1/1778538045613/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap) | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | Ultimate keymap standardization across all code editors. Maximizes your muscle memory and supercharges workflow.                                                    |
+| [![Compare Code](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/compare-code/0.1.0/1759529717256/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code)  | [Compare Code](https://github.com/bastndev/Compare-Code)           | Lets you compare code in a professional, fast, and clear way. With a modern and intuitive interface, it's ideal for developers looking to boost their productivity. |
 
 <br>
 
