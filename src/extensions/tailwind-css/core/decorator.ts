@@ -22,9 +22,6 @@ export class Decorator {
     foldedRanges: vscode.Range[] = [];
     unfoldedRanges: vscode.Range[] = [];
 
-    // Track auto-inserted space for cleanup if unused
-    private autoInsertedSpace: { position: vscode.Position; line: number } | null = null;
-
     // Debounce full document reparsing to avoid running the parser on every keystroke.
     private reparseDebounceTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -201,114 +198,22 @@ export class Decorator {
             return;
         }
 
-        // FIRST: Clean up any previous auto-inserted space before inserting a new one
-        this.cleanupAutoInsertedSpace();
-
-        // Get the text to find the closing quote
         const text = this.activeEditor.document.getText(range);
-
-        // Find the last quote character (", ', or `)
         const lastQuoteMatch = text.match(/["'`](?=[^"'`]*$)/);
 
         if (lastQuoteMatch && lastQuoteMatch.index !== undefined) {
-            // Check if there's already a space before the closing quote
-            const charBeforeQuote = lastQuoteMatch.index > 0 ? text[lastQuoteMatch.index - 1] : "";
-            const needsSpace = charBeforeQuote !== " " && charBeforeQuote !== "\t";
+            const cursorOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
+            const cursorPosition = this.activeEditor.document.positionAt(cursorOffset);
 
-            if (needsSpace) {
-                // Insert a space before the closing quote
-                const quoteOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
-                const quotePosition = this.activeEditor.document.positionAt(quoteOffset);
-
-                this.activeEditor.edit((editBuilder) => {
-                    editBuilder.insert(quotePosition, " ");
-                }).then(() => {
-                    // Position cursor after the inserted space
-                    const cursorPosition = this.activeEditor!.document.positionAt(quoteOffset + 1);
-                    this.activeEditor!.selection = new vscode.Selection(cursorPosition, cursorPosition);
-
-                    // Track this auto-inserted space
-                    this.autoInsertedSpace = {
-                        position: quotePosition,
-                        line: quotePosition.line
-                    };
-
-                    // Reveal the cursor position
-                    this.activeEditor!.revealRange(
-                        new vscode.Range(cursorPosition, cursorPosition),
-                        vscode.TextEditorRevealType.InCenterIfOutsideViewport
-                    );
-
-                    // Force update decorations to unfold
-                    this.updateDecorations();
-                });
-            } else {
-                // Space already exists, just position cursor before the closing quote
-                const cursorOffset = this.activeEditor.document.offsetAt(range.start) + lastQuoteMatch.index;
-                const cursorPosition = this.activeEditor.document.positionAt(cursorOffset);
-
-                this.autoInsertedSpace = null;
-                this.activeEditor.selection = new vscode.Selection(cursorPosition, cursorPosition);
-
-                // Reveal the cursor position
-                this.activeEditor.revealRange(
-                    new vscode.Range(cursorPosition, cursorPosition),
-                    vscode.TextEditorRevealType.InCenterIfOutsideViewport
-                );
-
-                // Force update decorations to unfold
-                this.updateDecorations();
-            }
+            this.activeEditor.selection = new vscode.Selection(cursorPosition, cursorPosition);
+            this.activeEditor.revealRange(
+                new vscode.Range(cursorPosition, cursorPosition),
+                vscode.TextEditorRevealType.InCenterIfOutsideViewport
+            );
+            this.updateDecorations();
         } else {
-            // Fallback: position at the end of the range
-            this.autoInsertedSpace = null;
             this.activeEditor.selection = new vscode.Selection(range.end, range.end);
             this.updateDecorations();
-        }
-    }
-
-    private cleanupAutoInsertedSpace() {
-        if (this.autoInsertedSpace && this.activeEditor) {
-            const spacePos = this.autoInsertedSpace.position;
-            
-            // Verify the space still exists at that position
-            const spaceRange = new vscode.Range(spacePos, spacePos.translate(0, 1));
-            const charAtPos = this.activeEditor.document.getText(spaceRange);
-            
-            if (charAtPos === ' ') {
-                // Remove the unused space synchronously
-                this.activeEditor.edit((editBuilder) => {
-                    editBuilder.delete(spaceRange);
-                });
-            }
-            
-            // Clear tracking regardless
-            this.autoInsertedSpace = null;
-        }
-    }
-
-    public onTextChanged(event: vscode.TextDocumentChangeEvent) {
-        // If user typed on the same line as auto-inserted space, keep it
-        if (this.autoInsertedSpace && event.contentChanges.length > 0) {
-            for (const change of event.contentChanges) {
-                if (change.range.start.line === this.autoInsertedSpace.line && change.text.length > 0) {
-                    // User typed on the same line, mark space as "used"
-                    this.autoInsertedSpace = null;
-                    break;
-                }
-            }
-        }
-    }
-
-    public onSelectionChanged() {
-        // If user moved cursor away and didn't type anything, remove the auto-inserted space
-        if (this.autoInsertedSpace && this.activeEditor) {
-            const currentSelection = this.activeEditor.selection;
-            
-            // Check if cursor moved to a different line
-            if (currentSelection.active.line !== this.autoInsertedSpace.line) {
-                this.cleanupAutoInsertedSpace();
-            }
         }
     }
 

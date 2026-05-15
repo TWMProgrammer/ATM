@@ -71,9 +71,6 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
             }
 
             if (event.document === vscode.window.activeTextEditor?.document) {
-                // Track if user typed on the line with auto-inserted space
-                decorator.onTextChanged(event);
-
                 // Debounce full parser execution while typing.
                 decorator.scheduleReparseAndUpdate(300);
             }
@@ -101,9 +98,6 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
                     return;
                 }
             }
-
-            // Check if we need to remove auto-inserted space (user moved away without typing)
-            decorator.onSelectionChanged();
 
             // Skip expensive decoration refresh when cursor is still on the same line.
             if (activeLine === lastActiveSelectionLine) {
