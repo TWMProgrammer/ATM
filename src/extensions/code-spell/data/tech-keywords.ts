@@ -12,6 +12,12 @@ export const TECH_KEYWORDS = [
   'minimalist',
   'quota',
   'tailwind',
+  'cli',
+  'emit',
+  'vscodeignore',
+  'prettierignore',
+  'keymap',
+  'keymaps',
   'xxxxxxx',
 
   // new words ATM
