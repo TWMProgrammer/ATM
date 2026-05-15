@@ -24,7 +24,7 @@
 </p>
 
 <div align="center">
-  <h3>🏧 +16 extensions & configurations ready.</h3>
+  <h3>🏧 +21 extensions & configurations ready.</h3>
   <p>
     <strong>ATM</strong> is an all-in-one VS Code extension that replaces 16 separate tools with one cohesive, beautifully designed package. From inline spell checking and intelligent <code>.env</code> security to gorgeous code screenshots and advanced Git tools — everything you need, nothing you don't.
   </p>
@@ -51,7 +51,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — AI Data</b></summary>
+          <summary><b>🖼️ Preview — AI Data</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-1.jpg" width="100%" alt="AI Preview" />
         </details>
@@ -66,7 +66,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Code Spell</b></summary>
+          <summary><b>🖼️ Preview — Code Spell</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-2.jpg" width="100%" alt="Code Preview" />
         </details>
@@ -81,7 +81,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Color Debugging</b></summary>
+          <summary><b>🖼️ Preview — Color Debugging</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-3.jpg" width="100%" alt="Color Preview" />
         </details>
@@ -96,7 +96,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Comments Code</b></summary>
+          <summary><b>🖼️ Preview — Comments Code</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-4.jpg" width="100%" alt="Comments Preview" />
         </details>
@@ -111,7 +111,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Env Lens</b></summary>
+          <summary><b>🖼️ Preview — Env Lens</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-5.jpg" width="100%" alt="Env Preview" />
         </details>
@@ -126,7 +126,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Error Lens</b></summary>
+          <summary><b>🖼️ Preview — Error Lens</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-6.jpg" width="100%" alt="Error Preview" />
         </details>
@@ -141,7 +141,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Git Better</b></summary>
+          <summary><b>🖼️ Preview — Git Better</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-7.jpg" width="100%" alt="Git Preview" />
         </details>
@@ -156,7 +156,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Image Preview</b></summary>
+          <summary><b>🖼️ Preview — Image Preview</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-8.jpg" width="100%" alt="Image Preview" />
         </details>
@@ -171,7 +171,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Markdown Text</b></summary>
+          <summary><b>🖼️ Preview — Markdown Text</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-9.jpg" width="100%" alt="Markdown Preview" />
         </details>
@@ -186,7 +186,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Markdown MDX</b></summary>
+          <summary><b>🖼️ Preview — Markdown MDX</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-10.jpg" width="100%" alt="Markdown Preview" />
         </details>
@@ -201,7 +201,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Screenshot Code</b></summary>
+          <summary><b>🖼️ Preview — Screenshot Code</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-11.jpg" width="100%" alt="Screenshot Preview" />
         </details>
@@ -216,7 +216,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — SVG Better</b></summary>
+          <summary><b>🖼️ Preview — SVG Better</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-12.jpg" width="100%" alt="SVG Preview" />
         </details>
@@ -231,7 +231,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Translate Doc</b></summary>
+          <summary><b>🖼️ Preview — Translate Doc</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-13.jpg" width="100%" alt="Translate Preview" />
         </details>
@@ -246,7 +246,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Version Package</b></summary>
+          <summary><b>🖼️ Preview — Version Package</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-14.jpg" width="100%" alt="Version Preview" />
         </details>
@@ -261,7 +261,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Voice TTS</b></summary>
+          <summary><b>🖼️ Preview — Voice TTS</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-15.jpg" width="100%" alt="Voice Preview" />
         </details>
@@ -276,7 +276,7 @@
     <tr>
       <td colspan="4">
         <details>
-          <summary><b>Preview — Color Box</b></summary>
+          <summary><b>🖼️ Preview — Color Box</b></summary>
           <br>
           <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-16.jpg" width="100%" alt="Color Box Preview" />
         </details>
@@ -323,16 +323,16 @@ Paste the following command and press `Enter`:
 ext install bastndev.atm
 ```
 
-## 🧑‍💻 About Me
+## About Me
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |
 | :-----------------------------------------------------------------------: |
 |                     **[Gohit X](https://gohit.xyz)**                      |
 |                          _Creator & Maintainer_                           |
 
-- 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** – Code, software, a bit of hardware, and more.
-- 💼 **[LinkedIn](https://www.linkedin.com/in/gohitx)** – Let's connect professionally anytime.
+- 🐦 **[X](https://twitter.com/gohitx)** : For questions and discussions.
 - 🌱 **[IG](https://instagram.com/gohitx)** : **`new`** – Project previews & life updates.
+- 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** : Code, Software and development insights.
 
 <br>
 
@@ -390,11 +390,9 @@ Thank you to everyone who supports this project! Your contributions make updates
 
 <div align="center">
   
-  **Enjoy 🎉 ATM is now installed!**  
+  **Enjoy 🎉 (ATM) is now installed!**  
   *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/atm/issues/new)*
 
-  <br>
-
-<sub>Made with ❤️ by <a href="https://gohit.xyz">Gohit X</a> · Licensed under <a href="./LICENCE">MIT</a></sub>
+<sub>Made in 🇵🇪 by <a href="https://gohit.xyz">Gohit X</a> · Licensed under <a href="https://github.com/bastndev/ATM/blob/main/LICENSE">`MIT`</a></sub>
 
 </div>
