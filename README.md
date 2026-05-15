@@ -382,7 +382,7 @@ Thank you to everyone who supports this project! Your contributions make updates
 <div align="center">
   
   **Enjoy 🎉 ATM is now installed!**  
-  *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/atm/issues)*
+  *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/atm/issues/new)*
 
   <br>
 
