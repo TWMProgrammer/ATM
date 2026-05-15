@@ -323,6 +323,16 @@ Paste the following command and press `Enter`:
 ext install bastndev.atm
 ```
 
+### Method 2 — Extensions View
+
+1. Open Extensions (`Ctrl+Shift+X` / `⌘+Shift+X`)
+2. Search **"Lynx Keymap 75%"**
+3. Click **Install**
+
+<br>
+
+---
+
 ## About Me
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |
