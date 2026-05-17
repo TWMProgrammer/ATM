@@ -52,7 +52,7 @@ export class MdxPreviewManager {
         this.extensionUri,
         'src',
         'extensions',
-        'markdown-mdx',
+        '13-markdown-mdx',
         'assets',
         'file-icon.svg'
       );

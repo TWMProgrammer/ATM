@@ -379,7 +379,7 @@
       {
         "language": "mdx",
         "scopeName": "source.mdx",
-        "path": "./src/extensions/markdown-mdx/syntaxes/source.mdx.tmLanguage",
+        "path": "./src/extensions/13-markdown-mdx/syntaxes/source.mdx.tmLanguage",
         "embeddedLanguages": {
           "meta.embedded.c": "c",
           "meta.embedded.cpp": "cpp",
@@ -421,7 +421,7 @@
       },
       {
         "scopeName": "source.markdown.mdx.codeblock",
-        "path": "./src/extensions/markdown-mdx/syntaxes/mdx.markdown.tmLanguage.json",
+        "path": "./src/extensions/13-markdown-mdx/syntaxes/mdx.markdown.tmLanguage.json",
         "injectTo": [
           "text.html.markdown"
         ],
@@ -485,7 +485,7 @@
         "extensions": [
           ".mdx"
         ],
-        "configuration": "./src/extensions/markdown-mdx/syntaxes/language-configuration.json"
+        "configuration": "./src/extensions/13-markdown-mdx/syntaxes/language-configuration.json"
       }
     ],
     "markdown.markdownItPlugins": true,
@@ -493,7 +493,7 @@
       "./dist/mermaidPreview.js"
     ],
     "markdown.previewStyles": [
-      "./src/extensions/markdown-md/ui/checkboxes.css"
+      "./src/extensions/12-markdown-md/ui/checkboxes.css"
     ],
     "menus": {
       "commandPalette": [
@@ -643,7 +643,7 @@
     "snippets": [
       {
         "language": "markdown",
-        "path": "./src/extensions/markdown-md/snippets/markdown.json"
+        "path": "./src/extensions/12-markdown-md/snippets/markdown.json"
       }
     ],
     "views": {

@@ -32,8 +32,8 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
   );
 
   // Set the panel icon
-  const iconPathDark = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor.svg');
-  const iconPathLight = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor-light.svg');
+  const iconPathDark = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor.svg');
+  const iconPathLight = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'screenshot', 'assets', 'cursor-light.svg');
   currentPanel.iconPath = {
     light: iconPathLight,
     dark: iconPathDark
@@ -459,13 +459,13 @@ function updateScreenshotContent(panel: vscode.WebviewPanel, extensionUri: vscod
     }
 
   // Load UI files
-  const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.html');
-  const cssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.css');
-  const skeletonCssPath = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'skeleton', 'screenshot.css');
-  const atmIconPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'assets', 'atm.png');
+  const htmlPath = path.join(extensionUri.fsPath, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.html');
+  const cssPath = path.join(extensionUri.fsPath, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'screenshot', 'ui', 'index.css');
+  const skeletonCssPath = path.join(extensionUri.fsPath, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'screenshot', 'ui', 'skeleton', 'screenshot.css');
+  const atmIconPath = vscode.Uri.joinPath(extensionUri, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'screenshot', 'assets', 'atm.png');
   const atmIconUri = panel.webview.asWebviewUri(atmIconPath);
 
-  const widgetsDir = path.join(extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'screenshot', 'ui', 'widgets');
+  const widgetsDir = path.join(extensionUri.fsPath, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'screenshot', 'ui', 'widgets');
   const profileWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'profile.html'), 'utf8');
   const heatmapWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'heatmap.html'), 'utf8');
   const todayWidgetHtml = fs.readFileSync(path.join(widgetsDir, 'today.html'), 'utf8');

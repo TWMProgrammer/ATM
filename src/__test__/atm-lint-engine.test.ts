@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { suite, test } from 'mocha';
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
-import { LintEngine } from '../extensions/atm-lint/server/engine';
+import { LintEngine } from '../extensions/02-atm-lint/server/engine';
 
 function seedEngine(engine: LintEngine, uri: string, text: string, version: number = 1): void {
 	const internals = engine as any;

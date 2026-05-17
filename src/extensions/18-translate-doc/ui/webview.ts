@@ -222,7 +222,7 @@ export class TranslatorWebviewPanel {
 
     const cspSource = this._panel.webview.cspSource;
     const cssUri = this._panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'src', 'extensions', 'translate-doc', 'ui', 'skeleton', 'translate-doc.css')
+      vscode.Uri.joinPath(this._extensionUri, 'src', 'extensions', '18-translate-doc', 'ui', 'skeleton', 'translate-doc.css')
     );
 
     return /* html */ `

@@ -15,7 +15,7 @@ export class Icons {
         }
         
         try {
-            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "tailwind-css", "icons", "tailwind-logo.svg");
+            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "16-tailwind-css", "icons", "tailwind-logo.svg");
             const data = await vscode.workspace.fs.readFile(svgPath);
             this._svgLogoCache = Buffer.from(data).toString("utf8");
             return this._svgLogoCache;
@@ -31,7 +31,7 @@ export class Icons {
         }
         
         try {
-            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "tailwind-css", "icons", "tailwind-dots.svg");
+            const svgPath = vscode.Uri.joinPath(this._extensionContext.extensionUri, "src", "extensions", "16-tailwind-css", "icons", "tailwind-dots.svg");
             const data = await vscode.workspace.fs.readFile(svgPath);
             this._svgDotsCache = Buffer.from(data).toString("utf8");
             return this._svgDotsCache;

@@ -2,14 +2,14 @@ import * as vscode from 'vscode';
 import type MarkdownIt from 'markdown-it';
 import { activateExtensions } from './extensions/extensions';
 import { deactivateSettings } from './settings/settings';
-import { deactivateVoiceTts } from './extensions/voice-tts';
-import { deactivateCommentsCode } from './extensions/comments-code';
-import { deactivateTranslateDoc } from './extensions/translate-doc';
-import { deactivateColorDebugging } from './extensions/color-debugging';
-import { taskListPlugin } from './extensions/markdown-md/core/taskListPlugin';
-import { mermaidPlugin } from './extensions/markdown-md/core/mermaidPlugin';
-import { deactivateFocus } from './extensions/focus/focus';
-import { deactivateLint } from './extensions/atm-lint/lint';
+import { deactivateVoiceTts } from './extensions/20-voice-tts';
+import { deactivateCommentsCode } from './extensions/06-comments-code';
+import { deactivateTranslateDoc } from './extensions/18-translate-doc';
+import { deactivateColorDebugging } from './extensions/05-color-debugging';
+import { taskListPlugin } from './extensions/12-markdown-md/core/taskListPlugin';
+import { mermaidPlugin } from './extensions/12-markdown-md/core/mermaidPlugin';
+import { deactivateFocus } from './extensions/09-focus/focus';
+import { deactivateLint } from './extensions/02-atm-lint/lint';
 import { deactivateGlobalStatusBar } from './extensions/zhared/zhared';
 
 /**

@@ -1,26 +1,26 @@
 import type * as vscode from 'vscode';
 import { activateSettings } from '../settings/settings';
-import { activateImagePreview } from './image-preview';
-import { activateVoiceTts } from './voice-tts';
-import { activateCodeSpell } from './code-spell';
-import { activateErrorLens } from './error-lens';
-import { activateColorBox } from './color-box';
-import { activateCommentsCode } from './comments-code';
-import { activateTranslateDoc } from './translate-doc';
-import { activateMdxPreview } from './markdown-mdx';
-import { activateGitBetter } from './git-better';
-import { activateColorDebugging } from './color-debugging';
-import { activateScreenshotCode } from './screenshot-code';
-import { activateVersionPackage } from './version-package';
-import { activateSvgBetter } from './svg-better';
-import { activateDataId } from './ai-data-id';
-import { activateEnvLens } from './env-lens';
-import { activateMarkdownImageIcons } from './markdown-md/icons-images';
-import { activateFocus } from './focus/focus';
-import { activateLint } from './atm-lint/lint';
+import { activateImagePreview } from './11-image-preview';
+import { activateVoiceTts } from './20-voice-tts';
+import { activateCodeSpell } from './03-code-spell';
+import { activateErrorLens } from './08-error-lens';
+import { activateColorBox } from './04-color-box';
+import { activateCommentsCode } from './06-comments-code';
+import { activateTranslateDoc } from './18-translate-doc';
+import { activateMdxPreview } from './13-markdown-mdx';
+import { activateGitBetter } from './10-git-better';
+import { activateColorDebugging } from './05-color-debugging';
+import { activateScreenshotCode } from './14-screenshot-code';
+import { activateVersionPackage } from './19-version-package';
+import { activateSvgBetter } from './15-svg-better';
+import { activateDataId } from './01-ai-data-id';
+import { activateEnvLens } from './07-env-lens';
+import { activateMarkdownImageIcons } from './12-markdown-md/icons-images';
+import { activateFocus } from './09-focus/focus';
+import { activateLint } from './02-atm-lint/lint';
 import { activateGlobalStatusBar } from './zhared/zhared';
-import { activate as activateTerminalSound } from './terminal-sound/terminal-sound';
-import { activateTailwindFold } from './tailwind-css/tailwind-fold';
+import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
+import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
 
 /**
  * Register all sub-extensions here.

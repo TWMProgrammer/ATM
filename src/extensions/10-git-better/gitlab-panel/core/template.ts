@@ -32,7 +32,7 @@ export class TemplateBuilder {
     private readonly panelBase: string[];
 
     constructor(private readonly extensionUri: vscode.Uri) {
-        this.panelBase = ['src', 'extensions', 'git-better', 'gitlab-panel'];
+        this.panelBase = ['src', 'extensions', '10-git-better', 'gitlab-panel'];
     }
 
     /** Returns ready-to-render HTML for the given webview. */
@@ -61,7 +61,7 @@ export class TemplateBuilder {
 
         // Assets are now at git-better/assets (shared with mini-panel)
         const assetsUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', 'git-better', 'assets')
+            vscode.Uri.joinPath(this.extensionUri, 'src', 'extensions', '10-git-better', 'assets')
         ).toString();
 
         // Shared styles at gitlab-panel/shared/

@@ -176,10 +176,10 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 		// These files are part of the extension bundle and never change at runtime.
 		if (!this._cachedRawHtml) {
 			const stylesPaths = [
-				['src', 'extensions', 'focus', 'view', 'ui', 'index.css'],
-				['src', 'extensions', 'focus', 'screens', 'atm-music', 'music', 'ui', 'index.css'],
-				['src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.css'],
-				['src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.css'],
+				['src', 'extensions', '09-focus', 'view', 'ui', 'index.css'],
+				['src', 'extensions', '09-focus', 'screens', 'atm-music', 'music', 'ui', 'index.css'],
+				['src', 'extensions', '09-focus', 'screens', 'atm-time', 'ui', 'index.css'],
+				['src', 'extensions', '09-focus', 'screens', 'atm-data', 'ui', 'index.css'],
 			];
 
 			let combinedCss = '';
@@ -190,14 +190,14 @@ export class YouTubeMusicViewProvider implements vscode.WebviewViewProvider {
 				}
 			}
 
-			const htmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'view', 'ui', 'index.html');
+			const htmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', '09-focus', 'view', 'ui', 'index.html');
 			let rawHtml = fs.readFileSync(htmlPath, 'utf8');
 
-			const timeHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-time', 'ui', 'index.html');
+			const timeHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', '09-focus', 'screens', 'atm-time', 'ui', 'index.html');
 			const timeHtml = fs.readFileSync(timeHtmlPath, 'utf8');
 			rawHtml = rawHtml.replace('<div id="atm-time-root"></div>', `<div id="atm-time-root">\n${timeHtml}\n</div>`);
 
-			const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', 'focus', 'screens', 'atm-data', 'ui', 'index.html');
+			const dataHtmlPath = path.join(this._extensionUri.fsPath, 'src', 'extensions', '09-focus', 'screens', 'atm-data', 'ui', 'index.html');
 			const dataHtml = fs.readFileSync(dataHtmlPath, 'utf8');
 			rawHtml = rawHtml.replace('<div id="atm-data-root" class="center-screen-message"></div>', `\n${dataHtml}\n`);
 

@@ -450,10 +450,10 @@ export async function setTerminalSoundAudio(audioId: string, context: vscode.Ext
  */
 function resolveBundledTerminalSoundAudioPath(fileName: string, context: vscode.ExtensionContext): string {
     const candidates = [
-        path.join(context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', 'error', fileName),
-        path.join(context.extensionPath, 'src', 'extensions', 'terminal-sound', 'sound', fileName),
-        path.join(context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', 'error', fileName),
-        path.join(context.extensionPath, 'dist', 'extensions', 'terminal-sound', 'sound', fileName),
+        path.join(context.extensionPath, 'src', 'extensions', '17-terminal-sound', 'sound', 'error', fileName),
+        path.join(context.extensionPath, 'src', 'extensions', '17-terminal-sound', 'sound', fileName),
+        path.join(context.extensionPath, 'dist', 'extensions', '17-terminal-sound', 'sound', 'error', fileName),
+        path.join(context.extensionPath, 'dist', 'extensions', '17-terminal-sound', 'sound', fileName),
         path.join(context.extensionPath, 'dist', 'terminal-sound', 'sound', 'error', fileName),
         path.join(context.extensionPath, 'dist', 'terminal-sound', 'sound', fileName),
         path.join(context.extensionPath, 'sound', 'error', fileName),

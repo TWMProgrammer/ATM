@@ -39,7 +39,7 @@ export class ScreenshotPanel {
             context.extensionUri,
             'src',
             'extensions',
-            'screenshot-code',
+            '14-screenshot-code',
             'assets'
           ),
         ],
@@ -62,8 +62,8 @@ export class ScreenshotPanel {
     
     // Set native VS Code icon for the panel (SVG workaround for themes)
     this._panel.iconPath = {
-      light: vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'screenshot-code', 'assets', 'camera-light.svg'),
-      dark: vscode.Uri.joinPath(extensionUri, 'src', 'extensions', 'screenshot-code', 'assets', 'camera-dark.svg')
+      light: vscode.Uri.joinPath(extensionUri, 'src', 'extensions', '14-screenshot-code', 'assets', 'camera-light.svg'),
+      dark: vscode.Uri.joinPath(extensionUri, 'src', 'extensions', '14-screenshot-code', 'assets', 'camera-dark.svg')
     };
 
     this._update();
@@ -243,7 +243,7 @@ export class ScreenshotPanel {
         this._extensionUri,
         'src',
         'extensions',
-        'screenshot-code',
+        '14-screenshot-code',
         'assets',
         'download.svg'
       )
