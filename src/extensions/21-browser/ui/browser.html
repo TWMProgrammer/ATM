@@ -7,7 +7,35 @@
 	<!-- ATM_BROWSER_STYLES -->
 </head>
 <body>
-	<main>Hello World 2 33</main>
+	<main class="browser-home">
+		<section class="search-shell" aria-label="ATM Browser search">
+			<div class="brand" aria-label="ATM Browser">
+				<span>A</span>
+				<span>T</span>
+				<span>M</span>
+			</div>
+
+			<form class="search-form" id="browser-search-form">
+				<label class="search-box" for="browser-search-input">
+					<span class="search-icon" aria-hidden="true">⌕</span>
+					<input
+						id="browser-search-input"
+						name="query"
+						type="search"
+						placeholder="Search or enter a URL"
+						autocomplete="off"
+						spellcheck="false"
+					>
+				</label>
+			</form>
+
+			<div class="quick-actions" aria-label="Quick actions">
+				<button class="quick-action" type="button">Translate</button>
+				<button class="quick-action" type="button">AI</button>
+				<button class="quick-action" type="button">Plus</button>
+			</div>
+		</section>
+	</main>
 	<!-- ATM_BROWSER_SCRIPT -->
 </body>
 </html>
