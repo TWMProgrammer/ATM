@@ -198,7 +198,7 @@ function wireEvents(): void {
 		vscodeApi.postMessage({ type: 'copy', text: translatedText });
 		copyAction.classList.add('copied');
 		setStatus('Copied');
-		setTimeout(() => copyAction.classList.remove('copied'), 500);
+		setTimeout(() => copyAction.classList.remove('copied'), 2000);
 	});
 
 	swapAction.addEventListener('click', () => {

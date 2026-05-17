@@ -536,6 +536,25 @@ textarea::placeholder,
 	animation: copyPulse 400ms ease;
 }
 
+/* ---- Copy button icon swap ---- */
+.copy-button .icon-copy,
+.copy-button .icon-check {
+	height: 22px;
+	width: 22px;
+}
+
+.copy-button .icon-check {
+	display: none;
+}
+
+.copy-button.copied .icon-copy {
+	display: none;
+}
+
+.copy-button.copied .icon-check {
+	display: block;
+}
+
 @keyframes copyPulse {
 	0% { transform: scale(1); }
 	50% { transform: scale(1.2); }
