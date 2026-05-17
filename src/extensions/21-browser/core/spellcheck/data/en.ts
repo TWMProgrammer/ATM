@@ -1,0 +1,28 @@
+import type { CorrectionDictionary } from './types';
+
+export const enCorrections: CorrectionDictionary = {
+	acheive: 'achieve',
+	adn: 'and',
+	aplication: 'application',
+	becuase: 'because',
+	bussiness: 'business',
+	cant: "can't",
+	confgi: 'config',
+	definately: 'definitely',
+	diferent: 'different',
+	dowloand: 'download',
+	enviroment: 'environment',
+	fucntion: 'function',
+	funciton: 'function',
+	greate: 'great',
+	langauge: 'language',
+	recieve: 'receive',
+	seperate: 'separate',
+	succes: 'success',
+	teh: 'the',
+	thier: 'their',
+	traslate: 'translate',
+	transalte: 'translate',
+	udpate: 'update',
+	untill: 'until',
+};

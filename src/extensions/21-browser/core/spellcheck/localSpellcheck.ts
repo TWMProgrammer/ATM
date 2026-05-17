@@ -1,4 +1,9 @@
-import { englishCorrections, spanishCorrections, type CorrectionDictionary } from './corrections';
+import {
+	correctionDictionaries,
+	isSupportedCorrectionLanguage,
+	type CorrectionDictionary,
+	type SupportedCorrectionLanguage,
+} from './data';
 
 export interface LocalSpellcheckResult {
 	text: string;
@@ -6,7 +11,7 @@ export interface LocalSpellcheckResult {
 	corrections: number;
 }
 
-type SpellLanguage = 'auto' | 'en' | 'es';
+type SpellLanguage = SupportedCorrectionLanguage | 'auto';
 
 const protectedPattern =
 	/```[\s\S]*?```|`[^`\n]+`|https?:\/\/[^\s"'`<>]+|[\w.-]+@[\w.-]+\.\w{2,}|(?:\.{1,2}\/|~\/|\/)[^\s"'`<>]+|#[0-9a-fA-F]{3,8}\b/g;
@@ -39,8 +44,13 @@ export function correctTextLocally(text: string, language: string): LocalSpellch
 
 function normalizeLanguage(language: string): SpellLanguage {
 	const lower = language.toLowerCase();
-	if (lower.startsWith('es')) { return 'es'; }
-	if (lower.startsWith('en')) { return 'en'; }
+	if (lower === 'zh-cn' || lower === 'zh') { return 'zh-CN'; }
+
+	const baseLanguage = lower.split('-')[0];
+	if (isSupportedCorrectionLanguage(baseLanguage)) {
+		return baseLanguage;
+	}
+
 	return 'auto';
 }
 
@@ -48,12 +58,21 @@ function getCorrectionDictionaries(
 	text: string,
 	language: SpellLanguage,
 ): CorrectionDictionary[] {
-	if (language === 'es') { return [spanishCorrections]; }
-	if (language === 'en') { return [englishCorrections, spanishCorrections]; }
+	if (language !== 'auto') {
+		return withFallbackDictionaries(language);
+	}
 
 	return looksSpanish(text)
-		? [spanishCorrections, englishCorrections]
-		: [englishCorrections, spanishCorrections];
+		? [correctionDictionaries.es, correctionDictionaries.en]
+		: [correctionDictionaries.en, correctionDictionaries.es];
+}
+
+function withFallbackDictionaries(language: SupportedCorrectionLanguage): CorrectionDictionary[] {
+	const primary = correctionDictionaries[language];
+	const fallbacks = [correctionDictionaries.es, correctionDictionaries.en]
+		.filter((dictionary) => dictionary !== primary);
+
+	return [primary, ...fallbacks];
 }
 
 function looksSpanish(text: string): boolean {
