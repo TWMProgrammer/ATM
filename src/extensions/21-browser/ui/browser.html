@@ -31,17 +31,27 @@
 
 			<div class="quick-actions" aria-label="Quick actions">
 				<button class="quick-action" id="translate-action" type="button">Translate</button>
-				<button class="quick-action" type="button">AI</button>
-				<button class="quick-action" type="button">Plus</button>
+				<button class="quick-action" id="mdn-action" type="button">MDN</button>
+				<button class="quick-action" id="chatgpt-action" type="button">AI</button>
 			</div>
 		</section>
 	</main>
 
 	<section class="browser-view" aria-label="ATM Browser page">
 		<header class="browser-toolbar">
+			<button class="toolbar-button" id="back-action" type="button" aria-label="Go back" disabled>
+				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+					<path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+				</svg>
+			</button>
+			<button class="toolbar-button" id="forward-action" type="button" aria-label="Go forward" disabled>
+				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+					<path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+				</svg>
+			</button>
 			<button class="toolbar-button" id="home-action" type="button" aria-label="Back to browser home">
-				<svg class="toolbar-button-icon" viewBox="0 0 1024 1024" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-					<path d="M669.6 849.6c8.8 8 22.4 7.2 30.4-1.6s7.2-22.4-1.6-30.4l-309.6-280c-8-7.2-8-17.6 0-24.8l309.6-270.4c8.8-8 9.6-21.6 2.4-30.4-8-8.8-21.6-9.6-30.4-2.4L360.8 480.8c-27.2 24-28 64-0.8 88.8l309.6 280z"/>
+				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+					<path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/>
 				</svg>
 			</button>
 			<form class="toolbar-form" id="browser-toolbar-form">
@@ -57,8 +67,34 @@
 					>
 				</label>
 			</form>
+			<button class="toolbar-button" id="reload-action" type="button" aria-label="Reload page">
+				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+					<path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+				</svg>
+			</button>
+			<button class="toolbar-button" id="open-external-action" type="button" aria-label="Open in external browser">
+				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+					<path fill="currentColor" d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+				</svg>
+			</button>
 		</header>
-		<iframe id="browser-frame" title="ATM Browser content"></iframe>
+		<div class="frame-container">
+			<div class="frame-loading" id="frame-loading" aria-live="polite">
+				<div class="loading-spinner" aria-hidden="true"></div>
+				<span>Loading…</span>
+			</div>
+			<div class="frame-error" id="frame-error" aria-live="polite">
+				<div class="frame-error-icon" aria-hidden="true">⊘</div>
+				<p class="frame-error-title">This site can't be embedded</p>
+				<p class="frame-error-desc">The page refused to load inside ATM Browser.</p>
+				<button class="frame-error-btn" id="frame-error-external" type="button">Open in External Browser</button>
+			</div>
+			<iframe
+				id="browser-frame"
+				title="ATM Browser content"
+				sandbox="allow-scripts allow-forms allow-same-origin allow-downloads allow-popups allow-top-navigation-by-user-activation allow-modals"
+			></iframe>
+		</div>
 	</section>
 	<!-- ATM_BROWSER_SCRIPT -->
 </body>

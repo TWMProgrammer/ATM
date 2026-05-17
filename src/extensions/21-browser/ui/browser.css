@@ -145,7 +145,9 @@ body.is-browsing .browser-home {
 body.is-browsing .browser-view {
 	display: grid;
 	grid-template-rows: auto 1fr;
+	min-height: 0;
 }
+
 
 .browser-toolbar {
 	align-items: center;
@@ -182,6 +184,12 @@ body.is-browsing .browser-view {
 .toolbar-button:hover {
 	background: var(--vscode-toolbar-hoverBackground);
 	border-color: var(--vscode-editorWidget-border, transparent);
+}
+
+.toolbar-button:disabled {
+	opacity: 0.35;
+	cursor: default;
+	pointer-events: none;
 }
 
 .toolbar-button:focus-visible {
@@ -231,12 +239,112 @@ body.is-browsing .browser-view {
 	cursor: pointer;
 }
 
+.frame-container {
+	position: relative;
+	height: 100%;
+	min-height: 0;
+}
+
 #browser-frame {
 	background: var(--vscode-editor-background);
 	border: 0;
 	height: 100%;
 	width: 100%;
+	display: block;
 }
+
+/* ── Loading state ── */
+.frame-loading {
+	align-items: center;
+	background: var(--vscode-editor-background);
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	height: 100%;
+	justify-content: center;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 10;
+	color: var(--vscode-descriptionForeground);
+	font-size: 13px;
+}
+
+.frame-loading[hidden],
+.frame-error[hidden] {
+	display: none;
+}
+
+.loading-spinner {
+	width: 28px;
+	height: 28px;
+	border: 2.5px solid var(--vscode-editorWidget-border, rgba(127,127,127,0.3));
+	border-top-color: var(--vscode-focusBorder);
+	border-radius: 50%;
+	animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+
+/* ── Error state ── */
+.frame-error {
+	align-items: center;
+	background: var(--vscode-editor-background);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	height: 100%;
+	justify-content: center;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 10;
+	text-align: center;
+	padding: 32px;
+	box-sizing: border-box;
+}
+
+.frame-error-icon {
+	font-size: 42px;
+	color: var(--vscode-descriptionForeground);
+	opacity: 0.4;
+	line-height: 1;
+}
+
+.frame-error-title {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0;
+	color: var(--vscode-editor-foreground);
+}
+
+.frame-error-desc {
+	font-size: 13px;
+	margin: 0;
+	color: var(--vscode-descriptionForeground);
+}
+
+.frame-error-btn {
+	margin-top: 8px;
+	background: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	padding: 7px 18px;
+	font-size: 13px;
+	min-height: 30px;
+	transition: background 140ms ease;
+}
+
+.frame-error-btn:hover {
+	background: var(--vscode-button-hoverBackground);
+}
+
 
 @media (max-width: 520px) {
 	.browser-home {

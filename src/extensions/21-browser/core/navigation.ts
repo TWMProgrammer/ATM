@@ -1,8 +1,10 @@
 export const quickUrls = {
-	translate: 'https://translate.yandex.com/en/',
+	translate: 'https://translate.google.com/?igu=1',
+	mdn: 'https://developer.mozilla.org/en-US/',
+	chatgpt: 'https://chatgpt.com/',
 } as const;
 
-const googleSearchUrl = 'https://www.google.com/search';
+const searchUrl = 'https://duckduckgo.com/';
 
 export function resolveNavigationTarget(value: string): string {
 	const query = value.trim();
@@ -12,16 +14,13 @@ export function resolveNavigationTarget(value: string): string {
 		return normalizeUrl(query);
 	}
 
-	const params = new URLSearchParams({
-		igu: '1',
-		q: query,
-	});
-
-	return `${googleSearchUrl}?${params.toString()}`;
+	return `${searchUrl}?q=${encodeURIComponent(query)}`;
 }
 
 function looksLikeUrl(value: string): boolean {
-	return value.includes('.') && !value.includes(' ');
+	if (/^https?:\/\//i.test(value)) { return true; }
+	// Has a dot, no spaces, and at least a 2-char extension
+	return /^[^\s]+\.[a-z]{2,}([\/\?#].*)?$/i.test(value);
 }
 
 function normalizeUrl(value: string): string {
