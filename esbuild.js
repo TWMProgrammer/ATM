@@ -59,16 +59,16 @@ async function main() {
 
 	const browserCtx = await esbuild.context({
 		entryPoints: [
-			'src/extensions/markdown-md/ui/mermaidPreview.ts',
-			'src/extensions/markdown-mdx/ui/mdxPreviewWebview.ts',
-			'src/extensions/git-better/gitlab-panel/panels/header/header.ts',
-			'src/extensions/git-better/gitlab-panel/panels/graphics-top/graphics.ts',
-			'src/extensions/git-better/gitlab-panel/panels/stats-left/stats.ts',
-			'src/extensions/git-better/gitlab-panel/panels/commits-center/commits.ts',
-			'src/extensions/git-better/gitlab-panel/panels/inspect-right/inspect.ts',
-			'src/extensions/screenshot-code/ui/webview.ts',
-			'src/extensions/screenshot-code/ui/styles.css',
-			'src/extensions/focus/screens/atm-data/screenshot/ui/index.ts'
+			'src/extensions/12-markdown-md/ui/mermaidPreview.ts',
+			'src/extensions/13-markdown-mdx/ui/mdxPreviewWebview.ts',
+			'src/extensions/10-git-better/gitlab-panel/panels/header/header.ts',
+			'src/extensions/10-git-better/gitlab-panel/panels/graphics-top/graphics.ts',
+			'src/extensions/10-git-better/gitlab-panel/panels/stats-left/stats.ts',
+			'src/extensions/10-git-better/gitlab-panel/panels/commits-center/commits.ts',
+			'src/extensions/10-git-better/gitlab-panel/panels/inspect-right/inspect.ts',
+			'src/extensions/14-screenshot-code/ui/webview.ts',
+			'src/extensions/14-screenshot-code/ui/styles.css',
+			'src/extensions/09-focus/screens/atm-data/screenshot/ui/index.ts'
 		],
 		bundle: true,
 		format: 'iife',
@@ -84,7 +84,7 @@ async function main() {
 	});
 
 	const focusWebviewCtx = await esbuild.context({
-		entryPoints: ['src/extensions/focus/view/ui/index.ts'],
+		entryPoints: ['src/extensions/09-focus/view/ui/index.ts'],
 		bundle: true,
 		format: 'iife',
 		minify: production,
@@ -98,7 +98,7 @@ async function main() {
 
 	const serverCtx = await esbuild.context({
 		entryPoints: [
-			'src/extensions/atm-lint/server/lintServer.ts'
+			'src/extensions/02-atm-lint/server/lintServer.ts'
 		],
 		bundle: true,
 		format: 'cjs',

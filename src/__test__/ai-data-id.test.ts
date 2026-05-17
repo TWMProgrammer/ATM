@@ -1,6 +1,6 @@
 import * as assert from 'assert';
-import { QuotaManager } from '../extensions/ai-data-id/core/quota-manager';
-import { getStatusColor, generateModernBar } from '../extensions/ai-data-id/ui/tooltip-builder';
+import { QuotaManager } from '../extensions/01-ai-data-id/core/quota-manager';
+import { getStatusColor, generateModernBar } from '../extensions/01-ai-data-id/ui/tooltip-builder';
 
 suite('AI Data Extension – Unit Tests', () => {
 

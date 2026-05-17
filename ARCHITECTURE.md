@@ -23,7 +23,7 @@ src/
 │   ├── translate-doc/      ← 🌐  Translation engine
 │   ├── version-package/    ← 📦  Dependency checker
 │   ├── voice-tts/          ← 🔊  Text-to-speech
-│   └── zhared/             ← 🛠️  Shared utilities & models
+│   └── shared/             ← 🛠️  Shared utilities & models
 └── settings/
     ├── code/               ← Editor styling & coding enhancements
     │   ├── auto-tag-x2/    ← 🏷️  Auto‑close/rename HTML/JSX tags
@@ -57,7 +57,7 @@ graph TD
     C --> D2[AI & Intelligence\nTTS, Translator, AI Data]:::module
     C --> D3[Utility Mappers\nGitBetter, Markdown, SVG]:::module
     
-    Z[zhared\nShared Models/Utils]:::settings -.-> C
+    Z[shared\nShared Models/Utils]:::settings -.-> C
     Z -.-> D1
     Z -.-> D2
     Z -.-> D3
@@ -65,5 +65,5 @@ graph TD
 
 **Key Highlights:**
 * **Lazy Loading & Performance:** Through the `extensions.ts` central registry, each module manages its own subscription. Memory leaks are avoided by ensuring every module registers its disposables correctly.
-* **Independent Modules:** Extensions inside `src/extensions` don't depend on each other (with the exception of `zhared`), which means a visual bug in `color-box` will never crash `voice-tts`. 
+* **Independent Modules:** Extensions inside `src/extensions` don't depend on each other (with the exception of `shared`), which means a visual bug in `color-box` will never crash `voice-tts`. 
 * **Native Enhancements:** The `settings` module actively rewrites workspace configurations to provide a "Cursor IDE-like" feeling immediately upon activation.
