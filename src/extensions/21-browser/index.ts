@@ -52,9 +52,10 @@ export function activateBrowser(context: vscode.ExtensionContext): void {
 				{
 					enableScripts: true,
 					retainContextWhenHidden: true,
-					localResourceRoots: [
-						vscode.Uri.joinPath(context.extensionUri, 'dist'),
-					],
+				localResourceRoots: [
+					vscode.Uri.joinPath(context.extensionUri, 'dist'),
+					vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'assets'),
+				],
 				}
 			);
 
@@ -69,7 +70,7 @@ function setupPanel(
 	initialText?: string,
 ): void {
 	panel.iconPath = vscode.Uri.joinPath(
-		context.extensionUri, 'src', 'extensions', '21-browser', 'assets', 'globe.svg'
+		context.extensionUri, 'src', 'extensions', '21-browser', 'assets', 'atm-logo.png'
 	);
 
 	panel.webview.html = getTranslatorHtml(context, panel.webview);
@@ -180,6 +181,10 @@ function getTranslatorHtml(context: vscode.ExtensionContext, webview: vscode.Web
 		vscode.Uri.joinPath(context.extensionUri, 'dist', 'browser.js')
 	);
 
+	const logoUri = webview.asWebviewUri(
+		vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'assets', 'atm-logo.png')
+	);
+
 	const nonce = crypto.randomUUID().replace(/-/g, '');
 
 	const csp = [
@@ -192,5 +197,6 @@ function getTranslatorHtml(context: vscode.ExtensionContext, webview: vscode.Web
 
 	return html
 		.replace('<!-- ATM_BROWSER_STYLES -->', `<meta http-equiv="Content-Security-Policy" content="${csp}">\n\t<style>${css}</style>`)
-		.replace('<!-- ATM_BROWSER_SCRIPT -->', `<script src="${scriptUri}" nonce="${nonce}"></script>`);
+		.replace('<!-- ATM_BROWSER_SCRIPT -->', `<script src="${scriptUri}" nonce="${nonce}"></script>`)
+		.replace('ATM_LOGO_SRC', logoUri.toString());
 }
