@@ -549,7 +549,11 @@ textarea::placeholder,
 
 .copy-button .icon-check {
 	display: none;
+	fill: none;
 	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 2.4;
 }
 
 .copy-button.copied .icon-copy {
