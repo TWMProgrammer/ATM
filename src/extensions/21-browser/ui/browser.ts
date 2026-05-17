@@ -4,6 +4,7 @@ const homeForm = document.querySelector<HTMLFormElement>('#browser-search-form')
 const homeInput = document.querySelector<HTMLInputElement>('#browser-search-input');
 const toolbarForm = document.querySelector<HTMLFormElement>('#browser-toolbar-form');
 const toolbarInput = document.querySelector<HTMLInputElement>('#browser-toolbar-input');
+const homeButton = document.querySelector<HTMLButtonElement>('#home-action');
 const translateButton = document.querySelector<HTMLButtonElement>('#translate-action');
 const browserFrame = document.querySelector<HTMLIFrameElement>('#browser-frame');
 
@@ -23,6 +24,10 @@ translateButton?.addEventListener('click', () => {
 	navigateTo(quickUrls.translate);
 });
 
+homeButton?.addEventListener('click', () => {
+	showHome();
+});
+
 function navigateTo(url: string): void {
 	if (!url || !browserFrame) { return; }
 
@@ -35,5 +40,17 @@ function navigateTo(url: string): void {
 
 	if (toolbarInput) {
 		toolbarInput.value = url;
+	}
+}
+
+function showHome(): void {
+	document.body.classList.remove('is-browsing');
+
+	if (browserFrame) {
+		browserFrame.removeAttribute('src');
+	}
+
+	if (toolbarInput) {
+		toolbarInput.value = '';
 	}
 }
