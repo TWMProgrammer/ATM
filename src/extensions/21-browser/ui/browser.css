@@ -366,6 +366,70 @@ textarea::placeholder,
 	justify-content: flex-end;
 }
 
+.footer-left {
+	align-items: center;
+	display: flex;
+	gap: 12px;
+}
+
+/* ---- Toggle Switch ---- */
+.toggle-switch {
+	align-items: center;
+	cursor: pointer;
+	display: inline-flex;
+	gap: 6px;
+	user-select: none;
+}
+
+.toggle-switch input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.toggle-track {
+	background: var(--glass-border);
+	border-radius: 10px;
+	display: inline-flex;
+	align-items: center;
+	height: 18px;
+	width: 32px;
+	transition: background 200ms ease;
+	position: relative;
+}
+
+.toggle-switch input:checked + .toggle-track {
+	background: var(--accent);
+}
+
+.toggle-thumb {
+	background: var(--vscode-editor-foreground);
+	border-radius: 50%;
+	height: 13px;
+	left: 3px;
+	position: absolute;
+	transition: transform 200ms ease;
+	width: 13px;
+}
+
+.toggle-switch input:checked + .toggle-track .toggle-thumb {
+	transform: translateX(13px);
+}
+
+.toggle-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	color: var(--muted);
+	transition: color 200ms ease;
+}
+
+.toggle-switch input:checked ~ .toggle-label {
+	color: var(--accent);
+}
+
 .is-over-limit {
 	color: var(--vscode-errorForeground);
 }
@@ -401,6 +465,29 @@ textarea::placeholder,
 	transform: translateY(0) scale(0.98);
 }
 
+.primary-button--manual {
+	background: var(--glass-bg);
+	border-color: var(--glass-border);
+	color: var(--muted);
+	cursor: pointer;
+}
+
+.primary-button--manual:hover {
+	background: var(--glass-bg-hover);
+	border-color: var(--glass-border-hover);
+	color: var(--vscode-foreground);
+	box-shadow: none;
+}
+
+.primary-button:not(.primary-button--manual) {
+	cursor: default;
+}
+
+.primary-button:not(.primary-button--manual):hover {
+	background: var(--accent);
+	transform: none;
+}
+
 .ghost-button {
 	background: transparent;
 	border: 1px solid transparent;
@@ -413,6 +500,27 @@ textarea::placeholder,
 .ghost-button:hover {
 	color: var(--vscode-foreground);
 	background: var(--glass-bg);
+}
+
+.ghost-button--spell {
+	color: var(--vscode-textLink-foreground);
+	gap: 6px;
+}
+
+.ghost-button--spell svg {
+	fill: currentColor;
+	height: 15px;
+	width: 15px;
+}
+
+.ghost-button--spell:hover {
+	color: var(--vscode-textLink-activeForeground);
+	background: color-mix(in srgb, var(--vscode-textLink-foreground) 12%, transparent);
+}
+
+.ghost-button--spell.loading {
+	pointer-events: none;
+	opacity: 0.6;
 }
 
 .icon-button {

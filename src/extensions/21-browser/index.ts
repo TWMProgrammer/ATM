@@ -22,6 +22,12 @@ interface CopyMessage {
 	text: string;
 }
 
+interface SpellcheckMessage {
+	type: 'spellcheck';
+	text: string;
+	language: string;
+}
+
 type WebviewMessage = unknown;
 
 export function activateBrowser(context: vscode.ExtensionContext): void {
@@ -91,6 +97,11 @@ function setupPanel(
 
 			if (isCopyMessage(message)) {
 				await vscode.env.clipboard.writeText(message.text);
+				return;
+			}
+
+			if (isSpellcheckMessage(message)) {
+				await handleSpellcheckMessage(panel, message);
 			}
 		},
 		undefined,
@@ -153,6 +164,38 @@ function isCopyMessage(message: WebviewMessage): message is CopyMessage {
 	if (!isRecord(message)) { return false; }
 
 	return message.type === 'copy' && typeof message.text === 'string';
+}
+
+function isSpellcheckMessage(message: WebviewMessage): message is SpellcheckMessage {
+	if (!isRecord(message)) { return false; }
+
+	return message.type === 'spellcheck'
+		&& typeof message.text === 'string'
+		&& typeof message.language === 'string';
+}
+
+async function handleSpellcheckMessage(
+	panel: vscode.WebviewPanel,
+	message: SpellcheckMessage,
+): Promise<void> {
+	try {
+		const lang = message.language === 'auto' ? 'en' : message.language;
+		const corrected = await translatePlainText({
+			text: message.text,
+			from: lang,
+			to: lang,
+		});
+
+		await panel.webview.postMessage({
+			type: 'spellcheckResult',
+			text: corrected,
+		});
+	} catch (error) {
+		await panel.webview.postMessage({
+			type: 'spellcheckResult',
+			error: error instanceof Error ? error.message : 'Spell check failed.',
+		});
+	}
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

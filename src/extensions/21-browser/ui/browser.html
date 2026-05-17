@@ -44,7 +44,15 @@
 			<section class="translate-card input-card">
 				<div class="card-toolbar">
 					<strong id="source-label">Auto detect</strong>
-					<button class="ghost-button" id="clear-action" type="button">Clear</button>
+					<div class="toolbar-actions">
+						<button class="ghost-button ghost-button--spell" id="spellcheck-action" type="button" title="Correct spelling">
+							<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+								<path d="M7.53 1.22a.75.75 0 0 1 1.06 0l1.72 1.72 1.72-1.72a.75.75 0 0 1 1.06 1.06L11.37 4l1.72 1.72a.75.75 0 0 1-1.06 1.06L10.31 5.06 8.59 6.78a.75.75 0 0 1-1.06 0L5.81 5.06 4.09 6.78a.75.75 0 0 1-1.06-1.06L4.75 4 3.03 2.28a.75.75 0 0 1 1.06-1.06L5.81 2.94 7.53 1.22ZM8 9.5a4 4 0 0 0-4 4v.5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-.5a4 4 0 0 0-4-4Z"/>
+							</svg>
+							<span>Fix spelling</span>
+						</button>
+						<button class="ghost-button" id="clear-action" type="button">Clear</button>
+					</div>
 				</div>
 				<textarea
 					id="source-text"
@@ -53,7 +61,16 @@
 					autofocus
 				></textarea>
 				<div class="card-footer">
-					<span id="source-count">0 / 5000</span>
+					<div class="footer-left">
+						<label class="toggle-switch" id="auto-toggle" title="Auto-translate as you type">
+							<input type="checkbox" id="auto-translate-check" checked />
+							<span class="toggle-track">
+								<span class="toggle-thumb"></span>
+							</span>
+							<span class="toggle-label">Auto</span>
+						</label>
+						<span id="source-count">0 / 5000</span>
+					</div>
 					<button class="primary-button" id="translate-action" type="button">
 						<span class="button-spinner" id="button-spinner" hidden></span>
 						<span id="translate-label">Translate</span>

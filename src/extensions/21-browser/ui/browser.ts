@@ -11,6 +11,7 @@ interface PersistedState {
 	translatedText?: string;
 	sourceLanguage?: string;
 	targetLanguage?: string;
+	autoTranslate?: boolean;
 }
 
 declare const acquireVsCodeApi: () => VsCodeApi;
@@ -32,6 +33,8 @@ const copyAction = document.querySelector<HTMLButtonElement>('#copy-action')!;
 const swapAction = document.querySelector<HTMLButtonElement>('#swap-action')!;
 const buttonSpinner = document.querySelector<HTMLElement>('#button-spinner')!;
 const outputCard = document.querySelector<HTMLElement>('.output-card')!;
+const spellcheckAction = document.querySelector<HTMLButtonElement>('#spellcheck-action')!;
+const autoTranslateCheck = document.querySelector<HTMLInputElement>('#auto-translate-check')!;
 
 const CHAR_LIMIT = 5000;
 const DEBOUNCE_MS = 500;
@@ -40,12 +43,14 @@ let activeRequestId = '';
 let translatedText = '';
 let debounceTimer: number | undefined;
 let lastRenderedText = '';
+let autoTranslate = true;
 
 init();
 
 function init(): void {
 	populateLanguageSelects();
 	restoreState();
+	updateAutoToggle();
 	wireEvents();
 	updateLabels();
 	updateCount();
@@ -71,7 +76,7 @@ function populateLanguageSelects(): void {
 function createOption(lang: typeof languages[number]): HTMLOptionElement {
 	const option = document.createElement('option');
 	option.value = lang.code;
-	option.textContent = `${lang.flag} ${lang.name}`;
+	option.textContent = `${lang.flag}\u00A0\u00A0\u00A0${lang.name}`;
 	return option;
 }
 
@@ -83,10 +88,40 @@ function restoreState(): void {
 	if (state.targetLanguage) { targetLanguage.value = state.targetLanguage; }
 	if (state.sourceText) { sourceText.value = state.sourceText; }
 	if (state.translatedText) { translatedText = state.translatedText; }
+	if (typeof state.autoTranslate === 'boolean') { autoTranslate = state.autoTranslate; }
+}
+
+function updateAutoToggle(): void {
+	autoTranslateCheck.checked = autoTranslate;
+	updateTranslateButton();
+}
+
+function updateTranslateButton(): void {
+	if (autoTranslate) {
+		translateAction.classList.remove('primary-button--manual');
+		translateLabel.textContent = 'Automatic';
+	} else {
+		translateAction.classList.add('primary-button--manual');
+		translateLabel.textContent = 'Translate';
+	}
 }
 
 function wireEvents(): void {
-	translateAction.addEventListener('click', () => doTranslate());
+	translateAction.addEventListener('click', () => {
+		if (!autoTranslate) {
+			doTranslate();
+		}
+	});
+
+	autoTranslateCheck.addEventListener('change', () => {
+		autoTranslate = autoTranslateCheck.checked;
+		updateTranslateButton();
+		persistState();
+
+		if (autoTranslate && sourceText.value.trim().length >= 2) {
+			doTranslate();
+		}
+	});
 
 	sourceText.addEventListener('input', () => {
 		updateCount();
@@ -102,7 +137,9 @@ function wireEvents(): void {
 			return;
 		}
 
-		debounceTimer = window.setTimeout(doTranslate, DEBOUNCE_MS);
+		if (autoTranslate) {
+			debounceTimer = window.setTimeout(doTranslate, DEBOUNCE_MS);
+		}
 	});
 
 	sourceText.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -134,6 +171,21 @@ function wireEvents(): void {
 		setStatus('Ready');
 		persistState();
 		sourceText.focus();
+	});
+
+	spellcheckAction.addEventListener('click', () => {
+		const text = sourceText.value.trim();
+		if (!text) { return; }
+
+		spellcheckAction.classList.add('loading');
+		spellcheckAction.disabled = true;
+		setStatus('Correcting spelling...');
+
+		vscodeApi.postMessage({
+			type: 'spellcheck',
+			text,
+			language: sourceLanguage.value === 'auto' ? targetLanguage.value : sourceLanguage.value,
+		});
 	});
 
 	copyAction.addEventListener('click', () => {
@@ -192,6 +244,25 @@ function wireEvents(): void {
 		if (msg?.type === 'translationError' && msg.id === activeRequestId) {
 			setLoading(false);
 			setStatus(msg.message || 'Translation failed');
+			return;
+		}
+
+		if (msg?.type === 'spellcheckResult') {
+			spellcheckAction.classList.remove('loading');
+			spellcheckAction.disabled = false;
+
+			if (msg.text && typeof msg.text === 'string') {
+				sourceText.value = msg.text;
+				updateCount();
+				persistState();
+				setStatus('Spelling corrected');
+				if (autoTranslate) {
+					doTranslate();
+				}
+			} else {
+				setStatus(msg.error || 'Spell check failed');
+			}
+			return;
 		}
 	});
 }
@@ -278,7 +349,12 @@ function setLoading(isLoading: boolean): void {
 	sourceLanguage.disabled = isLoading;
 	targetLanguage.disabled = isLoading;
 	buttonSpinner.hidden = !isLoading;
-	translateLabel.textContent = isLoading ? 'Working' : 'Translate';
+
+	if (isLoading) {
+		translateLabel.textContent = 'Working';
+	} else {
+		updateTranslateButton();
+	}
 }
 
 function persistState(): void {
@@ -287,5 +363,6 @@ function persistState(): void {
 		translatedText,
 		sourceLanguage: sourceLanguage.value,
 		targetLanguage: targetLanguage.value,
+		autoTranslate,
 	} satisfies PersistedState);
 }
