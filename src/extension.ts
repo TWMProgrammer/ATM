@@ -10,7 +10,7 @@ import { taskListPlugin } from './extensions/12-markdown-md/core/taskListPlugin'
 import { mermaidPlugin } from './extensions/12-markdown-md/core/mermaidPlugin';
 import { deactivateFocus } from './extensions/09-focus/focus';
 import { deactivateLint } from './extensions/02-atm-lint/lint';
-import { deactivateGlobalStatusBar } from './extensions/zhared/zhared';
+import { deactivateGlobalStatusBar } from './extensions/shared/shared';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's

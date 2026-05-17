@@ -18,7 +18,7 @@ import { activateEnvLens } from './07-env-lens';
 import { activateMarkdownImageIcons } from './12-markdown-md/icons-images';
 import { activateFocus } from './09-focus/focus';
 import { activateLint } from './02-atm-lint/lint';
-import { activateGlobalStatusBar } from './zhared/zhared';
+import { activateGlobalStatusBar } from './shared/shared';
 import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
 

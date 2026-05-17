@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { updateToolState } from '../../zhared/zhared';
+import { updateToolState } from '../../shared/shared';
 
 let currentStatus: 'ok' | 'missing-config' | 'error' = 'ok';
 let currentIsEnabled: boolean = true;

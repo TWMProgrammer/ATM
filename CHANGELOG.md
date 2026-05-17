@@ -84,7 +84,7 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ### Added
 
-- **Global Status Bar**: Centralized status bar items into a unified global hover UI via a new `zhared` module. Includes "Normal" and "Pro" layout presets, dynamic auto-refresh, and a debounced architecture.
+- **Global Status Bar**: Centralized status bar items into a unified global hover UI via a new `shared` module. Includes "Normal" and "Pro" layout presets, dynamic auto-refresh, and a debounced architecture.
 - **AI Data ID**: Added model family icons to tooltip rows and included exhausted models in summary calculations.
 
 ### Improved

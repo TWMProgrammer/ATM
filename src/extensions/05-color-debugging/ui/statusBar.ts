@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { applyRandomColor, clearWorkspaceColors, hasColorApplied } from '../core/manager';
-import { updateToolState } from '../../zhared/zhared';
+import { updateToolState } from '../../shared/shared';
 
 export const COMMAND_ID = 'color-debugging.changeColor';
 
