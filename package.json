@@ -313,7 +313,6 @@
             "auto",
             "googleUnofficial",
             "myMemory",
-            "ollama",
             "libreTranslate",
             "deepL",
             "googleCloud"
@@ -329,7 +328,6 @@
             "enum": [
               "googleUnofficial",
               "myMemory",
-              "ollama",
               "libreTranslate",
               "deepL",
               "googleCloud"
@@ -338,7 +336,6 @@
           "default": [
             "googleUnofficial",
             "myMemory",
-            "ollama",
             "libreTranslate",
             "deepL",
             "googleCloud"
@@ -350,12 +347,11 @@
           "type": "string",
           "enum": [
             "auto",
-            "ollama",
             "googleUnofficial"
           ],
           "default": "auto",
           "scope": "application",
-          "description": "Provider used by ATM Translate Fix Spelling. Auto prefers the translation order when it contains Ollama or Google Translate."
+          "description": "Provider used by ATM Translate Fix Spelling. Auto uses local corrections first, then Google Translate when enabled."
         },
         "atm.translate.googleUnofficialEnabled": {
           "type": "boolean",
@@ -368,26 +364,6 @@
           "default": "",
           "scope": "application",
           "description": "Optional contact email sent to MyMemory to raise the free daily quota for public translations."
-        },
-        "atm.translate.ollamaUrl": {
-          "type": "string",
-          "default": "http://127.0.0.1:11434",
-          "scope": "application",
-          "description": "Base URL for a local Ollama server used by ATM Translate."
-        },
-        "atm.translate.ollamaModel": {
-          "type": "string",
-          "default": "qwen2.5:3b",
-          "scope": "application",
-          "description": "Ollama model used for local translation and spelling correction."
-        },
-        "atm.translate.ollamaTimeoutMs": {
-          "type": "number",
-          "default": 45000,
-          "minimum": 1000,
-          "maximum": 180000,
-          "scope": "application",
-          "description": "Timeout in milliseconds for local Ollama translation requests."
         },
         "atm.translate.libreTranslateUrl": {
           "type": "string",

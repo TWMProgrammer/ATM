@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { translate } from '@vitalets/google-translate-api';
-import { getLanguageName } from '../ui/flags';
 
 const MAX_TEXT_LENGTH = 5000;
 const MAX_CACHE_ENTRIES = 250;
@@ -8,7 +7,6 @@ const MIN_GOOGLE_REQUEST_INTERVAL_MS = 900;
 const RATE_LIMIT_COOLDOWN_MS = 2 * 60 * 1000;
 const DEFAULT_LOCAL_TIMEOUT_MS = 2500;
 const DEFAULT_REMOTE_TIMEOUT_MS = 12000;
-const DEFAULT_OLLAMA_TIMEOUT_MS = 45000;
 const TRANSLATE_CONFIG_SECTION = 'atm.translate';
 
 const translationCache = new Map<string, CachedResult>();
@@ -26,13 +24,12 @@ export const translationSecretKeys = {
 export type TranslationProviderId =
 	| 'googleUnofficial'
 	| 'myMemory'
-	| 'ollama'
 	| 'libreTranslate'
 	| 'deepL'
 	| 'googleCloud';
 
 type ProviderSelection = TranslationProviderId | 'auto';
-type SpellcheckProviderSelection = 'auto' | 'ollama' | 'googleUnofficial';
+type SpellcheckProviderSelection = 'auto' | 'googleUnofficial';
 type ProviderErrorCode =
 	| 'missingSecret'
 	| 'rateLimited'
@@ -77,9 +74,6 @@ interface TranslationConfiguration {
 	spellcheckProvider: SpellcheckProviderSelection;
 	googleUnofficialEnabled: boolean;
 	myMemoryEmail: string;
-	ollamaUrl: string;
-	ollamaModel: string;
-	ollamaTimeoutMs: number;
 	libreTranslateUrl: string;
 	deepLEndpoint: 'free' | 'pro';
 }
@@ -99,7 +93,6 @@ class ProviderError extends Error {
 const providerNames: Record<TranslationProviderId, string> = {
 	googleUnofficial: 'Google Translate',
 	myMemory: 'MyMemory',
-	ollama: 'Ollama',
 	libreTranslate: 'LibreTranslate',
 	deepL: 'DeepL',
 	googleCloud: 'Google Cloud Translation',
@@ -108,7 +101,6 @@ const providerNames: Record<TranslationProviderId, string> = {
 const defaultProviderOrder: TranslationProviderId[] = [
 	'googleUnofficial',
 	'myMemory',
-	'ollama',
 	'libreTranslate',
 	'deepL',
 	'googleCloud',
@@ -236,9 +228,6 @@ function readConfiguration(): TranslationConfiguration {
 		spellcheckProvider: normalizeSpellcheckProviderSelection(config.get<string>('spellcheckProvider', 'auto')),
 		googleUnofficialEnabled: config.get<boolean>('googleUnofficialEnabled', true),
 		myMemoryEmail: config.get<string>('myMemoryEmail', '').trim(),
-		ollamaUrl: config.get<string>('ollamaUrl', 'http://127.0.0.1:11434'),
-		ollamaModel: config.get<string>('ollamaModel', 'qwen2.5:3b'),
-		ollamaTimeoutMs: config.get<number>('ollamaTimeoutMs', DEFAULT_OLLAMA_TIMEOUT_MS),
 		libreTranslateUrl: config.get<string>('libreTranslateUrl', 'http://127.0.0.1:5000'),
 		deepLEndpoint: config.get<string>('deepLEndpoint', 'free') === 'pro' ? 'pro' : 'free',
 	};
@@ -251,7 +240,7 @@ function normalizeProviderSelection(value: string): ProviderSelection {
 }
 
 function normalizeSpellcheckProviderSelection(value: string): SpellcheckProviderSelection {
-	return value === 'ollama' || value === 'googleUnofficial' ? value : 'auto';
+	return value === 'googleUnofficial' ? value : 'auto';
 }
 
 function normalizeProviderList(value: string[]): TranslationProviderId[] {
@@ -271,17 +260,13 @@ function getTranslationProviderOrder(config: TranslationConfiguration): Translat
 }
 
 function getSpellcheckProviderOrder(config: TranslationConfiguration): TranslationProviderId[] {
-	if (config.spellcheckProvider === 'ollama') {
-		return ['ollama'];
-	}
 	if (config.spellcheckProvider === 'googleUnofficial') {
 		return ['googleUnofficial'];
 	}
 
 	const translationOrder = getTranslationProviderOrder(config);
 	return uniqueProviders([
-		'ollama',
-		...translationOrder.filter((providerId) => providerId === 'ollama' || providerId === 'googleUnofficial'),
+		...translationOrder.filter((providerId) => providerId === 'googleUnofficial'),
 		'googleUnofficial',
 	]);
 }
@@ -302,8 +287,6 @@ async function translateWithProvider(
 			return translateWithGoogleUnofficial(text, request);
 		case 'myMemory':
 			return translateWithMyMemory(text, request, config);
-		case 'ollama':
-			return translateWithOllama(text, request, config);
 		case 'libreTranslate':
 			return translateWithLibreTranslate(text, request, config, secrets);
 		case 'deepL':
@@ -321,8 +304,6 @@ async function correctWithProvider(
 	_secrets: SecretReader,
 ): Promise<TranslationResult> {
 	switch (providerId) {
-		case 'ollama':
-			return correctWithOllama(text, request, config);
 		case 'googleUnofficial':
 			return correctWithGoogleUnofficial(text, request);
 		case 'myMemory':
@@ -452,88 +433,6 @@ async function translateWithMyMemory(
 		providerId: 'myMemory',
 		providerName: providerNames.myMemory,
 	};
-}
-
-async function translateWithOllama(
-	text: string,
-	request: TranslationRequest,
-	config: TranslationConfiguration,
-): Promise<TranslationResult> {
-	const source = request.from === 'auto' ? 'the detected source language' : getLanguageName(request.from);
-	const target = getLanguageName(request.to);
-	const prompt = [
-		`Translate the following text from ${source} to ${target}.`,
-		'Return only the translated text.',
-		'Preserve line breaks, code fragments, URLs, file paths, variables, and placeholders exactly when they should not be translated.',
-		'Text:',
-		'```text',
-		text,
-		'```',
-	].join('\n');
-
-	const resultText = await generateWithOllama(prompt, config, request.signal);
-	return {
-		text: cleanModelOutput(resultText),
-		providerId: 'ollama',
-		providerName: providerNames.ollama,
-	};
-}
-
-async function correctWithOllama(
-	text: string,
-	request: SpellcheckRequest,
-	config: TranslationConfiguration,
-): Promise<TranslationResult> {
-	const language = request.language === 'auto' ? 'the detected language' : getLanguageName(request.language);
-	const prompt = [
-		`Correct spelling and basic grammar in ${language}.`,
-		'Do not translate the text.',
-		'Return only the corrected text.',
-		'Preserve line breaks, code fragments, URLs, file paths, variables, and placeholders exactly.',
-		'Text:',
-		'```text',
-		text,
-		'```',
-	].join('\n');
-
-	const resultText = await generateWithOllama(prompt, config, request.signal);
-	return {
-		text: cleanModelOutput(resultText),
-		providerId: 'ollama',
-		providerName: providerNames.ollama,
-	};
-}
-
-async function generateWithOllama(
-	prompt: string,
-	config: TranslationConfiguration,
-	signal?: AbortSignal,
-): Promise<string> {
-	const baseUrl = normalizeBaseUrl(config.ollamaUrl, 'ollama');
-	const url = `${baseUrl}/api/generate`;
-	const response = await fetchJson<{ response?: string; error?: string }>(
-		url,
-		{
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				model: config.ollamaModel,
-				prompt,
-				stream: false,
-				options: {
-					temperature: 0,
-				},
-			}),
-		},
-		Math.max(1000, config.ollamaTimeoutMs),
-		signal,
-	);
-
-	if (typeof response.response !== 'string') {
-		throw new ProviderError('ollama', providerNames.ollama, 'failed', response.error || 'Ollama returned an empty response.');
-	}
-
-	return response.response;
 }
 
 async function translateWithLibreTranslate(
@@ -751,9 +650,6 @@ function normalizeProviderFailure(providerId: TranslationProviderId, error: unkn
 		if (error.status === 401 || error.status === 403) {
 			return new ProviderError(providerId, providerName, 'missingSecret', `${providerName} rejected the configured API key.`);
 		}
-		if (error.status === 404 && providerId === 'ollama') {
-			return new ProviderError(providerId, providerName, 'unavailable', 'Ollama model was not found. Pull the configured model first.');
-		}
 		if (error.status === 429) {
 			return new ProviderError(providerId, providerName, 'rateLimited', `${providerName} is rate-limiting requests.`);
 		}
@@ -784,10 +680,10 @@ function buildTranslationFailure(errors: ProviderError[]): Error {
 	);
 
 	if (hasGoogleRateLimit) {
-		return new Error('Google Translate is rate-limiting this IP and public fallback providers are unavailable or exhausted. Run Ollama/LibreTranslate locally, or configure DeepL/Google Cloud API keys.');
+		return new Error('Google Translate is rate-limiting this IP and public fallback providers are unavailable or exhausted. Run LibreTranslate locally, or configure DeepL/Google Cloud API keys.');
 	}
 	if (!errors.length || hasOnlyUnavailableFallbacks) {
-		return new Error('No translation provider is available. Run Ollama/LibreTranslate locally, or configure DeepL/Google Cloud API keys.');
+		return new Error('No translation provider is available. Run LibreTranslate locally, or configure DeepL/Google Cloud API keys.');
 	}
 
 	return new Error(errors[errors.length - 1].message);
@@ -795,7 +691,7 @@ function buildTranslationFailure(errors: ProviderError[]): Error {
 
 function buildSpellcheckFailure(errors: ProviderError[]): Error {
 	if (!errors.length || errors.every((error) => error.code === 'unavailable' || error.code === 'unsupported')) {
-		return new Error('No spelling correction provider is available. Run Ollama locally or enable Google Translate fallback.');
+		return new Error('No spelling correction provider is available. Enable Google Translate fallback or use local dictionary corrections.');
 	}
 
 	return new Error(errors[errors.length - 1].message);
@@ -930,20 +826,6 @@ function extractErrorMessage(responseText: string): string | undefined {
 	}
 
 	return undefined;
-}
-
-function cleanModelOutput(text: string): string {
-	let cleaned = text.trim();
-	cleaned = cleaned.replace(/^```(?:text)?\s*/i, '').replace(/\s*```$/, '').trim();
-
-	if (
-		(cleaned.startsWith('"') && cleaned.endsWith('"'))
-		|| (cleaned.startsWith("'") && cleaned.endsWith("'"))
-	) {
-		cleaned = cleaned.slice(1, -1).trim();
-	}
-
-	return cleaned;
 }
 
 function splitByUtf8Bytes(text: string, maxBytes: number): string[] {
