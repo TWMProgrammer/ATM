@@ -180,6 +180,26 @@
         "icon": "$(globe)"
       },
       {
+        "command": "atm.translate.setDeepLApiKey",
+        "title": "ATM Translate: Set DeepL API Key",
+        "icon": "$(key)"
+      },
+      {
+        "command": "atm.translate.setGoogleCloudApiKey",
+        "title": "ATM Translate: Set Google Cloud API Key",
+        "icon": "$(key)"
+      },
+      {
+        "command": "atm.translate.setLibreTranslateApiKey",
+        "title": "ATM Translate: Set LibreTranslate API Key",
+        "icon": "$(key)"
+      },
+      {
+        "command": "atm.translate.clearApiKeys",
+        "title": "ATM Translate: Clear Stored API Keys",
+        "icon": "$(trash)"
+      },
+      {
         "command": "terminalSound.testSound",
         "title": "Terminal Sound: Test Sound"
       },
@@ -286,6 +306,104 @@
           "type": "boolean",
           "default": false,
           "description": "Show operational ESLint warnings as diagnostics (for example, file ignored because no matching configuration was supplied)."
+        },
+        "atm.translate.provider": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "googleUnofficial",
+            "myMemory",
+            "ollama",
+            "libreTranslate",
+            "deepL",
+            "googleCloud"
+          ],
+          "default": "auto",
+          "scope": "application",
+          "description": "Primary ATM Translate provider. Auto tries configured fallbacks in order."
+        },
+        "atm.translate.fallbackProviders": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "googleUnofficial",
+              "myMemory",
+              "ollama",
+              "libreTranslate",
+              "deepL",
+              "googleCloud"
+            ]
+          },
+          "default": [
+            "googleUnofficial",
+            "myMemory",
+            "ollama",
+            "libreTranslate",
+            "deepL",
+            "googleCloud"
+          ],
+          "scope": "application",
+          "description": "Fallback order used by ATM Translate when the primary provider fails or is rate-limited."
+        },
+        "atm.translate.spellcheckProvider": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "ollama",
+            "googleUnofficial"
+          ],
+          "default": "auto",
+          "scope": "application",
+          "description": "Provider used by ATM Translate Fix Spelling. Auto prefers the translation order when it contains Ollama or Google Translate."
+        },
+        "atm.translate.googleUnofficialEnabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "description": "Allow the unofficial Google Translate fallback. Disable this when you want only official or local providers."
+        },
+        "atm.translate.myMemoryEmail": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "description": "Optional contact email sent to MyMemory to raise the free daily quota for public translations."
+        },
+        "atm.translate.ollamaUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:11434",
+          "scope": "application",
+          "description": "Base URL for a local Ollama server used by ATM Translate."
+        },
+        "atm.translate.ollamaModel": {
+          "type": "string",
+          "default": "qwen2.5:3b",
+          "scope": "application",
+          "description": "Ollama model used for local translation and spelling correction."
+        },
+        "atm.translate.ollamaTimeoutMs": {
+          "type": "number",
+          "default": 45000,
+          "minimum": 1000,
+          "maximum": 180000,
+          "scope": "application",
+          "description": "Timeout in milliseconds for local Ollama translation requests."
+        },
+        "atm.translate.libreTranslateUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:5000",
+          "scope": "application",
+          "description": "Base URL for LibreTranslate. Use the Set LibreTranslate API Key command if the instance requires a key."
+        },
+        "atm.translate.deepLEndpoint": {
+          "type": "string",
+          "enum": [
+            "free",
+            "pro"
+          ],
+          "default": "free",
+          "scope": "application",
+          "description": "DeepL endpoint type used by ATM Translate after saving a DeepL API key."
         },
         "atm.colorBgTag.enabled": {
           "type": "boolean",

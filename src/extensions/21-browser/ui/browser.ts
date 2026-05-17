@@ -257,7 +257,7 @@ function wireEvents(): void {
 			lastCompletedRequestKey = activeRequestKey;
 			renderOutput(translatedText);
 			setLoading(false);
-			setStatus(translatedText ? 'Translated' : 'Ready');
+			setStatus(translatedText ? buildProviderStatus('Translated', msg.provider, msg.fromCache) : 'Ready');
 			persistState();
 			return;
 		}
@@ -276,7 +276,7 @@ function wireEvents(): void {
 				sourceText.value = msg.text;
 				updateCount();
 				persistState();
-				setStatus('Spelling corrected');
+				setStatus(buildProviderStatus('Spelling corrected', msg.provider, msg.fromCache));
 				if (autoTranslate) {
 					doTranslate();
 				}
@@ -390,6 +390,18 @@ function showSkeleton(): void {
 
 function setStatus(message: string): void {
 	statusText.textContent = message;
+}
+
+function buildProviderStatus(
+	baseStatus: string,
+	provider: unknown,
+	fromCache: unknown,
+): string {
+	if (typeof provider !== 'string' || !provider) {
+		return baseStatus;
+	}
+
+	return `${baseStatus} via ${provider}${fromCache ? ' (cached)' : ''}`;
 }
 
 function setLoading(isLoading: boolean): void {

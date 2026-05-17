@@ -1,16 +1,21 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { translatePlainText } from './core/translator';
+import { correctPlainText, translatePlainText, translationSecretKeys } from './core/translator';
 import { languages } from './ui/flags';
 
 const translatorPanelViewType = 'atm.translator';
 const openTranslatorCommand = 'atm.browser.open';
+const setDeepLApiKeyCommand = 'atm.translate.setDeepLApiKey';
+const setGoogleCloudApiKeyCommand = 'atm.translate.setGoogleCloudApiKey';
+const setLibreTranslateApiKeyCommand = 'atm.translate.setLibreTranslateApiKey';
+const clearTranslationApiKeysCommand = 'atm.translate.clearApiKeys';
 const maxTextLength = 5000;
 const languageCodes = new Set(languages.map((language) => language.code));
 
 let activePanel: vscode.WebviewPanel | undefined;
 let activeAbortController: AbortController | undefined;
+let activeSpellcheckAbortController: AbortController | undefined;
 
 interface TranslateMessage {
 	type: 'translate';
@@ -34,6 +39,8 @@ interface SpellcheckMessage {
 type WebviewMessage = unknown;
 
 export function activateBrowser(context: vscode.ExtensionContext): void {
+	registerSecretCommands(context);
+
 	context.subscriptions.push(
 		vscode.window.registerWebviewPanelSerializer(translatorPanelViewType, {
 			async deserializeWebviewPanel(panel: vscode.WebviewPanel, state: { text?: string }) {
@@ -95,7 +102,7 @@ function setupPanel(
 	panel.webview.onDidReceiveMessage(
 		async (message: WebviewMessage) => {
 			if (isTranslateMessage(message)) {
-				await handleTranslateMessage(panel, message);
+				await handleTranslateMessage(panel, message, context.secrets);
 				return;
 			}
 
@@ -105,7 +112,7 @@ function setupPanel(
 			}
 
 			if (isSpellcheckMessage(message)) {
-				await handleSpellcheckMessage(panel, message);
+				await handleSpellcheckMessage(panel, message, context.secrets);
 			}
 		},
 		undefined,
@@ -115,6 +122,8 @@ function setupPanel(
 	panel.onDidDispose(() => {
 		activeAbortController?.abort();
 		activeAbortController = undefined;
+		activeSpellcheckAbortController?.abort();
+		activeSpellcheckAbortController = undefined;
 
 		if (activePanel === panel) {
 			activePanel = undefined;
@@ -124,9 +133,60 @@ function setupPanel(
 	}, undefined, context.subscriptions);
 }
 
+function registerSecretCommands(context: vscode.ExtensionContext): void {
+	context.subscriptions.push(
+		vscode.commands.registerCommand(setDeepLApiKeyCommand, async () => {
+			await promptAndStoreSecret(context, translationSecretKeys.deepLApiKey, 'DeepL API key');
+		}),
+		vscode.commands.registerCommand(setGoogleCloudApiKeyCommand, async () => {
+			await promptAndStoreSecret(context, translationSecretKeys.googleCloudApiKey, 'Google Cloud Translation API key');
+		}),
+		vscode.commands.registerCommand(setLibreTranslateApiKeyCommand, async () => {
+			await promptAndStoreSecret(context, translationSecretKeys.libreTranslateApiKey, 'LibreTranslate API key');
+		}),
+		vscode.commands.registerCommand(clearTranslationApiKeysCommand, async () => {
+			const confirmation = await vscode.window.showWarningMessage(
+				'Clear stored ATM Translate API keys?',
+				{ modal: true },
+				'Clear',
+			);
+			if (confirmation !== 'Clear') { return; }
+
+			await Promise.all(Object.values(translationSecretKeys).map((key) => context.secrets.delete(key)));
+			await vscode.window.showInformationMessage('ATM Translate API keys cleared.');
+		}),
+	);
+}
+
+async function promptAndStoreSecret(
+	context: vscode.ExtensionContext,
+	key: string,
+	label: string,
+): Promise<void> {
+	const value = await vscode.window.showInputBox({
+		title: `ATM Translate: Set ${label}`,
+		prompt: `Paste your ${label}. It will be stored in VS Code SecretStorage.`,
+		password: true,
+		ignoreFocusOut: true,
+		placeHolder: 'API key',
+	});
+
+	if (value === undefined) { return; }
+	const cleanValue = value.trim();
+	if (!cleanValue) {
+		await context.secrets.delete(key);
+		await vscode.window.showInformationMessage(`ATM Translate ${label} cleared.`);
+		return;
+	}
+
+	await context.secrets.store(key, cleanValue);
+	await vscode.window.showInformationMessage(`ATM Translate ${label} saved.`);
+}
+
 async function handleTranslateMessage(
 	panel: vscode.WebviewPanel,
 	message: TranslateMessage,
+	secrets: vscode.SecretStorage,
 ): Promise<void> {
 	const validationError = validateTranslatePayload(message.text, message.from, message.to);
 	if (validationError) {
@@ -143,17 +203,22 @@ async function handleTranslateMessage(
 	activeAbortController = controller;
 
 	try {
-		const translatedText = await translatePlainText({
-			text: message.text,
-			from: message.from,
-			to: message.to,
-			signal: controller.signal,
-		});
+		const result = await translatePlainText(
+			{
+				text: message.text,
+				from: message.from,
+				to: message.to,
+				signal: controller.signal,
+			},
+			secrets,
+		);
 
 		await panel.webview.postMessage({
 			type: 'translated',
 			id: message.id,
-			text: translatedText,
+			text: result.text,
+			provider: result.providerName,
+			fromCache: result.fromCache,
 		});
 	} catch (error) {
 		if (controller.signal.aborted) { return; }
@@ -163,6 +228,10 @@ async function handleTranslateMessage(
 			id: message.id,
 			message: error instanceof Error ? error.message : 'Translation failed.',
 		});
+	} finally {
+		if (activeAbortController === controller) {
+			activeAbortController = undefined;
+		}
 	}
 }
 
@@ -193,6 +262,7 @@ function isSpellcheckMessage(message: WebviewMessage): message is SpellcheckMess
 async function handleSpellcheckMessage(
 	panel: vscode.WebviewPanel,
 	message: SpellcheckMessage,
+	secrets: vscode.SecretStorage,
 ): Promise<void> {
 	const text = message.text.trim();
 	if (!text) {
@@ -216,23 +286,38 @@ async function handleSpellcheckMessage(
 		return;
 	}
 
+	activeSpellcheckAbortController?.abort();
+	const controller = new AbortController();
+	activeSpellcheckAbortController = controller;
+
 	try {
 		const lang = message.language === 'auto' ? 'en' : message.language;
-		const corrected = await translatePlainText({
-			text,
-			from: lang,
-			to: lang,
-		});
+		const result = await correctPlainText(
+			{
+				text,
+				language: lang,
+				signal: controller.signal,
+			},
+			secrets,
+		);
 
 		await panel.webview.postMessage({
 			type: 'spellcheckResult',
-			text: corrected,
+			text: result.text,
+			provider: result.providerName,
+			fromCache: result.fromCache,
 		});
 	} catch (error) {
+		if (controller.signal.aborted) { return; }
+
 		await panel.webview.postMessage({
 			type: 'spellcheckResult',
 			error: error instanceof Error ? error.message : 'Spell check failed.',
 		});
+	} finally {
+		if (activeSpellcheckAbortController === controller) {
+			activeSpellcheckAbortController = undefined;
+		}
 	}
 }
 
