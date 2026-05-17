@@ -53,4 +53,9 @@ function showHome(): void {
 	if (toolbarInput) {
 		toolbarInput.value = '';
 	}
+
+	if (homeInput) {
+		homeInput.value = '';
+		homeInput.focus();
+	}
 }
