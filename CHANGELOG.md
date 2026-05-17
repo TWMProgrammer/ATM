@@ -67,7 +67,7 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 - **Status Bar**: Enhanced ATM Control Center UI with improved visual hierarchy, minimal tooltip layouts, and a direct GitHub repository link.
 - **Inline Comments**: Supported inline comment highlighting by differentiating between whole-line and inline UI decoration types.
 - **Focus UI**: Refined quick-access button animations inside the focus screen and adjusted spacing.
-- **Architecture**: Refactored the `status-bar` codebase into a scalable modular structure inside `utils`.
+- **Architecture**: Refactored the `atm-control-panel` codebase into a scalable modular structure inside `utils`.
 
 ---
 
