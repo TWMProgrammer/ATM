@@ -74,7 +74,7 @@ function populateLanguageSelects(): void {
 	}
 
 	sourceLanguage.value = 'auto';
-	targetLanguage.value = 'es';
+	targetLanguage.value = 'en';
 }
 
 function createOption(lang: typeof languages[number]): HTMLOptionElement {
