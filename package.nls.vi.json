@@ -23,6 +23,6 @@
   "command.lint.revalidate": "ATM Lint: Kiểm tra lại tệp đang mở",
   "command.music.togglePlayPause": "ATM Music: Phát/Tạm dừng",
   "command.music.playRandomAM": "ATM Music: Đài AM ngẫu nhiên",
-  "command.browser.open": "ATM: Mở trình duyệt",
+  "command.browser.open": "ATM: Trình dịch",
   "view.music": "ATM :: Radio/Nhạc · Pomodoro · Dữ liệu"
 }

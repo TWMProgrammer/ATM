@@ -23,6 +23,6 @@
   "command.lint.revalidate": "ATM Lint：重新验证打开的文件",
   "command.music.togglePlayPause": "ATM 音乐：播放/暂停",
   "command.music.playRandomAM": "ATM 音乐：随机 AM 电台",
-  "command.browser.open": "ATM：打开浏览器",
+  "command.browser.open": "ATM：翻译器",
   "view.music": "ATM :: 无线电/音乐 · 番茄钟 · 数据"
 }

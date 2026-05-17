@@ -1,36 +1,53 @@
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import * as crypto from 'crypto';
+import { translatePlainText } from './core/translator';
 
-const browserPanelViewType = 'atm.browser';
+const translatorPanelViewType = 'atm.translator';
+const openTranslatorCommand = 'atm.browser.open';
 
-// ── Singleton panel ──────────────────────────────────────────────────────────
 let activePanel: vscode.WebviewPanel | undefined;
+let activeAbortController: AbortController | undefined;
+
+interface TranslateMessage {
+	type: 'translate';
+	id: string;
+	text: string;
+	from: string;
+	to: string;
+}
+
+interface CopyMessage {
+	type: 'copy';
+	text: string;
+}
+
+type WebviewMessage = unknown;
 
 export function activateBrowser(context: vscode.ExtensionContext): void {
-	// Restore panel when VS Code restarts (user had the panel open before)
 	context.subscriptions.push(
-		vscode.window.registerWebviewPanelSerializer(browserPanelViewType, {
-			async deserializeWebviewPanel(panel: vscode.WebviewPanel, state: { url?: string }) {
-				setupPanel(panel, context, state?.url);
+		vscode.window.registerWebviewPanelSerializer(translatorPanelViewType, {
+			async deserializeWebviewPanel(panel: vscode.WebviewPanel, state: { text?: string }) {
+				setupPanel(panel, context, state?.text);
 			},
 		})
 	);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('atm.browser.open', (url?: string) => {
+		vscode.commands.registerCommand(openTranslatorCommand, (text?: string) => {
+			const initialText = getInitialText(text);
+
 			if (activePanel) {
-				// Reuse the existing panel instead of opening a duplicate
 				activePanel.reveal(vscode.ViewColumn.Active);
-				if (url) {
-					activePanel.webview.postMessage({ type: 'navigate', url });
+				if (initialText) {
+					activePanel.webview.postMessage({ type: 'setText', text: initialText });
 				}
 				return;
 			}
 
 			const panel = vscode.window.createWebviewPanel(
-				browserPanelViewType,
-				'ATM Browser',
+				translatorPanelViewType,
+				'ATM Translate',
 				vscode.ViewColumn.Active,
 				{
 					enableScripts: true,
@@ -41,41 +58,38 @@ export function activateBrowser(context: vscode.ExtensionContext): void {
 				}
 			);
 
-			setupPanel(panel, context, url);
+			setupPanel(panel, context, initialText);
 		})
 	);
 }
 
-// ── Panel setup (shared between new + restored panels) ───────────────────────
 function setupPanel(
 	panel: vscode.WebviewPanel,
 	context: vscode.ExtensionContext,
-	initialUrl?: string,
+	initialText?: string,
 ): void {
 	panel.iconPath = vscode.Uri.joinPath(
 		context.extensionUri, 'src', 'extensions', '21-browser', 'assets', 'globe.svg'
 	);
 
-	panel.webview.html = getBrowserHtml(context, panel.webview);
+	panel.webview.html = getTranslatorHtml(context, panel.webview);
 	activePanel = panel;
 
-	// Navigate to initial URL if provided
-	if (initialUrl) {
-		// Small delay so the webview script has time to initialize
+	if (initialText) {
 		setTimeout(() => {
-			panel.webview.postMessage({ type: 'navigate', url: initialUrl });
-		}, 300);
+			panel.webview.postMessage({ type: 'setText', text: initialText });
+		}, 150);
 	}
 
-	// Messages from the webview → extension host
 	panel.webview.onDidReceiveMessage(
-		(message: { type: string; url?: string }) => {
-			if (message.type === 'openExternal' && message.url) {
-				try {
-					vscode.env.openExternal(vscode.Uri.parse(message.url));
-				} catch {
-					// noop — invalid URI
-				}
+		async (message: WebviewMessage) => {
+			if (isTranslateMessage(message)) {
+				await handleTranslateMessage(panel, message);
+				return;
+			}
+
+			if (isCopyMessage(message)) {
+				await vscode.env.clipboard.writeText(message.text);
 			}
 		},
 		undefined,
@@ -83,14 +97,81 @@ function setupPanel(
 	);
 
 	panel.onDidDispose(() => {
+		activeAbortController?.abort();
+		activeAbortController = undefined;
+
 		if (activePanel === panel) {
 			activePanel = undefined;
 		}
 	}, undefined, context.subscriptions);
 }
 
-// ── HTML generation ───────────────────────────────────────────────────────────
-function getBrowserHtml(context: vscode.ExtensionContext, webview: vscode.Webview): string {
+async function handleTranslateMessage(
+	panel: vscode.WebviewPanel,
+	message: TranslateMessage,
+): Promise<void> {
+	activeAbortController?.abort();
+	const controller = new AbortController();
+	activeAbortController = controller;
+
+	try {
+		const translatedText = await translatePlainText({
+			text: message.text,
+			from: message.from,
+			to: message.to,
+			signal: controller.signal,
+		});
+
+		await panel.webview.postMessage({
+			type: 'translated',
+			id: message.id,
+			text: translatedText,
+		});
+	} catch (error) {
+		if (controller.signal.aborted) { return; }
+
+		await panel.webview.postMessage({
+			type: 'translationError',
+			id: message.id,
+			message: error instanceof Error ? error.message : 'Translation failed.',
+		});
+	}
+}
+
+function isTranslateMessage(message: WebviewMessage): message is TranslateMessage {
+	if (!isRecord(message)) { return false; }
+
+	return message.type === 'translate'
+		&& typeof message.id === 'string'
+		&& typeof message.text === 'string'
+		&& typeof message.from === 'string'
+		&& typeof message.to === 'string';
+}
+
+function isCopyMessage(message: WebviewMessage): message is CopyMessage {
+	if (!isRecord(message)) { return false; }
+
+	return message.type === 'copy' && typeof message.text === 'string';
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null;
+}
+
+function getInitialText(text?: string): string {
+	if (typeof text === 'string' && text.trim()) {
+		return text;
+	}
+
+	const editor = vscode.window.activeTextEditor;
+	if (!editor || editor.selection.isEmpty) {
+		return '';
+	}
+
+	return editor.document.getText(editor.selection).trim();
+}
+
+function getTranslatorHtml(context: vscode.ExtensionContext, webview: vscode.Webview): string {
 	const uiRoot = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'ui');
 	const html   = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'browser.html').fsPath, 'utf8');
 	const css    = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'browser.css').fsPath, 'utf8');
@@ -99,18 +180,14 @@ function getBrowserHtml(context: vscode.ExtensionContext, webview: vscode.Webvie
 		vscode.Uri.joinPath(context.extensionUri, 'dist', 'browser.js')
 	);
 
-	// Nonce for CSP — unique per panel instantiation
 	const nonce = crypto.randomUUID().replace(/-/g, '');
 
 	const csp = [
 		`default-src 'none'`,
-		`font-src data:`,
-		`img-src ${webview.cspSource} https: data:`,
+		`font-src ${webview.cspSource}`,
+		`img-src ${webview.cspSource} data:`,
 		`style-src ${webview.cspSource} 'unsafe-inline'`,
 		`script-src 'nonce-${nonce}'`,
-		`connect-src *`,
-		`media-src *`,
-		`frame-src *`,
 	].join('; ');
 
 	return html

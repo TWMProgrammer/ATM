@@ -3,99 +3,81 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>ATM Browser</title>
+	<title>ATM Translate</title>
 	<!-- ATM_BROWSER_STYLES -->
 </head>
 <body>
-	<main class="browser-home">
-		<section class="search-shell" aria-label="ATM Browser search">
-			<div class="brand" aria-label="ATM Browser">
-				<span>A</span>
-				<span>T</span>
-				<span>M</span>
+	<main class="translator-shell">
+		<header class="app-bar">
+			<div class="app-identity">
+				<div class="app-icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" focusable="false">
+						<path d="M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20Zm6.93 9h-3.05a15.7 15.7 0 0 0-1.16-5.02A8.03 8.03 0 0 1 18.93 11ZM12 4.04c.75 1.08 1.55 3.27 1.83 6.96h-3.66c.28-3.69 1.08-5.88 1.83-6.96ZM4.26 13h3.86c.11 1.93.41 3.68.86 5.02A8.03 8.03 0 0 1 4.26 13Zm3.86-2H5.07a8.03 8.03 0 0 1 4.21-5.02A15.7 15.7 0 0 0 8.12 11ZM12 19.96c-.75-1.08-1.55-3.27-1.83-6.96h3.66c-.28 3.69-1.08 5.88-1.83 6.96Zm2.72-1.94c.45-1.34.75-3.09.86-5.02h3.86a8.03 8.03 0 0 1-4.72 5.02Z"/>
+					</svg>
+				</div>
+				<div>
+					<h1>ATM Translate</h1>
+					<p>Fast translation inside VS Code</p>
+				</div>
 			</div>
-
-			<form class="search-form" id="browser-search-form">
-				<label class="search-box" for="browser-search-input">
-					<span class="search-icon" aria-hidden="true">⌕</span>
-					<input
-						id="browser-search-input"
-						name="query"
-						type="search"
-						placeholder="Search or enter a URL"
-						autocomplete="off"
-						spellcheck="false"
-					>
+			<div class="language-row" aria-label="Translation languages">
+				<label class="language-select">
+					<span>From</span>
+					<select id="source-language"></select>
 				</label>
-			</form>
-
-			<div class="quick-actions" aria-label="Quick actions">
-				<button class="quick-action" id="translate-action" type="button">Translate</button>
-				<button class="quick-action" id="mdn-action" type="button">MDN</button>
-				<button class="quick-action" id="chatgpt-action" type="button">AI</button>
+				<button class="icon-button swap-button" id="swap-action" type="button" aria-label="Swap languages" title="Swap languages">
+					<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path d="M7 7h11l-3-3l1.41-1.41L21.83 8l-5.42 5.41L15 12l3-3H7V7Zm10 10H6l3 3l-1.41 1.41L2.17 16l5.42-5.41L9 12l-3 3h11v2Z"/>
+					</svg>
+				</button>
+				<label class="language-select">
+					<span>To</span>
+					<select id="target-language"></select>
+				</label>
 			</div>
+		</header>
+
+		<section class="translate-grid" aria-label="Translator">
+			<section class="translate-card input-card">
+				<div class="card-toolbar">
+					<strong id="source-label">Auto detect</strong>
+					<button class="ghost-button" id="clear-action" type="button">Clear</button>
+				</div>
+				<textarea
+					id="source-text"
+					placeholder="Write or paste text to translate"
+					spellcheck="true"
+					autofocus
+				></textarea>
+				<div class="card-footer">
+					<span id="source-count">0 / 5000</span>
+					<button class="primary-button" id="translate-action" type="button">
+						<span class="button-spinner" id="button-spinner" hidden></span>
+						<span id="translate-label">Translate</span>
+					</button>
+				</div>
+			</section>
+
+			<section class="translate-card output-card" aria-live="polite">
+				<div class="card-toolbar">
+					<strong id="target-label">Spanish</strong>
+					<div class="toolbar-actions">
+						<button class="icon-button" id="copy-action" type="button" aria-label="Copy translation" title="Copy translation">
+							<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+								<path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/>
+							</svg>
+						</button>
+					</div>
+				</div>
+				<div class="translation-output" id="translation-output">
+					<span class="empty-state">Your translation will appear here.</span>
+				</div>
+				<div class="status-row">
+					<span id="status-text">Ready</span>
+				</div>
+			</section>
 		</section>
 	</main>
-
-	<section class="browser-view" aria-label="ATM Browser page">
-		<header class="browser-toolbar">
-			<button class="toolbar-button" id="back-action" type="button" aria-label="Go back" disabled>
-				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-					<path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-				</svg>
-			</button>
-			<button class="toolbar-button" id="forward-action" type="button" aria-label="Go forward" disabled>
-				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-					<path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
-				</svg>
-			</button>
-			<button class="toolbar-button" id="home-action" type="button" aria-label="Back to browser home">
-				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-					<path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/>
-				</svg>
-			</button>
-			<form class="toolbar-form" id="browser-toolbar-form">
-				<label class="toolbar-address" for="browser-toolbar-input">
-					<span class="toolbar-globe" aria-hidden="true">⌕</span>
-					<input
-						id="browser-toolbar-input"
-						name="address"
-						type="search"
-						placeholder="Search or enter a URL"
-						autocomplete="off"
-						spellcheck="false"
-					>
-				</label>
-			</form>
-			<button class="toolbar-button" id="reload-action" type="button" aria-label="Reload page">
-				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-					<path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-				</svg>
-			</button>
-			<button class="toolbar-button" id="open-external-action" type="button" aria-label="Open in external browser">
-				<svg class="toolbar-button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-					<path fill="currentColor" d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
-				</svg>
-			</button>
-		</header>
-		<div class="frame-container">
-			<div class="frame-loading" id="frame-loading" aria-live="polite">
-				<div class="loading-spinner" aria-hidden="true"></div>
-				<span>Loading…</span>
-			</div>
-			<div class="frame-error" id="frame-error" aria-live="polite">
-				<div class="frame-error-icon" aria-hidden="true">⊘</div>
-				<p class="frame-error-title">This site can't be embedded</p>
-				<p class="frame-error-desc">The page refused to load inside ATM Browser.</p>
-				<button class="frame-error-btn" id="frame-error-external" type="button">Open in External Browser</button>
-			</div>
-			<iframe
-				id="browser-frame"
-				title="ATM Browser content"
-				sandbox="allow-scripts allow-forms allow-same-origin allow-downloads allow-popups allow-top-navigation-by-user-activation allow-modals"
-			></iframe>
-		</div>
-	</section>
 	<!-- ATM_BROWSER_SCRIPT -->
 </body>
 </html>
