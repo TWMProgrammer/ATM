@@ -19,7 +19,7 @@ export function activateBrowser(context: vscode.ExtensionContext): void {
 				}
 			);
 
-			panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'ui', 'globe.svg');
+			panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'assets', 'globe.svg');
 			panel.webview.html = getBrowserHtml(context, panel.webview);
 		})
 	);
