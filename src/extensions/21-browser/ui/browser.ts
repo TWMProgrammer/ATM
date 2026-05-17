@@ -40,6 +40,8 @@ const CHAR_LIMIT = 5000;
 const DEBOUNCE_MS = 500;
 
 let activeRequestId = '';
+let activeRequestKey = '';
+let lastCompletedRequestKey = '';
 let translatedText = '';
 let debounceTimer: number | undefined;
 let lastRenderedText = '';
@@ -56,6 +58,8 @@ function init(): void {
 	updateCount();
 	if (translatedText) {
 		renderOutput(translatedText);
+	} else {
+		renderOutput('');
 	}
 	sourceText.focus();
 }
@@ -84,11 +88,19 @@ function restoreState(): void {
 	const state = vscodeApi.getState() as PersistedState | undefined;
 	if (!state) { return; }
 
-	if (state.sourceLanguage) { sourceLanguage.value = state.sourceLanguage; }
-	if (state.targetLanguage) { targetLanguage.value = state.targetLanguage; }
+	if (state.sourceLanguage && hasOptionValue(sourceLanguage, state.sourceLanguage)) {
+		sourceLanguage.value = state.sourceLanguage;
+	}
+	if (state.targetLanguage && hasOptionValue(targetLanguage, state.targetLanguage)) {
+		targetLanguage.value = state.targetLanguage;
+	}
 	if (state.sourceText) { sourceText.value = state.sourceText; }
 	if (state.translatedText) { translatedText = state.translatedText; }
 	if (typeof state.autoTranslate === 'boolean') { autoTranslate = state.autoTranslate; }
+}
+
+function hasOptionValue(select: HTMLSelectElement, value: string): boolean {
+	return Array.from(select.options).some((option) => option.value === value);
 }
 
 function updateAutoToggle(): void {
@@ -133,6 +145,8 @@ function wireEvents(): void {
 			translatedText = '';
 			lastRenderedText = '';
 			activeRequestId = '';
+			activeRequestKey = '';
+			lastCompletedRequestKey = '';
 			setLoading(false);
 			renderOutput('');
 			setStatus('Ready');
@@ -169,6 +183,8 @@ function wireEvents(): void {
 		translatedText = '';
 		lastRenderedText = '';
 		activeRequestId = '';
+		activeRequestKey = '';
+		lastCompletedRequestKey = '';
 		setLoading(false);
 		updateCount();
 		renderOutput('');
@@ -238,6 +254,7 @@ function wireEvents(): void {
 
 		if (msg?.type === 'translated' && msg.id === activeRequestId) {
 			translatedText = msg.text ?? '';
+			lastCompletedRequestKey = activeRequestKey;
 			renderOutput(translatedText);
 			setLoading(false);
 			setStatus(translatedText ? 'Translated' : 'Ready');
@@ -277,21 +294,38 @@ function doTranslate(): void {
 		translatedText = '';
 		lastRenderedText = '';
 		activeRequestId = '';
+		activeRequestKey = '';
+		lastCompletedRequestKey = '';
 		setLoading(false);
 		renderOutput('');
 		setStatus('Ready');
 		return;
 	}
 
+	if (text.length > CHAR_LIMIT) {
+		setLoading(false);
+		setStatus(`Text is over ${CHAR_LIMIT} characters`);
+		return;
+	}
+
 	if (sourceLanguage.value === targetLanguage.value) {
 		translatedText = text;
+		lastCompletedRequestKey = buildRequestKey(text);
 		renderOutput(translatedText);
 		setStatus('Same language');
 		persistState();
 		return;
 	}
 
+	const requestKey = buildRequestKey(text);
+	if (requestKey === lastCompletedRequestKey && translatedText) {
+		renderOutput(translatedText);
+		setStatus('Translated');
+		return;
+	}
+
 	activeRequestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+	activeRequestKey = requestKey;
 	setLoading(true);
 	setStatus('Translating');
 	showSkeleton();
@@ -303,6 +337,10 @@ function doTranslate(): void {
 		from: sourceLanguage.value,
 		to: targetLanguage.value,
 	});
+}
+
+function buildRequestKey(text: string): string {
+	return `${sourceLanguage.value}\u0000${targetLanguage.value}\u0000${text}`;
 }
 
 function updateLabels(): void {
@@ -319,12 +357,13 @@ function updateCount(): void {
 	const count = sourceText.value.length;
 	sourceCount.textContent = `${count} / ${CHAR_LIMIT}`;
 	sourceCount.classList.toggle('is-over-limit', count > CHAR_LIMIT);
+	spellcheckAction.disabled = count > CHAR_LIMIT;
 }
 
 function renderOutput(text: string): void {
 	if (!text) {
 		lastRenderedText = '';
-		translatedOutput.innerHTML = '<span class="empty-state">Translation will appear here</span>';
+		translatedOutput.innerHTML = '<span class="empty-state">Your translation will appear here.</span>';
 		copyAction.disabled = true;
 		outputCard.classList.remove('has-content');
 		return;
@@ -341,6 +380,7 @@ function renderOutput(text: string): void {
 function showSkeleton(): void {
 	if (translatedOutput.querySelector('.skeleton-line')) { return; }
 	outputCard.classList.remove('has-content');
+	copyAction.disabled = true;
 	translatedOutput.innerHTML = `
 		<div class="skeleton-line" style="width:85%"></div>
 		<div class="skeleton-line" style="width:70%"></div>

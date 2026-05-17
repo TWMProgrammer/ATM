@@ -2,9 +2,12 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { translatePlainText } from './core/translator';
+import { languages } from './ui/flags';
 
 const translatorPanelViewType = 'atm.translator';
 const openTranslatorCommand = 'atm.browser.open';
+const maxTextLength = 5000;
+const languageCodes = new Set(languages.map((language) => language.code));
 
 let activePanel: vscode.WebviewPanel | undefined;
 let activeAbortController: AbortController | undefined;
@@ -58,10 +61,10 @@ export function activateBrowser(context: vscode.ExtensionContext): void {
 				{
 					enableScripts: true,
 					retainContextWhenHidden: true,
-				localResourceRoots: [
-					vscode.Uri.joinPath(context.extensionUri, 'dist'),
-					vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'assets'),
-				],
+					localResourceRoots: [
+						vscode.Uri.joinPath(context.extensionUri, 'dist'),
+						vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'assets'),
+					],
 				}
 			);
 
@@ -81,6 +84,7 @@ function setupPanel(
 
 	panel.webview.html = getTranslatorHtml(context, panel.webview);
 	activePanel = panel;
+	const panelDisposables: vscode.Disposable[] = [];
 
 	if (initialText) {
 		setTimeout(() => {
@@ -105,7 +109,7 @@ function setupPanel(
 			}
 		},
 		undefined,
-		context.subscriptions,
+		panelDisposables,
 	);
 
 	panel.onDidDispose(() => {
@@ -115,6 +119,8 @@ function setupPanel(
 		if (activePanel === panel) {
 			activePanel = undefined;
 		}
+
+		vscode.Disposable.from(...panelDisposables).dispose();
 	}, undefined, context.subscriptions);
 }
 
@@ -122,6 +128,16 @@ async function handleTranslateMessage(
 	panel: vscode.WebviewPanel,
 	message: TranslateMessage,
 ): Promise<void> {
+	const validationError = validateTranslatePayload(message.text, message.from, message.to);
+	if (validationError) {
+		await panel.webview.postMessage({
+			type: 'translationError',
+			id: message.id,
+			message: validationError,
+		});
+		return;
+	}
+
 	activeAbortController?.abort();
 	const controller = new AbortController();
 	activeAbortController = controller;
@@ -178,10 +194,32 @@ async function handleSpellcheckMessage(
 	panel: vscode.WebviewPanel,
 	message: SpellcheckMessage,
 ): Promise<void> {
+	const text = message.text.trim();
+	if (!text) {
+		await panel.webview.postMessage({ type: 'spellcheckResult', text: '' });
+		return;
+	}
+
+	if (text.length > maxTextLength) {
+		await panel.webview.postMessage({
+			type: 'spellcheckResult',
+			error: `Text is too long. Keep spelling checks under ${maxTextLength} characters.`,
+		});
+		return;
+	}
+
+	if (!isValidSourceLanguage(message.language)) {
+		await panel.webview.postMessage({
+			type: 'spellcheckResult',
+			error: 'Unsupported spell check language.',
+		});
+		return;
+	}
+
 	try {
 		const lang = message.language === 'auto' ? 'en' : message.language;
 		const corrected = await translatePlainText({
-			text: message.text,
+			text,
 			from: lang,
 			to: lang,
 		});
@@ -196,6 +234,28 @@ async function handleSpellcheckMessage(
 			error: error instanceof Error ? error.message : 'Spell check failed.',
 		});
 	}
+}
+
+function validateTranslatePayload(text: string, from: string, to: string): string | undefined {
+	if (!text.trim()) { return undefined; }
+	if (text.trim().length > maxTextLength) {
+		return `Text is too long. Keep translations under ${maxTextLength} characters.`;
+	}
+	if (!isValidSourceLanguage(from)) {
+		return 'Unsupported source language.';
+	}
+	if (!isValidTargetLanguage(to)) {
+		return 'Unsupported target language.';
+	}
+	return undefined;
+}
+
+function isValidSourceLanguage(code: string): boolean {
+	return languageCodes.has(code);
+}
+
+function isValidTargetLanguage(code: string): boolean {
+	return code !== 'auto' && languageCodes.has(code);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
