@@ -522,7 +522,8 @@
       "editor/title": [
         {
           "command": "atm.browser.open",
-          "group": "navigation@0"
+          "group": "navigation@0",
+          "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
         },
         {
           "command": "atm.translate-doc.translateExtension",
