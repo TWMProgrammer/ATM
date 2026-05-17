@@ -6,15 +6,15 @@ ATM is a TypeScript VS Code extension. The activation entry point is `src/extens
 
 ## Build, Test, and Development Commands
 
-- `npm install`: install dependencies from `package-lock.json`.
-- `npm run check-types`: run strict TypeScript checking with no emitted files.
-- `npm run lint`: lint TypeScript files under `src/`.
-- `npm run compile`: type-check, lint, and bundle extension/webview assets with `esbuild.js`.
-- `npm run watch`: run TypeScript and esbuild watchers during extension development.
-- `npm test`: compile tests, compile the extension, lint, then run the VS Code test runner.
-- `npm run package`: production bundle used by `vscode:prepublish`.
+- `bun install`: install dependencies from `bun.lock`.
+- `bun run check-types`: run strict TypeScript checking with no emitted files.
+- `bun run lint`: lint TypeScript files under `src/`.
+- `bun run compile`: type-check, lint, and bundle extension/webview assets with `esbuild.js`.
+- `bun run watch`: run TypeScript and esbuild watchers during extension development.
+- `bun run test`: compile tests, compile the extension, lint, then run the VS Code test runner.
+- `bun run package`: production bundle used by `vscode:prepublish`.
 
-Use VS Code's Extension Development Host (`F5`) after compiling or while `npm run watch` runs.
+Use VS Code's Extension Development Host (`F5`) after compiling or while `bun run watch` runs.
 
 ## Coding Style & Naming Conventions
 
@@ -22,7 +22,7 @@ Use TypeScript with `strict` mode and ES2022 APIs. Match existing formatting: ta
 
 ## Testing Guidelines
 
-Tests use the VS Code test runner with Node `assert`. Add tests in `src/__test__/` as `feature-name.test.ts` for user-visible behavior, parsers, lint engines, and command logic that can be isolated. Run `npm test` before submitting changes; for faster feedback, run `npm run check-types` and `npm run lint` first.
+Tests use the VS Code test runner with Node `assert`. Add tests in `src/__test__/` as `feature-name.test.ts` for user-visible behavior, parsers, lint engines, and command logic that can be isolated. Run `bun run test` before submitting changes; for faster feedback, run `bun run check-types` and `bun run lint` first.
 
 ## Commit & Pull Request Guidelines
 
