@@ -23,5 +23,6 @@
   "command.lint.revalidate": "ATM Lint: Revalidar arquivos abertos",
   "command.music.togglePlayPause": "ATM Música: Reproduzir/Pausar",
   "command.music.playRandomAM": "ATM Música: Estação AM aleatória",
+  "command.browser.open": "ATM: Tradutor",
   "view.music": "ATM :: Rádio/Música · Pomodoro · Dados"
 }

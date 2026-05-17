@@ -23,5 +23,6 @@
   "command.lint.revalidate": "ATM Lint: 열린 파일 다시 검사",
   "command.music.togglePlayPause": "ATM 음악: 재생/일시정지",
   "command.music.playRandomAM": "ATM 음악: 무작위 AM 방송국",
+  "command.browser.open": "ATM: 번역기",
   "view.music": "ATM :: 라디오/음악 · 뽀모도로 · 데이터"
 }
