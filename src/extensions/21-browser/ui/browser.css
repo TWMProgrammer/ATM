@@ -173,6 +173,12 @@ body.is-browsing .browser-view {
 	padding: 0;
 }
 
+.toolbar-button-icon {
+	fill: currentColor;
+	height: 18px;
+	width: 18px;
+}
+
 .toolbar-button:hover {
 	background: var(--vscode-toolbar-hoverBackground);
 	border-color: var(--vscode-editorWidget-border, transparent);
@@ -219,6 +225,10 @@ body.is-browsing .browser-view {
 	min-width: 0;
 	outline: 0;
 	width: 100%;
+}
+
+.toolbar-address input::-webkit-search-cancel-button {
+	cursor: pointer;
 }
 
 #browser-frame {
