@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { translate } from '@vitalets/google-translate-api';
+import { correctTextLocally } from './spellcheck/localSpellcheck';
 
 const MAX_TEXT_LENGTH = 5000;
 const MAX_CACHE_ENTRIES = 250;
@@ -57,7 +58,7 @@ export interface SpellcheckRequest {
 
 export interface TranslationResult {
 	text: string;
-	providerId: TranslationProviderId | 'cache';
+	providerId: TranslationProviderId | 'cache' | 'localSpellcheck';
 	providerName: string;
 	fromCache?: boolean;
 }
@@ -177,6 +178,15 @@ export async function correctPlainText(
 	}
 	if (cleanText.length > MAX_TEXT_LENGTH) {
 		throw new Error(`Text is too long. Keep spelling checks under ${MAX_TEXT_LENGTH} characters.`);
+	}
+
+	const localResult = correctTextLocally(cleanText, request.language);
+	if (localResult.changed) {
+		return {
+			text: localResult.text,
+			providerId: 'localSpellcheck',
+			providerName: `Local dictionary (${localResult.corrections})`,
+		};
 	}
 
 	const config = readConfiguration();
@@ -711,7 +721,7 @@ function buildCacheKey(action: 'translate' | 'spellcheck', text: string, from: s
 }
 
 function setCachedResult(key: string, value: TranslationResult): void {
-	if (value.providerId === 'cache') { return; }
+	if (value.providerId === 'cache' || value.providerId === 'localSpellcheck') { return; }
 	if (translationCache.size >= MAX_CACHE_ENTRIES) {
 		const oldestKey = translationCache.keys().next().value;
 		if (oldestKey !== undefined) { translationCache.delete(oldestKey); }

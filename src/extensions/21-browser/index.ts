@@ -291,11 +291,10 @@ async function handleSpellcheckMessage(
 	activeSpellcheckAbortController = controller;
 
 	try {
-		const lang = message.language === 'auto' ? 'en' : message.language;
 		const result = await correctPlainText(
 			{
 				text,
-				language: lang,
+				language: message.language,
 				signal: controller.signal,
 			},
 			secrets,

@@ -204,7 +204,7 @@ function wireEvents(): void {
 		vscodeApi.postMessage({
 			type: 'spellcheck',
 			text,
-			language: sourceLanguage.value === 'auto' ? targetLanguage.value : sourceLanguage.value,
+			language: sourceLanguage.value,
 		});
 	});
 
