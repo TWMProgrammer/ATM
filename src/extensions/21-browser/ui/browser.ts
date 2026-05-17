@@ -98,10 +98,10 @@ function updateAutoToggle(): void {
 
 function updateTranslateButton(): void {
 	if (autoTranslate) {
-		translateAction.classList.remove('primary-button--manual');
+		translateAction.classList.add('primary-button--manual');
 		translateLabel.textContent = 'Automatic';
 	} else {
-		translateAction.classList.add('primary-button--manual');
+		translateAction.classList.remove('primary-button--manual');
 		translateLabel.textContent = 'Translate';
 	}
 }

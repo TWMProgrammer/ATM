@@ -469,22 +469,12 @@ textarea::placeholder,
 	background: var(--glass-bg);
 	border-color: var(--glass-border);
 	color: var(--muted);
-	cursor: pointer;
-}
-
-.primary-button--manual:hover {
-	background: var(--glass-bg-hover);
-	border-color: var(--glass-border-hover);
-	color: var(--vscode-foreground);
-	box-shadow: none;
-}
-
-.primary-button:not(.primary-button--manual) {
 	cursor: default;
 }
 
-.primary-button:not(.primary-button--manual):hover {
-	background: var(--accent);
+.primary-button--manual:hover {
+	background: var(--glass-bg);
+	box-shadow: none;
 	transform: none;
 }
 
