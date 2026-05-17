@@ -448,7 +448,7 @@ textarea::placeholder,
 button:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-	outline: 1px solid var(--vscode-focusBorder);
+	outline: 1px solid color-mix(in srgb, var(--vscode-focusBorder) 50%, transparent);
 	outline-offset: -1px;
 }
 
