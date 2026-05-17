@@ -543,8 +543,13 @@ textarea::placeholder,
 	width: 22px;
 }
 
+.copy-button .icon-copy {
+	fill: currentColor;
+}
+
 .copy-button .icon-check {
 	display: none;
+	stroke: currentColor;
 }
 
 .copy-button.copied .icon-copy {
