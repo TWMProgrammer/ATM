@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as vscode from 'vscode';
 
 const browserPanelViewType = 'atm.browser';
@@ -10,43 +11,26 @@ export function activateBrowser(context: vscode.ExtensionContext): void {
 				'ATM Browser',
 				vscode.ViewColumn.Active,
 				{
-					enableScripts: false,
+					enableScripts: true,
 					retainContextWhenHidden: true,
+					localResourceRoots: [
+						vscode.Uri.joinPath(context.extensionUri, 'dist'),
+					],
 				}
 			);
 
-			panel.webview.html = getBrowserHtml();
+			panel.webview.html = getBrowserHtml(context, panel.webview);
 		})
 	);
 }
 
-function getBrowserHtml(): string {
-	return /* html */ `<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>ATM Browser</title>
-	<style>
-		body {
-			align-items: center;
-			background: var(--vscode-editor-background);
-			color: var(--vscode-editor-foreground);
-			display: flex;
-			font-family: var(--vscode-font-family);
-			height: 100vh;
-			justify-content: center;
-			margin: 0;
-		}
+function getBrowserHtml(context: vscode.ExtensionContext, webview: vscode.Webview): string {
+	const uiRoot = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'ui');
+	const html = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'browser.html').fsPath, 'utf8');
+	const css = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'browser.css').fsPath, 'utf8');
+	const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'dist', 'browser.js'));
 
-		main {
-			font-size: 18px;
-			font-weight: 600;
-		}
-	</style>
-</head>
-<body>
-	<main>Hello World</main>
-</body>
-</html>`;
+	return html
+		.replace('<!-- ATM_BROWSER_STYLES -->', `<style>${css}</style>`)
+		.replace('<!-- ATM_BROWSER_SCRIPT -->', `<script src="${scriptUri}"></script>`);
 }
