@@ -3,10 +3,15 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="color-scheme" content="dark light">
 	<title>ATM Translate</title>
 	<!-- ATM_BROWSER_STYLES -->
 </head>
 <body>
+	<div class="glass-orb glass-orb--top" aria-hidden="true"></div>
+	<div class="glass-orb glass-orb--bottom" aria-hidden="true"></div>
+	<div class="glass-orb glass-orb--mid" aria-hidden="true"></div>
+
 	<main class="translator-shell">
 		<header class="app-bar">
 			<div class="app-identity">
@@ -45,7 +50,7 @@
 				</div>
 				<textarea
 					id="source-text"
-					placeholder="Write or paste text to translate"
+					placeholder="Write or paste text to translate..."
 					spellcheck="true"
 					autofocus
 				></textarea>
