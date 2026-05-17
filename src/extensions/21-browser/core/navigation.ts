@@ -2,6 +2,8 @@ export const quickUrls = {
 	translate: 'https://translate.yandex.com/en/',
 } as const;
 
+const googleSearchUrl = 'https://www.google.com/search';
+
 export function resolveNavigationTarget(value: string): string {
 	const query = value.trim();
 	if (!query) { return ''; }
@@ -10,7 +12,12 @@ export function resolveNavigationTarget(value: string): string {
 		return normalizeUrl(query);
 	}
 
-	return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+	const params = new URLSearchParams({
+		igu: '1',
+		q: query,
+	});
+
+	return `${googleSearchUrl}?${params.toString()}`;
 }
 
 function looksLikeUrl(value: string): boolean {
