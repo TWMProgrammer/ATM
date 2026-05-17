@@ -175,6 +175,11 @@
         "title": "%command.music.playRandomAM%"
       },
       {
+        "command": "atm.browser.open",
+        "title": "%command.browser.open%",
+        "icon": "$(globe)"
+      },
+      {
         "command": "terminalSound.testSound",
         "title": "Terminal Sound: Test Sound"
       },
@@ -515,6 +520,10 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "atm.browser.open",
+          "group": "navigation@0"
+        },
         {
           "command": "atm.translate-doc.translateExtension",
           "group": "navigation",

@@ -23,5 +23,6 @@
   "command.lint.revalidate": "ATM Lint: खुली फ़ाइलों को फिर से जांचें",
   "command.music.togglePlayPause": "ATM Music: प्ले/पॉज़",
   "command.music.playRandomAM": "ATM Music: रैंडम AM स्टेशन",
+  "command.browser.open": "ATM: ब्राउज़र खोलें",
   "view.music": "ATM :: रेडियो/संगीत · Pomodoro · डेटा"
 }
