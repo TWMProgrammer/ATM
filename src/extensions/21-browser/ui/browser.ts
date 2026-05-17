@@ -132,6 +132,8 @@ function wireEvents(): void {
 		if (sourceText.value.trim().length < 2) {
 			translatedText = '';
 			lastRenderedText = '';
+			activeRequestId = '';
+			setLoading(false);
 			renderOutput('');
 			setStatus('Ready');
 			return;
@@ -166,6 +168,8 @@ function wireEvents(): void {
 		sourceText.value = '';
 		translatedText = '';
 		lastRenderedText = '';
+		activeRequestId = '';
+		setLoading(false);
 		updateCount();
 		renderOutput('');
 		setStatus('Ready');
@@ -272,6 +276,8 @@ function doTranslate(): void {
 	if (!text) {
 		translatedText = '';
 		lastRenderedText = '';
+		activeRequestId = '';
+		setLoading(false);
 		renderOutput('');
 		setStatus('Ready');
 		return;
@@ -316,17 +322,19 @@ function updateCount(): void {
 }
 
 function renderOutput(text: string): void {
-	if (text === lastRenderedText) { return; }
-	lastRenderedText = text;
-
-	copyAction.disabled = !text;
-	outputCard.classList.toggle('has-content', !!text);
-
 	if (!text) {
+		lastRenderedText = '';
 		translatedOutput.innerHTML = '<span class="empty-state">Translation will appear here</span>';
+		copyAction.disabled = true;
+		outputCard.classList.remove('has-content');
 		return;
 	}
 
+	if (text === lastRenderedText) { return; }
+	lastRenderedText = text;
+
+	copyAction.disabled = false;
+	outputCard.classList.add('has-content');
 	translatedOutput.textContent = text;
 }
 
