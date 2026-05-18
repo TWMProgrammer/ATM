@@ -21,7 +21,7 @@ import { activateLint } from './02-atm-lint/lint';
 import { activateGlobalStatusBar } from './shared/shared';
 import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
-import { activateBrowser } from './21-browser';
+import { activateAtmTranslate } from './21-atm-translate';
 
 /**
  * Register all sub-extensions here.
@@ -53,7 +53,7 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateFocus(context);
   activateLint(context);
   activateTerminalSound(context);
-  activateBrowser(context);
+  activateAtmTranslate(context);
   activateTailwindFold(context).catch((error) => {
     console.error('[tailwind-css] Activation error:', error);
   });

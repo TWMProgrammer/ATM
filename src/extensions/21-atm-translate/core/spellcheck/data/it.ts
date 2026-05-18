@@ -1,0 +1,26 @@
+import type { CorrectionDictionary } from './types';
+
+export const itCorrections: CorrectionDictionary = {
+	anchio: "anch'io",
+	anno: 'hanno',
+	apena: 'appena',
+	benvenutto: 'benvenuto',
+	ce: "c'è",
+	'che e': "che è",
+	citta: 'città',
+	cosi: 'così',
+	e: 'è',
+	facebookk: 'facebook',
+	giovedi: 'giovedì',
+	grazzie: 'grazie',
+	lunedi: 'lunedì',
+	martedi: 'martedì',
+	perche: 'perché',
+	piu: 'più',
+	po: "po'",
+	problemaaa: 'problema',
+	'qual e': "qual è",
+	si: 'sì',
+	subitoo: 'subito',
+	'un po': "un po'",
+};

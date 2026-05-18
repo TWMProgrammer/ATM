@@ -68,7 +68,7 @@ async function main() {
 			'src/extensions/10-git-better/gitlab-panel/panels/inspect-right/inspect.ts',
 			'src/extensions/14-screenshot-code/ui/webview.ts',
 			'src/extensions/14-screenshot-code/ui/styles.css',
-			'src/extensions/21-browser/ui/browser.ts',
+			'src/extensions/21-atm-translate/ui/atm-translate.ts',
 			'src/extensions/09-focus/screens/atm-data/screenshot/ui/index.ts'
 		],
 		bundle: true,

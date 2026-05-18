@@ -20,7 +20,7 @@
 				</div>
 				<div>
 					<h1>ATM Translate</h1>
-					<p>Fast translation inside VS Code</p>
+					<p>Optimize prompts, reduce token costs</p>
 				</div>
 			</div>
 			<div class="language-row" aria-label="Translation languages">
@@ -54,16 +54,19 @@
 						<button class="ghost-button" id="clear-action" type="button">Clear</button>
 					</div>
 				</div>
-				<textarea
-					id="source-text"
-					placeholder="Write or paste text to translate..."
-					spellcheck="true"
-					autofocus
-				></textarea>
+				<div class="textarea-wrap" id="source-text-wrap">
+					<div class="source-highlight" id="source-highlight" aria-hidden="true"></div>
+					<textarea
+						id="source-text"
+						placeholder="Write or paste text to translate..."
+						spellcheck="true"
+						autofocus
+					></textarea>
+				</div>
 				<div class="card-footer">
 					<div class="footer-left">
 						<label class="toggle-switch" id="auto-toggle" title="Auto-translate as you type">
-							<input type="checkbox" id="auto-translate-check" checked />
+							<input type="checkbox" id="auto-translate-check" />
 							<span class="toggle-track">
 								<span class="toggle-thumb"></span>
 							</span>
@@ -80,16 +83,14 @@
 
 			<section class="translate-card output-card" aria-live="polite">
 				<div class="card-toolbar">
-					<strong id="target-label">Spanish</strong>
+					<strong id="target-label">English</strong>
 					<div class="toolbar-actions">
 					<button class="icon-button copy-button" id="copy-action" type="button" aria-label="Copy translation" title="Copy translation">
 						<svg class="icon-copy" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 							<path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/>
 						</svg>
 					<svg class="icon-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-						<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-						<path d="M7 12l5 5l10 -10"/>
-						<path d="M2 12l5 5m5 -5l5 -5"/>
+						<path d="M20 6 9 17l-5-5"/>
 					</svg>
 					</button>
 					</div>
