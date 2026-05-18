@@ -391,7 +391,11 @@ function renderOutput(text: string): void {
 
 	copyAction.disabled = false;
 	outputCard.classList.add('has-content');
-	translatedOutput.textContent = text;
+
+	const textNode = document.createElement('span');
+	textNode.className = 'translation-output__text';
+	textNode.textContent = text;
+	translatedOutput.replaceChildren(textNode);
 }
 
 function showSkeleton(): void {

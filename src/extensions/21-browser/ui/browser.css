@@ -393,33 +393,32 @@ textarea::placeholder,
 	will-change: contents;
 }
 
-.output-card.is-soft-loading .translation-output {
-	opacity: 0.74;
-	transition: opacity 160ms ease;
+.translation-output__text {
+	color: var(--vscode-editor-foreground);
 }
 
-.output-card.is-soft-loading .translation-output::after {
-	animation: outputTextShimmer 1.15s ease-in-out infinite;
+.output-card.is-soft-loading .translation-output__text {
+	animation: outputTextShimmer 1.35s linear infinite;
 	background: linear-gradient(
-		105deg,
-		transparent 0%,
-		transparent 35%,
-		color-mix(in srgb, var(--vscode-editor-foreground) 8%, transparent) 43%,
-		color-mix(in srgb, var(--vscode-focusBorder) 20%, transparent) 50%,
-		color-mix(in srgb, var(--vscode-editor-foreground) 8%, transparent) 57%,
-		transparent 65%,
-		transparent 100%
+		100deg,
+		color-mix(in srgb, var(--vscode-editor-foreground) 42%, transparent) 0%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 42%, transparent) 38%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 84%, transparent) 48%,
+		color-mix(in srgb, var(--vscode-focusBorder) 90%, var(--vscode-editor-foreground)) 52%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 84%, transparent) 56%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 42%, transparent) 66%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 42%, transparent) 100%
 	);
-	content: '';
-	inset: 0;
-	pointer-events: none;
-	position: absolute;
-	transform: translateX(-100%);
+	background-clip: text;
+	background-size: 240% 100%;
+	color: transparent;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 
 @keyframes outputTextShimmer {
-	from { transform: translateX(-100%); }
-	to { transform: translateX(100%); }
+	from { background-position: 140% 0; }
+	to { background-position: -140% 0; }
 }
 
 /* ---- Card Footer ---- */
