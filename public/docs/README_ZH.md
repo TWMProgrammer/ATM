@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 21+ 个扩展和配置，开箱即用。</h3>
   <p>
-    <strong>ATM</strong> 是一款 VS Code 的全能扩展，将 16 个独立工具整合为一个统一、精美设计的包。从内联拼写检查和智能 <code>.env</code> 安全保护，到精致的代码截图和高级 Git 工具：应有尽有，绝无冗余。
+    <strong>ATM</strong> 是一款 VS Code 的全能扩展，将 17 个独立工具整合为一个统一、精美设计的包。从内联拼写检查和智能 <code>.env</code> 安全保护，到精致的代码截图和高级 Git 工具：应有尽有，绝无冗余。
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>使用直观的 Webview 面板和安全的 API 集成，在编辑器中无缝翻译代码、文档和文本。</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ 预览 — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="预览 — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>全部打包在单一轻量包中。</td>
       <td align="center"><b><code>1.5MB</code></b></td>

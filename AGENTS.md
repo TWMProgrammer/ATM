@@ -2,7 +2,21 @@
 
 ## Project Structure & Module Organization
 
-ATM is a TypeScript VS Code extension. The activation entry point is `src/extension.ts`; feature modules live under `src/extensions/` such as `image-preview`, `markdown-mdx`, `git-better`, `atm-lint`, and `focus`. Editor setting integrations live in `src/settings/`. Tests are in `src/__test__/` using `*.test.ts`. Static docs, screenshots, videos, and localized README files are under `public/`; marketplace strings are in `package.nls*.json`. Build output is generated in `dist/` and is not source.
+ATM is a TypeScript VS Code extension. The activation entry point is `src/extension.ts`; feature modules live under `src/extensions/` such as `11-image-preview`, `13-markdown-mdx`, `10-git-better`, `02-atm-lint`, `09-focus`, and `21-atm-translate`. Editor setting integrations live in `src/settings/`. Tests are in `src/__test__/` using `*.test.ts`. Static docs, screenshots, videos, and localized README files are under `public/`; marketplace strings are in `package.nls*.json`. Build output is generated in `dist/` and is not source.
+
+### ATM Translate Architecture
+
+`src/extensions/21-atm-translate/` is organized by responsibility:
+
+- `index.ts`: thin public entry point that exports activation.
+- `host/`: VS Code extension-host code such as activation, commands, webview panel lifecycle, message handling, SecretStorage, clipboard/image attachment persistence, and future workspace reference resolution.
+- `shared/`: cross-boundary contracts and helpers used by both host and webview, including protocol message types, language metadata, text limits, and image marker utilities.
+- `core/`: domain logic for translation, spellcheck, provider config, cache, and shared core types. Keep provider/network logic out of `host/` and UI rendering logic out of `core/`.
+- `core/spellcheck/`: local spellcheck engine and dictionaries. Future Spanish spelling improvements should live here first.
+- `core/providers/`: reserved for splitting translation providers from `translationService.ts` as the next safe refactor.
+- `ui/`: keep only `atm-translate.html`, `atm-translate.css`, and `atm-translate.ts` at the root. Put future UI internals in `ui/utils/` such as `dom.ts`, `state.ts`, `renderer.ts`, `actions.ts`, `keyboard.ts`, `attachments.ts`, or `referencePicker.ts`.
+
+For new ATM Translate functionality, use the existing boundaries: VS Code APIs in `host/`, message shapes in `shared/protocol.ts`, reusable marker/reference models in `shared/`, translation/spellcheck behavior in `core/`, and DOM behavior in `ui/`. Planned future features such as AI-friendly prompt formatting, `@file`/`@folder` references, link references, and richer image/file attachments should be added as focused services rather than folded back into `index.ts` or a large webview script.
 
 ## Build, Test, and Development Commands
 

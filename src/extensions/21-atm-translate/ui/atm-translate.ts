@@ -1,4 +1,11 @@
-import { languages, getLanguageName, getLanguageFlag } from './flags';
+import { languages, getLanguageName, getLanguageFlag } from '../shared/languages';
+import {
+	imageMarkerPattern,
+	protectImageMarkers,
+	restoreImageMarkers,
+	type ProtectedImageMarker,
+} from '../shared/imageMarkers';
+import { type ImageAttachment } from '../shared/protocol';
 
 interface VsCodeApi {
 	postMessage(msg: unknown): void;
@@ -51,22 +58,6 @@ interface SpellcheckOptions {
 	translateAfter?: boolean;
 }
 
-interface ImageAttachment {
-	id: number;
-	marker: string;
-	source: 'path' | 'clipboard';
-	path?: string;
-	dataUrl?: string;
-	type?: string;
-	name?: string;
-	size?: number;
-}
-
-interface ProtectedImageMarker {
-	marker: string;
-	placeholder: string;
-}
-
 let activeRequestId = '';
 let activeRequestKey = '';
 let lastCompletedRequestKey = '';
@@ -83,7 +74,6 @@ let translateAfterSpellcheckRequestId = '';
 
 const imagePathPattern =
 	/(?:"([^"\r\n]+\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?))"|'([^'\r\n]+\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?))'|((?:~|\/)[^\r\n\t"'<>]*?\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?)))/gi;
-const imageMarkerPattern = /\[Image #(\d+)\]/g;
 
 init();
 
@@ -888,22 +878,6 @@ function addSmartSpacing(before: string, text: string, after: string): string {
 	return value;
 }
 
-function protectImageMarkers(text: string): { text: string; markers: ProtectedImageMarker[] } {
-	const markers: ProtectedImageMarker[] = [];
-	const protectedText = text.replace(imageMarkerPattern, (marker, id: string) => {
-		const placeholder = `ZXQATMIMAGE${id}QXZ`;
-		markers.push({ marker, placeholder });
-		return placeholder;
-	});
-
-	return { text: protectedText, markers };
-}
-
-function restoreImageMarkers(text: string, markers: ProtectedImageMarker[]): string {
-	return markers.reduce((result, { marker, placeholder }) =>
-		result.replace(new RegExp(escapeRegExp(placeholder), 'g'), marker), text);
-}
-
 function getNextImageAttachmentId(): number {
 	return imageAttachments.reduce((maxId, attachment) => Math.max(maxId, attachment.id), 0) + 1;
 }
@@ -927,8 +901,4 @@ function isImageAttachment(value: unknown): value is ImageAttachment {
 	return typeof attachment.id === 'number'
 		&& typeof attachment.marker === 'string'
 		&& (attachment.source === 'path' || attachment.source === 'clipboard');
-}
-
-function escapeRegExp(value: string): string {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

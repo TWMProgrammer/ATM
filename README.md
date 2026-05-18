@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 +21 extensions & configurations ready.</h3>
   <p>
-    <strong>ATM</strong> is an all-in-one VS Code extension that replaces 16 separate tools with one cohesive, beautifully designed package. From inline spell checking and intelligent <code>.env</code> security to gorgeous code screenshots and advanced Git tools — everything you need, nothing you don't.
+    <strong>ATM</strong> is an all-in-one VS Code extension that replaces 17 separate tools with one cohesive, beautifully designed package. From inline spell checking and intelligent <code>.env</code> security to gorgeous code screenshots and advanced Git tools — everything you need, nothing you don't.
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>Seamlessly translate code, documentation, and text directly in the editor using an intuitive webview panel and secure API integration.</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ Preview — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="Translate Preview" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>All bundled in a single, lightweight package.</td>
       <td align="center"><b><code>1.5MB</code></b></td>

@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 Hơn 21 tiện ích và cấu hình đã sẵn sàng.</h3>
   <p>
-    <strong>ATM</strong> là tiện ích VS Code tất cả trong một, thay thế 16 công cụ riêng lẻ bằng một gói thống nhất và được thiết kế đẹp mắt. Từ kiểm tra chính tả inline và bảo mật <code>.env</code> thông minh đến ảnh chụp mã đẹp và công cụ Git nâng cao: mọi thứ bạn cần, không có phần thừa.
+    <strong>ATM</strong> là tiện ích VS Code tất cả trong một, thay thế 17 công cụ riêng lẻ bằng một gói thống nhất và được thiết kế đẹp mắt. Từ kiểm tra chính tả inline và bảo mật <code>.env</code> thông minh đến ảnh chụp mã đẹp và công cụ Git nâng cao: mọi thứ bạn cần, không có phần thừa.
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>Dịch mã, tài liệu và văn bản liền mạch ngay trong trình chỉnh sửa bằng bảng webview trực quan và tích hợp API an toàn.</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ Xem trước — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="Xem trước — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>Tất cả được gói trong một package nhẹ duy nhất.</td>
       <td align="center"><b><code>1.5MB</code></b></td>

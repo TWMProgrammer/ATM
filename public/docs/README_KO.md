@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 21개 이상의 확장과 설정을 바로 사용할 수 있습니다.</h3>
   <p>
-    <strong>ATM</strong>은 16개의 개별 도구를 하나의 일관되고 아름다운 패키지로 대체하는 VS Code용 올인원 확장입니다. 인라인 맞춤법 검사와 지능형 <code>.env</code> 보안부터 멋진 코드 스크린샷과 고급 Git 도구까지, 필요한 것은 모두 있고 불필요한 것은 없습니다.
+    <strong>ATM</strong>은 17개의 개별 도구를 하나의 일관되고 아름다운 패키지로 대체하는 VS Code용 올인원 확장입니다. 인라인 맞춤법 검사와 지능형 <code>.env</code> 보안부터 멋진 코드 스크린샷과 고급 Git 도구까지, 필요한 것은 모두 있고 불필요한 것은 없습니다.
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>직관적인 웹뷰 패널과 안전한 API 통합을 사용하여 에디터 내에서 코드, 문서 및 텍스트를 원활하게 번역합니다.</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ 미리보기 — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="미리보기 — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>모든 기능이 하나의 가벼운 패키지에 포함되어 있습니다.</td>
       <td align="center"><b><code>1.5MB</code></b></td>

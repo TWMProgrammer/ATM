@@ -16,6 +16,14 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ---
 
+## [1.9.5] - 2026-05-18
+
+### Added
+
+- **ATM Translate**: Integrated a new, fully modular translation extension. Features a dedicated webview panel, secure API secret management, and a robust suite of translator commands for seamless in-editor text translation.
+
+---
+
 ## [1.9.5] - 2026-04-18
 
 ### Added

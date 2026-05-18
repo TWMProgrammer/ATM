@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 +21 extensões e configurações prontas.</h3>
   <p>
-    <strong>ATM</strong> é uma extensão tudo-em-um para VS Code que substitui 16 ferramentas separadas por um pacote coeso e bem projetado. De correção ortográfica inline e segurança inteligente para <code>.env</code> a capturas de código bonitas e ferramentas Git avançadas: tudo que você precisa, nada do que não precisa.
+    <strong>ATM</strong> é uma extensão tudo-em-um para VS Code que substitui 17 ferramentas separadas por um pacote coeso e bem projetado. De correção ortográfica inline e segurança inteligente para <code>.env</code> a capturas de código bonitas e ferramentas Git avançadas: tudo que você precisa, nada do que não precisa.
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>Traduza código, documentação e texto perfeitamente diretamente no editor usando um painel de visualização da web intuitivo e integração segura de API.</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ Prévia — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="Prévia — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>Tudo incluído em um único pacote leve.</td>
       <td align="center"><b><code>1.5MB</code></b></td>
