@@ -47,6 +47,10 @@ interface TranslateOptions {
 	softLoading?: boolean;
 }
 
+interface SpellcheckOptions {
+	translateAfter?: boolean;
+}
+
 interface ImageAttachment {
 	id: number;
 	marker: string;
@@ -74,6 +78,8 @@ let imageAttachments: ImageAttachment[] = [];
 let nextImageAttachmentId = 1;
 let activeTranslationMarkers: ProtectedImageMarker[] = [];
 let activeSpellcheckMarkers: ProtectedImageMarker[] = [];
+let activeSpellcheckRequestId = '';
+let translateAfterSpellcheckRequestId = '';
 
 const imagePathPattern =
 	/(?:"([^"\r\n]+\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?))"|'([^'\r\n]+\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?))'|((?:~|\/)[^\r\n\t"'<>]*?\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?)))/gi;
@@ -147,6 +153,7 @@ function hasOptionValue(select: HTMLSelectElement, value: string): boolean {
 function updateAutoToggle(): void {
 	autoTranslateCheck.checked = autoTranslate;
 	updateTranslateButton();
+	updateSpellcheckAvailability();
 }
 
 function updateTranslateButton(): void {
@@ -157,12 +164,13 @@ function updateTranslateButton(): void {
 		translateAction.classList.remove('primary-button--manual');
 		translateLabel.textContent = 'Translate';
 	}
+	updateSpellcheckAvailability();
 }
 
 function wireEvents(): void {
 	translateAction.addEventListener('click', () => {
 		if (!autoTranslate) {
-			doTranslate();
+			doSpellcheck({ translateAfter: true });
 		}
 	});
 
@@ -209,24 +217,28 @@ function wireEvents(): void {
 		syncSourceHighlightScroll();
 	});
 
-		sourceText.addEventListener('keydown', (event: KeyboardEvent) => {
-			if (handleImageMarkerDeleteKey(event)) {
-				return;
-			}
+	sourceText.addEventListener('keydown', (event: KeyboardEvent) => {
+		if (handleImageMarkerDeleteKey(event)) {
+			return;
+		}
 
 		if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
 			event.preventDefault();
 			window.clearTimeout(debounceTimer);
-			doTranslate();
+			if (autoTranslate) {
+				doTranslate();
+			} else {
+				doSpellcheck({ translateAfter: true });
 			}
-		});
+		}
+	});
 
-		window.addEventListener('keydown', (event: KeyboardEvent) => {
-			if (event.ctrlKey && event.altKey && event.key === 'Backspace') {
-				event.preventDefault();
-				clearTranslatorText();
-			}
-		});
+	window.addEventListener('keydown', (event: KeyboardEvent) => {
+		if (event.ctrlKey && event.altKey && event.key === 'Backspace') {
+			event.preventDefault();
+			clearTranslatorText();
+		}
+	});
 
 	sourceLanguage.addEventListener('change', () => {
 		updateLabels();
@@ -240,25 +252,10 @@ function wireEvents(): void {
 		doTranslate();
 	});
 
-		clearAction.addEventListener('click', clearTranslatorText);
+	clearAction.addEventListener('click', clearTranslatorText);
 
 	spellcheckAction.addEventListener('click', () => {
-		const text = sourceText.value.trim();
-		if (!text) { return; }
-
-		spellcheckAction.classList.add('loading');
-		spellcheckAction.disabled = true;
-		sourceTextWrap.classList.add('is-correcting');
-		setStatus('Correcting spelling...');
-
-		const protectedText = protectImageMarkers(text);
-		activeSpellcheckMarkers = protectedText.markers;
-
-		vscodeApi.postMessage({
-			type: 'spellcheck',
-			text: protectedText.text,
-			language: sourceLanguage.value,
-		});
+		doSpellcheck();
 	});
 
 	copyAction.addEventListener('click', () => {
@@ -333,10 +330,13 @@ function wireEvents(): void {
 			return;
 		}
 
-		if (msg?.type === 'spellcheckResult') {
+		if (msg?.type === 'spellcheckResult' && msg.id === activeSpellcheckRequestId) {
+			const shouldTranslateAfterSpellcheck = msg.id === translateAfterSpellcheckRequestId;
+			activeSpellcheckRequestId = '';
+			translateAfterSpellcheckRequestId = '';
 			spellcheckAction.classList.remove('loading');
-			spellcheckAction.disabled = false;
 			sourceTextWrap.classList.remove('is-correcting');
+			updateSpellcheckAvailability();
 
 			if (msg.text && typeof msg.text === 'string') {
 				sourceText.value = restoreImageMarkers(msg.text, activeSpellcheckMarkers);
@@ -345,11 +345,16 @@ function wireEvents(): void {
 				updateSourceHighlight();
 				persistState();
 				setStatus(buildProviderStatus('Spelling corrected', msg.provider, msg.fromCache));
-				if (autoTranslate) {
+				if (shouldTranslateAfterSpellcheck) {
+					doTranslate({ softLoading: true });
+				} else if (autoTranslate) {
 					doTranslate({ softLoading: true });
 				}
 			} else {
 				setStatus(msg.error || 'Spell check failed');
+				if (shouldTranslateAfterSpellcheck) {
+					doTranslate({ softLoading: true });
+				}
 			}
 			return;
 		}
@@ -417,6 +422,46 @@ function doTranslate(options: TranslateOptions = {}): void {
 	});
 }
 
+function doSpellcheck(options: SpellcheckOptions = {}): void {
+	const text = sourceText.value.trim();
+	if (!text) {
+		if (options.translateAfter) {
+			doTranslate();
+		}
+		return;
+	}
+
+	if (text.length > CHAR_LIMIT) {
+		setStatus(`Text is over ${CHAR_LIMIT} characters`);
+		return;
+	}
+
+	const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+	activeSpellcheckRequestId = requestId;
+	translateAfterSpellcheckRequestId = options.translateAfter ? requestId : '';
+	spellcheckAction.classList.add('loading');
+	spellcheckAction.disabled = true;
+	sourceTextWrap.classList.add('is-correcting');
+
+	if (options.translateAfter) {
+		setLoading(true);
+		setOutputSoftLoading(false);
+		setStatus('Correcting spelling before translation...');
+	} else {
+		setStatus('Correcting spelling...');
+	}
+
+	const protectedText = protectImageMarkers(text);
+	activeSpellcheckMarkers = protectedText.markers;
+
+	vscodeApi.postMessage({
+		type: 'spellcheck',
+		id: requestId,
+		text: protectedText.text,
+		language: sourceLanguage.value,
+	});
+}
+
 function clearTranslatorText(): void {
 	window.clearTimeout(debounceTimer);
 	sourceText.value = '';
@@ -429,10 +474,11 @@ function clearTranslatorText(): void {
 	nextImageAttachmentId = 1;
 	activeTranslationMarkers = [];
 	activeSpellcheckMarkers = [];
+	activeSpellcheckRequestId = '';
+	translateAfterSpellcheckRequestId = '';
 	setLoading(false);
 	setOutputSoftLoading(false);
 	spellcheckAction.classList.remove('loading');
-	spellcheckAction.disabled = false;
 	sourceTextWrap.classList.remove('is-correcting');
 	updateCount();
 	updateSourceHighlight();
@@ -497,7 +543,18 @@ function updateCount(): void {
 	const count = sourceText.value.length;
 	sourceCount.textContent = `${count} / ${CHAR_LIMIT}`;
 	sourceCount.classList.toggle('is-over-limit', count > CHAR_LIMIT);
-	spellcheckAction.disabled = count > CHAR_LIMIT;
+	updateSpellcheckAvailability();
+}
+
+function updateSpellcheckAvailability(): void {
+	if (spellcheckAction.classList.contains('loading')) {
+		spellcheckAction.disabled = true;
+		return;
+	}
+
+	spellcheckAction.disabled = !autoTranslate
+		|| sourceText.value.trim().length === 0
+		|| sourceText.value.length > CHAR_LIMIT;
 }
 
 function normalizeSourceInputCasing(): void {

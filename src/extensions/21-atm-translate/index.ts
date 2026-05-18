@@ -33,6 +33,7 @@ interface CopyMessage {
 
 interface SpellcheckMessage {
 	type: 'spellcheck';
+	id: string;
 	text: string;
 	language: string;
 }
@@ -273,6 +274,7 @@ function isSpellcheckMessage(message: WebviewMessage): message is SpellcheckMess
 	if (!isRecord(message)) { return false; }
 
 	return message.type === 'spellcheck'
+		&& typeof message.id === 'string'
 		&& typeof message.text === 'string'
 		&& typeof message.language === 'string';
 }
@@ -284,13 +286,14 @@ async function handleSpellcheckMessage(
 ): Promise<void> {
 	const text = message.text.trim();
 	if (!text) {
-		await panel.webview.postMessage({ type: 'spellcheckResult', text: '' });
+		await panel.webview.postMessage({ type: 'spellcheckResult', id: message.id, text: '' });
 		return;
 	}
 
 	if (text.length > maxTextLength) {
 		await panel.webview.postMessage({
 			type: 'spellcheckResult',
+			id: message.id,
 			error: `Text is too long. Keep spelling checks under ${maxTextLength} characters.`,
 		});
 		return;
@@ -299,6 +302,7 @@ async function handleSpellcheckMessage(
 	if (!isValidSourceLanguage(message.language)) {
 		await panel.webview.postMessage({
 			type: 'spellcheckResult',
+			id: message.id,
 			error: 'Unsupported spell check language.',
 		});
 		return;
@@ -320,6 +324,7 @@ async function handleSpellcheckMessage(
 
 		await panel.webview.postMessage({
 			type: 'spellcheckResult',
+			id: message.id,
 			text: result.text,
 			provider: result.providerName,
 			fromCache: result.fromCache,
@@ -329,6 +334,7 @@ async function handleSpellcheckMessage(
 
 		await panel.webview.postMessage({
 			type: 'spellcheckResult',
+			id: message.id,
 			error: error instanceof Error ? error.message : 'Spell check failed.',
 		});
 	} finally {
