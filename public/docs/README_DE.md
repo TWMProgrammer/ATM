@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 +21 Erweiterungen und Konfigurationen bereit.</h3>
   <p>
-    <strong>ATM</strong> ist eine All-in-One-Erweiterung für VS Code, die 16 einzelne Werkzeuge durch ein einheitliches, schön gestaltetes Paket ersetzt. Von Inline-Rechtschreibprüfung und intelligenter <code>.env</code>-Sicherheit bis zu eleganten Code-Screenshots und fortgeschrittenen Git-Werkzeugen: alles, was du brauchst, nichts Überflüssiges.
+    <strong>ATM</strong> ist eine All-in-One-Erweiterung für VS Code, die 17 einzelne Werkzeuge durch ein einheitliches, schön gestaltetes Paket ersetzt. Von Inline-Rechtschreibprüfung und intelligenter <code>.env</code>-Sicherheit bis zu eleganten Code-Screenshots und fortgeschrittenen Git-Werkzeugen: alles, was du brauchst, nichts Überflüssiges.
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>Übersetzen Sie Code, Dokumentation und Text nahtlos direkt im Editor mithilfe eines intuitiven Webview-Panels und einer sicheren API-Integration.</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ Vorschau — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="Vorschau — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>Alles in einem einzigen, leichten Paket gebündelt.</td>
       <td align="center"><b><code>1.5MB</code></b></td>

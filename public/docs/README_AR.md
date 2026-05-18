@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 أكثر من 21 إضافة وإعداد جاهزة.</h3>
   <p>
-    <strong>ATM</strong> إضافة شاملة لـ VS Code تستبدل 16 أداة منفصلة بحزمة واحدة متماسكة وجميلة التصميم. من التدقيق الإملائي داخل السطر وحماية <code>.env</code> الذكية إلى لقطات الكود المتقنة وأدوات Git المتقدمة: كل ما تحتاجه، بلا زوائد.
+    <strong>ATM</strong> إضافة شاملة لـ VS Code تستبدل 17 أداة منفصلة بحزمة واحدة متماسكة وجميلة التصميم. من التدقيق الإملائي داخل السطر وحماية <code>.env</code> الذكية إلى لقطات الكود المتقنة وأدوات Git المتقدمة: كل ما تحتاجه، بلا زوائد.
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>قم بترجمة الكود والتوثيق والنصوص بسلاسة مباشرة في المحرر باستخدام لوحة عرض ويب بديهية وتكامل آمن لواجهة برمجة التطبيقات.</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ معاينة — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="معاينة — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>كل ذلك ضمن حزمة واحدة خفيفة.</td>
       <td align="center"><b><code>1.5MB</code></b></td>

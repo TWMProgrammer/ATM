@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 21+ एक्सटेंशन और कॉन्फ़िगरेशन तैयार हैं।</h3>
   <p>
-    <strong>ATM</strong> VS Code के लिए एक ऑल-इन-वन एक्सटेंशन है जो 16 अलग-अलग टूल को एक सुंदर और एकीकृत पैकेज से बदल देता है। इनलाइन स्पेल चेकिंग और स्मार्ट <code>.env</code> सुरक्षा से लेकर शानदार कोड स्क्रीनशॉट और उन्नत Git टूल तक: जो चाहिए सब है, अनावश्यक कुछ नहीं।
+    <strong>ATM</strong> VS Code के लिए एक ऑल-इन-वन एक्सटेंशन है जो 17 अलग-अलग टूल को एक सुंदर और एकीकृत पैकेज से बदल देता. इनलाइन स्पेल चेकिंग और स्मार्ट <code>.env</code> सुरक्षा से लेकर शानदार कोड स्क्रीनशॉट और उन्नत Git टूल तक: जो चाहिए सब है, अनावश्यक कुछ नहीं।
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>सहज वेबव्यू पैनल और सुरक्षित एपीआई एकीकरण का उपयोग करके सीधे संपादक में कोड, दस्तावेज़ और पाठ का निर्बाध रूप से अनुवाद करें।</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ पूर्वावलोकन — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="पूर्वावलोकन — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>सब कुछ एक हल्के single package में bundled है।</td>
       <td align="center"><b><code>1.5MB</code></b></td>

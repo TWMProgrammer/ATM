@@ -26,7 +26,7 @@
 <div align="center">
   <h3>🏧 +21 расширение и настройка готовы к работе.</h3>
   <p>
-    <strong>ATM</strong> — это универсальное расширение для VS Code, которое заменяет 16 отдельных инструментов одним цельным и красиво оформленным пакетом. От встроенной проверки орфографии и умной защиты <code>.env</code> до эффектных скриншотов кода и продвинутых Git-инструментов: всё нужное без лишнего.
+    <strong>ATM</strong> — это универсальное расширение для VS Code, которое заменяет 17 отдельных инструментов одним цельным и красиво оформленным пакетом. От встроенной проверки орфографии и умной защиты <code>.env</code> до эффектных скриншотов кода и продвинутых Git-инструментов: всё нужное без лишнего.
   </p>
 </div>
 
@@ -42,6 +42,21 @@
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
+      <td>Бесшовный перевод кода, документации и текста прямо в редакторе с помощью интуитивно понятной панели веб-просмотра и безопасной интеграции с API.</td>
+      <td align="center"><b>52KB</b></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary><b>🖼️ Предпросмотр — ATM Translate</b></summary>
+          <br>
+          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="Предпросмотр — ATM Translate" />
+        </details>
+      </td>
+    </tr>
     <tr>
       <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
@@ -283,7 +298,7 @@
       </td>
     </tr>
     <tr>
-      <td align="center">16</td>
+      <td align="center">17</td>
       <td align="center"><b>🧩</b></td>
       <td>Всё собрано в один лёгкий пакет.</td>
       <td align="center"><b><code>1.5MB</code></b></td>
