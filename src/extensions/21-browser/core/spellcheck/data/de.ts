@@ -1,0 +1,28 @@
+import type { CorrectionDictionary } from './types';
+
+export const deCorrections: CorrectionDictionary = {
+	aberglaube: 'Aberglaube',
+	adresse: 'Adresse',
+	anfang: 'Anfang',
+	bischen: 'bisschen',
+	dankeee: 'danke',
+	'das heisst': 'das heißt',
+	dasss: 'dass',
+	deutch: 'Deutsch',
+	fur: 'für',
+	gros: 'groß',
+	grosse: 'große',
+	halloo: 'Hallo',
+	heir: 'hier',
+	konnen: 'können',
+	madchen: 'Mädchen',
+	mussen: 'müssen',
+	naturlich: 'natürlich',
+	schon: 'schön',
+	strasse: 'Straße',
+	uber: 'über',
+	vieleicht: 'vielleicht',
+	wahrend: 'während',
+	welce: 'welche',
+	zuruck: 'zurück',
+};

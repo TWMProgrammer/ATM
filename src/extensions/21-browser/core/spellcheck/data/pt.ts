@@ -1,0 +1,27 @@
+import type { CorrectionDictionary } from './types';
+
+export const ptCorrections: CorrectionDictionary = {
+	acao: 'ação',
+	agoraaa: 'agora',
+	amanha: 'amanhã',
+	atençao: 'atenção',
+	cafe: 'café',
+	coraçao: 'coração',
+	entao: 'então',
+	esta: 'está',
+	facil: 'fácil',
+	funcao: 'função',
+	imagm: 'imagem',
+	imagemm: 'imagem',
+	nao: 'não',
+	obrigadoo: 'obrigado',
+	opcao: 'opção',
+	pagina: 'página',
+	'por quee': 'por que',
+	porquee: 'porque',
+	problemaaa: 'problema',
+	rapido: 'rápido',
+	tambem: 'também',
+	traducao: 'tradução',
+	voce: 'você',
+};
