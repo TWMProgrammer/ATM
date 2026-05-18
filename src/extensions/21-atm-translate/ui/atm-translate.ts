@@ -690,7 +690,8 @@ function showSkeleton(): void {
 
 function showOutputSoftLoading(): void {
 	if (!translatedText) {
-		renderOutput('');
+		showSkeleton();
+		return;
 	}
 
 	outputCard.classList.add('is-soft-loading');
