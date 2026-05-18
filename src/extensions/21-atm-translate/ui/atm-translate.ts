@@ -276,7 +276,9 @@ function wireEvents(): void {
 
 	swapAction.addEventListener('click', () => {
 		if (sourceLanguage.value === 'auto') {
-			sourceLanguage.value = targetLanguage.value;
+			const previousTargetLanguage = targetLanguage.value;
+			sourceLanguage.value = previousTargetLanguage;
+			targetLanguage.value = inferSourceLanguageForSwap(sourceText.value, previousTargetLanguage);
 		} else {
 			const prev = sourceLanguage.value;
 			sourceLanguage.value = targetLanguage.value;
@@ -452,6 +454,43 @@ function updateLabels(): void {
 
 	sourceLabel.textContent = `${srcFlag} ${getLanguageName(srcCode)}`;
 	targetLabel.textContent = `${tgtFlag} ${getLanguageName(tgtCode)}`;
+}
+
+function inferSourceLanguageForSwap(text: string, previousTargetLanguage: string): string {
+	const detectedLanguage = detectLikelyLanguage(text);
+	if (detectedLanguage && detectedLanguage !== previousTargetLanguage && hasOptionValue(targetLanguage, detectedLanguage)) {
+		return detectedLanguage;
+	}
+
+	const fallbackLanguage = previousTargetLanguage === 'en' ? 'es' : 'en';
+	return hasOptionValue(targetLanguage, fallbackLanguage) ? fallbackLanguage : targetLanguage.options[0]?.value ?? 'en';
+}
+
+function detectLikelyLanguage(text: string): string | undefined {
+	if (/[\u3040-\u30ff]/.test(text)) { return 'ja'; }
+	if (/[\u4e00-\u9fff]/.test(text)) { return 'zh-CN'; }
+	if (/[\uac00-\ud7af]/.test(text)) { return 'ko'; }
+	if (/[\u0600-\u06ff]/.test(text)) { return 'ar'; }
+	if (/[\u0400-\u04ff]/.test(text)) { return 'ru'; }
+	if (/[\u0900-\u097f]/.test(text)) { return 'hi'; }
+	if (/[ăâêôơưđ]/i.test(text)) { return 'vi'; }
+
+	const tokens = text.toLowerCase().match(/[a-záéíóúüñçàèìòùâêîôûäöß]+/g) ?? [];
+	const scores: Record<string, number> = {
+		en: scoreLanguage(tokens, ['the', 'and', 'you', 'that', 'this', 'with', 'for', 'hello', 'from', 'new', 'text']),
+		es: scoreLanguage(tokens, ['el', 'la', 'los', 'las', 'que', 'para', 'con', 'por', 'una', 'entonces', 'primero', 'mejoramos', 'agregamos', 'nuevas', 'luego', 'todavia', 'refactorizamos']),
+		fr: scoreLanguage(tokens, ['le', 'la', 'les', 'que', 'bonjour', 'pour', 'avec', 'une', 'des', 'est']),
+		pt: scoreLanguage(tokens, ['o', 'a', 'os', 'as', 'que', 'olá', 'para', 'com', 'uma', 'sou']),
+		it: scoreLanguage(tokens, ['il', 'la', 'gli', 'che', 'ciao', 'per', 'con', 'una', 'sono']),
+		de: scoreLanguage(tokens, ['der', 'die', 'das', 'und', 'hallo', 'mit', 'für', 'ich', 'ist']),
+	};
+	const best = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+	return best && best[1] > 0 ? best[0] : undefined;
+}
+
+function scoreLanguage(tokens: string[], markers: string[]): number {
+	const markerSet = new Set(markers);
+	return tokens.reduce((score, token) => score + (markerSet.has(token) ? 1 : 0), 0);
 }
 
 function updateCount(): void {
