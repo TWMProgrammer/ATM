@@ -371,16 +371,23 @@ async function buildClipboardText(
 	const attachments = getReferencedAttachments(message.text, message.attachments ?? []);
 	if (!attachments.length) { return message.text; }
 
+	const taskText = formatPromptTaskText(message.text);
+
 	const metadataLines = await Promise.all(attachments.map((attachment) =>
 		buildAttachmentMetadata(attachment, context)
 	));
 
 	return [
-		message.text,
+		'Task:',
+		taskText,
 		'',
-		'Images:',
+		'Attachments:',
 		metadataLines.join('\n\n'),
 	].join('\n');
+}
+
+function formatPromptTaskText(text: string): string {
+	return text.replace(/\[Image #(\d+)\]/g, 'Image $1');
 }
 
 function getReferencedAttachments(
@@ -404,7 +411,6 @@ async function buildAttachmentMetadata(
 	const path = attachment.path ?? await saveClipboardImageAttachment(attachment, context);
 	const lines = [
 		`${attachment.marker}`,
-		`Source: ${attachment.source}`,
 	];
 
 	if (path) {
@@ -416,9 +422,7 @@ async function buildAttachmentMetadata(
 	if (attachment.name) {
 		lines.push(`Name: ${attachment.name}`);
 	}
-	if (typeof attachment.size === 'number') {
-		lines.push(`Size: ${attachment.size} bytes`);
-	}
+	lines.push(`Source: ${attachment.source}`);
 
 	return lines.join('\n');
 }
