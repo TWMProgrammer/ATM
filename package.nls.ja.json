@@ -23,6 +23,6 @@
   "command.lint.revalidate": "ATM Lint: 開いているファイルを再検証",
   "command.music.togglePlayPause": "ATM 音楽: 再生/一時停止",
   "command.music.playRandomAM": "ATM 音楽: ランダムAM局",
-  "command.browser.open": "ATM: 翻訳",
+  "command.atmTranslate.open": "ATM: 翻訳",
   "view.music": "ATM :: ラジオ/音楽 · ポモドーロ · データ"
 }

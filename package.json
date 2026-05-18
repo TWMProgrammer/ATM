@@ -175,8 +175,8 @@
         "title": "%command.music.playRandomAM%"
       },
       {
-        "command": "atm.browser.open",
-        "title": "%command.browser.open%",
+        "command": "atm.translate.open",
+        "title": "%command.atmTranslate.open%",
         "icon": "$(globe)"
       },
       {
@@ -615,7 +615,7 @@
       ],
       "editor/title": [
         {
-          "command": "atm.browser.open",
+          "command": "atm.translate.open",
           "group": "navigation@0",
           "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
         },

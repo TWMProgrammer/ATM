@@ -5,7 +5,7 @@ import { correctPlainText, translatePlainText, translationSecretKeys } from './c
 import { languages } from './ui/flags';
 
 const translatorPanelViewType = 'atm.translator';
-const openTranslatorCommand = 'atm.browser.open';
+const openTranslatorCommand = 'atm.translate.open';
 const setDeepLApiKeyCommand = 'atm.translate.setDeepLApiKey';
 const setGoogleCloudApiKeyCommand = 'atm.translate.setGoogleCloudApiKey';
 const setLibreTranslateApiKeyCommand = 'atm.translate.setLibreTranslateApiKey';
@@ -38,7 +38,7 @@ interface SpellcheckMessage {
 
 type WebviewMessage = unknown;
 
-export function activateBrowser(context: vscode.ExtensionContext): void {
+export function activateAtmTranslate(context: vscode.ExtensionContext): void {
 	registerSecretCommands(context);
 
 	context.subscriptions.push(
@@ -70,7 +70,7 @@ export function activateBrowser(context: vscode.ExtensionContext): void {
 					retainContextWhenHidden: true,
 					localResourceRoots: [
 						vscode.Uri.joinPath(context.extensionUri, 'dist'),
-						vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'assets'),
+						vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-atm-translate', 'assets'),
 					],
 				}
 			);
@@ -86,7 +86,7 @@ function setupPanel(
 	initialText?: string,
 ): void {
 	panel.iconPath = vscode.Uri.joinPath(
-		context.extensionUri, 'src', 'extensions', '21-browser', 'assets', 'atm-logo.png'
+		context.extensionUri, 'src', 'extensions', '21-atm-translate', 'assets', 'atm-logo.png'
 	);
 
 	panel.webview.html = getTranslatorHtml(context, panel.webview);
@@ -360,16 +360,16 @@ function getInitialText(text?: string): string {
 }
 
 function getTranslatorHtml(context: vscode.ExtensionContext, webview: vscode.Webview): string {
-	const uiRoot = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'ui');
-	const html   = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'browser.html').fsPath, 'utf8');
-	const css    = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'browser.css').fsPath, 'utf8');
+	const uiRoot = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-atm-translate', 'ui');
+	const html   = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'atm-translate.html').fsPath, 'utf8');
+	const css    = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'atm-translate.css').fsPath, 'utf8');
 
 	const scriptUri = webview.asWebviewUri(
-		vscode.Uri.joinPath(context.extensionUri, 'dist', 'browser.js')
+		vscode.Uri.joinPath(context.extensionUri, 'dist', 'atm-translate.js')
 	);
 
 	const logoUri = webview.asWebviewUri(
-		vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-browser', 'assets', 'atm-logo.png')
+		vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-atm-translate', 'assets', 'atm-logo.png')
 	);
 
 	const nonce = crypto.randomUUID().replace(/-/g, '');
