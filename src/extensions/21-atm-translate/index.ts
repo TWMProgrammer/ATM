@@ -28,12 +28,24 @@ interface TranslateMessage {
 interface CopyMessage {
 	type: 'copy';
 	text: string;
+	attachments?: ImageAttachment[];
 }
 
 interface SpellcheckMessage {
 	type: 'spellcheck';
 	text: string;
 	language: string;
+}
+
+interface ImageAttachment {
+	id: number;
+	marker: string;
+	source: 'path' | 'clipboard';
+	path?: string;
+	dataUrl?: string;
+	type?: string;
+	name?: string;
+	size?: number;
 }
 
 type WebviewMessage = unknown;
@@ -107,7 +119,8 @@ function setupPanel(
 			}
 
 			if (isCopyMessage(message)) {
-				await vscode.env.clipboard.writeText(message.text);
+				const clipboardText = await buildClipboardText(message, context);
+				await vscode.env.clipboard.writeText(clipboardText);
 				return;
 			}
 
@@ -248,7 +261,12 @@ function isTranslateMessage(message: WebviewMessage): message is TranslateMessag
 function isCopyMessage(message: WebviewMessage): message is CopyMessage {
 	if (!isRecord(message)) { return false; }
 
-	return message.type === 'copy' && typeof message.text === 'string';
+	return message.type === 'copy'
+		&& typeof message.text === 'string'
+		&& (
+			message.attachments === undefined
+			|| Array.isArray(message.attachments)
+		);
 }
 
 function isSpellcheckMessage(message: WebviewMessage): message is SpellcheckMessage {
@@ -344,6 +362,129 @@ function isValidTargetLanguage(code: string): boolean {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
+}
+
+async function buildClipboardText(
+	message: CopyMessage,
+	context: vscode.ExtensionContext,
+): Promise<string> {
+	const attachments = getReferencedAttachments(message.text, message.attachments ?? []);
+	if (!attachments.length) { return message.text; }
+
+	const metadataLines = await Promise.all(attachments.map((attachment) =>
+		buildAttachmentMetadata(attachment, context)
+	));
+
+	return [
+		message.text,
+		'',
+		'Images:',
+		metadataLines.join('\n\n'),
+	].join('\n');
+}
+
+function getReferencedAttachments(
+	text: string,
+	attachments: ImageAttachment[],
+): ImageAttachment[] {
+	const markerIds = new Set<number>();
+	for (const match of text.matchAll(/\[Image #(\d+)\]/g)) {
+		markerIds.add(Number(match[1]));
+	}
+
+	return attachments.filter((attachment) =>
+		isImageAttachment(attachment) && markerIds.has(attachment.id)
+	);
+}
+
+async function buildAttachmentMetadata(
+	attachment: ImageAttachment,
+	context: vscode.ExtensionContext,
+): Promise<string> {
+	const path = attachment.path ?? await saveClipboardImageAttachment(attachment, context);
+	const lines = [
+		`${attachment.marker}`,
+		`Source: ${attachment.source}`,
+	];
+
+	if (path) {
+		lines.push(`Path: ${path}`);
+	}
+	if (attachment.type) {
+		lines.push(`Type: ${attachment.type}`);
+	}
+	if (attachment.name) {
+		lines.push(`Name: ${attachment.name}`);
+	}
+	if (typeof attachment.size === 'number') {
+		lines.push(`Size: ${attachment.size} bytes`);
+	}
+
+	return lines.join('\n');
+}
+
+async function saveClipboardImageAttachment(
+	attachment: ImageAttachment,
+	context: vscode.ExtensionContext,
+): Promise<string | undefined> {
+	if (!attachment.dataUrl) { return undefined; }
+
+	const parsed = parseDataUrl(attachment.dataUrl);
+	if (!parsed) { return undefined; }
+
+	const imageDir = vscode.Uri.joinPath(context.globalStorageUri, 'atm-translate', 'images');
+	await vscode.workspace.fs.createDirectory(imageDir);
+
+	const extension = getImageExtension(parsed.mimeType, attachment.name);
+	const fileName = `image-${attachment.id}-${Date.now()}${extension}`;
+	const fileUri = vscode.Uri.joinPath(imageDir, fileName);
+	await vscode.workspace.fs.writeFile(fileUri, parsed.bytes);
+
+	attachment.path = fileUri.fsPath;
+	return fileUri.fsPath;
+}
+
+function parseDataUrl(dataUrl: string): { mimeType: string; bytes: Uint8Array } | undefined {
+	const match = /^data:([^;,]+);base64,(.+)$/s.exec(dataUrl);
+	if (!match) { return undefined; }
+
+	return {
+		mimeType: match[1],
+		bytes: Buffer.from(match[2], 'base64'),
+	};
+}
+
+function getImageExtension(mimeType: string, name?: string): string {
+	const nameExtension = name?.match(/\.[a-z0-9]+$/i)?.[0];
+	if (nameExtension) { return nameExtension.toLowerCase(); }
+
+	switch (mimeType) {
+		case 'image/jpeg':
+			return '.jpg';
+		case 'image/png':
+			return '.png';
+		case 'image/gif':
+			return '.gif';
+		case 'image/webp':
+			return '.webp';
+		case 'image/svg+xml':
+			return '.svg';
+		default:
+			return '.png';
+	}
+}
+
+function isImageAttachment(value: unknown): value is ImageAttachment {
+	if (!isRecord(value)) { return false; }
+
+	return typeof value.id === 'number'
+		&& typeof value.marker === 'string'
+		&& (value.source === 'path' || value.source === 'clipboard')
+		&& (value.path === undefined || typeof value.path === 'string')
+		&& (value.dataUrl === undefined || typeof value.dataUrl === 'string')
+		&& (value.type === undefined || typeof value.type === 'string')
+		&& (value.name === undefined || typeof value.name === 'string')
+		&& (value.size === undefined || typeof value.size === 'number');
 }
 
 function getInitialText(text?: string): string {

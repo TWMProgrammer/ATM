@@ -55,6 +55,7 @@ interface ImageAttachment {
 	dataUrl?: string;
 	type?: string;
 	name?: string;
+	size?: number;
 }
 
 interface ProtectedImageMarker {
@@ -274,7 +275,11 @@ function wireEvents(): void {
 	copyAction.addEventListener('click', () => {
 		if (!translatedText) { return; }
 
-		vscodeApi.postMessage({ type: 'copy', text: translatedText });
+		vscodeApi.postMessage({
+			type: 'copy',
+			text: translatedText,
+			attachments: getReferencedImageAttachments(translatedText),
+		});
 		copyAction.classList.add('copied');
 		setStatus('Copied');
 		setTimeout(() => copyAction.classList.remove('copied'), 2000);
@@ -687,6 +692,7 @@ function registerClipboardImageAttachment(file: File): string {
 		source: 'clipboard',
 		type: file.type || 'image/png',
 		name: file.name || `Image ${id}`,
+		size: file.size,
 	};
 	imageAttachments.push(attachment);
 
@@ -700,6 +706,15 @@ function registerClipboardImageAttachment(file: File): string {
 	reader.readAsDataURL(file);
 
 	return marker;
+}
+
+function getReferencedImageAttachments(text: string): ImageAttachment[] {
+	const referencedIds = new Set<number>();
+	for (const match of text.matchAll(imageMarkerPattern)) {
+		referencedIds.add(Number(match[1]));
+	}
+
+	return imageAttachments.filter((attachment) => referencedIds.has(attachment.id));
 }
 
 function insertTextAtSelection(text: string): void {
