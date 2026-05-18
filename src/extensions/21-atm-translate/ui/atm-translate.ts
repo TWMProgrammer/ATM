@@ -37,6 +37,7 @@ const buttonSpinner = document.querySelector<HTMLElement>('#button-spinner')!;
 const outputCard = document.querySelector<HTMLElement>('.output-card')!;
 const spellcheckAction = document.querySelector<HTMLButtonElement>('#spellcheck-action')!;
 const sourceTextWrap = document.querySelector<HTMLElement>('#source-text-wrap')!;
+const sourceHighlight = document.querySelector<HTMLElement>('#source-highlight')!;
 const autoTranslateCheck = document.querySelector<HTMLInputElement>('#auto-translate-check')!;
 
 const CHAR_LIMIT = 5000;
@@ -86,6 +87,7 @@ function init(): void {
 	wireEvents();
 	updateLabels();
 	updateCount();
+	updateSourceHighlight();
 	if (translatedText) {
 		renderOutput(translatedText);
 	} else {
@@ -175,6 +177,7 @@ function wireEvents(): void {
 
 	sourceText.addEventListener('input', () => {
 		updateCount();
+		updateSourceHighlight();
 		persistState();
 
 		window.clearTimeout(debounceTimer);
@@ -200,7 +203,15 @@ function wireEvents(): void {
 		handleSourcePaste(event);
 	});
 
+	sourceText.addEventListener('scroll', () => {
+		syncSourceHighlightScroll();
+	});
+
 	sourceText.addEventListener('keydown', (event: KeyboardEvent) => {
+		if (handleImageMarkerDeleteKey(event)) {
+			return;
+		}
+
 		if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
 			event.preventDefault();
 			window.clearTimeout(debounceTimer);
@@ -233,6 +244,7 @@ function wireEvents(): void {
 		activeSpellcheckMarkers = [];
 		setLoading(false);
 		updateCount();
+		updateSourceHighlight();
 		renderOutput('');
 		setStatus('Ready');
 		persistState();
@@ -283,6 +295,7 @@ function wireEvents(): void {
 			lastRenderedText = translatedText;
 			renderOutput(translatedText);
 			updateCount();
+			updateSourceHighlight();
 		}
 
 		updateLabels();
@@ -296,6 +309,7 @@ function wireEvents(): void {
 		if (msg?.type === 'setText' && typeof msg.text === 'string') {
 			sourceText.value = replaceImagePathsWithMarkers(msg.text);
 			updateCount();
+			updateSourceHighlight();
 			persistState();
 			doTranslate();
 			sourceText.focus();
@@ -328,6 +342,7 @@ function wireEvents(): void {
 			if (msg.text && typeof msg.text === 'string') {
 				sourceText.value = restoreImageMarkers(msg.text, activeSpellcheckMarkers);
 				updateCount();
+				updateSourceHighlight();
 				persistState();
 				setStatus(buildProviderStatus('Spelling corrected', msg.provider, msg.fromCache));
 				if (autoTranslate) {
@@ -423,6 +438,44 @@ function updateCount(): void {
 	spellcheckAction.disabled = count > CHAR_LIMIT;
 }
 
+function updateSourceHighlight(): void {
+	sourceHighlight.replaceChildren(...buildHighlightedTextNodes(
+		sourceText.value,
+		'source-highlight__image-marker',
+	));
+	syncSourceHighlightScroll();
+}
+
+function buildHighlightedTextNodes(text: string, markerClassName: string): Node[] {
+	if (!text) { return []; }
+
+	const nodes: Node[] = [];
+	let lastIndex = 0;
+	for (const match of text.matchAll(imageMarkerPattern)) {
+		const index = match.index ?? 0;
+		if (index > lastIndex) {
+			nodes.push(document.createTextNode(text.slice(lastIndex, index)));
+		}
+
+		const marker = document.createElement('span');
+		marker.className = markerClassName;
+		marker.textContent = match[0];
+		nodes.push(marker);
+		lastIndex = index + match[0].length;
+	}
+
+	if (lastIndex < text.length) {
+		nodes.push(document.createTextNode(text.slice(lastIndex)));
+	}
+
+	return nodes;
+}
+
+function syncSourceHighlightScroll(): void {
+	sourceHighlight.scrollTop = sourceText.scrollTop;
+	sourceHighlight.scrollLeft = sourceText.scrollLeft;
+}
+
 function renderOutput(text: string): void {
 	if (!text) {
 		lastRenderedText = '';
@@ -440,7 +493,10 @@ function renderOutput(text: string): void {
 
 	const textNode = document.createElement('span');
 	textNode.className = 'translation-output__text';
-	textNode.textContent = text;
+	textNode.replaceChildren(...buildHighlightedTextNodes(
+		text,
+		'translation-output__image-marker',
+	));
 	translatedOutput.replaceChildren(textNode);
 }
 
@@ -596,6 +652,42 @@ function insertTextAtSelection(text: string): void {
 	const cursorPosition = before.length + insertValue.length;
 	sourceText.setSelectionRange(cursorPosition, cursorPosition);
 	sourceText.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function handleImageMarkerDeleteKey(event: KeyboardEvent): boolean {
+	if (event.key !== 'Backspace' && event.key !== 'Delete') { return false; }
+	if (event.altKey || event.ctrlKey || event.metaKey) { return false; }
+	if (sourceText.selectionStart !== sourceText.selectionEnd) { return false; }
+
+	const caret = sourceText.selectionStart;
+	const range = findImageMarkerDeleteRange(sourceText.value, caret, event.key);
+	if (!range) { return false; }
+
+	event.preventDefault();
+	sourceText.value = sourceText.value.slice(0, range.start) + sourceText.value.slice(range.end);
+	sourceText.setSelectionRange(range.start, range.start);
+	sourceText.dispatchEvent(new Event('input', { bubbles: true }));
+	return true;
+}
+
+function findImageMarkerDeleteRange(
+	text: string,
+	caret: number,
+	key: 'Backspace' | 'Delete',
+): { start: number; end: number } | undefined {
+	for (const match of text.matchAll(imageMarkerPattern)) {
+		const start = match.index ?? 0;
+		const end = start + match[0].length;
+		const isInsideMarker = caret > start && caret < end;
+		const isBackspaceAfterMarker = key === 'Backspace' && caret === end;
+		const isDeleteBeforeMarker = key === 'Delete' && caret === start;
+
+		if (isInsideMarker || isBackspaceAfterMarker || isDeleteBeforeMarker) {
+			return { start, end };
+		}
+	}
+
+	return undefined;
 }
 
 function addSmartSpacing(before: string, text: string, after: string): string {
