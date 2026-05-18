@@ -4,6 +4,9 @@
   "description": "%extension.description%",
   "version": "1.9.6",
   "packageManager": "bun@1.3.4",
+  "vsce": {
+    "dependencies": false
+  },
   "publisher": "bastndev",
   "license": "MIT",
   "engines": {
