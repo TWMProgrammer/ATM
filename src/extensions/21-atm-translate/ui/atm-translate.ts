@@ -176,6 +176,7 @@ function wireEvents(): void {
 	});
 
 	sourceText.addEventListener('input', () => {
+		normalizeSourceInputCasing();
 		updateCount();
 		updateSourceHighlight();
 		persistState();
@@ -291,6 +292,7 @@ function wireEvents(): void {
 		if (translatedText) {
 			const prevText = sourceText.value;
 			sourceText.value = translatedText;
+			normalizeSourceInputCasing();
 			translatedText = prevText;
 			lastRenderedText = translatedText;
 			renderOutput(translatedText);
@@ -308,6 +310,7 @@ function wireEvents(): void {
 
 		if (msg?.type === 'setText' && typeof msg.text === 'string') {
 			sourceText.value = replaceImagePathsWithMarkers(msg.text);
+			normalizeSourceInputCasing();
 			updateCount();
 			updateSourceHighlight();
 			persistState();
@@ -341,6 +344,7 @@ function wireEvents(): void {
 
 			if (msg.text && typeof msg.text === 'string') {
 				sourceText.value = restoreImageMarkers(msg.text, activeSpellcheckMarkers);
+				normalizeSourceInputCasing();
 				updateCount();
 				updateSourceHighlight();
 				persistState();
@@ -436,6 +440,63 @@ function updateCount(): void {
 	sourceCount.textContent = `${count} / ${CHAR_LIMIT}`;
 	sourceCount.classList.toggle('is-over-limit', count > CHAR_LIMIT);
 	spellcheckAction.disabled = count > CHAR_LIMIT;
+}
+
+function normalizeSourceInputCasing(): void {
+	const normalizedText = normalizeInputCasing(sourceText.value);
+	if (normalizedText === sourceText.value) { return; }
+
+	const selectionStart = Math.min(sourceText.selectionStart, normalizedText.length);
+	const selectionEnd = Math.min(sourceText.selectionEnd, normalizedText.length);
+	sourceText.value = normalizedText;
+	sourceText.setSelectionRange(selectionStart, selectionEnd);
+}
+
+function normalizeInputCasing(text: string): string {
+	let hasFirstLetter = false;
+
+	return replaceOutsideImageMarkers(text, (segment) => {
+		let normalizedSegment = '';
+
+		for (const char of segment) {
+			if (!isLetter(char)) {
+				normalizedSegment += char;
+				continue;
+			}
+
+			if (!hasFirstLetter) {
+				hasFirstLetter = true;
+				normalizedSegment += char;
+				continue;
+			}
+
+			normalizedSegment += char.toLocaleLowerCase();
+		}
+
+		return normalizedSegment;
+	});
+}
+
+function replaceOutsideImageMarkers(
+	text: string,
+	replaceSegment: (segment: string) => string,
+): string {
+	let result = '';
+	let lastIndex = 0;
+
+	for (const match of text.matchAll(imageMarkerPattern)) {
+		const index = match.index ?? 0;
+		result += replaceSegment(text.slice(lastIndex, index));
+		result += match[0];
+		lastIndex = index + match[0].length;
+	}
+
+	result += replaceSegment(text.slice(lastIndex));
+	return result;
+}
+
+function isLetter(value: string): boolean {
+	return value.toLocaleLowerCase() !== value.toLocaleUpperCase();
 }
 
 function updateSourceHighlight(): void {
