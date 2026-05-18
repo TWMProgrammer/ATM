@@ -177,7 +177,10 @@
       {
         "command": "atm.translate.open",
         "title": "%command.atmTranslate.open%",
-        "icon": "$(globe)"
+        "icon": {
+          "light": "src/extensions/21-atm-translate/assets/language.svg",
+          "dark": "src/extensions/21-atm-translate/assets/language.svg"
+        }
       },
       {
         "command": "atm.translate.setDeepLApiKey",
