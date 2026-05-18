@@ -369,7 +369,7 @@ function renderOutput(text: string): void {
 		return;
 	}
 
-	if (text === lastRenderedText) { return; }
+	if (text === lastRenderedText && !translatedOutput.querySelector('.skeleton-line')) { return; }
 	lastRenderedText = text;
 
 	copyAction.disabled = false;
@@ -379,6 +379,7 @@ function renderOutput(text: string): void {
 
 function showSkeleton(): void {
 	if (translatedOutput.querySelector('.skeleton-line')) { return; }
+	lastRenderedText = '';
 	outputCard.classList.remove('has-content');
 	copyAction.disabled = true;
 	translatedOutput.innerHTML = `
