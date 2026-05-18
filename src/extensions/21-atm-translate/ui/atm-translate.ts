@@ -12,6 +12,8 @@ interface PersistedState {
 	sourceLanguage?: string;
 	targetLanguage?: string;
 	autoTranslate?: boolean;
+	imageAttachments?: ImageAttachment[];
+	nextImageAttachmentId?: number;
 }
 
 declare const acquireVsCodeApi: () => VsCodeApi;
@@ -44,6 +46,21 @@ interface TranslateOptions {
 	softLoading?: boolean;
 }
 
+interface ImageAttachment {
+	id: number;
+	marker: string;
+	source: 'path' | 'clipboard';
+	path?: string;
+	dataUrl?: string;
+	type?: string;
+	name?: string;
+}
+
+interface ProtectedImageMarker {
+	marker: string;
+	placeholder: string;
+}
+
 let activeRequestId = '';
 let activeRequestKey = '';
 let lastCompletedRequestKey = '';
@@ -51,6 +68,14 @@ let translatedText = '';
 let debounceTimer: number | undefined;
 let lastRenderedText = '';
 let autoTranslate = false;
+let imageAttachments: ImageAttachment[] = [];
+let nextImageAttachmentId = 1;
+let activeTranslationMarkers: ProtectedImageMarker[] = [];
+let activeSpellcheckMarkers: ProtectedImageMarker[] = [];
+
+const imagePathPattern =
+	/(?:"([^"\r\n]+\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?))"|'([^'\r\n]+\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?))'|((?:~|\/)[^\r\n\t"'<>]*?\.(?:png|jpe?g|gif|webp|bmp|svg|tiff?)))/gi;
+const imageMarkerPattern = /\[Image #(\d+)\]/g;
 
 init();
 
@@ -102,6 +127,14 @@ function restoreState(): void {
 	if (state.sourceText) { sourceText.value = state.sourceText; }
 	if (state.translatedText) { translatedText = state.translatedText; }
 	if (typeof state.autoTranslate === 'boolean') { autoTranslate = state.autoTranslate; }
+	if (Array.isArray(state.imageAttachments)) {
+		imageAttachments = state.imageAttachments.filter(isImageAttachment);
+	}
+	if (typeof state.nextImageAttachmentId === 'number' && state.nextImageAttachmentId > 0) {
+		nextImageAttachmentId = state.nextImageAttachmentId;
+	} else {
+		nextImageAttachmentId = getNextImageAttachmentId();
+	}
 }
 
 function hasOptionValue(select: HTMLSelectElement, value: string): boolean {
@@ -163,6 +196,10 @@ function wireEvents(): void {
 		}
 	});
 
+	sourceText.addEventListener('paste', (event: ClipboardEvent) => {
+		handleSourcePaste(event);
+	});
+
 	sourceText.addEventListener('keydown', (event: KeyboardEvent) => {
 		if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
 			event.preventDefault();
@@ -190,6 +227,10 @@ function wireEvents(): void {
 		activeRequestId = '';
 		activeRequestKey = '';
 		lastCompletedRequestKey = '';
+		imageAttachments = [];
+		nextImageAttachmentId = 1;
+		activeTranslationMarkers = [];
+		activeSpellcheckMarkers = [];
 		setLoading(false);
 		updateCount();
 		renderOutput('');
@@ -207,9 +248,12 @@ function wireEvents(): void {
 		sourceTextWrap.classList.add('is-correcting');
 		setStatus('Correcting spelling...');
 
+		const protectedText = protectImageMarkers(text);
+		activeSpellcheckMarkers = protectedText.markers;
+
 		vscodeApi.postMessage({
 			type: 'spellcheck',
-			text,
+			text: protectedText.text,
 			language: sourceLanguage.value,
 		});
 	});
@@ -250,7 +294,7 @@ function wireEvents(): void {
 		const msg = event.data;
 
 		if (msg?.type === 'setText' && typeof msg.text === 'string') {
-			sourceText.value = msg.text;
+			sourceText.value = replaceImagePathsWithMarkers(msg.text);
 			updateCount();
 			persistState();
 			doTranslate();
@@ -259,7 +303,7 @@ function wireEvents(): void {
 		}
 
 		if (msg?.type === 'translated' && msg.id === activeRequestId) {
-			translatedText = msg.text ?? '';
+			translatedText = restoreImageMarkers(msg.text ?? '', activeTranslationMarkers);
 			lastCompletedRequestKey = activeRequestKey;
 			renderOutput(translatedText);
 			setLoading(false);
@@ -282,7 +326,7 @@ function wireEvents(): void {
 			sourceTextWrap.classList.remove('is-correcting');
 
 			if (msg.text && typeof msg.text === 'string') {
-				sourceText.value = msg.text;
+				sourceText.value = restoreImageMarkers(msg.text, activeSpellcheckMarkers);
 				updateCount();
 				persistState();
 				setStatus(buildProviderStatus('Spelling corrected', msg.provider, msg.fromCache));
@@ -339,6 +383,8 @@ function doTranslate(options: TranslateOptions = {}): void {
 
 	activeRequestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 	activeRequestKey = requestKey;
+	const protectedText = protectImageMarkers(text);
+	activeTranslationMarkers = protectedText.markers;
 	setLoading(true);
 	setStatus('Translating');
 	if (options.softLoading) {
@@ -350,7 +396,7 @@ function doTranslate(options: TranslateOptions = {}): void {
 	vscodeApi.postMessage({
 		type: 'translate',
 		id: activeRequestId,
-		text,
+		text: protectedText.text,
 		from: sourceLanguage.value,
 		to: targetLanguage.value,
 	});
@@ -462,5 +508,148 @@ function persistState(): void {
 		sourceLanguage: sourceLanguage.value,
 		targetLanguage: targetLanguage.value,
 		autoTranslate,
+		imageAttachments,
+		nextImageAttachmentId,
 	} satisfies PersistedState);
+}
+
+function handleSourcePaste(event: ClipboardEvent): void {
+	const clipboardData = event.clipboardData;
+	if (!clipboardData) { return; }
+
+	const pastedText = clipboardData.getData('text/plain');
+	const imageFiles = Array.from(clipboardData.items)
+		.filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+		.map((item) => item.getAsFile())
+		.filter((file): file is File => file !== null);
+	const textWithMarkers = replaceImagePathsWithMarkers(pastedText);
+	const hasImagePath = textWithMarkers !== pastedText;
+
+	if (!hasImagePath && !imageFiles.length) { return; }
+
+	event.preventDefault();
+
+	const imageMarkers = imageFiles.map(registerClipboardImageAttachment);
+	const insertValue = [textWithMarkers, imageMarkers.join(' ')]
+		.filter((part) => part.trim().length > 0)
+		.join(textWithMarkers && imageMarkers.length ? ' ' : '');
+
+	insertTextAtSelection(insertValue);
+	persistState();
+}
+
+function replaceImagePathsWithMarkers(text: string): string {
+	if (!text) { return text; }
+
+	return text.replace(imagePathPattern, (match, doubleQuotedPath: string | undefined, singleQuotedPath: string | undefined, unquotedPath: string | undefined) => {
+		const imagePath = doubleQuotedPath ?? singleQuotedPath ?? unquotedPath ?? match;
+		return registerPathImageAttachment(imagePath.trim());
+	});
+}
+
+function registerPathImageAttachment(path: string): string {
+	const id = nextImageAttachmentId++;
+	const marker = `[Image #${id}]`;
+	imageAttachments.push({
+		id,
+		marker,
+		source: 'path',
+		path,
+		type: getImageTypeFromPath(path),
+		name: getPathBaseName(path),
+	});
+	return marker;
+}
+
+function registerClipboardImageAttachment(file: File): string {
+	const id = nextImageAttachmentId++;
+	const marker = `[Image #${id}]`;
+	const attachment: ImageAttachment = {
+		id,
+		marker,
+		source: 'clipboard',
+		type: file.type || 'image/png',
+		name: file.name || `Image ${id}`,
+	};
+	imageAttachments.push(attachment);
+
+	const reader = new FileReader();
+	reader.addEventListener('load', () => {
+		if (typeof reader.result === 'string') {
+			attachment.dataUrl = reader.result;
+			persistState();
+		}
+	});
+	reader.readAsDataURL(file);
+
+	return marker;
+}
+
+function insertTextAtSelection(text: string): void {
+	const start = sourceText.selectionStart;
+	const end = sourceText.selectionEnd;
+	const before = sourceText.value.slice(0, start);
+	const after = sourceText.value.slice(end);
+	const insertValue = addSmartSpacing(before, text, after);
+
+	sourceText.value = before + insertValue + after;
+	const cursorPosition = before.length + insertValue.length;
+	sourceText.setSelectionRange(cursorPosition, cursorPosition);
+	sourceText.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function addSmartSpacing(before: string, text: string, after: string): string {
+	let value = text;
+	if (before && !/\s$/.test(before) && value && !/^[\s,.;:!?)]/.test(value)) {
+		value = ` ${value}`;
+	}
+	if (after && !/^\s/.test(after) && value && !/[\s([¿¡]$/.test(value)) {
+		value = `${value} `;
+	}
+	return value;
+}
+
+function protectImageMarkers(text: string): { text: string; markers: ProtectedImageMarker[] } {
+	const markers: ProtectedImageMarker[] = [];
+	const protectedText = text.replace(imageMarkerPattern, (marker, id: string) => {
+		const placeholder = `ZXQATMIMAGE${id}QXZ`;
+		markers.push({ marker, placeholder });
+		return placeholder;
+	});
+
+	return { text: protectedText, markers };
+}
+
+function restoreImageMarkers(text: string, markers: ProtectedImageMarker[]): string {
+	return markers.reduce((result, { marker, placeholder }) =>
+		result.replace(new RegExp(escapeRegExp(placeholder), 'g'), marker), text);
+}
+
+function getNextImageAttachmentId(): number {
+	return imageAttachments.reduce((maxId, attachment) => Math.max(maxId, attachment.id), 0) + 1;
+}
+
+function getImageTypeFromPath(path: string): string {
+	const extension = path.split('.').pop()?.toLowerCase();
+	if (!extension) { return 'image/*'; }
+	if (extension === 'jpg') { return 'image/jpeg'; }
+	if (extension === 'svg') { return 'image/svg+xml'; }
+	if (extension === 'tif') { return 'image/tiff'; }
+	return `image/${extension}`;
+}
+
+function getPathBaseName(path: string): string {
+	return path.split('/').filter(Boolean).pop() ?? path;
+}
+
+function isImageAttachment(value: unknown): value is ImageAttachment {
+	if (typeof value !== 'object' || value === null) { return false; }
+	const attachment = value as Partial<ImageAttachment>;
+	return typeof attachment.id === 'number'
+		&& typeof attachment.marker === 'string'
+		&& (attachment.source === 'path' || attachment.source === 'clipboard');
+}
+
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
