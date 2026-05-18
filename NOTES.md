@@ -1,0 +1,3 @@
+- @ ----
+- better - fallo ortografico
+- mejorar el promot resultado
