@@ -373,6 +373,7 @@ textarea,
 	display: block;
 	font: inherit;
 	height: 100%;
+	line-height: 1.6;
 	position: relative;
 	z-index: 1;
 }
