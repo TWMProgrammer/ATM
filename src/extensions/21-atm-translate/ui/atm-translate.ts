@@ -209,17 +209,24 @@ function wireEvents(): void {
 		syncSourceHighlightScroll();
 	});
 
-	sourceText.addEventListener('keydown', (event: KeyboardEvent) => {
-		if (handleImageMarkerDeleteKey(event)) {
-			return;
-		}
+		sourceText.addEventListener('keydown', (event: KeyboardEvent) => {
+			if (handleImageMarkerDeleteKey(event)) {
+				return;
+			}
 
 		if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
 			event.preventDefault();
 			window.clearTimeout(debounceTimer);
 			doTranslate();
-		}
-	});
+			}
+		});
+
+		window.addEventListener('keydown', (event: KeyboardEvent) => {
+			if (event.ctrlKey && event.altKey && event.key === 'Backspace') {
+				event.preventDefault();
+				clearTranslatorText();
+			}
+		});
 
 	sourceLanguage.addEventListener('change', () => {
 		updateLabels();
@@ -233,25 +240,7 @@ function wireEvents(): void {
 		doTranslate();
 	});
 
-	clearAction.addEventListener('click', () => {
-		sourceText.value = '';
-		translatedText = '';
-		lastRenderedText = '';
-		activeRequestId = '';
-		activeRequestKey = '';
-		lastCompletedRequestKey = '';
-		imageAttachments = [];
-		nextImageAttachmentId = 1;
-		activeTranslationMarkers = [];
-		activeSpellcheckMarkers = [];
-		setLoading(false);
-		updateCount();
-		updateSourceHighlight();
-		renderOutput('');
-		setStatus('Ready');
-		persistState();
-		sourceText.focus();
-	});
+		clearAction.addEventListener('click', clearTranslatorText);
 
 	spellcheckAction.addEventListener('click', () => {
 		const text = sourceText.value.trim();
@@ -424,6 +413,31 @@ function doTranslate(options: TranslateOptions = {}): void {
 		from: sourceLanguage.value,
 		to: targetLanguage.value,
 	});
+}
+
+function clearTranslatorText(): void {
+	window.clearTimeout(debounceTimer);
+	sourceText.value = '';
+	translatedText = '';
+	lastRenderedText = '';
+	activeRequestId = '';
+	activeRequestKey = '';
+	lastCompletedRequestKey = '';
+	imageAttachments = [];
+	nextImageAttachmentId = 1;
+	activeTranslationMarkers = [];
+	activeSpellcheckMarkers = [];
+	setLoading(false);
+	setOutputSoftLoading(false);
+	spellcheckAction.classList.remove('loading');
+	spellcheckAction.disabled = false;
+	sourceTextWrap.classList.remove('is-correcting');
+	updateCount();
+	updateSourceHighlight();
+	renderOutput('');
+	setStatus('Ready');
+	persistState();
+	sourceText.focus();
 }
 
 function buildRequestKey(text: string): string {
