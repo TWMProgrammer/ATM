@@ -337,6 +337,48 @@ textarea,
 	width: 100%;
 }
 
+.textarea-wrap {
+	min-height: 0;
+	position: relative;
+}
+
+.textarea-wrap textarea {
+	display: block;
+	height: 100%;
+	position: relative;
+	z-index: 1;
+}
+
+.textarea-wrap.is-correcting textarea {
+	opacity: 0.72;
+	transition: opacity 160ms ease;
+}
+
+.textarea-wrap.is-correcting::after {
+	animation: inputTextShimmer 1.15s ease-in-out infinite;
+	background: linear-gradient(
+		105deg,
+		transparent 0%,
+		transparent 34%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 10%, transparent) 43%,
+		color-mix(in srgb, var(--vscode-focusBorder) 22%, transparent) 50%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 10%, transparent) 57%,
+		transparent 66%,
+		transparent 100%
+	);
+	content: '';
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+	transform: translateX(-100%);
+	z-index: 2;
+}
+
+@keyframes inputTextShimmer {
+	from { transform: translateX(-100%); }
+	to { transform: translateX(100%); }
+}
+
 textarea::placeholder,
 .empty-state {
 	color: var(--vscode-input-placeholderForeground);
@@ -345,9 +387,39 @@ textarea::placeholder,
 
 .translation-output {
 	overflow: auto;
+	position: relative;
 	white-space: pre-wrap;
 	word-break: break-word;
 	will-change: contents;
+}
+
+.output-card.is-soft-loading .translation-output {
+	opacity: 0.74;
+	transition: opacity 160ms ease;
+}
+
+.output-card.is-soft-loading .translation-output::after {
+	animation: outputTextShimmer 1.15s ease-in-out infinite;
+	background: linear-gradient(
+		105deg,
+		transparent 0%,
+		transparent 35%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 8%, transparent) 43%,
+		color-mix(in srgb, var(--vscode-focusBorder) 20%, transparent) 50%,
+		color-mix(in srgb, var(--vscode-editor-foreground) 8%, transparent) 57%,
+		transparent 65%,
+		transparent 100%
+	);
+	content: '';
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+	transform: translateX(-100%);
+}
+
+@keyframes outputTextShimmer {
+	from { transform: translateX(-100%); }
+	to { transform: translateX(100%); }
 }
 
 /* ---- Card Footer ---- */

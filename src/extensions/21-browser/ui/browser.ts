@@ -34,10 +34,15 @@ const swapAction = document.querySelector<HTMLButtonElement>('#swap-action')!;
 const buttonSpinner = document.querySelector<HTMLElement>('#button-spinner')!;
 const outputCard = document.querySelector<HTMLElement>('.output-card')!;
 const spellcheckAction = document.querySelector<HTMLButtonElement>('#spellcheck-action')!;
+const sourceTextWrap = document.querySelector<HTMLElement>('#source-text-wrap')!;
 const autoTranslateCheck = document.querySelector<HTMLInputElement>('#auto-translate-check')!;
 
 const CHAR_LIMIT = 5000;
 const DEBOUNCE_MS = 500;
+
+interface TranslateOptions {
+	softLoading?: boolean;
+}
 
 let activeRequestId = '';
 let activeRequestKey = '';
@@ -199,6 +204,7 @@ function wireEvents(): void {
 
 		spellcheckAction.classList.add('loading');
 		spellcheckAction.disabled = true;
+		sourceTextWrap.classList.add('is-correcting');
 		setStatus('Correcting spelling...');
 
 		vscodeApi.postMessage({
@@ -257,6 +263,7 @@ function wireEvents(): void {
 			lastCompletedRequestKey = activeRequestKey;
 			renderOutput(translatedText);
 			setLoading(false);
+			setOutputSoftLoading(false);
 			setStatus(translatedText ? buildProviderStatus('Translated', msg.provider, msg.fromCache) : 'Ready');
 			persistState();
 			return;
@@ -264,6 +271,7 @@ function wireEvents(): void {
 
 		if (msg?.type === 'translationError' && msg.id === activeRequestId) {
 			setLoading(false);
+			setOutputSoftLoading(false);
 			setStatus(msg.message || 'Translation failed');
 			return;
 		}
@@ -271,6 +279,7 @@ function wireEvents(): void {
 		if (msg?.type === 'spellcheckResult') {
 			spellcheckAction.classList.remove('loading');
 			spellcheckAction.disabled = false;
+			sourceTextWrap.classList.remove('is-correcting');
 
 			if (msg.text && typeof msg.text === 'string') {
 				sourceText.value = msg.text;
@@ -278,7 +287,7 @@ function wireEvents(): void {
 				persistState();
 				setStatus(buildProviderStatus('Spelling corrected', msg.provider, msg.fromCache));
 				if (autoTranslate) {
-					doTranslate();
+					doTranslate({ softLoading: true });
 				}
 			} else {
 				setStatus(msg.error || 'Spell check failed');
@@ -288,7 +297,7 @@ function wireEvents(): void {
 	});
 }
 
-function doTranslate(): void {
+function doTranslate(options: TranslateOptions = {}): void {
 	const text = sourceText.value.trim();
 	if (!text) {
 		translatedText = '';
@@ -297,6 +306,7 @@ function doTranslate(): void {
 		activeRequestKey = '';
 		lastCompletedRequestKey = '';
 		setLoading(false);
+		setOutputSoftLoading(false);
 		renderOutput('');
 		setStatus('Ready');
 		return;
@@ -304,6 +314,7 @@ function doTranslate(): void {
 
 	if (text.length > CHAR_LIMIT) {
 		setLoading(false);
+		setOutputSoftLoading(false);
 		setStatus(`Text is over ${CHAR_LIMIT} characters`);
 		return;
 	}
@@ -311,6 +322,7 @@ function doTranslate(): void {
 	if (sourceLanguage.value === targetLanguage.value) {
 		translatedText = text;
 		lastCompletedRequestKey = buildRequestKey(text);
+		setOutputSoftLoading(false);
 		renderOutput(translatedText);
 		setStatus('Same language');
 		persistState();
@@ -319,6 +331,7 @@ function doTranslate(): void {
 
 	const requestKey = buildRequestKey(text);
 	if (requestKey === lastCompletedRequestKey && translatedText) {
+		setOutputSoftLoading(false);
 		renderOutput(translatedText);
 		setStatus('Translated');
 		return;
@@ -328,7 +341,11 @@ function doTranslate(): void {
 	activeRequestKey = requestKey;
 	setLoading(true);
 	setStatus('Translating');
-	showSkeleton();
+	if (options.softLoading) {
+		showOutputSoftLoading();
+	} else {
+		showSkeleton();
+	}
 
 	vscodeApi.postMessage({
 		type: 'translate',
@@ -365,7 +382,7 @@ function renderOutput(text: string): void {
 		lastRenderedText = '';
 		translatedOutput.innerHTML = '<span class="empty-state">Your translation will appear here.</span>';
 		copyAction.disabled = true;
-		outputCard.classList.remove('has-content');
+		outputCard.classList.remove('has-content', 'is-soft-loading');
 		return;
 	}
 
@@ -380,13 +397,29 @@ function renderOutput(text: string): void {
 function showSkeleton(): void {
 	if (translatedOutput.querySelector('.skeleton-line')) { return; }
 	lastRenderedText = '';
-	outputCard.classList.remove('has-content');
+	outputCard.classList.remove('has-content', 'is-soft-loading');
 	copyAction.disabled = true;
 	translatedOutput.innerHTML = `
 		<div class="skeleton-line" style="width:85%"></div>
 		<div class="skeleton-line" style="width:70%"></div>
 		<div class="skeleton-line" style="width:55%"></div>
 	`;
+}
+
+function showOutputSoftLoading(): void {
+	if (!translatedText) {
+		renderOutput('');
+	}
+
+	outputCard.classList.add('is-soft-loading');
+	copyAction.disabled = true;
+}
+
+function setOutputSoftLoading(isLoading: boolean): void {
+	outputCard.classList.toggle('is-soft-loading', isLoading);
+	if (!isLoading) {
+		copyAction.disabled = !translatedText;
+	}
 }
 
 function setStatus(message: string): void {
