@@ -21,10 +21,21 @@ export const languages: LanguageEntry[] = [
 	{ code: 'vi', name: 'Vietnamese', flag: '🇻🇳' },
 ];
 
+export const languageCodes = new Set(languages.map((language) => language.code));
+
 export function getLanguageName(code: string): string {
-	return languages.find((l) => l.code === code)?.name ?? code;
+	return languages.find((language) => language.code === code)?.name ?? code;
 }
 
 export function getLanguageFlag(code: string): string {
-	return languages.find((l) => l.code === code)?.flag ?? '';
+	return languages.find((language) => language.code === code)?.flag ?? '';
 }
+
+export function isValidSourceLanguage(code: string): boolean {
+	return languageCodes.has(code);
+}
+
+export function isValidTargetLanguage(code: string): boolean {
+	return code !== 'auto' && languageCodes.has(code);
+}
+
