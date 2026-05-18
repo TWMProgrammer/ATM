@@ -50,7 +50,7 @@ let lastCompletedRequestKey = '';
 let translatedText = '';
 let debounceTimer: number | undefined;
 let lastRenderedText = '';
-let autoTranslate = true;
+let autoTranslate = false;
 
 init();
 
