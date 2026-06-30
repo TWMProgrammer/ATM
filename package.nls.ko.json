@@ -24,5 +24,11 @@
   "command.music.togglePlayPause": "ATM 음악: 재생/일시정지",
   "command.music.playRandomAM": "ATM 음악: 무작위 AM 방송국",
   "command.atmTranslate.open": "ATM: 번역기",
+  "command.bracketLynx.menu": "Bracket Lynx: 메뉴",
+  "command.bracketLynx.toggleGlobal": "Bracket Lynx: 전역 전환",
+  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: 현재 파일 전환",
+  "command.bracketLynx.changeColor": "Bracket Lynx: 색상 변경",
+  "command.bracketLynx.refresh": "Bracket Lynx: 장식 새로고침",
+  "command.bracketLynx.resetToDefault": "Bracket Lynx: 기본값으로 재설정",
   "view.music": "ATM :: 라디오/음악 · 뽀모도로 · 데이터"
 }

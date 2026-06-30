@@ -24,5 +24,11 @@
   "command.music.togglePlayPause": "ATM Music: تشغيل/إيقاف مؤقت",
   "command.music.playRandomAM": "ATM Music: محطة AM عشوائية",
   "command.atmTranslate.open": "ATM: مترجم",
+  "command.bracketLynx.menu": "Bracket Lynx: قائمة",
+  "command.bracketLynx.toggleGlobal": "Bracket Lynx: تبديل عام",
+  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: تبديل الملف الحالي",
+  "command.bracketLynx.changeColor": "Bracket Lynx: تغيير اللون",
+  "command.bracketLynx.refresh": "Bracket Lynx: تحديث الزخارف",
+  "command.bracketLynx.resetToDefault": "Bracket Lynx: إعادة تعيين",
   "view.music": "ATM :: راديو/موسيقى · Pomodoro · بيانات"
 }

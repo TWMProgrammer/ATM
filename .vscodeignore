@@ -2,6 +2,7 @@
 .vscode-test/**
 out/**
 node_modules/**
+analziar/**
 src/**
 !src/**/*.html
 !src/**/*.css

@@ -24,5 +24,11 @@
   "command.music.togglePlayPause": "ATM 音乐：播放/暂停",
   "command.music.playRandomAM": "ATM 音乐：随机 AM 电台",
   "command.atmTranslate.open": "ATM：翻译器",
+  "command.bracketLynx.menu": "Bracket Lynx: 菜单",
+  "command.bracketLynx.toggleGlobal": "Bracket Lynx: 切换全局",
+  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: 切换当前文件",
+  "command.bracketLynx.changeColor": "Bracket Lynx: 更改颜色",
+  "command.bracketLynx.refresh": "Bracket Lynx: 刷新装饰",
+  "command.bracketLynx.resetToDefault": "Bracket Lynx: 重置",
   "view.music": "ATM :: 无线电/音乐 · 番茄钟 · 数据"
 }

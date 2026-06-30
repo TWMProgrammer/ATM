@@ -73,7 +73,18 @@
   },
   "activationEvents": [
     "onStartupFinished",
-    "onLanguage:dotenv"
+    "onLanguage:dotenv",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact",
+    "onLanguage:html",
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:vue",
+    "onLanguage:astro",
+    "onLanguage:svelte",
+    "onLanguage:json"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -220,6 +231,31 @@
       {
         "command": "tailwind-css.toggleEnabled",
         "title": "Tailwind CSS: Enable/Disable"
+      },
+      {
+        "command": "atm.bracketLynx.menu",
+        "title": "%command.bracketLynx.menu%",
+        "icon": "$(bracket-dot)"
+      },
+      {
+        "command": "atm.bracketLynx.toggleGlobal",
+        "title": "%command.bracketLynx.toggleGlobal%"
+      },
+      {
+        "command": "atm.bracketLynx.toggleCurrentFile",
+        "title": "%command.bracketLynx.toggleCurrentFile%"
+      },
+      {
+        "command": "atm.bracketLynx.changeColor",
+        "title": "%command.bracketLynx.changeColor%"
+      },
+      {
+        "command": "atm.bracketLynx.refresh",
+        "title": "%command.bracketLynx.refresh%"
+      },
+      {
+        "command": "atm.bracketLynx.resetToDefault",
+        "title": "%command.bracketLynx.resetToDefault%"
       }
     ],
     "configuration": {
@@ -477,6 +513,76 @@
           "minimum": 0.0,
           "maximum": 1.0,
           "description": "Volume level (0.0 to 1.0)"
+        },
+        "atm.bracketLynx.globalEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Bracket Lynx decorations globally."
+        },
+        "atm.bracketLynx.mode": {
+          "type": "string",
+          "enum": ["auto", "manual"],
+          "default": "auto",
+          "description": "Update mode for bracket decorations."
+        },
+        "atm.bracketLynx.prefix": {
+          "type": "string",
+          "default": "=> ",
+          "description": "Prefix shown before bracket headers."
+        },
+        "atm.bracketLynx.color": {
+          "type": "string",
+          "default": "#515151",
+          "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$",
+          "patternErrorMessage": "Please enter a valid hex color (e.g., #ff6b6b)",
+          "description": "Color used for bracket decorations."
+        },
+        "atm.bracketLynx.fontStyle": {
+          "type": "string",
+          "enum": ["normal", "italic", "bold"],
+          "default": "italic",
+          "description": "Font style for bracket decorations."
+        },
+        "atm.bracketLynx.unmatchBracketsPrefix": {
+          "type": "string",
+          "default": "x ",
+          "description": "Prefix shown for unmatched brackets."
+        },
+        "atm.bracketLynx.maxBracketHeaderLength": {
+          "type": "number",
+          "default": 50,
+          "minimum": 10,
+          "maximum": 200,
+          "description": "Maximum length of bracket header text."
+        },
+        "atm.bracketLynx.minBracketScopeLines": {
+          "type": "number",
+          "default": 4,
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Minimum number of lines for bracket scope to show decoration."
+        },
+        "atm.bracketLynx.enablePerformanceFilters": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable performance filters for large files."
+        },
+        "atm.bracketLynx.maxFileSize": {
+          "type": "number",
+          "default": 5242880,
+          "description": "Maximum file size in bytes for Bracket Lynx to process."
+        },
+        "atm.bracketLynx.maxDecorationsPerFile": {
+          "type": "number",
+          "default": 300,
+          "minimum": 50,
+          "maximum": 2000,
+          "description": "Maximum number of decorations per file."
+        },
+        "atm.bracketLynx.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable debug logging for Bracket Lynx."
         }
       }
     },
@@ -674,6 +780,11 @@
           "command": "envLens.enableBlur",
           "group": "navigation@50",
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
+        },
+        {
+          "command": "atm.bracketLynx.menu",
+          "group": "navigation@51",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }
       ],
       "extension/context": [

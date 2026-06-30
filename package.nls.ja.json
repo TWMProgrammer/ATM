@@ -24,5 +24,11 @@
   "command.music.togglePlayPause": "ATM 音楽: 再生/一時停止",
   "command.music.playRandomAM": "ATM 音楽: ランダムAM局",
   "command.atmTranslate.open": "ATM: 翻訳",
+  "command.bracketLynx.menu": "Bracket Lynx: メニュー",
+  "command.bracketLynx.toggleGlobal": "Bracket Lynx: グローバル切り替え",
+  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: 現在のファイル切り替え",
+  "command.bracketLynx.changeColor": "Bracket Lynx: 色を変更",
+  "command.bracketLynx.refresh": "Bracket Lynx: 装飾を更新",
+  "command.bracketLynx.resetToDefault": "Bracket Lynx: リセット",
   "view.music": "ATM :: ラジオ/音楽 · ポモドーロ · データ"
 }

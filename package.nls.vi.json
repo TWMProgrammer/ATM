@@ -24,5 +24,11 @@
   "command.music.togglePlayPause": "ATM Music: Phát/Tạm dừng",
   "command.music.playRandomAM": "ATM Music: Đài AM ngẫu nhiên",
   "command.atmTranslate.open": "ATM: Trình dịch",
+  "command.bracketLynx.menu": "Bracket Lynx: Menu",
+  "command.bracketLynx.toggleGlobal": "Bracket Lynx: Chuyển toàn cầu",
+  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: Chuyển tệp hiện tại",
+  "command.bracketLynx.changeColor": "Bracket Lynx: Đổi màu",
+  "command.bracketLynx.refresh": "Bracket Lynx: Làm mới trang trí",
+  "command.bracketLynx.resetToDefault": "Bracket Lynx: Đặt lại",
   "view.music": "ATM :: Radio/Nhạc · Pomodoro · Dữ liệu"
 }

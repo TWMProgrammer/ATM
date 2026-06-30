@@ -24,5 +24,11 @@
   "command.music.togglePlayPause": "ATM Música: Reproducir/Pausar",
   "command.music.playRandomAM": "ATM Música: Estación AM Aleatoria",
   "command.atmTranslate.open": "ATM: Traductor",
+  "command.bracketLynx.menu": "Bracket Lynx: Menú",
+  "command.bracketLynx.toggleGlobal": "Bracket Lynx: Alternar global",
+  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: Alternar archivo actual",
+  "command.bracketLynx.changeColor": "Bracket Lynx: Cambiar color",
+  "command.bracketLynx.refresh": "Bracket Lynx: Actualizar decoraciones",
+  "command.bracketLynx.resetToDefault": "Bracket Lynx: Restablecer",
   "view.music": "ATM :: Radio/Música · Pomodoro · Datos"
 }
