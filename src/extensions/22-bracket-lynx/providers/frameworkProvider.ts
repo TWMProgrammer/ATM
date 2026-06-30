@@ -121,11 +121,15 @@ export function updateFrameworkDecorations(editor: vscode.TextEditor): void {
 	const color = getColor();
 	const fontStyle = getFontStyle();
 	const maxDecorations = getMaxDecorationsPerFile();
+	const activeLine = editor.selection.active.line;
 
 	const decorations: vscode.DecorationOptions[] = [];
 	for (const range of ranges.slice(0, maxDecorations)) {
+		if (range.range.start.line === activeLine) {
+			continue;
+		}
 		const scopedIndicator = range.isScoped ? ' [scoped]' : '';
-		const decorationText = `${prefix}#${range.startLine}-${range.endLine} ${range.name}${scopedIndicator}`;
+		const decorationText = `${prefix}#${range.startLine}-${range.endLine} •${range.name}${scopedIndicator}`;
 		decorations.push({
 			range: range.range,
 			renderOptions: {

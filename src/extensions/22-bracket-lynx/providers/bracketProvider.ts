@@ -35,9 +35,13 @@ export function updateBracketDecorations(editor: vscode.TextEditor): void {
 
 	const sources = getBracketDecorationSources(editor.document, brackets);
 	const color = getColor();
+	const activeLine = editor.selection.active.line;
 
 	const options: vscode.DecorationOptions[] = [];
 	for (const source of sources) {
+		if (source.range.start.line === activeLine) {
+			continue;
+		}
 		const filtered = filterContent(source.bracketHeader);
 		if (filtered.trim().length === 0) {
 			continue;

@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { updateBracketDecorations, clearBracketDecorations, disposeBracketDecorations } from './providers/bracketProvider';
 import { updateFrameworkDecorations, clearFrameworkDecorations, disposeFrameworkDecorations } from './providers/frameworkProvider';
-import { initializeToggleState, isExtensionEnabled, isEditorEnabled, isDocumentEnabled, getMenuOptions, toggleGlobal, toggleCurrentFile, changeColor as changeColorAction, refreshDecorations, resetToDefault } from './actions/toggle';
+import { initializeToggleState, isExtensionEnabled, toggleGlobal } from './actions/toggle';
 import { CONFIG_SECTION, PERFORMANCE_LIMITS } from './core/constants';
 import { getMode } from './core/config';
 import { clearDocumentCache, clearAllCache } from './core/cache';
+import { updateToolState } from '../shared/atm-control-panel/utils';
 
 const debounceTimers = new Map<string, NodeJS.Timeout>();
 
@@ -21,7 +22,7 @@ function debounce(key: string, callback: () => void, delay: number): void {
 }
 
 function updateEditor(editor: vscode.TextEditor): void {
-	if (!isExtensionEnabled() || !isEditorEnabled(editor)) {
+	if (!isExtensionEnabled()) {
 		clearBracketDecorations(editor);
 		clearFrameworkDecorations(editor);
 		return;
@@ -45,35 +46,29 @@ function scheduleUpdateByDocument(document: vscode.TextDocument): void {
 	}
 }
 
+function syncControlPanelState(): void {
+	const enabled = isExtensionEnabled();
+	updateToolState({
+		id: 'bracket-lynx',
+		name: 'Bracket Lynx',
+		icon: '$(bracket-dot)',
+		command: 'atm.bracketLynx.toggle',
+		description: enabled ? 'Active' : 'Disabled',
+		category: 'ui',
+		priority: 5,
+	});
+}
+
 export function activateBracketLynx(context: vscode.ExtensionContext): void {
 	initializeToggleState(context);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('atm.bracketLynx.toggleGlobal', toggleGlobal),
-		vscode.commands.registerCommand('atm.bracketLynx.toggleCurrentFile', toggleCurrentFile),
-		vscode.commands.registerCommand('atm.bracketLynx.changeColor', changeColorAction),
-		vscode.commands.registerCommand('atm.bracketLynx.refresh', refreshDecorations),
-		vscode.commands.registerCommand('atm.bracketLynx.resetToDefault', resetToDefault),
-		vscode.commands.registerCommand('atm.bracketLynx.menu', () => {
-			void vscode.window.showQuickPick(getMenuOptions(), {
-				placeHolder: 'Choose Bracket Lynx action...',
-			}).then((selected) => {
-				if (!selected) {
-					return;
-				}
-				const label = selected.label;
-				if (label.includes('Toggle Global')) {
-					void toggleGlobal();
-				} else if (label.includes('Toggle Current File')) {
-					void toggleCurrentFile();
-				} else if (label.includes('Change Color')) {
-					void changeColorAction();
-				} else if (label.includes('Refresh')) {
-					refreshDecorations();
-				} else if (label.includes('Restore Default')) {
-					void resetToDefault();
-				}
-			});
+		vscode.commands.registerCommand('atm.bracketLynx.toggle', async () => {
+			await toggleGlobal();
+			syncControlPanelState();
+			for (const editor of vscode.window.visibleTextEditors) {
+				updateEditor(editor);
+			}
 		}),
 	);
 
@@ -87,7 +82,7 @@ export function activateBracketLynx(context: vscode.ExtensionContext): void {
 			}
 		}),
 		vscode.workspace.onDidChangeTextDocument((event) => {
-			if (!isExtensionEnabled() || !isDocumentEnabled(event.document)) {
+			if (!isExtensionEnabled()) {
 				return;
 			}
 			clearDocumentCache(event.document);
@@ -96,7 +91,7 @@ export function activateBracketLynx(context: vscode.ExtensionContext): void {
 			}
 		}),
 		vscode.workspace.onDidOpenTextDocument((document) => {
-			if (!isExtensionEnabled() || !isDocumentEnabled(document)) {
+			if (!isExtensionEnabled()) {
 				return;
 			}
 			if (getMode() === 'auto') {
@@ -108,8 +103,12 @@ export function activateBracketLynx(context: vscode.ExtensionContext): void {
 				updateEditor(editor);
 			}
 		}),
+		vscode.window.onDidChangeTextEditorSelection((event) => {
+			updateEditor(event.textEditor);
+		}),
 	);
 
+	syncControlPanelState();
 	for (const editor of vscode.window.visibleTextEditors) {
 		updateEditor(editor);
 	}

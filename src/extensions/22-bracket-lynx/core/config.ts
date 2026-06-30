@@ -4,6 +4,8 @@ import {
 	PERFORMANCE_LIMITS,
 	DEFAULT_LANGUAGE_CONFIGURATION,
 	LANGUAGE_COMMENTS,
+	DEFAULT_COLOR,
+	DEFAULT_PREFIX,
 } from './constants';
 import type { LanguageConfiguration } from './types';
 
@@ -27,11 +29,11 @@ export function getConfig(): vscode.WorkspaceConfiguration {
 }
 
 export function getPrefix(): string {
-	return getConfig().get('prefix', '=> ');
+	return getConfig().get('prefix', DEFAULT_PREFIX);
 }
 
 export function getColor(): string {
-	return normalizeHexColor(getConfig().get('color', '#515151'));
+	return DEFAULT_COLOR;
 }
 
 export function getFontStyle(): 'normal' | 'italic' | 'bold' {
@@ -43,7 +45,7 @@ export function getFontStyle(): 'normal' | 'italic' | 'bold' {
 }
 
 export function getUnmatchBracketsPrefix(): string {
-	return getConfig().get('unmatchBracketsPrefix', 'x ');
+	return getConfig().get('unmatchBracketsPrefix', DEFAULT_PREFIX);
 }
 
 export function getMode(): 'auto' | 'manual' {

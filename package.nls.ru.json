@@ -24,11 +24,6 @@
   "command.music.togglePlayPause": "ATM Музыка: Воспроизвести/Пауза",
   "command.music.playRandomAM": "ATM Музыка: Случайная AM-станция",
   "command.atmTranslate.open": "ATM: Переводчик",
-  "command.bracketLynx.menu": "Bracket Lynx: Меню",
-  "command.bracketLynx.toggleGlobal": "Bracket Lynx: Переключить глобально",
-  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: Переключить текущий файл",
-  "command.bracketLynx.changeColor": "Bracket Lynx: Изменить цвет",
-  "command.bracketLynx.refresh": "Bracket Lynx: Обновить декорации",
-  "command.bracketLynx.resetToDefault": "Bracket Lynx: Сбросить",
+  "command.bracketLynx.toggle": "Bracket Lynx: Переключить",
   "view.music": "ATM :: Радио/Музыка · Помодоро · Данные"
 }

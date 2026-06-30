@@ -24,11 +24,6 @@
   "command.music.togglePlayPause": "ATM Music: प्ले/पॉज़",
   "command.music.playRandomAM": "ATM Music: रैंडम AM स्टेशन",
   "command.atmTranslate.open": "ATM: अनुवादक",
-  "command.bracketLynx.menu": "Bracket Lynx: मेनू",
-  "command.bracketLynx.toggleGlobal": "Bracket Lynx: वैश्विक टॉगल",
-  "command.bracketLynx.toggleCurrentFile": "Bracket Lynx: वर्तमान फ़ाइल टॉगल",
-  "command.bracketLynx.changeColor": "Bracket Lynx: रंग बदलें",
-  "command.bracketLynx.refresh": "Bracket Lynx: सजावट रीफ्रेश करें",
-  "command.bracketLynx.resetToDefault": "Bracket Lynx: रीसेट",
+  "command.bracketLynx.toggle": "Bracket Lynx: टॉगल",
   "view.music": "ATM :: रेडियो/संगीत · Pomodoro · डेटा"
 }

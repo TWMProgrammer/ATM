@@ -121,6 +121,15 @@ export function renderAdvancedTooltip(
         `**Tailwind Fold:** &nbsp; ${tailwindControls}\n\n`
     );
 
+    // Bracket Lynx controls
+    const bracketLynxEnableAction = context.isBracketLynxEnabled
+        ? `[$(circle-slash) Disable](command:${CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE} "Disable Bracket Lynx")`
+        : `[$(play) Enable](command:${CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE} "Enable Bracket Lynx")`;
+
+    md.appendMarkdown(
+        `**Bracket Lynx:** &nbsp; ${bracketLynxEnableAction}\n\n`
+    );
+
     md.appendMarkdown('---\n\n');
 
     // Layout with visual indicators
@@ -225,6 +234,15 @@ export async function showAdvancedQuickMenu(context: RenderContext): Promise<voi
         label: context.isTailwindFoldEnabled ? '$(circle-slash) Tailwind: Disable' : '$(play) Tailwind: Enable',
         description: context.isTailwindFoldEnabled ? 'Disable Tailwind Fold globally' : 'Enable Tailwind Fold globally',
         detail: 'This setting persists after restart',
+        alwaysShow: true
+    });
+
+    // Bracket Lynx controls
+    items.push({ label: '$(bracket-dot) Bracket Lynx', kind: vscode.QuickPickItemKind.Separator });
+    items.push({
+        label: context.isBracketLynxEnabled ? '$(circle-slash) Bracket Lynx: Disable' : '$(play) Bracket Lynx: Enable',
+        description: context.isBracketLynxEnabled ? 'Disable Bracket Lynx globally' : 'Enable Bracket Lynx globally',
+        detail: 'Toggle bracket decorations',
         alwaysShow: true
     });
 
@@ -369,6 +387,10 @@ async function handleAdvancedSelection(
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_AUTO_FOLD);
         } else if (selected.label.includes('Tailwind: Disable') || selected.label.includes('Tailwind: Enable')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED);
+        }
+        // Bracket Lynx selections
+        else if (selected.label.includes('Bracket Lynx: Disable') || selected.label.includes('Bracket Lynx: Enable')) {
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE);
         }
         // Audio selections
         else if (selected.label.includes('Test Current Audio')) {

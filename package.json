@@ -233,29 +233,9 @@
         "title": "Tailwind CSS: Enable/Disable"
       },
       {
-        "command": "atm.bracketLynx.menu",
-        "title": "%command.bracketLynx.menu%",
+        "command": "atm.bracketLynx.toggle",
+        "title": "%command.bracketLynx.toggle%",
         "icon": "$(bracket-dot)"
-      },
-      {
-        "command": "atm.bracketLynx.toggleGlobal",
-        "title": "%command.bracketLynx.toggleGlobal%"
-      },
-      {
-        "command": "atm.bracketLynx.toggleCurrentFile",
-        "title": "%command.bracketLynx.toggleCurrentFile%"
-      },
-      {
-        "command": "atm.bracketLynx.changeColor",
-        "title": "%command.bracketLynx.changeColor%"
-      },
-      {
-        "command": "atm.bracketLynx.refresh",
-        "title": "%command.bracketLynx.refresh%"
-      },
-      {
-        "command": "atm.bracketLynx.resetToDefault",
-        "title": "%command.bracketLynx.resetToDefault%"
       }
     ],
     "configuration": {
@@ -527,15 +507,8 @@
         },
         "atm.bracketLynx.prefix": {
           "type": "string",
-          "default": "=> ",
+          "default": "<~ ",
           "description": "Prefix shown before bracket headers."
-        },
-        "atm.bracketLynx.color": {
-          "type": "string",
-          "default": "#515151",
-          "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$",
-          "patternErrorMessage": "Please enter a valid hex color (e.g., #ff6b6b)",
-          "description": "Color used for bracket decorations."
         },
         "atm.bracketLynx.fontStyle": {
           "type": "string",
@@ -545,7 +518,7 @@
         },
         "atm.bracketLynx.unmatchBracketsPrefix": {
           "type": "string",
-          "default": "x ",
+          "default": "<~ ",
           "description": "Prefix shown for unmatched brackets."
         },
         "atm.bracketLynx.maxBracketHeaderLength": {
@@ -782,7 +755,7 @@
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
         },
         {
-          "command": "atm.bracketLynx.menu",
+          "command": "atm.bracketLynx.toggle",
           "group": "navigation@51",
           "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }

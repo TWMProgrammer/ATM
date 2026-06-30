@@ -358,7 +358,7 @@ export function getBracketDecorationSources(
 				const prefixText = context.entry.isUnmatchBrackets ? unmatchPrefix : prefix;
 				result.push({
 					range: decorationRange,
-					bracketHeader: `${prefixText}${lineNumbers}${bracketHeader}`,
+					bracketHeader: `${prefixText}${lineNumbers}•${bracketHeader}`,
 				});
 			}
 		}

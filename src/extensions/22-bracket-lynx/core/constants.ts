@@ -1,6 +1,7 @@
 import type { SupportedLanguage, ProblematicLanguage, FrameworkConfig } from './types';
 
 export const CONFIG_SECTION = 'atm.bracketLynx';
+export const DEFAULT_COLOR = '#1e3a5f';
 
 export const PERFORMANCE_LIMITS = {
 	MAX_FILE_SIZE: 5 * 1024 * 1024,
@@ -10,6 +11,8 @@ export const PERFORMANCE_LIMITS = {
 	DEBOUNCE_DELAY_MS: 150,
 	LARGE_FILE_THRESHOLD: 100 * 1024,
 } as const;
+
+export const DEFAULT_PREFIX = '<~ ';
 
 export const CACHE_CONFIG = {
 	MAX_DOCUMENT_CACHE_SIZE: 30,
