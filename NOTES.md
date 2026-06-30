@@ -7,4 +7,6 @@
 -boton play to terminal
 - button, voice read 
 
-<!-- --- -->
+<!-- --- DELETE -->
+ -.vscode-test.mjs
+ - .prettierrc
