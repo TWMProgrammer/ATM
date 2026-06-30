@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 import { parseBrackets } from '../core/parser';
 import { getCachedBrackets, setCachedBrackets, clearAllCache } from '../core/cache';
-import { getColor, getFontStyle, getMode } from '../core/config';
 import { getBracketDecorationSources, filterContent } from '../core/formatter';
-import { SUPPORTED_LANGUAGES, ALLOWED_JSON_FILES } from '../core/constants';
+import { SUPPORTED_LANGUAGES, ALLOWED_JSON_FILES, DEFAULT_COLOR, DEFAULT_FONT_STYLE } from '../core/constants';
 import { isAllowedJsonFile } from '../utils/text';
 
 const editorDecorations = new Map<vscode.TextEditor, vscode.TextEditorDecorationType>();
@@ -21,12 +20,6 @@ export function updateBracketDecorations(editor: vscode.TextEditor): void {
 		return;
 	}
 
-	const mode = getMode();
-	if (mode === 'manual') {
-		clearBracketDecorations(editor);
-		return;
-	}
-
 	let brackets = getCachedBrackets(editor.document);
 	if (!brackets) {
 		brackets = parseBrackets(editor.document);
@@ -34,7 +27,6 @@ export function updateBracketDecorations(editor: vscode.TextEditor): void {
 	}
 
 	const sources = getBracketDecorationSources(editor.document, brackets);
-	const color = getColor();
 	const activeLine = editor.selection.active.line;
 
 	const options: vscode.DecorationOptions[] = [];
@@ -51,8 +43,8 @@ export function updateBracketDecorations(editor: vscode.TextEditor): void {
 			renderOptions: {
 				after: {
 					contentText: filtered,
-					color,
-					fontStyle: getFontStyle(),
+					color: DEFAULT_COLOR,
+					fontStyle: DEFAULT_FONT_STYLE,
 				},
 			},
 		});

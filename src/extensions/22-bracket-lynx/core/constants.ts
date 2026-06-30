@@ -1,4 +1,4 @@
-import type { SupportedLanguage, ProblematicLanguage, FrameworkConfig } from './types';
+import type { SupportedLanguage, ProblematicLanguage, FrameworkConfig, LanguageConfiguration } from './types';
 
 export const CONFIG_SECTION = 'atm.bracketLynx';
 export const DEFAULT_COLOR = '#1e3a5f';
@@ -13,6 +13,7 @@ export const PERFORMANCE_LIMITS = {
 } as const;
 
 export const DEFAULT_PREFIX = '<~ ';
+export const DEFAULT_FONT_STYLE = 'italic';
 
 export const CACHE_CONFIG = {
 	MAX_DOCUMENT_CACHE_SIZE: 30,
@@ -122,3 +123,16 @@ export const EXCLUDED_SYMBOLS = [
 	'[', ']', '^', '_', '`', '{', '|', '}', '//', '---', '--', '...',
 	':', '(', ')', '=', '>', 'MARK',
 ] as const;
+
+export function getLanguageConfiguration(): LanguageConfiguration {
+	return DEFAULT_LANGUAGE_CONFIGURATION;
+}
+
+export function getLanguageSpecificConfig(languageId: string): LanguageConfiguration {
+	const baseConfig = getLanguageConfiguration();
+	const comments = LANGUAGE_COMMENTS[languageId];
+	if (comments) {
+		return { ...baseConfig, comments };
+	}
+	return baseConfig;
+}

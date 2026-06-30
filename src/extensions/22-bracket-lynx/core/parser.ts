@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { BracketEntry, HeaderMode, LanguageConfiguration, TokenEntry } from './types';
-import { getLanguageSpecificConfig, getMaxFileSize, isPerformanceFiltersEnabled } from './config';
+import { getLanguageSpecificConfig } from './constants';
 import { PERFORMANCE_LIMITS, PROBLEMATIC_EXTENSIONS, PROBLEMATIC_LANGUAGES } from './constants';
 import { isMinifiedFile } from '../utils/text';
 import { makeRegExpPart, regExpExecToArray } from '../utils/regex';
@@ -23,18 +23,10 @@ interface TokenConfig {
 }
 
 export function shouldSkipDocument(document: vscode.TextDocument): boolean {
-	if (!isPerformanceFiltersEnabled()) {
-		return false;
-	}
-
 	const text = document.getText();
 	const fileSize = text.length;
 
-	if (fileSize > getMaxFileSize()) {
-		return true;
-	}
-
-	if (fileSize > PERFORMANCE_LIMITS.MAX_FILE_SIZE * 4) {
+	if (fileSize > PERFORMANCE_LIMITS.MAX_FILE_SIZE) {
 		return true;
 	}
 

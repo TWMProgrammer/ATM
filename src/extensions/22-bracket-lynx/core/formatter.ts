@@ -1,14 +1,13 @@
 import * as vscode from 'vscode';
 import type { BracketContext, BracketEntry } from './types';
 import {
+	DEFAULT_PREFIX,
+	DEFAULT_LANGUAGE_CONFIGURATION,
+	EXCLUDED_SYMBOLS,
+	FUNCTION_SYMBOLS,
+	PERFORMANCE_LIMITS,
 	getLanguageSpecificConfig,
-	getMaxBracketHeaderLength,
-	getMaxDecorationsPerFile,
-	getMinBracketScopeLines,
-	getPrefix,
-	getUnmatchBracketsPrefix,
-} from './config';
-import { EXCLUDED_SYMBOLS, FUNCTION_SYMBOLS } from './constants';
+} from './constants';
 import { escapeRegExp, normalizeWhitespace, truncateText } from '../utils/text';
 import { nextCharacter, nextLine, maxPosition, minPosition } from '../utils/position';
 
@@ -243,7 +242,7 @@ function getBeforeHeader(
 	regulateHeader: (text: string) => string,
 	isValidHeader: (text: string) => boolean,
 ): string | null {
-	const terminators = getLanguageSpecificConfig(document.languageId).terminators ?? [];
+	const terminators = getLanguageSpecificConfig(document.languageId).terminators ?? DEFAULT_LANGUAGE_CONFIGURATION.terminators;
 	const topLimit =
 		context.previousEntry?.end.position ??
 		(context.parentEntry
@@ -296,7 +295,7 @@ function getInnerHeader(
 }
 
 function getBracketHeader(document: vscode.TextDocument, context: BracketContext): string {
-	const maxLength = getMaxBracketHeaderLength();
+	const maxLength = PERFORMANCE_LIMITS.MAX_HEADER_LENGTH;
 	const regulateHeader = (text: string): string => {
 		let result = normalizeWhitespace(text);
 		result = formatContext(result, document.languageId);
@@ -327,10 +326,10 @@ export function getBracketDecorationSources(
 	document: vscode.TextDocument,
 	brackets: BracketEntry[],
 ): { range: vscode.Range; bracketHeader: string }[] {
-	const prefix = getPrefix();
-	const unmatchPrefix = getUnmatchBracketsPrefix();
-	const minLines = getMinBracketScopeLines();
-	const maxDecorations = getMaxDecorationsPerFile();
+	const prefix = DEFAULT_PREFIX;
+	const unmatchPrefix = DEFAULT_PREFIX;
+	const minLines = PERFORMANCE_LIMITS.MIN_BRACKET_SCOPE_LINES;
+	const maxDecorations = PERFORMANCE_LIMITS.MAX_DECORATIONS_PER_FILE;
 	const result: { range: vscode.Range; bracketHeader: string }[] = [];
 
 	function getLineNumbers(entry: BracketEntry): string {

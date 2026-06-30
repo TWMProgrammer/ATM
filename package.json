@@ -502,64 +502,6 @@
           "type": "boolean",
           "default": true,
           "description": "Enable Bracket Lynx decorations globally."
-        },
-        "atm.bracketLynx.mode": {
-          "type": "string",
-          "enum": ["auto", "manual"],
-          "default": "auto",
-          "description": "Update mode for bracket decorations."
-        },
-        "atm.bracketLynx.prefix": {
-          "type": "string",
-          "default": "<~ ",
-          "description": "Prefix shown before bracket headers."
-        },
-        "atm.bracketLynx.fontStyle": {
-          "type": "string",
-          "enum": ["normal", "italic", "bold"],
-          "default": "italic",
-          "description": "Font style for bracket decorations."
-        },
-        "atm.bracketLynx.unmatchBracketsPrefix": {
-          "type": "string",
-          "default": "<~ ",
-          "description": "Prefix shown for unmatched brackets."
-        },
-        "atm.bracketLynx.maxBracketHeaderLength": {
-          "type": "number",
-          "default": 50,
-          "minimum": 10,
-          "maximum": 200,
-          "description": "Maximum length of bracket header text."
-        },
-        "atm.bracketLynx.minBracketScopeLines": {
-          "type": "number",
-          "default": 4,
-          "minimum": 1,
-          "maximum": 50,
-          "description": "Minimum number of lines for bracket scope to show decoration."
-        },
-        "atm.bracketLynx.enablePerformanceFilters": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable performance filters for large files."
-        },
-        "atm.bracketLynx.maxFileSize": {
-          "type": "number",
-          "default": 5242880,
-          "description": "Maximum file size in bytes for Bracket Lynx to process."
-        },
-        "atm.bracketLynx.maxDecorationsPerFile": {
-          "type": "number",
-          "default": 300,
-          "minimum": 50,
-          "maximum": 2000,
-          "description": "Maximum number of decorations per file."
-        },
-        "atm.bracketLynx.debug": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable debug logging for Bracket Lynx."
         }
       }
     },

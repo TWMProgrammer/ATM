@@ -3,7 +3,6 @@ import { updateBracketDecorations, clearBracketDecorations, disposeBracketDecora
 import { updateFrameworkDecorations, clearFrameworkDecorations, disposeFrameworkDecorations } from './providers/frameworkProvider';
 import { initializeToggleState, isExtensionEnabled, toggleGlobal } from './actions/toggle';
 import { CONFIG_SECTION, PERFORMANCE_LIMITS } from './core/constants';
-import { getMode } from './core/config';
 import { clearDocumentCache, clearAllCache } from './core/cache';
 import { updateToolState } from '../shared/atm-control-panel/utils';
 
@@ -86,17 +85,13 @@ export function activateBracketLynx(context: vscode.ExtensionContext): void {
 				return;
 			}
 			clearDocumentCache(event.document);
-			if (getMode() === 'auto') {
-				scheduleUpdateByDocument(event.document);
-			}
+			scheduleUpdateByDocument(event.document);
 		}),
 		vscode.workspace.onDidOpenTextDocument((document) => {
 			if (!isExtensionEnabled()) {
 				return;
 			}
-			if (getMode() === 'auto') {
-				scheduleUpdateByDocument(document);
-			}
+			scheduleUpdateByDocument(document);
 		}),
 		vscode.window.onDidChangeActiveTextEditor((editor) => {
 			if (editor) {

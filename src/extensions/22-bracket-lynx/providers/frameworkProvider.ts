@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { FRAMEWORK_CONFIGS } from '../core/constants';
-import { getColor, getFontStyle, getMaxDecorationsPerFile, getMinBracketScopeLines, getPrefix } from '../core/config';
+import { FRAMEWORK_CONFIGS, DEFAULT_COLOR, DEFAULT_FONT_STYLE, DEFAULT_PREFIX, PERFORMANCE_LIMITS } from '../core/constants';
 import type { ComponentRange, FrameworkConfig } from '../core/types';
 
 const editorDecorations = new Map<vscode.TextEditor, vscode.TextEditorDecorationType>();
@@ -53,7 +52,7 @@ function hasSignificantContent(lines: readonly string[], startIndex: number, end
 function findComponentRanges(lines: readonly string[], config: FrameworkConfig): ComponentRange[] {
 	const stack: { name: string; startLine: number }[] = [];
 	const ranges: ComponentRange[] = [];
-	const minLines = Math.max(1, getMinBracketScopeLines() - 2);
+	const minLines = Math.max(1, PERFORMANCE_LIMITS.MIN_BRACKET_SCOPE_LINES - 2);
 
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
@@ -117,10 +116,8 @@ export function updateFrameworkDecorations(editor: vscode.TextEditor): void {
 	const lines = text.split('\n');
 	const ranges = findComponentRanges(lines, config);
 
-	const prefix = getPrefix();
-	const color = getColor();
-	const fontStyle = getFontStyle();
-	const maxDecorations = getMaxDecorationsPerFile();
+	const prefix = DEFAULT_PREFIX;
+	const maxDecorations = PERFORMANCE_LIMITS.MAX_DECORATIONS_PER_FILE;
 	const activeLine = editor.selection.active.line;
 
 	const decorations: vscode.DecorationOptions[] = [];
@@ -135,8 +132,8 @@ export function updateFrameworkDecorations(editor: vscode.TextEditor): void {
 			renderOptions: {
 				after: {
 					contentText: decorationText,
-					color,
-					fontStyle,
+					color: DEFAULT_COLOR,
+					fontStyle: DEFAULT_FONT_STYLE,
 				},
 			},
 		});
