@@ -494,6 +494,10 @@
           "maximum": 1.0,
           "description": "Volume level (0.0 to 1.0)"
         },
+
+
+
+
         "atm.bracketLynx.globalEnabled": {
           "type": "boolean",
           "default": true,
