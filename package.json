@@ -73,7 +73,18 @@
   },
   "activationEvents": [
     "onStartupFinished",
-    "onLanguage:dotenv"
+    "onLanguage:dotenv",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact",
+    "onLanguage:html",
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:vue",
+    "onLanguage:astro",
+    "onLanguage:svelte",
+    "onLanguage:json"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -220,6 +231,11 @@
       {
         "command": "tailwind-css.toggleEnabled",
         "title": "Tailwind CSS: Enable/Disable"
+      },
+      {
+        "command": "atm.bracketLynx.toggle",
+        "title": "%command.bracketLynx.toggle%",
+        "icon": "$(bracket-dot)"
       }
     ],
     "configuration": {
@@ -477,6 +493,15 @@
           "minimum": 0.0,
           "maximum": 1.0,
           "description": "Volume level (0.0 to 1.0)"
+        },
+
+
+
+
+        "atm.bracketLynx.globalEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Bracket Lynx decorations globally."
         }
       }
     },
@@ -674,6 +699,11 @@
           "command": "envLens.enableBlur",
           "group": "navigation@50",
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
+        },
+        {
+          "command": "atm.bracketLynx.toggle",
+          "group": "navigation@51",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }
       ],
       "extension/context": [

@@ -24,5 +24,6 @@
   "command.music.togglePlayPause": "ATM 音乐：播放/暂停",
   "command.music.playRandomAM": "ATM 音乐：随机 AM 电台",
   "command.atmTranslate.open": "ATM：翻译器",
+  "command.bracketLynx.toggle": "Bracket Lynx: 切换",
   "view.music": "ATM :: 无线电/音乐 · 番茄钟 · 数据"
 }

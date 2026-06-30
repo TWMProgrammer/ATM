@@ -24,5 +24,6 @@
   "command.music.togglePlayPause": "ATM 音楽: 再生/一時停止",
   "command.music.playRandomAM": "ATM 音楽: ランダムAM局",
   "command.atmTranslate.open": "ATM: 翻訳",
+  "command.bracketLynx.toggle": "Bracket Lynx: 切り替え",
   "view.music": "ATM :: ラジオ/音楽 · ポモドーロ · データ"
 }

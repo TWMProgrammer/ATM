@@ -24,5 +24,6 @@
   "command.music.togglePlayPause": "ATM Music: Play/Pause",
   "command.music.playRandomAM": "ATM Music: Random AM Station",
   "command.atmTranslate.open": "ATM: Translator",
+  "command.bracketLynx.toggle": "Bracket Lynx: Toggle",
   "view.music": "ATM :: Radio/Music · Pomodoro · Data"
 }

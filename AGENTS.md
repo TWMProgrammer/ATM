@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-ATM is a TypeScript VS Code extension. The activation entry point is `src/extension.ts`; feature modules live under `src/extensions/` such as `11-image-preview`, `13-markdown-mdx`, `10-git-better`, `02-atm-lint`, `09-focus`, and `21-atm-translate`. Editor setting integrations live in `src/settings/`. Tests are in `src/__test__/` using `*.test.ts`. Static docs, screenshots, videos, and localized README files are under `public/`; marketplace strings are in `package.nls*.json`. Build output is generated in `dist/` and is not source.
+ATM is a TypeScript VS Code extension. The activation entry point is `src/extension.ts`; feature modules live under `src/extensions/` such as `11-image-preview`, `13-markdown-mdx`, `10-git-better`, `02-atm-lint`, `09-focus`, `21-atm-translate`, and `22-bracket-lynx`. Editor setting integrations live in `src/settings/`. Tests are in `src/__test__/` using `*.test.ts`. Static docs, screenshots, videos, and localized README files are under `public/`; marketplace strings are in `package.nls*.json`. Build output is generated in `dist/` and is not source.
 
 ### ATM Translate Architecture
 

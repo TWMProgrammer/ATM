@@ -69,6 +69,14 @@ export function renderMinimalTooltip(
         `**T-Fold:** &nbsp; ${tailwindControls}\n\n`
     );
 
+    // Bracket Lynx - compact control
+    const bracketLynxAction = context.isBracketLynxEnabled
+        ? `[$(circle-slash) Disable](command:${CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE})`
+        : `[$(play) Enable](command:${CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE})`;
+    md.appendMarkdown(
+        `**Brackets:** &nbsp; ${bracketLynxAction}\n\n`
+    );
+
     md.appendMarkdown('---\n\n');
 
     // Layout - Simple indicator
@@ -162,6 +170,15 @@ export async function showMinimalQuickMenu(context: RenderContext): Promise<void
         label: context.isTailwindFoldEnabled ? '$(circle-slash) Tailwind Disable' : '$(play) Tailwind Enable',
         description: context.isTailwindFoldEnabled ? 'Disable globally' : 'Enable globally',
         detail: 'Persists after restart',
+        alwaysShow: true
+    });
+
+    // Bracket Lynx
+    items.push({ label: '$(bracket-dot) Bracket Lynx', kind: vscode.QuickPickItemKind.Separator });
+    items.push({
+        label: context.isBracketLynxEnabled ? '$(circle-slash) Bracket Lynx Disable' : '$(play) Bracket Lynx Enable',
+        description: context.isBracketLynxEnabled ? 'Disable globally' : 'Enable globally',
+        detail: 'Toggle bracket decorations',
         alwaysShow: true
     });
 
@@ -270,6 +287,10 @@ async function handleMinimalSelection(
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_AUTO_FOLD);
         } else if (selected.label.includes('Tailwind Disable') || selected.label.includes('Tailwind Enable')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED);
+        }
+        // Bracket Lynx
+        else if (selected.label.includes('Bracket Lynx Disable') || selected.label.includes('Bracket Lynx Enable')) {
+            await vscode.commands.executeCommand(CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE);
         }
         // Layout
         else if (selected.label.includes('Normal') && selected.label.includes('Layout') === false) {

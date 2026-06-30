@@ -22,6 +22,7 @@ import { activateGlobalStatusBar } from './shared/shared';
 import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
 import { activateAtmTranslate } from './21-atm-translate';
+import { activateBracketLynx } from './22-bracket-lynx';
 
 /**
  * Register all sub-extensions here.
@@ -57,4 +58,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   activateTailwindFold(context).catch((error) => {
     console.error('[tailwind-css] Activation error:', error);
   });
+  activateBracketLynx(context);
 }

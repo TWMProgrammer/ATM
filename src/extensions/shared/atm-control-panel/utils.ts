@@ -57,6 +57,7 @@ export interface RenderContext {
     isTerminalSoundEnabled: boolean;
     isTailwindFoldEnabled: boolean;
     isTailwindAutoFold: boolean;
+    isBracketLynxEnabled: boolean;
     extensionContext: vscode.ExtensionContext;
 }
 
@@ -73,9 +74,11 @@ export const CONSTANTS = {
         REFRESH_TOOLS: 'atm.refreshTools',
         TERMINAL_SOUND_TEST_AUDIO: 'atm.terminalSound.testAudio',
         TERMINAL_SOUND_TOGGLE_MUTE: 'atm.terminalSound.toggleMute',
-        TAILWIND_TOGGLE_AUTO_FOLD: 'tailwind-css.toggleAutoFold',
-        TAILWIND_TOGGLE_ENABLED: 'tailwind-css.toggleEnabled'
-    },
+		TAILWIND_TOGGLE_AUTO_FOLD: 'tailwind-css.toggleAutoFold',
+		TAILWIND_TOGGLE_ENABLED: 'tailwind-css.toggleEnabled',
+		BRACKET_LYNX_TOGGLE: 'atm.bracketLynx.toggle',
+		BRACKET_LYNX_CONTROL_PANEL_TOGGLE: 'atm.controlPanel.bracketLynxToggle'
+	},
     LAYOUTS: {
         NORMAL: { 
             sideBarLocation: 'left', 
@@ -153,7 +156,8 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
                 if (e.affectsConfiguration('workbench.sideBar.location') || 
                     e.affectsConfiguration('workbench.activityBar.location') ||
                     e.affectsConfiguration('tailwind-css.enabled') ||
-                    e.affectsConfiguration('tailwind-css.autoFold')) {
+                    e.affectsConfiguration('tailwind-css.autoFold') ||
+                    e.affectsConfiguration('atm.bracketLynx.globalEnabled')) {
                     scheduleRender();
                 }
             })
@@ -179,23 +183,40 @@ function registerCommands(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT, toggleCompactMode),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS, handleRefreshTools),
         vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TEST_AUDIO, testTerminalSoundAudio),
-        vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE, toggleTerminalSoundMute)
+        vscode.commands.registerCommand(CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE, toggleTerminalSoundMute),
+        vscode.commands.registerCommand(CONSTANTS.COMMANDS.BRACKET_LYNX_CONTROL_PANEL_TOGGLE, toggleBracketLynx)
     );
+}
+
+/**
+ * Toggles Bracket Lynx state
+ */
+async function toggleBracketLynx(): Promise<void> {
+    try {
+        await vscode.commands.executeCommand('atm.bracketLynx.toggle');
+    } catch (error) {
+        console.error('[ATM] Failed to toggle Bracket Lynx:', error);
+        vscode.window.showErrorMessage('Failed to toggle Bracket Lynx');
+    }
 }
 
 /**
  * Registers or updates a tool in the status bar registry
  */
 export function updateToolState(state: ToolState): void {
-    if (!isValidToolState(state)) {
-        console.error('[ATM] Invalid tool state:', state);
-        throw new Error(`Invalid tool state: missing required fields`);
-    }
+	if (!isValidToolState(state)) {
+		console.error('[ATM] Invalid tool state:', state);
+		throw new Error(`Invalid tool state: missing required fields`);
+	}
 
-    const isNewTool = !toolRegistry.has(state.id);
-    const previousState = toolRegistry.get(state.id);
-    toolRegistry.set(state.id, state);
-    scheduleRender();
+	if (state.id === 'bracket-lynx') {
+		state = { ...state, command: CONSTANTS.COMMANDS.BRACKET_LYNX_CONTROL_PANEL_TOGGLE };
+	}
+
+	const isNewTool = !toolRegistry.has(state.id);
+	const previousState = toolRegistry.get(state.id);
+	toolRegistry.set(state.id, state);
+	scheduleRender();
     
     if (isNewTool) {
         console.log(`[ATM] Tool registered: ${state.name} (${state.id})`);
@@ -600,8 +621,10 @@ function generateStateHash(): string {
     const tailwindConfig = vscode.workspace.getConfiguration('tailwind-css');
     const isTailwindFoldEnabled = tailwindConfig.get<boolean>('enabled', true);
     const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
+    const bracketLynxConfig = vscode.workspace.getConfiguration('atm.bracketLynx');
+    const isBracketLynxEnabled = bracketLynxConfig.get<boolean>('globalEnabled', true);
     const toolIds = Array.from(toolRegistry.keys()).sort().join(',');
-    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentTerminalSoundAudioIndex}:${isTerminalSoundEnabled}:${isTailwindFoldEnabled}:${isTailwindAutoFold}`;
+    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentTerminalSoundAudioIndex}:${isTerminalSoundEnabled}:${isTailwindFoldEnabled}:${isTailwindAutoFold}:${isBracketLynxEnabled}`;
 }
 
 /**
@@ -620,6 +643,8 @@ function getRenderContext(): RenderContext {
     const tailwindConfig = vscode.workspace.getConfiguration('tailwind-css');
     const isTailwindFoldEnabled = tailwindConfig.get<boolean>('enabled', true);
     const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
+    const bracketLynxConfig = vscode.workspace.getConfiguration('atm.bracketLynx');
+    const isBracketLynxEnabled = bracketLynxConfig.get<boolean>('globalEnabled', true);
     return {
         toolRegistry,
         isPro: checkIsPro(),
@@ -627,6 +652,7 @@ function getRenderContext(): RenderContext {
         isTerminalSoundEnabled,
         isTailwindFoldEnabled,
         isTailwindAutoFold,
+        isBracketLynxEnabled,
         extensionContext
     };
 }
