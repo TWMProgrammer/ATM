@@ -20,6 +20,6 @@ export async function toggleGlobal(): Promise<void> {
 	await config.update(GLOBAL_ENABLED_KEY, !current, vscode.ConfigurationTarget.Global);
 
 	vscode.window.showInformationMessage(
-		current ? 'Bracket Lynx disabled' : 'Bracket Lynx enabled',
+		current ? 'Bracket Lynx disabled ❌' : 'Bracket Lynx enabled ✅',
 	);
 }
