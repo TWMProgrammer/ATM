@@ -6,6 +6,18 @@ import * as crypto from 'crypto';
 const execAsync = promisify(exec);
 import * as https from 'https';
 
+const GIT_HASH_RE = /^[0-9a-f]{4,40}$/i;
+
+/** Rejects anything that isn't a plain hex commit hash before it reaches a shell string. */
+function isValidCommitHash(hash: string): boolean {
+    return GIT_HASH_RE.test(hash);
+}
+
+/** Rejects non-integer or out-of-range pagination values before they reach a shell string. */
+function isValidPagingValue(value: number, max: number): boolean {
+    return Number.isInteger(value) && value >= 0 && value <= max;
+}
+
 function fetchGithubAvatar(owner: string, repo: string, hash: string): Promise<string | null> {
     return new Promise((resolve) => {
         const options = {
@@ -131,6 +143,10 @@ export class GraphGitService {
      * Get detailed commit data for a specific hash (for Inspect panel).
      */
     public static async getCommitByHash(commitHash: string): Promise<any | null> {
+        if (!isValidCommitHash(commitHash)) {
+            return null;
+        }
+
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length === 0) {
             return null;
@@ -212,6 +228,10 @@ export class GraphGitService {
      * Returns an array mapping commit metrics oldest-to-newest.
      */
     public static async getGraphicsTimeline(limit: number = 30): Promise<any[] | null> {
+        if (!isValidPagingValue(limit, 500) || limit === 0) {
+            return null;
+        }
+
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length === 0) {
             return null;
@@ -334,6 +354,10 @@ export class GraphGitService {
      * @param limit Number of commits to fetch per page
      */
     public static async getCommitPage(skip: number = 0, limit: number = 25): Promise<any[] | null> {
+        if (!isValidPagingValue(skip, 100000) || !isValidPagingValue(limit, 500) || limit === 0) {
+            return null;
+        }
+
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length === 0) {
             return null;
