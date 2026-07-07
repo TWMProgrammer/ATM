@@ -32,7 +32,7 @@ export class GitBetterManager implements vscode.Disposable {
                 if (hash) {
                     vscode.env.clipboard.writeText(hash);
                     vscode.window.setStatusBarMessage(
-                        `$(check) Commit ${hash.substring(0, 7)} copied!`,
+                        vscode.l10n.t('$(check) Commit {0} copied!', hash.substring(0, 7)),
                         3000
                     );
                     this.blameDecorator.setCopiedHash(hash);
@@ -49,7 +49,7 @@ export class GitBetterManager implements vscode.Disposable {
                     await vscode.env.openExternal(vscode.Uri.parse(url));
                 } else {
                     vscode.window.showErrorMessage(
-                        'Could not determine GitHub URL for this repository.'
+                        vscode.l10n.t('Could not determine GitHub URL for this repository.')
                     );
                 }
             }),
@@ -57,7 +57,7 @@ export class GitBetterManager implements vscode.Disposable {
             vscode.commands.registerCommand('git-better.toggleBlame', () => {
                 const enabled = this.blameDecorator.toggleEnabled();
                 vscode.window.setStatusBarMessage(
-                    `$(git-commit) Inline blame ${enabled ? 'enabled' : 'disabled'}`,
+                    vscode.l10n.t('$(git-commit) Inline blame {0}', enabled ? 'enabled' : 'disabled'),
                     3000
                 );
             }),

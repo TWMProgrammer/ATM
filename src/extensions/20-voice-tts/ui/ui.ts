@@ -177,7 +177,7 @@ async function handleDeleteVoice(
   item: VoiceItem,
 ): Promise<void> {
   const confirm = await vscode.window.showWarningMessage(
-    `Remove voice "${item.preset.label}"?`,
+    vscode.l10n.t('Remove voice "{0}"?', item.preset.label),
     { modal: true },
     'Remove',
   );
@@ -203,7 +203,7 @@ async function handleDeleteVoice(
     qp.busy = false;
 
     vscode.window.showInformationMessage(
-      `Voice "${item.preset.label}" removed.`,
+      vscode.l10n.t('Voice "{0}" removed.', item.preset.label),
     );
   } catch (error) {
     vscode.window.showErrorMessage(
@@ -235,7 +235,7 @@ async function executeVoiceDownload(
     const voiceEntry = lookupVoice(catalog, voiceId);
     if (!voiceEntry) {
       vscode.window.showErrorMessage(
-        `Voice "${voiceId}" not found in catalog.`,
+        vscode.l10n.t('Voice "{0}" not found in catalog.', voiceId),
       );
       return;
     }
@@ -243,7 +243,7 @@ async function executeVoiceDownload(
     const urls = resolveDownloadUrls(voiceEntry);
     if (!urls) {
       vscode.window.showErrorMessage(
-        `Could not resolve download URLs for "${voiceId}".`,
+        vscode.l10n.t('Could not resolve download URLs for "{0}".', voiceId),
       );
       return;
     }
@@ -306,7 +306,7 @@ async function executeVoiceDownload(
     updateVoiceStatusBar(context);
 
     vscode.window.showInformationMessage(
-      `Voice "${voiceId}" downloaded and set as current voice.`,
+      vscode.l10n.t('Voice "{0}" downloaded and set as current voice.', voiceId),
     );
   } catch (error) {
     console.error('[voice-tts] Download error:', error);

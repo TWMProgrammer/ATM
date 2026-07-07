@@ -378,7 +378,7 @@ async function handleAdvancedSelection(
         // Quick actions
         else if (selected.label.includes('Refresh Tools')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.REFRESH_TOOLS);
-            vscode.window.showInformationMessage('✓ ATM: Tools refreshed successfully');
+            vscode.window.showInformationMessage(vscode.l10n.t('✓ ATM: Tools refreshed successfully'));
         } else if (selected.label.includes('Compact Mode')) {
             await vscode.commands.executeCommand(CONSTANTS.COMMANDS.TOGGLE_COMPACT);
         } 
@@ -407,7 +407,7 @@ async function handleAdvancedSelection(
         }
     } catch (error) {
         console.error('[ATM] Error executing command:', error);
-        vscode.window.showErrorMessage(`$(error) ATM: Failed to execute command`);
+        vscode.window.showErrorMessage(vscode.l10n.t(`$(error) ATM: Failed to execute command`));
     }
 }
 
@@ -444,13 +444,13 @@ async function showToolInfo(tool: ToolState): Promise<void> {
     if (action === '$(play) Execute') {
         try {
             await vscode.commands.executeCommand(tool.command);
-            vscode.window.showInformationMessage(`✓ Executed: ${tool.name}`);
+            vscode.window.showInformationMessage(vscode.l10n.t('✓ Executed: {0}', tool.name));
         } catch (error) {
-            vscode.window.showErrorMessage(`✗ Failed to execute: ${tool.name}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('✗ Failed to execute: {0}', tool.name));
         }
     } else if (action === '$(copy) Copy Command') {
         await vscode.env.clipboard.writeText(tool.command);
-        vscode.window.showInformationMessage(`✓ Command copied to clipboard`);
+        vscode.window.showInformationMessage(vscode.l10n.t(`✓ Command copied to clipboard`));
     } else if (action === '$(info) More Info') {
         const outputChannel = vscode.window.createOutputChannel('ATM Tool Info');
         outputChannel.clear();

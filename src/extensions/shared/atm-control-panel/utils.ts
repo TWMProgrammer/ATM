@@ -196,7 +196,7 @@ async function toggleBracketLynx(): Promise<void> {
         await vscode.commands.executeCommand('atm.bracketLynx.toggle');
     } catch (error) {
         console.error('[ATM] Failed to toggle Bracket Lynx:', error);
-        vscode.window.showErrorMessage('Failed to toggle Bracket Lynx');
+        vscode.window.showErrorMessage(vscode.l10n.t('Failed to toggle Bracket Lynx'));
     }
 }
 
@@ -275,7 +275,7 @@ async function handleStatusBarClick(): Promise<void> {
  */
 function handleRefreshTools(): void {
     scheduleRender();
-    vscode.window.showInformationMessage('✓ ATM: Tools refreshed successfully');
+    vscode.window.showInformationMessage(vscode.l10n.t('✓ ATM: Tools refreshed successfully'));
 }
 
 /**
@@ -317,7 +317,7 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
         console.log(`[ATM] Layout applied: ${layout.displayName}`);
     } catch (error) {
         console.error('[ATM] Failed to apply layout:', error);
-        vscode.window.showErrorMessage(`Failed to apply ${layout.displayName}`);
+        vscode.window.showErrorMessage(vscode.l10n.t('Failed to apply {0}', layout.displayName));
     }
 }
 
@@ -353,7 +353,7 @@ async function testTerminalSoundAudio(): Promise<void> {
         console.log('[ATM] Terminal Sound audio test triggered');
     } catch (error) {
         console.error('[ATM] Failed to test Terminal Sound audio:', error);
-        vscode.window.showWarningMessage('Could not test audio. Make sure Terminal Sound extension is active.');
+        vscode.window.showWarningMessage(vscode.l10n.t('Could not test audio. Make sure Terminal Sound extension is active.'));
     }
 }
 
@@ -365,7 +365,7 @@ async function toggleTerminalSoundMute(): Promise<void> {
     const isCurrentlyEnabled = config.get<boolean>('enabled', true);
     await config.update('enabled', !isCurrentlyEnabled, vscode.ConfigurationTarget.Global);
     scheduleRender();
-    vscode.window.showInformationMessage(`Terminal Audio ${isCurrentlyEnabled ? 'Muted' : 'Unmuted'}`);
+    vscode.window.showInformationMessage(vscode.l10n.t('Terminal Audio {0}', isCurrentlyEnabled ? 'Muted' : 'Unmuted'));
 }
 
 /**

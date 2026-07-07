@@ -170,7 +170,7 @@ function setupOptimizeCommand(): vscode.Disposable {
   return vscode.commands.registerCommand('atm.svgBetter.optimize', async () => {
     const editor = vscode.window.activeTextEditor;
     if (!editor || !isSvgFile(editor.document.uri)) {
-      vscode.window.showErrorMessage('No SVG file is currently active.');
+      vscode.window.showErrorMessage(vscode.l10n.t('No SVG file is currently active.'));
       return;
     }
 
@@ -184,11 +184,11 @@ function setupOptimizeCommand(): vscode.Disposable {
         await applyOptimization(document, resultData);
         showOptimizationResult(svgContent, resultData);
       } else {
-        vscode.window.showErrorMessage('Failed to optimize SVG: Unknown error.');
+        vscode.window.showErrorMessage(vscode.l10n.t('Failed to optimize SVG: Unknown error.'));
       }
     } catch (error) {
       vscode.window.showErrorMessage(
-        `Failed to optimize SVG: ${error instanceof Error ? error.message : String(error)}`
+        vscode.l10n.t('Failed to optimize SVG: {0}', error instanceof Error ? error.message : String(error))
       );
     }
   });
@@ -254,7 +254,7 @@ function showOptimizationResult(originalContent: string, optimizedContent: strin
   const optimizedKB = (optimizedSize / 1024).toFixed(2);
 
   vscode.window.showInformationMessage(
-    `SVG optimized. Reduced from ${originalKB} KB to ${optimizedKB} KB (${savingPercent}% saved)`
+    vscode.l10n.t('SVG optimized. Reduced from {0} KB to {1} KB ({2}% saved)', originalKB, optimizedKB, savingPercent)
   );
 }
 

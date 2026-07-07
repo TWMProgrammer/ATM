@@ -68,7 +68,7 @@ export function openScreenshotPanel(extensionUri: vscode.Uri, payload?: { image?
           vscode.env.openExternal(vscode.Uri.parse(message.url));
           return;
         case 'error':
-          vscode.window.showErrorMessage(`Screenshot Error: ${message.text}`);
+          vscode.window.showErrorMessage(vscode.l10n.t('Screenshot Error: {0}', message.text));
           return;
         case 'requestData':
           try {
@@ -441,10 +441,10 @@ async function handleSaveImage(dataBase64: string, ext: string = 'jpg') {
     if (uri) {
       const buffer = Buffer.from(base64Data, 'base64');
       await vscode.workspace.fs.writeFile(uri, buffer);
-      vscode.window.showInformationMessage('Screenshot saved successfully! 📸');
+      vscode.window.showInformationMessage(vscode.l10n.t('Screenshot saved successfully! 📸'));
     }
   } catch (error) {
-    vscode.window.showErrorMessage('Failed to save the screenshot.');
+    vscode.window.showErrorMessage(vscode.l10n.t('Failed to save the screenshot.'));
     console.error('[ATM-Data Screenshot]', error);
   }
 }
