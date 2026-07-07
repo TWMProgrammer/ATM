@@ -22,12 +22,12 @@ export class MdxPreviewManager {
   public showPreview() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
-      vscode.window.showErrorMessage('No active MDX document to preview.');
+      vscode.window.showErrorMessage(vscode.l10n.t('No active MDX document to preview.'));
       return;
     }
 
     if (editor.document.languageId !== 'mdx') {
-      vscode.window.showErrorMessage('Active document is not an MDX file.');
+      vscode.window.showErrorMessage(vscode.l10n.t('Active document is not an MDX file.'));
       return;
     }
 

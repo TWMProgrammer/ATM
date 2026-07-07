@@ -143,14 +143,14 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         }
 
         if (enabledChanged) {
-            vscode.window.showInformationMessage("🔄 You need to refresh | Tailwind CSS enabled");
+            vscode.window.showInformationMessage(vscode.l10n.t("🔄 You need to refresh | Tailwind CSS enabled"));
         }
     });
 
     // Register commands
     const toggleCommand = vscode.commands.registerCommand(COMMAND_TOGGLE_AUTO_FOLD, () => {
         if (!isEnabled || !decorator) {
-            vscode.window.showInformationMessage("Tailwind CSS is disabled.");
+            vscode.window.showInformationMessage(vscode.l10n.t("Tailwind CSS is disabled."));
             return;
         }
 
@@ -165,12 +165,12 @@ export async function activateTailwindFold(context: vscode.ExtensionContext) {
         if (isEnabled) {
             startRuntime();
             await decorator?.loadConfig();
-            vscode.window.showInformationMessage("🔄 You need to refresh | Tailwind CSS enabled");
+            vscode.window.showInformationMessage(vscode.l10n.t("🔄 You need to refresh | Tailwind CSS enabled"));
             return;
         }
 
         stopRuntime();
-        vscode.window.showInformationMessage("Tailwind CSS disabled. You can enable it again from Settings.");
+        vscode.window.showInformationMessage(vscode.l10n.t("Tailwind CSS disabled. You can enable it again from Settings."));
     });
 
     if (isEnabled) {

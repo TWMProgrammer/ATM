@@ -13,7 +13,7 @@ export function activateCommands(
 
         // If we are in "missing-config" state, clicking just shows the explanation message
         if (state.isEnabled && state.status === 'missing-config') {
-            vscode.window.showInformationMessage(`ATMLint: No ESLint configuration found for this project.`);
+            vscode.window.showInformationMessage(vscode.l10n.t(`ATMLint: No ESLint configuration found for this project.`));
             return;
         }
 
@@ -28,17 +28,17 @@ export function activateCommands(
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             updateStatusBar(isClientEnabled(), state.status);
-            vscode.window.showErrorMessage(`ATM Lint toggle failed: ${errorMessage}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('ATM Lint toggle failed: {0}', errorMessage));
         }
     });
 
     const revalidateCommand = vscode.commands.registerCommand('atm.lint.revalidateOpenFiles', async () => {
         try {
             const revalidatedDocuments = await revalidateDiagnostics();
-            vscode.window.showInformationMessage(`ATM Lint revalidated ${revalidatedDocuments} open file(s).`);
+            vscode.window.showInformationMessage(vscode.l10n.t('ATM Lint revalidated {0} open file(s).', revalidatedDocuments));
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            vscode.window.showErrorMessage(`ATM Lint revalidation failed: ${errorMessage}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('ATM Lint revalidation failed: {0}', errorMessage));
         }
     });
 

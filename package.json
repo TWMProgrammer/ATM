@@ -480,7 +480,7 @@
           "type": "number",
           "default": 1500,
           "minimum": 0,
-          "maximum": 10000,
+          "maximum": 1e4,
           "description": "Debounce time in milliseconds (per terminal)"
         },
         "terminalSound.customSoundPath": {
@@ -490,15 +490,11 @@
         },
         "terminalSound.volume": {
           "type": "number",
-          "default": 1.0,
-          "minimum": 0.0,
-          "maximum": 1.0,
+          "default": 1,
+          "minimum": 0,
+          "maximum": 1,
           "description": "Volume level (0.0 to 1.0)"
         },
-
-
-
-
         "atm.bracketLynx.globalEnabled": {
           "type": "boolean",
           "default": true,
@@ -561,20 +557,20 @@
         }
       }
     ],
-	    "keybindings": [
-	      {
-	        "command": "-workbench.action.gotoLine",
-	        "key": "ctrl+g",
-	        "mac": "ctrl+g"
-	      },
-	      {
-	        "command": "atm.translate.open",
-	        "key": "ctrl+g",
-	        "mac": "ctrl+g"
-	      },
-	      {
-	        "command": "atm.voiceTts.copyAndRead",
-	        "key": "shift+space",
+    "keybindings": [
+      {
+        "command": "-workbench.action.gotoLine",
+        "key": "ctrl+g",
+        "mac": "ctrl+g"
+      },
+      {
+        "command": "atm.translate.open",
+        "key": "ctrl+g",
+        "mac": "ctrl+g"
+      },
+      {
+        "command": "atm.voiceTts.copyAndRead",
+        "key": "shift+space",
         "mac": "cmd+shift+space"
       },
       {
@@ -887,7 +883,7 @@
     "markdown-it": "^14.1.1",
     "mermaid": "^11.12.3",
     "npm-run-all": "^4.1.5",
-    "ts-morph": "^27.0.2",
+    "ts-morph": "^28.0.0",
     "type-fest": "^5.4.4",
     "typescript": "^5.7.3",
     "vue-eslint-parser": "^10.4.0"

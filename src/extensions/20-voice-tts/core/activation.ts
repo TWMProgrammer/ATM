@@ -49,7 +49,7 @@ async function ensureVoiceForPlayback(
     return true;
   }
 
-  vscode.window.showInformationMessage('No voice installed 📥 - Download one.');
+  vscode.window.showInformationMessage(vscode.l10n.t('No voice installed 📥 - Download one.'));
 
   await showVoiceSelector(context);
   return false;
@@ -200,7 +200,7 @@ async function runPlayback(
   } else {
     // Standard playback start checks
     if (!text) {
-      vscode.window.showInformationMessage('SELECT TEXT 📃');
+      vscode.window.showInformationMessage(vscode.l10n.t('SELECT TEXT 📃'));
       return;
     }
   }

@@ -313,6 +313,6 @@ async function handleMinimalSelection(
         }
     } catch (error) {
         console.error('[ATM] Error executing command:', error);
-        vscode.window.showErrorMessage(`$(error) ATM: Failed to execute command`);
+        vscode.window.showErrorMessage(vscode.l10n.t(`$(error) ATM: Failed to execute command`));
     }
 }

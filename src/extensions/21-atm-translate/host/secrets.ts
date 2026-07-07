@@ -19,14 +19,14 @@ export function registerSecretCommands(context: vscode.ExtensionContext): void {
 		}),
 		vscode.commands.registerCommand(clearTranslationApiKeysCommand, async () => {
 			const confirmation = await vscode.window.showWarningMessage(
-				'Clear stored ATM Translate API keys?',
+				vscode.l10n.t('Clear stored ATM Translate API keys?'),
 				{ modal: true },
 				'Clear',
 			);
 			if (confirmation !== 'Clear') { return; }
 
 			await Promise.all(Object.values(translationSecretKeys).map((key) => context.secrets.delete(key)));
-			await vscode.window.showInformationMessage('ATM Translate API keys cleared.');
+			await vscode.window.showInformationMessage(vscode.l10n.t('ATM Translate API keys cleared.'));
 		}),
 	);
 }
@@ -48,10 +48,10 @@ async function promptAndStoreSecret(
 	const cleanValue = value.trim();
 	if (!cleanValue) {
 		await context.secrets.delete(key);
-		await vscode.window.showInformationMessage(`ATM Translate ${label} cleared.`);
+		await vscode.window.showInformationMessage(vscode.l10n.t('ATM Translate {0} cleared.', label));
 		return;
 	}
 
 	await context.secrets.store(key, cleanValue);
-	await vscode.window.showInformationMessage(`ATM Translate ${label} saved.`);
+	await vscode.window.showInformationMessage(vscode.l10n.t('ATM Translate {0} saved.', label));
 }

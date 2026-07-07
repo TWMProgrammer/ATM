@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext): void {
   if (!vscode.window.onDidEndTerminalShellExecution) {
     const msg = 'Terminal shell integration API unavailable. Please update VS Code and ensure shell integration is enabled.';
     outputChannel.appendLine(`ERROR: ${msg}`);
-    vscode.window.showWarningMessage(`Terminal Sound: ${msg}`);
+    vscode.window.showWarningMessage(vscode.l10n.t('Terminal Sound: {0}', msg));
     return;
   }
 
@@ -54,7 +54,7 @@ export function activate(context: vscode.ExtensionContext): void {
     outputChannel.appendLine('=================================');
   } catch (error) {
     outputChannel.appendLine(`FATAL ERROR: ${error}`);
-    vscode.window.showErrorMessage(`Terminal Sound: Failed to activate - ${error}`);
+    vscode.window.showErrorMessage(vscode.l10n.t('Terminal Sound: Failed to activate - {0}', error instanceof Error ? error.message : String(error)));
   }
 }
 
