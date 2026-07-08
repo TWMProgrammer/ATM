@@ -298,7 +298,7 @@
       "properties": {
         "atm.goLive.port": {
           "type": "number",
-          "default": 5500,
+          "default": 3220,
           "minimum": 0,
           "maximum": 65535,
           "description": "Port for ATM Live Server (Go Live). If it is busy, the next free port is used automatically."
