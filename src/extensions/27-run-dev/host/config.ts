@@ -60,7 +60,7 @@ export class RunDevConfig {
   }
 
   static get revealTerminalOnStart(): boolean {
-    return RunDevConfig.get<boolean>('revealTerminalOnStart', true);
+    return RunDevConfig.get<boolean>('revealTerminalOnStart', false);
   }
 
   static get showOnStatusbar(): boolean {

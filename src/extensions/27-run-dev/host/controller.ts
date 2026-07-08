@@ -133,7 +133,12 @@ export class RunDevController {
     proc.onExit((code) => this.handleExit(session, code));
 
     pty.write(`\x1b[2m$ ${command} ${args.join(' ')}  (${manager})\x1b[0m\r\n`);
-    terminal.show(!RunDevConfig.revealTerminalOnStart);
+    // Stays silent by default (status bar spinner → yellow is the feedback);
+    // only reveal-with-focus on failure (see handleExit) actually pulls the
+    // user to the terminal.
+    if (RunDevConfig.revealTerminalOnStart) {
+      terminal.show(true); // reveal without stealing editor focus
+    }
 
     session.readyTimer = setTimeout(() => this.onReadyTimeout(session), READY_TIMEOUT_MS);
   }
@@ -270,7 +275,7 @@ export class RunDevController {
     if (failed) {
       this.state = 'failed';
       this.statusBar.showFailed();
-      session.terminal.show(true);
+      session.terminal.show(); // steal focus — an error is exactly when the user should be taken there
       this.notifyFailure(code);
     } else {
       this.state = 'idle';
