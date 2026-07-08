@@ -276,12 +276,151 @@
         "command": "atm.browser.newTab",
         "title": "ATM: Browser — New Tab",
         "icon": "$(add)"
+      },
+      {
+        "command": "atm.goLive.start",
+        "title": "ATM: Open with Live Server (Go Live)",
+        "icon": "$(broadcast)"
+      },
+      {
+        "command": "atm.goLive.stop",
+        "title": "ATM: Stop Live Server",
+        "icon": "$(circle-slash)"
+      },
+      {
+        "command": "atm.goLive.changeWorkspace",
+        "title": "ATM: Live Server — Change Workspace Root"
       }
     ],
     "configuration": {
       "type": "object",
       "title": "ATM – Image Preview",
       "properties": {
+        "atm.goLive.port": {
+          "type": "number",
+          "default": 3222,
+          "minimum": 0,
+          "maximum": 65535,
+          "description": "Port for ATM Live Server (Go Live). If it is busy, the next free port is used automatically."
+        },
+        "atm.goLive.host": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "Host interface Go Live binds to. Use 0.0.0.0 to expose the server on your LAN."
+        },
+        "atm.goLive.root": {
+          "type": "string",
+          "default": "",
+          "description": "Workspace-relative sub-folder to serve as the site root. Empty serves the workspace root."
+        },
+        "atm.goLive.openIn": {
+          "type": "string",
+          "enum": [
+            "external",
+            "simpleBrowser",
+            "none"
+          ],
+          "enumDescriptions": [
+            "Open the served page in your default system browser.",
+            "Open the served page inside VS Code's Simple Browser.",
+            "Start the server without opening any browser."
+          ],
+          "default": "external",
+          "description": "Where Go Live opens the page when the server starts."
+        },
+        "atm.goLive.wait": {
+          "type": "number",
+          "default": 100,
+          "minimum": 0,
+          "description": "Debounce (ms) after a file change before Go Live reloads the browser."
+        },
+        "atm.goLive.fullReload": {
+          "type": "boolean",
+          "default": false,
+          "description": "Reload the whole page on CSS changes instead of hot-swapping stylesheets in place."
+        },
+        "atm.goLive.spaFile": {
+          "type": "string",
+          "default": "",
+          "description": "Root-relative file served for navigation 404s (single-page-app fallback, e.g. index.html)."
+        },
+        "atm.goLive.cors": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add a permissive 'Access-Control-Allow-Origin: *' header to every response."
+        },
+        "atm.goLive.showOnStatusbar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Go Live control in the status bar."
+        },
+        "atm.goLive.ignoreFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".vscode/**",
+            ".git/**",
+            "node_modules/**",
+            "**/*.scss",
+            "**/*.sass",
+            "**/*.ts"
+          ],
+          "description": "Glob patterns whose changes do not trigger a live reload."
+        },
+        "atm.goLive.headers": {
+          "type": "object",
+          "default": {},
+          "description": "Extra HTTP response headers merged into every Go Live response."
+        },
+        "atm.goLive.mount": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string"
+            }
+          },
+          "default": [],
+          "description": "Mount extra directories under URL prefixes, e.g. [[\"/vendor\", \"./node_modules\"]]."
+        },
+        "atm.goLive.https": {
+          "type": "object",
+          "properties": {
+            "enable": {
+              "type": "boolean",
+              "default": false
+            },
+            "cert": {
+              "type": "string",
+              "default": ""
+            },
+            "key": {
+              "type": "string",
+              "default": ""
+            },
+            "passphrase": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          "default": {
+            "enable": false,
+            "cert": "",
+            "key": "",
+            "passphrase": ""
+          },
+          "additionalProperties": false,
+          "description": "Serve over HTTPS using the given certificate and key file paths."
+        },
+        "atm.goLive.multiRootWorkspaceName": {
+          "type": "string",
+          "default": "",
+          "description": "Remembered workspace folder used as the Go Live root in multi-root workspaces."
+        },
         "atm.browser.executablePath": {
           "type": "string",
           "default": "",
@@ -688,6 +827,16 @@
         "command": "atm.music.playRandomAM",
         "key": "alt+r",
         "mac": "alt+r"
+      },
+      {
+        "command": "atm.goLive.start",
+        "key": "alt+l alt+o",
+        "mac": "cmd+l cmd+o"
+      },
+      {
+        "command": "atm.goLive.stop",
+        "key": "alt+l alt+c",
+        "mac": "cmd+l cmd+c"
       }
     ],
     "languages": [
@@ -726,6 +875,18 @@
           "command": "atm.translate-doc.translateReleaseNotes",
           "group": "1_modification",
           "when": "atm.releaseNotes.active"
+        },
+        {
+          "command": "atm.goLive.start",
+          "group": "navigation@99",
+          "when": "resourceExtname == .html || resourceExtname == .htm || resourceExtname == .xhtml || resourceExtname == .svg"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "atm.goLive.start",
+          "group": "navigation@-1",
+          "when": "resourceExtname == .html || resourceExtname == .htm || resourceExtname == .xhtml || resourceExtname == .svg"
         }
       ],
       "editor/title": [
