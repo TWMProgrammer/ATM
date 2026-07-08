@@ -1,73 +1,115 @@
-import { execFile } from 'child_process';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import semver from 'semver';
 import { PackageState, isVersionPublished, readPackageInfo } from './detector';
 import {
     abortMerge,
+    addFile,
     branchExists,
     checkout,
+    commit,
+    createTag,
     getCurrentBranch,
     isWorkingTreeClean,
     merge,
     pull,
     push,
-    pushWithTags,
+    pushTag,
     tagExists,
 } from './git';
 
-export type ReleaseType = 'major' | 'minor' | 'patch' | 'beta';
+export type ReleaseKind = 'major' | 'minor' | 'patch' | 'beta';
 
-export interface NextVersions {
-    major: string;
-    minor: string;
-    patch: string;
-    beta: string;
+export interface ReleaseTarget {
+    version: string;
+    /** false = package.json already holds the version to release (manual bump) */
+    needsBump: boolean;
 }
 
 const PUBLISH_POLL_INTERVAL_MS = 15000;
 const PUBLISH_TIMEOUT_MS = 8 * 60000;
 
-export function computeNextVersions(current: string): NextVersions | undefined {
-    const major = semver.inc(current, 'major');
-    const minor = semver.inc(current, 'minor');
-    const patch = semver.inc(current, 'patch');
-    const beta = semver.inc(current, 'prerelease', 'beta');
-    if (!major || !minor || !patch || !beta) {
+/** Only these branches may release; anything else shows a locked button. */
+export function isReleaseBranch(branch: string | undefined): boolean {
+    return branch === 'dev' || branch === 'main' || branch === 'master';
+}
+
+function parseCore(version: string): [number, number, number] | undefined {
+    const v = semver.valid(version);
+    if (!v) {
         return undefined;
     }
-    return { major, minor, patch, beta };
+    return [semver.major(v), semver.minor(v), semver.patch(v)];
 }
 
-/** Suggests a bump type from conventional-style commit subjects (feat:, fix:, BREAKING…). */
-export function suggestReleaseType(subjects: string[]): ReleaseType {
-    let suggestion: ReleaseType = 'patch';
-    for (const subject of subjects) {
-        const lower = subject.toLowerCase();
-        if (lower.includes('breaking change') || /\w(\(.+\))?!:/.test(lower)) {
-            return 'major';
-        }
-        if (/\bfeat\b/.test(lower)) {
-            suggestion = 'minor';
-        }
+/**
+ * Single-digit rollover bump: a slot at exactly 9 carries into the next
+ * (0.0.9 -> 0.1.0, 0.9.9 -> 1.0.0) so versions stay single-digit. A slot
+ * already past 9 (legacy 0.0.43) just increments (-> 0.0.44).
+ */
+export function bumpVersion(current: string, kind: 'major' | 'minor' | 'patch'): string | undefined {
+    const core = parseCore(current);
+    if (!core) {
+        return undefined;
     }
-    return suggestion;
+    const [major, minor, patch] = core;
+    if (kind === 'major') {
+        return `${major + 1}.0.0`;
+    }
+    if (kind === 'minor') {
+        return minor === 9 ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
+    }
+    if (patch === 9) {
+        return minor === 9 ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
+    }
+    return `${major}.${minor}.${patch + 1}`;
 }
 
-/** Runs `npm version`, which bumps package.json and creates the commit + matching v-tag. */
-function npmVersion(pkgDir: string, type: ReleaseType): Promise<string> {
-    const args = type === 'beta' ? ['version', 'prerelease', '--preid', 'beta'] : ['version', type];
-    return new Promise((resolve, reject) => {
-        execFile('npm', args, { cwd: pkgDir, timeout: 60000 }, (error, stdout, stderr) => {
-            if (error) {
-                reject(new Error(stderr.trim() || error.message));
-                return;
-            }
-            const lines = stdout.trim().split('\n');
-            const last = lines[lines.length - 1].trim();
-            resolve(last.startsWith('v') ? last.slice(1) : last);
-        });
-    });
+/**
+ * Default target for the rocket button. Priority:
+ *  1. package.json is a prerelease (0.0.4-beta.0) -> finalize it (-> 0.0.4).
+ *  2. package.json is ahead of what's out there -> release as-is (manual bump).
+ *  3. otherwise -> next patch (rollover-aware).
+ * `baseline` = npm latest, or the last git tag when npm is unreachable.
+ */
+export function computeTarget(currentVersion: string, baseline: string | undefined): ReleaseTarget | undefined {
+    if (!semver.valid(currentVersion)) {
+        return undefined;
+    }
+    if (semver.prerelease(currentVersion)) {
+        const finalized = `${semver.major(currentVersion)}.${semver.minor(currentVersion)}.${semver.patch(currentVersion)}`;
+        return { version: finalized, needsBump: true };
+    }
+    if (baseline && semver.valid(baseline) && semver.gt(currentVersion, baseline)) {
+        return { version: currentVersion, needsBump: false };
+    }
+    const next = bumpVersion(currentVersion, 'patch');
+    return next ? { version: next, needsBump: true } : undefined;
+}
+
+/** Next beta: bump the -beta.N counter, or preview the next patch as -beta.0. */
+export function computeBetaTarget(currentVersion: string): string | undefined {
+    if (!semver.valid(currentVersion)) {
+        return undefined;
+    }
+    if (semver.prerelease(currentVersion)) {
+        return semver.inc(currentVersion, 'prerelease', 'beta') ?? undefined;
+    }
+    const base = bumpVersion(currentVersion, 'patch');
+    return base ? `${base}-beta.0` : undefined;
+}
+
+/** Rewrites only the version value, preserving the file's formatting. */
+function bumpManifestVersion(pkgDir: string, currentVersion: string, newVersion: string): void {
+    const file = path.join(pkgDir, 'package.json');
+    const raw = fs.readFileSync(file, 'utf8');
+    const escaped = currentVersion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const updated = raw.replace(new RegExp(`("version"\\s*:\\s*)"${escaped}"`), `$1"${newVersion}"`);
+    if (updated === raw) {
+        throw new Error(vscode.l10n.t('Could not update the version in package.json.'));
+    }
+    fs.writeFileSync(file, updated, 'utf8');
 }
 
 async function getDefaultBranch(repoRoot: string): Promise<string> {
@@ -110,11 +152,79 @@ async function waitForPublish(name: string, version: string): Promise<boolean> {
     return false;
 }
 
+function openUrl(url: string): void {
+    void vscode.env.openExternal(vscode.Uri.parse(url));
+}
+
 /**
- * The whole release: merge the working branch into main, bump + tag with
- * `npm version`, push with tags, and wait for GitHub Actions to publish.
+ * Non-blocking release feedback. Fires an immediate actionable notification
+ * (tag pushed, CI publishing) so the status-bar spinner can reset right away,
+ * then confirms the npm publish in the background — the old flow blocked the
+ * spinner for the whole 8-min poll and the final notification's button click.
  */
-export async function runRelease(state: PackageState, type: ReleaseType): Promise<void> {
+function announcePublish(name: string, version: string, npmUrl: string, actionsUrl: string): void {
+    const openNpm = vscode.l10n.t('Open npm');
+    const openActions = vscode.l10n.t('Open GitHub Actions');
+    const onChoice = (choice: string | undefined): void => {
+        if (choice === openNpm) {
+            openUrl(npmUrl);
+        } else if (choice === openActions) {
+            openUrl(actionsUrl);
+        }
+    };
+
+    void vscode.window
+        .showInformationMessage(
+            vscode.l10n.t('🚀 Released {0} v{1} — GitHub Actions is publishing to npm (usually 1–3 min).', name, version),
+            openNpm,
+            openActions
+        )
+        .then(onChoice);
+
+    void waitForPublish(name, version).then((published) => {
+        if (published) {
+            void vscode.window
+                .showInformationMessage(vscode.l10n.t('✅ {0}@{1} is live on npm.', name, version), openNpm, openActions)
+                .then(onChoice);
+        } else {
+            void vscode.window
+                .showWarningMessage(
+                    vscode.l10n.t('{0} v{1} has not appeared on npm yet — check the GitHub Actions run.', name, version),
+                    openActions
+                )
+                .then(onChoice);
+        }
+    });
+}
+
+function computeReleaseTarget(kind: ReleaseKind, currentVersion: string, baseline: string | undefined): ReleaseTarget {
+    if (kind === 'beta') {
+        const beta = computeBetaTarget(currentVersion);
+        if (!beta) {
+            throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', currentVersion));
+        }
+        return { version: beta, needsBump: true };
+    }
+    if (kind === 'patch') {
+        const target = computeTarget(currentVersion, baseline);
+        if (!target) {
+            throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', currentVersion));
+        }
+        return target;
+    }
+    const bumped = bumpVersion(currentVersion, kind);
+    if (!bumped) {
+        throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', currentVersion));
+    }
+    return { version: bumped, needsBump: true };
+}
+
+/**
+ * Stable: bump+commit on the current branch, merge into main, tag, push, come
+ * back — the user never leaves their branch. Beta: bump+tag on the current
+ * branch only, no merge. CI publishes on the tag push.
+ */
+export async function runRelease(state: PackageState, kind: ReleaseKind): Promise<void> {
     const repoRoot = state.repoRoot;
     const github = state.github;
     if (!repoRoot || !github) {
@@ -123,21 +233,33 @@ export async function runRelease(state: PackageState, type: ReleaseType): Promis
 
     // The cached state may be minutes old — re-read the version from disk.
     const pkg = readPackageInfo(state.pkg.dir) ?? state.pkg;
-    const next = computeNextVersions(pkg.version)?.[type];
-    if (!next) {
-        throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', pkg.version));
-    }
+    const baseline = state.publishedVersion ?? state.lastTagVersion;
+    const target = computeReleaseTarget(kind, pkg.version, baseline);
 
     if (!(await isWorkingTreeClean(repoRoot))) {
         throw new Error(vscode.l10n.t('You have uncommitted changes. Commit or stash them first.'));
     }
 
-    const tag = `v${next}`;
-    if (await tagExists(repoRoot, tag)) {
-        throw new Error(vscode.l10n.t('Tag {0} already exists.', tag));
+    const tagName = `v${target.version}`;
+    if (await tagExists(repoRoot, tagName)) {
+        throw new Error(vscode.l10n.t('Tag {0} already exists. Bump the version in package.json first.', tagName));
     }
 
-    if (type === 'beta' && !workflowHandlesBeta(state.workflowPath)) {
+    // Pre-flight: no workflow means the pushed tag would never publish to npm.
+    if (!state.workflowPath) {
+        const proceed = await vscode.window.showWarningMessage(
+            vscode.l10n.t(
+                'No publish workflow found in .github/workflows — GitHub Actions will not publish this tag to npm. Release anyway?'
+            ),
+            { modal: true },
+            vscode.l10n.t('Release anyway')
+        );
+        if (!proceed) {
+            return;
+        }
+    }
+
+    if (kind === 'beta' && !workflowHandlesBeta(state.workflowPath)) {
         const proceed = await vscode.window.showWarningMessage(
             vscode.l10n.t(
                 'Your publish workflow does not separate beta releases (no "--tag beta"), so this beta would reach all users as the latest version. Continue anyway?'
@@ -152,94 +274,92 @@ export async function runRelease(state: PackageState, type: ReleaseType): Promis
 
     const defaultBranch = await getDefaultBranch(repoRoot);
     const originalBranch = await getCurrentBranch(repoRoot);
-
-    if (originalBranch !== defaultBranch && originalBranch !== 'dev') {
-        const proceed = await vscode.window.showWarningMessage(
-            vscode.l10n.t('You are on branch "{0}". Merge it into "{1}" and release v{2}?', originalBranch, defaultBranch, next),
-            { modal: true },
-            vscode.l10n.t('Merge & Release')
+    if (!isReleaseBranch(originalBranch)) {
+        throw new Error(
+            vscode.l10n.t('Releases run from "dev" or "main" — you are on "{0}". Switch branch first.', originalBranch)
         );
-        if (!proceed) {
-            return;
-        }
     }
 
-    const result = await vscode.window.withProgress(
+    const confirm = await vscode.window.showInformationMessage(
+        kind === 'beta'
+            ? vscode.l10n.t('Release {0} v{1} (beta) from branch "{2}"?', pkg.name, target.version, originalBranch)
+            : vscode.l10n.t('Release {0} v{1}?', pkg.name, target.version),
+        { modal: true },
+        vscode.l10n.t('Release')
+    );
+    if (!confirm) {
+        return;
+    }
+
+    await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
-            title: vscode.l10n.t('Releasing {0} v{1}', pkg.name, next),
+            title: vscode.l10n.t('Releasing {0} v{1}', pkg.name, target.version),
         },
-        async (progress): Promise<{ version: string; published: boolean }> => {
-            if (originalBranch !== defaultBranch) {
-                progress.report({ message: vscode.l10n.t('merging {0} into {1}…', originalBranch, defaultBranch) });
-                await checkout(repoRoot, defaultBranch);
-                try {
-                    await pull(repoRoot, defaultBranch);
-                    await merge(repoRoot, originalBranch);
-                } catch (error) {
-                    await abortMerge(repoRoot).catch(() => undefined);
-                    await checkout(repoRoot, originalBranch).catch(() => undefined);
-                    throw error;
-                }
+        async (progress): Promise<void> => {
+            if (target.needsBump) {
+                progress.report({ message: vscode.l10n.t('updating package.json…') });
+                bumpManifestVersion(pkg.dir, pkg.version, target.version);
+                await addFile(repoRoot, path.join(pkg.dir, 'package.json'));
+                await commit(repoRoot, `⬆️ Update: version v${target.version}`);
+                await push(repoRoot, originalBranch);
             }
 
-            let newVersion: string;
-            try {
-                progress.report({ message: vscode.l10n.t('bumping version and tagging…') });
-                newVersion = await npmVersion(pkg.dir, type);
-
-                progress.report({ message: vscode.l10n.t('pushing to GitHub…') });
-                await pushWithTags(repoRoot, defaultBranch);
-            } finally {
+            if (kind === 'beta') {
+                // Betas ship straight from the current branch, main untouched.
+                progress.report({ message: vscode.l10n.t('tagging and pushing…') });
+                await createTag(repoRoot, tagName);
+                await push(repoRoot, originalBranch);
+                await pushTag(repoRoot, tagName);
+            } else {
                 if (originalBranch !== defaultBranch) {
-                    await checkout(repoRoot, originalBranch).catch(() => undefined);
+                    progress.report({ message: vscode.l10n.t('merging {0} into {1}…', originalBranch, defaultBranch) });
+                    await checkout(repoRoot, defaultBranch);
+                    try {
+                        await pull(repoRoot, defaultBranch);
+                        await merge(repoRoot, originalBranch);
+                    } catch (error) {
+                        await abortMerge(repoRoot).catch(() => undefined);
+                        await checkout(repoRoot, originalBranch).catch(() => undefined);
+                        throw error;
+                    }
+                } else {
+                    await pull(repoRoot, defaultBranch);
                 }
-            }
 
-            // Keep dev aligned with the release commit; a failure here is not fatal.
-            if (originalBranch === 'dev') {
                 try {
-                    await merge(repoRoot, defaultBranch);
-                    await push(repoRoot, 'dev');
-                } catch {
-                    void vscode.window.showWarningMessage(
-                        vscode.l10n.t('Released, but "dev" could not be synced with "{0}". Merge it manually.', defaultBranch)
-                    );
+                    progress.report({ message: vscode.l10n.t('tagging and pushing to GitHub…') });
+                    await createTag(repoRoot, tagName);
+                    await push(repoRoot, defaultBranch);
+                    await pushTag(repoRoot, tagName);
+                } finally {
+                    if (originalBranch !== defaultBranch) {
+                        await checkout(repoRoot, originalBranch).catch(() => undefined);
+                    }
+                }
+
+                // Keep the working branch aligned with the release merge; not fatal.
+                if (originalBranch !== defaultBranch) {
+                    try {
+                        await merge(repoRoot, defaultBranch);
+                        await push(repoRoot, originalBranch);
+                    } catch {
+                        void vscode.window.showWarningMessage(
+                            vscode.l10n.t(
+                                'Released, but "{0}" could not be synced with "{1}". Merge it manually.',
+                                originalBranch,
+                                defaultBranch
+                            )
+                        );
+                    }
                 }
             }
 
-            progress.report({ message: vscode.l10n.t('waiting for GitHub Actions to publish (usually 1–3 min)…') });
-            const published = await waitForPublish(pkg.name, newVersion);
-            return { version: newVersion, published };
         }
     );
 
-    const npmUrl = `https://www.npmjs.com/package/${pkg.name}/v/${result.version}`;
+    // Git work is done → the spinner can stop now. Feedback runs non-blocking.
+    const npmUrl = `https://www.npmjs.com/package/${pkg.name}/v/${target.version}`;
     const actionsUrl = `https://github.com/${github.owner}/${github.repo}/actions`;
-    const openNpm = vscode.l10n.t('Open npm');
-    const openActions = vscode.l10n.t('Open GitHub Actions');
-
-    if (result.published) {
-        const choice = await vscode.window.showInformationMessage(
-            vscode.l10n.t('✅ {0}@{1} published on npm.', pkg.name, result.version),
-            openNpm,
-            openActions
-        );
-        if (choice === openNpm) {
-            void vscode.env.openExternal(vscode.Uri.parse(npmUrl));
-        } else if (choice === openActions) {
-            void vscode.env.openExternal(vscode.Uri.parse(actionsUrl));
-        }
-    } else {
-        const choice = await vscode.window.showWarningMessage(
-            vscode.l10n.t(
-                'Tag v{0} was pushed, but the new version has not appeared on npm yet. Check the GitHub Actions run.',
-                result.version
-            ),
-            openActions
-        );
-        if (choice === openActions) {
-            void vscode.env.openExternal(vscode.Uri.parse(actionsUrl));
-        }
-    }
+    announcePublish(pkg.name, target.version, npmUrl, actionsUrl);
 }

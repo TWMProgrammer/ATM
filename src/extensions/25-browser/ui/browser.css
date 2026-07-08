@@ -1,0 +1,175 @@
+/* ======================================
+   ATM BROWSER — WEBVIEW STYLES
+   ====================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+}
+
+/* ---- toolbar ---- */
+
+#toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 37px;
+  padding: 0 8px;
+  background: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editor-background));
+  border-bottom: 1px solid var(--vscode-editorGroupHeader-tabsBorder, transparent);
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--vscode-icon-foreground);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.tool-btn:hover:not(:disabled) {
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
+}
+
+.tool-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tool-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+#nav-reload .icon-stop {
+  display: none;
+}
+
+#nav-reload.loading .icon-reload {
+  display: none;
+}
+
+#nav-reload.loading .icon-stop {
+  display: block;
+}
+
+#url-wrap {
+  flex: 1;
+  display: flex;
+  height: 27px;
+  min-width: 0;
+}
+
+#url-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid var(--vscode-input-border, transparent);
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  font-family: inherit;
+  font-size: 12.5px;
+  outline: none;
+}
+
+#url-input:focus {
+  border-color: var(--vscode-focusBorder);
+}
+
+#url-input::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+}
+
+/* ---- page canvas ---- */
+
+#stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+#screen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: default;
+}
+
+/* ---- status overlay ---- */
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--vscode-editor-background);
+}
+
+#overlay.hidden {
+  display: none;
+}
+
+#overlay.error .spinner {
+  display: none;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid var(--vscode-editorWidget-border, rgba(128, 128, 128, 0.35));
+  border-top-color: var(--vscode-progressBar-background, #0078d4);
+  animation: atm-browser-spin 0.9s linear infinite;
+}
+
+@keyframes atm-browser-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#overlay-text {
+  margin: 0;
+  max-width: 75%;
+  font-size: 13px;
+  opacity: 0.9;
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#overlay-hint {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
+}
