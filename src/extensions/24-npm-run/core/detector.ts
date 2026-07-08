@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as https from 'https';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { GitHubRepo, getRemoteUrl, getRepoRoot, parseGitHubRepo } from './git';
+import { GitHubRepo, getCurrentBranch, getLastTagVersion, getRemoteUrl, getRepoRoot, parseGitHubRepo } from './git';
 
 export interface PackageInfo {
     /** Absolute path of the folder containing package.json */
@@ -18,8 +18,11 @@ export interface PackageState {
     repoRoot?: string;
     github?: GitHubRepo;
     workflowPath?: string;
+    currentBranch?: string;
     /** Latest on npm; undefined = never published OR registry unreachable */
     publishedVersion?: string;
+    /** Last git tag version — offline baseline for manual-bump detection */
+    lastTagVersion?: string;
     issues: ReadinessIssue[];
 }
 
@@ -133,7 +136,7 @@ export async function isVersionPublished(name: string, version: string): Promise
     return status === 200;
 }
 
-/** Workflow that publishes on tag push; only needed to check beta dist-tag support. */
+/** Workflow that publishes on tag push; also used to check beta dist-tag support. */
 export function findPublishWorkflow(repoRoot: string): string | undefined {
     const workflowsDir = path.join(repoRoot, '.github', 'workflows');
     let entries: string[];
@@ -166,7 +169,7 @@ export async function analyzePackageState(pkg: PackageInfo): Promise<PackageStat
     try {
         state.publishedVersion = await getLatestPublishedVersion(pkg.name);
     } catch {
-        // offline / registry hiccup — target falls back to patch bump
+        // offline / registry hiccup — baseline falls back to the last git tag
     }
 
     state.repoRoot = await getRepoRoot(pkg.dir);
@@ -174,6 +177,9 @@ export async function analyzePackageState(pkg: PackageInfo): Promise<PackageStat
         issues.push('no-git-repo');
         return state;
     }
+
+    state.currentBranch = await getCurrentBranch(state.repoRoot).catch(() => undefined);
+    state.lastTagVersion = await getLastTagVersion(state.repoRoot);
 
     const remoteUrl = await getRemoteUrl(state.repoRoot);
     state.github = parseGitHubRepo(remoteUrl);

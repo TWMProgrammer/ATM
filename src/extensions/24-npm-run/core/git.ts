@@ -72,6 +72,16 @@ export async function tagExists(repoRoot: string, tag: string): Promise<boolean>
     }
 }
 
+/** Latest tag as a bare version (v0.4.0 -> 0.4.0); offline baseline for manual-bump detection. */
+export async function getLastTagVersion(repoRoot: string): Promise<string | undefined> {
+    try {
+        const tag = await runGit(repoRoot, ['describe', '--tags', '--abbrev=0']);
+        return tag.startsWith('v') ? tag.slice(1) : tag;
+    } catch {
+        return undefined;
+    }
+}
+
 export function checkout(repoRoot: string, branch: string): Promise<string> {
     return runGit(repoRoot, ['checkout', branch]);
 }

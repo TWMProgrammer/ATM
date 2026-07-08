@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { PackageState, analyzePackageState, findPublishablePackage } from './core/detector';
-import { ReleaseKind, runRelease } from './core/release';
+import { ReleaseKind, isReleaseBranch, runRelease } from './core/release';
 import { createStatusBar, hideStatusBar, issueSummary, showBusy, showState } from './ui/status-bar';
 
 let currentState: PackageState | undefined;
@@ -12,7 +12,13 @@ export function activateNpmRun(context: vscode.ExtensionContext): void {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('atm.npmRun.release', () => {
-            void release('stable');
+            void release('patch');
+        }),
+        vscode.commands.registerCommand('atm.npmRun.releaseMajor', () => {
+            void release('major');
+        }),
+        vscode.commands.registerCommand('atm.npmRun.releaseMinor', () => {
+            void release('minor');
         }),
         vscode.commands.registerCommand('atm.npmRun.releaseBeta', () => {
             void release('beta');
@@ -68,7 +74,7 @@ async function ensureReadyState(): Promise<PackageState | undefined> {
         void vscode.window.showInformationMessage(vscode.l10n.t('No publishable npm package found in this workspace.'));
         return undefined;
     }
-    if (currentState.issues.length > 0) {
+    if (currentState.issues.length > 0 || !isReleaseBranch(currentState.currentBranch)) {
         void showStatus();
         return undefined;
     }
@@ -96,20 +102,29 @@ async function release(kind: ReleaseKind): Promise<void> {
     }
 }
 
-/** Explains the first blocking issue and offers a re-check. */
+/** Explains why the button is blocked (readiness issue or wrong branch). */
 async function showStatus(): Promise<void> {
     const state = currentState;
     if (!state) {
         return;
     }
     const issue = state.issues[0];
-    if (!issue) {
-        void vscode.window.showInformationMessage(vscode.l10n.t('{0} is ready to release.', state.pkg.name));
+    if (issue) {
+        const recheck = vscode.l10n.t('Re-check');
+        const choice = await vscode.window.showWarningMessage(`${state.pkg.name}: ${issueSummary(issue)}`, recheck);
+        if (choice === recheck) {
+            void refresh();
+        }
         return;
     }
-    const recheck = vscode.l10n.t('Re-check');
-    const choice = await vscode.window.showWarningMessage(`${state.pkg.name}: ${issueSummary(issue)}`, recheck);
-    if (choice === recheck) {
-        void refresh();
+    if (!isReleaseBranch(state.currentBranch)) {
+        void vscode.window.showInformationMessage(
+            vscode.l10n.t(
+                'Releases run from "dev" or "main". You are on "{0}" — switch branch, then release.',
+                state.currentBranch ?? '?'
+            )
+        );
+        return;
     }
+    void vscode.window.showInformationMessage(vscode.l10n.t('{0} is ready to release.', state.pkg.name));
 }

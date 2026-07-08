@@ -249,6 +249,16 @@
         "icon": "$(rocket)"
       },
       {
+        "command": "atm.npmRun.releaseMajor",
+        "title": "ATM: Release NPM Package (major)",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "atm.npmRun.releaseMinor",
+        "title": "ATM: Release NPM Package (minor)",
+        "icon": "$(rocket)"
+      },
+      {
         "command": "atm.npmRun.releaseBeta",
         "title": "ATM: Release NPM Package (beta)",
         "icon": "$(beaker)"

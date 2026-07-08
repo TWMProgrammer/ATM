@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { PackageState, ReadinessIssue } from '../core/detector';
-import { computeBetaTarget, computeTarget } from '../core/release';
+import { bumpVersion, computeBetaTarget, computeTarget, isReleaseBranch } from '../core/release';
 
 let item: vscode.StatusBarItem | undefined;
 
@@ -21,6 +21,7 @@ export function showBusy(name: string): void {
     item.text = `$(sync~spin) ${name}`;
     item.tooltip = vscode.l10n.t('Release in progress…');
     item.command = undefined;
+    item.color = undefined;
     item.backgroundColor = undefined;
     item.show();
 }
@@ -40,7 +41,8 @@ export function showState(state: PackageState): void {
     if (!item) {
         return;
     }
-    const { pkg, issues, publishedVersion } = state;
+    item.color = undefined;
+    const { pkg, issues, publishedVersion, lastTagVersion, currentBranch } = state;
 
     if (issues.length > 0) {
         item.text = `$(warning) ${pkg.name}`;
@@ -51,8 +53,24 @@ export function showState(state: PackageState): void {
         return;
     }
 
-    // The button always shows the version a click would release.
-    const target = computeTarget(pkg.version, publishedVersion);
+    // Locked (gray) unless on a release branch — releases only from dev/main.
+    if (!isReleaseBranch(currentBranch)) {
+        item.text = `$(lock) ${pkg.name}`;
+        item.tooltip = vscode.l10n.t(
+            'Releases run from "dev" or "main". You are on "{0}" — switch branch to release.',
+            currentBranch ?? '?'
+        );
+        item.command = 'atm.npmRun.showStatus';
+        item.color = new vscode.ThemeColor('disabledForeground');
+        item.backgroundColor = undefined;
+        item.show();
+        return;
+    }
+
+    // The button shows/releases the next patch (or your manual bump); the
+    // tooltip carries major, minor and beta.
+    const baseline = publishedVersion ?? lastTagVersion;
+    const target = computeTarget(pkg.version, baseline);
     if (!target) {
         item.text = `$(warning) ${pkg.name}`;
         item.tooltip = vscode.l10n.t('Cannot compute the next version from "{0}".', pkg.version);
@@ -66,23 +84,35 @@ export function showState(state: PackageState): void {
     item.command = 'atm.npmRun.release';
     item.backgroundColor = undefined;
 
+    const major = bumpVersion(pkg.version, 'major');
+    const minor = bumpVersion(pkg.version, 'minor');
+    const beta = computeBetaTarget(pkg.version);
+
     const tooltip = new vscode.MarkdownString(undefined, true);
     tooltip.isTrusted = true;
-    tooltip.appendMarkdown(
-        vscode.l10n.t('**Release {0}** — npm has v{1}', pkg.name, publishedVersion ?? pkg.version)
-    );
+    if (publishedVersion) {
+        tooltip.appendMarkdown(vscode.l10n.t('**Release {0}** — npm has v{1}', pkg.name, publishedVersion));
+    } else {
+        tooltip.appendMarkdown(vscode.l10n.t('**Release {0}**', pkg.name));
+    }
     if (!target.needsBump) {
         tooltip.appendMarkdown('\n\n');
-        tooltip.appendMarkdown(vscode.l10n.t('Version taken from package.json (you bumped it manually).'));
+        tooltip.appendMarkdown(vscode.l10n.t('Releasing v{0} from package.json (you set it manually).', target.version));
     }
-    const beta = computeBetaTarget(pkg.version);
     tooltip.appendMarkdown('\n\n');
-    tooltip.appendMarkdown(
-        `[$(rocket) v${target.version}](command:atm.npmRun.release "${vscode.l10n.t('release — merge, tag and publish')}")` +
-            (beta
-                ? ` | [$(beaker) v${beta}](command:atm.npmRun.releaseBeta "${vscode.l10n.t('beta — test release under the beta tag')}")`
-                : '')
-    );
+    const links: string[] = [];
+    if (major) {
+        links.push(`[v${major}](command:atm.npmRun.releaseMajor "${vscode.l10n.t('major — breaking changes')}")`);
+    }
+    if (minor) {
+        links.push(`[v${minor}](command:atm.npmRun.releaseMinor "${vscode.l10n.t('minor — new features')}")`);
+    }
+    if (beta) {
+        links.push(
+            `[$(beaker) Beta](command:atm.npmRun.releaseBeta "v${beta} — ${vscode.l10n.t('test release under the beta tag')}")`
+        );
+    }
+    tooltip.appendMarkdown(links.join(' | '));
     item.tooltip = tooltip;
     item.show();
 }

@@ -19,33 +19,85 @@ import {
     tagExists,
 } from './git';
 
-export type ReleaseKind = 'stable' | 'beta';
+export type ReleaseKind = 'major' | 'minor' | 'patch' | 'beta';
 
 export interface ReleaseTarget {
     version: string;
-    /** false = package.json is already ahead of npm (user bumped it manually) */
+    /** false = package.json already holds the version to release (manual bump) */
     needsBump: boolean;
 }
 
 const PUBLISH_POLL_INTERVAL_MS = 15000;
 const PUBLISH_TIMEOUT_MS = 8 * 60000;
 
-/** Manual bump in package.json wins; otherwise auto patch over the current version. */
-export function computeTarget(currentVersion: string, publishedVersion: string | undefined): ReleaseTarget | undefined {
-    if (
-        publishedVersion &&
-        semver.valid(currentVersion) &&
-        semver.valid(publishedVersion) &&
-        semver.gt(currentVersion, publishedVersion)
-    ) {
+/** Only these branches may release; anything else shows a locked button. */
+export function isReleaseBranch(branch: string | undefined): boolean {
+    return branch === 'dev' || branch === 'main' || branch === 'master';
+}
+
+function parseCore(version: string): [number, number, number] | undefined {
+    const v = semver.valid(version);
+    if (!v) {
+        return undefined;
+    }
+    return [semver.major(v), semver.minor(v), semver.patch(v)];
+}
+
+/**
+ * Single-digit rollover bump: a slot at exactly 9 carries into the next
+ * (0.0.9 -> 0.1.0, 0.9.9 -> 1.0.0) so versions stay single-digit. A slot
+ * already past 9 (legacy 0.0.43) just increments (-> 0.0.44).
+ */
+export function bumpVersion(current: string, kind: 'major' | 'minor' | 'patch'): string | undefined {
+    const core = parseCore(current);
+    if (!core) {
+        return undefined;
+    }
+    const [major, minor, patch] = core;
+    if (kind === 'major') {
+        return `${major + 1}.0.0`;
+    }
+    if (kind === 'minor') {
+        return minor === 9 ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
+    }
+    if (patch === 9) {
+        return minor === 9 ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
+    }
+    return `${major}.${minor}.${patch + 1}`;
+}
+
+/**
+ * Default target for the rocket button. Priority:
+ *  1. package.json is a prerelease (0.0.4-beta.0) -> finalize it (-> 0.0.4).
+ *  2. package.json is ahead of what's out there -> release as-is (manual bump).
+ *  3. otherwise -> next patch (rollover-aware).
+ * `baseline` = npm latest, or the last git tag when npm is unreachable.
+ */
+export function computeTarget(currentVersion: string, baseline: string | undefined): ReleaseTarget | undefined {
+    if (!semver.valid(currentVersion)) {
+        return undefined;
+    }
+    if (semver.prerelease(currentVersion)) {
+        const finalized = `${semver.major(currentVersion)}.${semver.minor(currentVersion)}.${semver.patch(currentVersion)}`;
+        return { version: finalized, needsBump: true };
+    }
+    if (baseline && semver.valid(baseline) && semver.gt(currentVersion, baseline)) {
         return { version: currentVersion, needsBump: false };
     }
-    const next = semver.inc(currentVersion, 'patch');
+    const next = bumpVersion(currentVersion, 'patch');
     return next ? { version: next, needsBump: true } : undefined;
 }
 
+/** Next beta: bump the -beta.N counter, or preview the next patch as -beta.0. */
 export function computeBetaTarget(currentVersion: string): string | undefined {
-    return semver.inc(currentVersion, 'prerelease', 'beta') ?? undefined;
+    if (!semver.valid(currentVersion)) {
+        return undefined;
+    }
+    if (semver.prerelease(currentVersion)) {
+        return semver.inc(currentVersion, 'prerelease', 'beta') ?? undefined;
+    }
+    const base = bumpVersion(currentVersion, 'patch');
+    return base ? `${base}-beta.0` : undefined;
 }
 
 /** Rewrites only the version value, preserving the file's formatting. */
@@ -100,10 +152,32 @@ async function waitForPublish(name: string, version: string): Promise<boolean> {
     return false;
 }
 
+function computeReleaseTarget(kind: ReleaseKind, currentVersion: string, baseline: string | undefined): ReleaseTarget {
+    if (kind === 'beta') {
+        const beta = computeBetaTarget(currentVersion);
+        if (!beta) {
+            throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', currentVersion));
+        }
+        return { version: beta, needsBump: true };
+    }
+    if (kind === 'patch') {
+        const target = computeTarget(currentVersion, baseline);
+        if (!target) {
+            throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', currentVersion));
+        }
+        return target;
+    }
+    const bumped = bumpVersion(currentVersion, kind);
+    if (!bumped) {
+        throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', currentVersion));
+    }
+    return { version: bumped, needsBump: true };
+}
+
 /**
- * Stable: bump+commit on the current branch, merge into main, tag, push,
- * come back — the user never leaves their branch. Beta: bump+tag on the
- * current branch only, no merge. CI publishes on the tag push.
+ * Stable: bump+commit on the current branch, merge into main, tag, push, come
+ * back — the user never leaves their branch. Beta: bump+tag on the current
+ * branch only, no merge. CI publishes on the tag push.
  */
 export async function runRelease(state: PackageState, kind: ReleaseKind): Promise<void> {
     const repoRoot = state.repoRoot;
@@ -114,21 +188,8 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
 
     // The cached state may be minutes old — re-read the version from disk.
     const pkg = readPackageInfo(state.pkg.dir) ?? state.pkg;
-
-    let target: ReleaseTarget;
-    if (kind === 'beta') {
-        const beta = computeBetaTarget(pkg.version);
-        if (!beta) {
-            throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', pkg.version));
-        }
-        target = { version: beta, needsBump: true };
-    } else {
-        const stable = computeTarget(pkg.version, state.publishedVersion);
-        if (!stable) {
-            throw new Error(vscode.l10n.t('Cannot compute the next version from "{0}".', pkg.version));
-        }
-        target = stable;
-    }
+    const baseline = state.publishedVersion ?? state.lastTagVersion;
+    const target = computeReleaseTarget(kind, pkg.version, baseline);
 
     if (!(await isWorkingTreeClean(repoRoot))) {
         throw new Error(vscode.l10n.t('You have uncommitted changes. Commit or stash them first.'));
@@ -137,6 +198,20 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
     const tagName = `v${target.version}`;
     if (await tagExists(repoRoot, tagName)) {
         throw new Error(vscode.l10n.t('Tag {0} already exists. Bump the version in package.json first.', tagName));
+    }
+
+    // Pre-flight: no workflow means the pushed tag would never publish to npm.
+    if (!state.workflowPath) {
+        const proceed = await vscode.window.showWarningMessage(
+            vscode.l10n.t(
+                'No publish workflow found in .github/workflows — GitHub Actions will not publish this tag to npm. Release anyway?'
+            ),
+            { modal: true },
+            vscode.l10n.t('Release anyway')
+        );
+        if (!proceed) {
+            return;
+        }
     }
 
     if (kind === 'beta' && !workflowHandlesBeta(state.workflowPath)) {
@@ -154,6 +229,11 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
 
     const defaultBranch = await getDefaultBranch(repoRoot);
     const originalBranch = await getCurrentBranch(repoRoot);
+    if (!isReleaseBranch(originalBranch)) {
+        throw new Error(
+            vscode.l10n.t('Releases run from "dev" or "main" — you are on "{0}". Switch branch first.', originalBranch)
+        );
+    }
 
     const confirm = await vscode.window.showInformationMessage(
         kind === 'beta'
