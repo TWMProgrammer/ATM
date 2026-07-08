@@ -91,6 +91,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "atm.compareCode.open",
+        "title": "ATM: Compare Code",
+        "icon": "$(activate-breakpoints)"
+      },
+      {
         "command": "atm.voiceTts.copyAndRead",
         "title": "ATM Voice TTS: Copy & Read"
       },
@@ -568,6 +573,11 @@
     ],
     "keybindings": [
       {
+        "command": "atm.compareCode.open",
+        "key": "alt+shift+\\",
+        "mac": "alt+shift+\\"
+      },
+      {
         "command": "-workbench.action.gotoLine",
         "key": "ctrl+g",
         "mac": "ctrl+g"
@@ -661,6 +671,11 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "atm.compareCode.open",
+          "group": "navigation@3",
+          "when": "resourceScheme == file"
+        },
         {
           "command": "atm.translate.open",
           "group": "navigation@0",

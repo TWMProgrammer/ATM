@@ -69,6 +69,7 @@ async function main() {
 			'src/extensions/14-screenshot-code/ui/webview.ts',
 			'src/extensions/14-screenshot-code/ui/styles.css',
 			'src/extensions/21-atm-translate/ui/atm-translate.ts',
+			'src/extensions/23-compare-code/ui/compare-code.ts',
 			'src/extensions/09-focus/screens/atm-data/screenshot/ui/index.ts'
 		],
 		bundle: true,
