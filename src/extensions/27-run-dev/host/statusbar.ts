@@ -56,6 +56,27 @@ export class RunDevStatusBar {
     this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
   }
 
+  /**
+   * The dev server process is still alive (unlike showFailed) but its own
+   * output just logged an app-level error (bad import, runtime exception, …).
+   * The controller reveals the terminal alongside this (without stealing
+   * focus) so the user can see what broke. Click still stops the server.
+   */
+  showRunningWithError(label: string, port: number | undefined, url: string | undefined): void {
+    this.item.text = port ? `$(warning) ${label} :${port}` : `$(warning) ${label}`;
+    const tip = new vscode.MarkdownString(undefined, true);
+    tip.appendMarkdown(
+      vscode.l10n.t('{0} hit an error — see the terminal (opened below). Still running; click to stop.', label)
+    );
+    if (url) {
+      tip.appendMarkdown(`\n\n$(globe) ${url}`);
+    }
+    tip.appendMarkdown('\n\n' + vscode.l10n.t('Restart: ctrl+g  ·  Stop: ctrl+alt+g'));
+    this.item.tooltip = tip;
+    this.item.command = COMMAND_STOP;
+    this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+  }
+
   showFailed(): void {
     this.item.text = '$(error) Dev Failed';
     this.item.tooltip = vscode.l10n.t('The dev server exited with an error. Click to retry.');

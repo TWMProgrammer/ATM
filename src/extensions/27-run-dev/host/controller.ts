@@ -6,6 +6,7 @@ import { detectFramework, pickScript, Framework } from '../core/frameworks';
 import { detectPackageManager, buildRunCommand } from '../core/package-manager';
 import { spawnDev, DevProcess } from '../core/process-tree';
 import { scanForUrl, stripAnsi, portFromUrl } from '../core/url-scanner';
+import { scanForRuntimeError } from '../core/error-scanner';
 import { readManifest } from '../core/manifest';
 import { RunDevConfig } from './config';
 import { RunDevStatusBar } from './statusbar';
@@ -26,6 +27,10 @@ type State = 'idle' | 'starting' | 'running' | 'failed';
 const READY_TIMEOUT_MS = 20000;
 const SCAN_BUFFER_CAP = 64 * 1024;
 const RESTART_DEBOUNCE_MS = 300;
+// Quiet period after an error/recovery signal before the pill is repainted, so
+// a rapid error→recovery burst collapses into one final colour instead of
+// flickering yellow→red→yellow.
+const ERROR_SETTLE_MS = 350;
 
 interface Session {
   proc: DevProcess;
@@ -37,6 +42,11 @@ interface Session {
   urlFound: boolean;
   url?: string;
   stopping: boolean;
+  /** App-level error currently painted (process itself is still alive). */
+  errorActive: boolean;
+  /** Latest desired error state awaiting the settle debounce. */
+  pendingError?: boolean;
+  settleTimer?: ReturnType<typeof setTimeout>;
   readyTimer?: ReturnType<typeof setTimeout>;
 }
 
@@ -123,6 +133,7 @@ export class RunDevController {
       scanBuffer: '',
       urlFound: false,
       stopping: false,
+      errorActive: false,
     };
     this.session = session;
 
@@ -201,16 +212,69 @@ export class RunDevController {
   // ------------------------------------
 
   private handleOutput(session: Session, chunk: string): void {
-    if (session !== this.session || session.urlFound) {
+    if (session !== this.session) {
       return;
     }
-    session.scanBuffer += stripAnsi(chunk);
-    if (session.scanBuffer.length > SCAN_BUFFER_CAP) {
-      session.scanBuffer = session.scanBuffer.slice(-SCAN_BUFFER_CAP);
+    if (!session.urlFound) {
+      session.scanBuffer += stripAnsi(chunk);
+      if (session.scanBuffer.length > SCAN_BUFFER_CAP) {
+        session.scanBuffer = session.scanBuffer.slice(-SCAN_BUFFER_CAP);
+      }
+      const url = scanForUrl(session.scanBuffer);
+      if (url) {
+        this.markReady(session, url);
+      }
     }
-    const url = scanForUrl(session.scanBuffer);
-    if (url) {
-      this.markReady(session, url);
+    // Only watch for app-level errors once the server is actually up — noisy
+    // startup logs (dependency warnings, etc.) shouldn't false-positive here.
+    if (this.state === 'running') {
+      const result = scanForRuntimeError(chunk);
+      if (result.error) {
+        this.scheduleErrorPaint(session, true);
+      } else if (result.recovery) {
+        this.scheduleErrorPaint(session, false);
+      }
+    }
+  }
+
+  // ------------------------------------
+  // Runtime (app-level) error detection | MARK: RUNTIME-ERROR
+  // ------------------------------------
+
+  /** Record the latest desired error state and (re)arm the settle debounce. */
+  private scheduleErrorPaint(session: Session, desiredError: boolean): void {
+    if (session !== this.session) {
+      return;
+    }
+    session.pendingError = desiredError;
+    if (session.settleTimer) {
+      clearTimeout(session.settleTimer);
+    }
+    session.settleTimer = setTimeout(() => this.applyErrorPaint(session), ERROR_SETTLE_MS);
+  }
+
+  /**
+   * Paint the settled error state. Red stays until an actual recovery signal
+   * (recompile/HMR success) arrives — never a timeout — so we don't clear a
+   * still-broken app. Entering the error state also reveals the terminal so
+   * the user can see what broke; a healthy state never opens it.
+   */
+  private applyErrorPaint(session: Session): void {
+    session.settleTimer = undefined;
+    if (session !== this.session || this.state !== 'running') {
+      return;
+    }
+    const desired = session.pendingError ?? false;
+    if (desired === session.errorActive) {
+      return;
+    }
+    session.errorActive = desired;
+    const port = session.url ? portFromUrl(session.url) : session.framework.defaultPort;
+    if (desired) {
+      this.statusBar.showRunningWithError(session.framework.label, port, session.url);
+      session.terminal.show(true); // reveal the terminal (without stealing editor focus)
+    } else {
+      this.statusBar.showRunning(session.framework.label, port, session.url);
     }
   }
 
@@ -255,6 +319,9 @@ export class RunDevController {
     }
     if (session.readyTimer) {
       clearTimeout(session.readyTimer);
+    }
+    if (session.settleTimer) {
+      clearTimeout(session.settleTimer);
     }
     this.disposeWatchers();
     this.session = undefined;
@@ -415,6 +482,12 @@ export class RunDevController {
     const session = this.session;
     if (session) {
       session.stopping = true;
+      if (session.readyTimer) {
+        clearTimeout(session.readyTimer);
+      }
+      if (session.settleTimer) {
+        clearTimeout(session.settleTimer);
+      }
       session.proc.kill();
       session.terminal.dispose();
       this.session = undefined;
