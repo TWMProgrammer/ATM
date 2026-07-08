@@ -249,6 +249,11 @@
         "icon": "$(rocket)"
       },
       {
+        "command": "atm.npmRun.releaseBeta",
+        "title": "ATM: Release NPM Package (beta)",
+        "icon": "$(beaker)"
+      },
+      {
         "command": "atm.npmRun.refresh",
         "title": "ATM: NPM Release — Refresh Status"
       },

@@ -9,21 +9,16 @@ export interface PackageInfo {
     dir: string;
     name: string;
     version: string;
-    repositoryUrl?: string;
 }
 
-export type ReadinessIssue =
-    | 'not-on-npm'
-    | 'no-git-repo'
-    | 'no-github-remote'
-    | 'repo-mismatch'
-    | 'no-workflow';
+export type ReadinessIssue = 'no-git-repo' | 'no-github-remote';
 
 export interface PackageState {
     pkg: PackageInfo;
     repoRoot?: string;
     github?: GitHubRepo;
     workflowPath?: string;
+    /** Latest on npm; undefined = never published OR registry unreachable */
     publishedVersion?: string;
     issues: ReadinessIssue[];
 }
@@ -36,20 +31,6 @@ function readManifest(dir: string): Record<string, unknown> | undefined {
     } catch {
         return undefined;
     }
-}
-
-function extractRepositoryUrl(manifest: Record<string, unknown>): string | undefined {
-    const repository = manifest['repository'];
-    if (typeof repository === 'string') {
-        return repository;
-    }
-    if (repository && typeof repository === 'object') {
-        const url = (repository as Record<string, unknown>)['url'];
-        if (typeof url === 'string') {
-            return url;
-        }
-    }
-    return undefined;
 }
 
 function toPackageInfo(dir: string, manifest: Record<string, unknown>): PackageInfo | undefined {
@@ -69,7 +50,7 @@ function toPackageInfo(dir: string, manifest: Record<string, unknown>): PackageI
     if (!manifest['publishConfig'] && !manifest['repository']) {
         return undefined;
     }
-    return { dir, name, version, repositoryUrl: extractRepositoryUrl(manifest) };
+    return { dir, name, version };
 }
 
 export function readPackageInfo(dir: string): PackageInfo | undefined {
@@ -152,7 +133,7 @@ export async function isVersionPublished(name: string, version: string): Promise
     return status === 200;
 }
 
-/** Looks for a GitHub Actions workflow that publishes to npm. */
+/** Workflow that publishes on tag push; only needed to check beta dist-tag support. */
 export function findPublishWorkflow(repoRoot: string): string | undefined {
     const workflowsDir = path.join(repoRoot, '.github', 'workflows');
     let entries: string[];
@@ -182,15 +163,10 @@ export async function analyzePackageState(pkg: PackageInfo): Promise<PackageStat
     const issues: ReadinessIssue[] = [];
     const state: PackageState = { pkg, issues };
 
-    let publishedKnown = true;
     try {
         state.publishedVersion = await getLatestPublishedVersion(pkg.name);
     } catch {
-        // Offline or registry hiccup: unknown is not the same as unpublished.
-        publishedKnown = false;
-    }
-    if (publishedKnown && state.publishedVersion === undefined) {
-        issues.push('not-on-npm');
+        // offline / registry hiccup — target falls back to patch bump
     }
 
     state.repoRoot = await getRepoRoot(pkg.dir);
@@ -206,19 +182,6 @@ export async function analyzePackageState(pkg: PackageInfo): Promise<PackageStat
         return state;
     }
 
-    const declared = parseGitHubRepo(pkg.repositoryUrl);
-    if (
-        declared &&
-        (declared.owner.toLowerCase() !== state.github.owner.toLowerCase() ||
-            declared.repo.toLowerCase() !== state.github.repo.toLowerCase())
-    ) {
-        issues.push('repo-mismatch');
-    }
-
     state.workflowPath = findPublishWorkflow(state.repoRoot);
-    if (!state.workflowPath) {
-        issues.push('no-workflow');
-    }
-
     return state;
 }

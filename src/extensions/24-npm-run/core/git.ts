@@ -72,20 +72,6 @@ export async function tagExists(repoRoot: string, tag: string): Promise<boolean>
     }
 }
 
-export async function getLastTag(repoRoot: string): Promise<string | undefined> {
-    try {
-        return await runGit(repoRoot, ['describe', '--tags', '--abbrev=0']);
-    } catch {
-        return undefined;
-    }
-}
-
-export async function getCommitSubjectsSince(repoRoot: string, tag: string | undefined): Promise<string[]> {
-    const range = tag ? [`${tag}..HEAD`] : ['-n', '30'];
-    const output = await runGit(repoRoot, ['log', ...range, '--format=%s']);
-    return output === '' ? [] : output.split('\n');
-}
-
 export function checkout(repoRoot: string, branch: string): Promise<string> {
     return runGit(repoRoot, ['checkout', branch]);
 }
@@ -102,10 +88,23 @@ export function abortMerge(repoRoot: string): Promise<string> {
     return runGit(repoRoot, ['merge', '--abort']);
 }
 
+export function addFile(repoRoot: string, filePath: string): Promise<string> {
+    return runGit(repoRoot, ['add', filePath]);
+}
+
+export function commit(repoRoot: string, message: string): Promise<string> {
+    return runGit(repoRoot, ['commit', '-m', message]);
+}
+
+export function createTag(repoRoot: string, tag: string): Promise<string> {
+    return runGit(repoRoot, ['tag', tag]);
+}
+
 export function push(repoRoot: string, branch: string): Promise<string> {
     return runGit(repoRoot, ['push', 'origin', branch]);
 }
 
-export function pushWithTags(repoRoot: string, branch: string): Promise<string> {
-    return runGit(repoRoot, ['push', 'origin', branch, '--follow-tags']);
+// Explicit push: --follow-tags skips lightweight tags, so push the tag by name.
+export function pushTag(repoRoot: string, tag: string): Promise<string> {
+    return runGit(repoRoot, ['push', 'origin', tag]);
 }

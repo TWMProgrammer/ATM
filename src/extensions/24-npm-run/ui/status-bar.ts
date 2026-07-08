@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { PackageState, ReadinessIssue } from '../core/detector';
-import { computeNextVersions } from '../core/release';
+import { computeBetaTarget, computeTarget } from '../core/release';
 
 let item: vscode.StatusBarItem | undefined;
 
@@ -27,21 +27,11 @@ export function showBusy(name: string): void {
 
 export function issueSummary(issue: ReadinessIssue): string {
     switch (issue) {
-        case 'not-on-npm':
-            return vscode.l10n.t('This package is not published on npm yet — the first publish is done manually.');
         case 'no-git-repo':
             return vscode.l10n.t('This package folder is not inside a git repository.');
         case 'no-github-remote':
             return vscode.l10n.t(
                 'No GitHub remote found — releases are published by GitHub Actions, so the repository must live on GitHub.'
-            );
-        case 'repo-mismatch':
-            return vscode.l10n.t(
-                'package.json points to a different GitHub repository than this folder — move the package to its own repository before releasing.'
-            );
-        case 'no-workflow':
-            return vscode.l10n.t(
-                'No publish workflow found — GitHub Actions needs .github/workflows/publish.yml to publish on each version tag.'
             );
     }
 }
@@ -50,7 +40,7 @@ export function showState(state: PackageState): void {
     if (!item) {
         return;
     }
-    const { pkg, issues } = state;
+    const { pkg, issues, publishedVersion } = state;
 
     if (issues.length > 0) {
         item.text = `$(warning) ${pkg.name}`;
@@ -61,25 +51,38 @@ export function showState(state: PackageState): void {
         return;
     }
 
-    item.text = `$(rocket) ${pkg.name} v${pkg.version}`;
+    // The button always shows the version a click would release.
+    const target = computeTarget(pkg.version, publishedVersion);
+    if (!target) {
+        item.text = `$(warning) ${pkg.name}`;
+        item.tooltip = vscode.l10n.t('Cannot compute the next version from "{0}".', pkg.version);
+        item.command = 'atm.npmRun.showStatus';
+        item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+        item.show();
+        return;
+    }
+
+    item.text = `$(rocket) ${pkg.name} v${target.version}`;
     item.command = 'atm.npmRun.release';
     item.backgroundColor = undefined;
 
-    const next = computeNextVersions(pkg.version);
-    if (next) {
-        const tooltip = new vscode.MarkdownString(undefined, true);
-        tooltip.isTrusted = true;
-        tooltip.appendMarkdown(vscode.l10n.t('**Release {0}** — current v{1}', pkg.name, pkg.version));
+    const tooltip = new vscode.MarkdownString(undefined, true);
+    tooltip.isTrusted = true;
+    tooltip.appendMarkdown(
+        vscode.l10n.t('**Release {0}** — npm has v{1}', pkg.name, publishedVersion ?? pkg.version)
+    );
+    if (!target.needsBump) {
         tooltip.appendMarkdown('\n\n');
-        tooltip.appendMarkdown(
-            `[v${next.major}](command:atm.npmRun.releaseMajor "major — breaking changes") | ` +
-                `[v${next.minor}](command:atm.npmRun.releaseMinor "minor — new features") | ` +
-                `[v${next.patch}](command:atm.npmRun.releasePatch "patch — fixes") | ` +
-                `[beta](command:atm.npmRun.releaseBeta "v${next.beta} — test release under the beta tag")`
-        );
-        item.tooltip = tooltip;
-    } else {
-        item.tooltip = vscode.l10n.t('Release {0}', pkg.name);
+        tooltip.appendMarkdown(vscode.l10n.t('Version taken from package.json (you bumped it manually).'));
     }
+    const beta = computeBetaTarget(pkg.version);
+    tooltip.appendMarkdown('\n\n');
+    tooltip.appendMarkdown(
+        `[$(rocket) v${target.version}](command:atm.npmRun.release "${vscode.l10n.t('release — merge, tag and publish')}")` +
+            (beta
+                ? ` | [$(beaker) v${beta}](command:atm.npmRun.releaseBeta "${vscode.l10n.t('beta — test release under the beta tag')}")`
+                : '')
+    );
+    item.tooltip = tooltip;
     item.show();
 }
