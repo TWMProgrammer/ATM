@@ -780,11 +780,6 @@
         "mac": "ctrl+g"
       },
       {
-        "command": "atm.translate.open",
-        "key": "ctrl+g",
-        "mac": "ctrl+g"
-      },
-      {
         "command": "atm.voiceTts.copyAndRead",
         "key": "shift+space",
         "mac": "cmd+shift+space"
