@@ -251,12 +251,50 @@
       {
         "command": "atm.npmRun.refresh",
         "title": "ATM: NPM Release — Refresh Status"
+      },
+      {
+        "command": "atm.browser.open",
+        "title": "ATM: Open Browser",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "atm.browser.newTab",
+        "title": "ATM: Browser — New Tab",
+        "icon": "$(add)"
       }
     ],
     "configuration": {
       "type": "object",
       "title": "ATM – Image Preview",
       "properties": {
+        "atm.browser.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a Chromium-based browser (Chrome, Edge, Brave, Chromium, Vivaldi) used by ATM Browser. Leave empty to auto-detect."
+        },
+        "atm.browser.startUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL opened in new ATM Browser tabs. Leave empty for a blank page with the URL bar focused."
+        },
+        "atm.browser.searchEngine": {
+          "type": "string",
+          "enum": [
+            "bing",
+            "google",
+            "duckduckgo",
+            "none"
+          ],
+          "default": "bing",
+          "description": "Search engine used when the ATM Browser URL bar input is not a URL."
+        },
+        "atm.browser.quality": {
+          "type": "number",
+          "default": 80,
+          "minimum": 10,
+          "maximum": 100,
+          "description": "JPEG quality of the ATM Browser page stream (higher = sharper, more CPU)."
+        },
         "atm.image.preview.showImagePreviewOnGutter": {
           "type": "boolean",
           "default": true,
@@ -578,6 +616,11 @@
         "mac": "alt+shift+\\"
       },
       {
+        "command": "atm.browser.open",
+        "key": "alt+shift+b",
+        "mac": "alt+shift+b"
+      },
+      {
         "command": "-workbench.action.gotoLine",
         "key": "ctrl+g",
         "mac": "ctrl+g"
@@ -847,11 +890,11 @@
   },
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",
+    "NeteaseCloudMusicApi": "^4.30.0",
     "file-type": "^21.3.3",
     "get-video-dimensions": "^1.0.0",
     "html-to-image": "^1.11.13",
     "music-metadata": "^11.12.3",
-    "NeteaseCloudMusicApi": "^4.30.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",
@@ -861,7 +904,8 @@
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",
-    "vscode-uri": "^3.1.0"
+    "vscode-uri": "^3.1.0",
+    "ws": "^8.21.0"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
@@ -889,6 +933,7 @@
     "@types/semver": "^7.7.1",
     "@types/svgo": "^2.6.4",
     "@types/vscode": "^1.75.0",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
     "@vitalets/google-translate-api": "^9.2.1",

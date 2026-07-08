@@ -25,6 +25,7 @@ import { activateAtmTranslate } from './21-atm-translate';
 import { activateBracketLynx } from './22-bracket-lynx';
 import { activateCompareCode } from './23-compare-code';
 import { activateNpmRun } from './24-npm-run';
+import { activateBrowser } from './25-browser';
 
 /**
  * Runs a synchronous sub-extension activation, isolating failures so one
@@ -85,4 +86,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   safeActivate('bracket-lynx', () => activateBracketLynx(context));
   safeActivate('compare-code', () => activateCompareCode(context));
   safeActivate('npm-run', () => activateNpmRun(context));
+  safeActivate('browser', () => activateBrowser(context));
 }
