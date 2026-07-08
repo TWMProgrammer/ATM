@@ -290,6 +290,26 @@
       {
         "command": "atm.goLive.changeWorkspace",
         "title": "ATM: Live Server — Change Workspace Root"
+      },
+      {
+        "command": "atm.runDev.start",
+        "title": "ATM: Run Dev Server",
+        "icon": "$(play)"
+      },
+      {
+        "command": "atm.runDev.restart",
+        "title": "ATM: Restart Dev Server",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "atm.runDev.stop",
+        "title": "ATM: Stop Dev Server",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "atm.runDev.openBrowser",
+        "title": "ATM: Run Dev — Open in Browser",
+        "icon": "$(globe)"
       }
     ],
     "configuration": {
@@ -420,6 +440,83 @@
           "type": "string",
           "default": "",
           "description": "Remembered workspace folder used as the Go Live root in multi-root workspaces."
+        },
+        "atm.runDev.packageManager": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "bun",
+            "npm",
+            "pnpm",
+            "yarn"
+          ],
+          "default": "auto",
+          "description": "Package manager used to run the dev script. Auto-detects from the packageManager field or lockfile."
+        },
+        "atm.runDev.script": {
+          "type": "string",
+          "default": "",
+          "description": "Script to run (e.g. dev, start). Empty auto-detects the framework's preferred dev/start script."
+        },
+        "atm.runDev.openBrowser": {
+          "type": "string",
+          "enum": [
+            "external",
+            "simpleBrowser",
+            "none"
+          ],
+          "enumDescriptions": [
+            "Open the dev URL in your default system browser.",
+            "Open the dev URL inside VS Code's Simple Browser.",
+            "Never open a browser automatically."
+          ],
+          "default": "external",
+          "description": "Where Run Dev opens the detected dev-server URL (ignored for mobile targets like Expo/React Native/Lynx)."
+        },
+        "atm.runDev.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the browser once the dev server prints its local URL."
+        },
+        "atm.runDev.autoRestartOnConfigChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Restart the dev server automatically when a watched config or .env file changes (files frameworks usually don't hot-reload)."
+        },
+        "atm.runDev.configWatchGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/*.config.{js,ts,mjs,cjs,mts}",
+            ".env",
+            ".env.*"
+          ],
+          "description": "Glob patterns (relative to the project) watched when autoRestartOnConfigChange is on."
+        },
+        "atm.runDev.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Extra arguments appended to the dev script (e.g. [\"--host\"])."
+        },
+        "atm.runDev.env": {
+          "type": "object",
+          "default": {},
+          "description": "Extra environment variables for the dev-server process."
+        },
+        "atm.runDev.revealTerminalOnStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Focus the dev-server terminal when it starts. When false, it runs in the background panel without stealing focus."
+        },
+        "atm.runDev.showOnStatusbar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Run Dev control in the status bar."
         },
         "atm.browser.executablePath": {
           "type": "string",
@@ -832,6 +929,16 @@
         "command": "atm.goLive.stop",
         "key": "alt+l alt+c",
         "mac": "cmd+l cmd+c"
+      },
+      {
+        "command": "atm.runDev.start",
+        "key": "alt+g",
+        "mac": "alt+g"
+      },
+      {
+        "command": "atm.runDev.restart",
+        "key": "ctrl+g",
+        "mac": "ctrl+g"
       }
     ],
     "languages": [

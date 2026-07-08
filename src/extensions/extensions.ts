@@ -27,6 +27,7 @@ import { activateCompareCode } from './23-compare-code';
 import { activateNpmRun } from './24-npm-run';
 import { activateBrowser } from './25-browser';
 import { activateGoLive } from './26-go';
+import { activateRunDev } from './27-run-dev';
 
 /**
  * Runs a synchronous sub-extension activation, isolating failures so one
@@ -89,4 +90,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   safeActivate('npm-run', () => activateNpmRun(context));
   safeActivate('browser', () => activateBrowser(context));
   safeActivate('go-live', () => activateGoLive(context));
+  safeActivate('run-dev', () => activateRunDev(context));
 }
