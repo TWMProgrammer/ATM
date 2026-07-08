@@ -237,6 +237,15 @@
         "command": "atm.bracketLynx.toggle",
         "title": "Bracket Lynx: Toggle",
         "icon": "$(bracket-dot)"
+      },
+      {
+        "command": "atm.npmRun.release",
+        "title": "ATM: Release NPM Package",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "atm.npmRun.refresh",
+        "title": "ATM: NPM Release — Refresh Status"
       }
     ],
     "configuration": {
