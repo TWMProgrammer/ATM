@@ -23,6 +23,7 @@ import { activate as activateTerminalSound } from './17-terminal-sound/terminal-
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
 import { activateAtmTranslate } from './21-atm-translate';
 import { activateBracketLynx } from './22-bracket-lynx';
+import { activateCompareCode } from './23-compare-code';
 import { activateNpmRun } from './24-npm-run';
 
 /**
@@ -82,5 +83,6 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   safeActivate('atm-translate', () => activateAtmTranslate(context));
   safeActivateAsync('tailwind-css', () => activateTailwindFold(context));
   safeActivate('bracket-lynx', () => activateBracketLynx(context));
+  safeActivate('compare-code', () => activateCompareCode(context));
   safeActivate('npm-run', () => activateNpmRun(context));
 }

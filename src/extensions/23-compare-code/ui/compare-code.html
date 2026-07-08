@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-locale="{{LOCALE}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <title>Compare Code</title>
+    <!-- CC_HEAD -->
+</head>
+<body>
+    <!-- ==========================================
+         Top navigation and controls | MARK:TOOLBAR
+         ========================================== -->
+    <div class="toolbar">
+        <div class="stats-container">
+            <!-- Warning & Similar | NORMAL -->
+            <div class="normal-stats" id="normal-stats">
+                <div class="warning-box">
+                    <img class="warning-icon" src="{{WARNING_ICON}}" alt="">
+                    <span>0 : <span data-i18n="stats.changes">Changes</span></span>
+                </div>
+                <span class="slash-l">/</span>
+                <div>
+                    <span class="match-score">00% : <span data-i18n="stats.similar">Similar</span></span>
+                </div>
+            </div>
+
+            <!-- Diff statistics | PRO -->
+            <div class="pro-stats" id="pro-stats">
+                <div class="stat-item">
+                    <div class="stat-icon added">+</div>
+                    <span id="added-count">0 <span data-i18n="stats.linesAdded">lines added</span></span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon removed">-</div>
+                    <span id="removed-count">0 <span data-i18n="stats.linesRemoved">lines removed</span></span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon modified">~</div>
+                    <span id="modified-count">0 <span data-i18n="stats.linesModified">lines modified</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compare button | PLAY -->
+        <button class="btn-play" id="playBtn" title="Ctrl + Enter"
+                data-icon-play="{{PLAY_ICON}}" data-icon-stop="{{STOP_ICON}}">
+            <img src="{{PLAY_ICON}}" alt="">
+            <span data-i18n="buttons.compare">Compare</span>
+        </button>
+
+        <!-- Toolbar | Clear - Close & Open -->
+        <div class="buttons-container">
+            <button class="clear" title="Shift + Alt + Backspace">🗑️ <span data-i18n="buttons.clear">Clear</span></button>
+
+            <button class="btn-panel-left" id="btn-panel-left" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.closePanelLeft">
+                <img src="{{PANEL_LEFT_ICON}}" alt="">
+            </button>
+            <span class="slash-r">/</span>
+            <button class="btn-panel-right" id="btn-panel-right" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.closePanelRight">
+                <img src="{{PANEL_RIGHT_ICON}}" alt="">
+            </button>
+        </div>
+    </div>
+
+    <!-- =================================================
+         Secondary panel header | MARK: CODE PANEL
+         ================================================== -->
+    <div class="compare-panel">
+        <div class="options-panel-left">
+            <div class="copy-clear">
+                <button class="download-code" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="buttons.download">
+                    <img src="{{DOWNLOAD_ICON_L}}" alt="">
+                </button>
+                <button class="copy-code" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.copy">
+                    <img src="{{COPY_ICON_L}}" alt="">
+                    <div class="copy-message" data-i18n="buttons.copied">Copied!</div>
+                </button>
+                <button class="clear-code" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="buttons.clear">
+                    <img src="{{CLEAR_ICON_L}}" alt="">
+                </button>
+            </div>
+        </div>
+
+        <div class="future"></div>
+
+        <div class="options-panel-right">
+            <div class="copy-clear">
+                <button class="download-code" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="buttons.download">
+                    <img src="{{DOWNLOAD_ICON_R}}" alt="">
+                </button>
+                <button class="copy-code" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.copy">
+                    <img src="{{COPY_ICON_R}}" alt="">
+                    <div class="copy-message" data-i18n="buttons.copied">Copied!</div>
+                </button>
+                <button class="clear-code" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="buttons.clear">
+                    <img src="{{CLEAR_ICON_R}}" alt="">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================
+         Main - compare code | MARK: CODE
+         ====================================== -->
+    <div class="compare-code">
+        <div class="code-panel" id="panel1">
+            <div class="dual-scroll-indicator" id="dual-scroll-indicator-left">🔗</div>
+            <div class="unified-editor" id="editor1">
+                <div class="match-effect" id="effect1">
+                    <div class="ambient-glow"></div>
+                </div>
+                <div class="line-numbers" id="lineNumbers1">1</div>
+                <div class="code-area">
+                    <textarea
+                        class="code-input"
+                        id="codeInput1"
+                        placeholder="// Example: Paste your original code here..."
+                        data-i18n-placeholder="placeholders.codeLeft"
+                        spellcheck="false"></textarea>
+                    <div class="code-display" id="codeDisplay1"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="code-panel" id="panel2">
+            <div class="dual-scroll-indicator" id="dual-scroll-indicator-right">🔗</div>
+            <div class="unified-editor" id="editor2">
+                <div class="match-effect" id="effect2">
+                    <div class="ambient-glow"></div>
+                </div>
+                <div class="line-numbers" id="lineNumbers2">1</div>
+                <div class="code-area">
+                    <textarea
+                        class="code-input"
+                        id="codeInput2"
+                        placeholder="// Paste your modified code here..."
+                        data-i18n-placeholder="placeholders.codeRight"
+                        spellcheck="false"></textarea>
+                    <div class="code-display" id="codeDisplay2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         Floating tool controls | MARK: BOTTOM BAR
+         =============================================== -->
+    <div class="bottom-bar">
+        <div class="content">
+            <button class="only-code bbtn" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.showModifiedCode">
+                <img class="icon" src="{{ONLY_CODE_ICON}}" alt="">
+            </button>
+            <button class="switch-on-off bbtn" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.normalPro"
+                    data-icon-on="{{SWITCH_ON_ICON}}" data-icon-off="{{SWITCH_OFF_ICON}}">
+                <img class="icon" src="{{SWITCH_ON_ICON}}" alt="">
+            </button>
+            <button class="dual-scroll bbtn" id="dual-scroll-btn" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.dualScroll">
+                <img class="icon" src="{{DUAL_SCROLL_ICON}}" alt="">
+            </button>
+            <button class="language bbtn" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.changeLanguage">
+                <img class="icon" src="{{LANGUAGE_ICON}}" alt="">
+            </button>
+            <button class="sponsor bbtn" data-tooltip="" data-i18n-attr="data-tooltip" data-i18n="tooltips.sponsor">
+                <a href="https://github.com/sponsors/bastndev" title="@bastndev">
+                    <img class="icon" src="{{EARTH_CODE_ICON}}" alt="">
+                </a>
+            </button>
+        </div>
+    </div>
+    <!-- CC_SCRIPT -->
+</body>
+</html>
