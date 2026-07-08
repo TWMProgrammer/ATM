@@ -939,6 +939,11 @@
         "command": "atm.runDev.restart",
         "key": "ctrl+g",
         "mac": "ctrl+g"
+      },
+      {
+        "command": "atm.runDev.stop",
+        "key": "ctrl+alt+g",
+        "mac": "ctrl+alt+g"
       }
     ],
     "languages": [

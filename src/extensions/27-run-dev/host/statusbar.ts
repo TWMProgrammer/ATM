@@ -50,7 +50,7 @@ export class RunDevStatusBar {
     if (url) {
       tip.appendMarkdown(`\n\n$(globe) ${url}`);
     }
-    tip.appendMarkdown('\n\n' + vscode.l10n.t('Restart: ctrl+g'));
+    tip.appendMarkdown('\n\n' + vscode.l10n.t('Restart: ctrl+g  ·  Stop: ctrl+alt+g'));
     this.item.tooltip = tip;
     this.item.command = COMMAND_STOP;
     this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
