@@ -152,6 +152,51 @@ async function waitForPublish(name: string, version: string): Promise<boolean> {
     return false;
 }
 
+function openUrl(url: string): void {
+    void vscode.env.openExternal(vscode.Uri.parse(url));
+}
+
+/**
+ * Non-blocking release feedback. Fires an immediate actionable notification
+ * (tag pushed, CI publishing) so the status-bar spinner can reset right away,
+ * then confirms the npm publish in the background — the old flow blocked the
+ * spinner for the whole 8-min poll and the final notification's button click.
+ */
+function announcePublish(name: string, version: string, npmUrl: string, actionsUrl: string): void {
+    const openNpm = vscode.l10n.t('Open npm');
+    const openActions = vscode.l10n.t('Open GitHub Actions');
+    const onChoice = (choice: string | undefined): void => {
+        if (choice === openNpm) {
+            openUrl(npmUrl);
+        } else if (choice === openActions) {
+            openUrl(actionsUrl);
+        }
+    };
+
+    void vscode.window
+        .showInformationMessage(
+            vscode.l10n.t('🚀 Released {0} v{1} — GitHub Actions is publishing to npm (usually 1–3 min).', name, version),
+            openNpm,
+            openActions
+        )
+        .then(onChoice);
+
+    void waitForPublish(name, version).then((published) => {
+        if (published) {
+            void vscode.window
+                .showInformationMessage(vscode.l10n.t('✅ {0}@{1} is live on npm.', name, version), openNpm, openActions)
+                .then(onChoice);
+        } else {
+            void vscode.window
+                .showWarningMessage(
+                    vscode.l10n.t('{0} v{1} has not appeared on npm yet — check the GitHub Actions run.', name, version),
+                    openActions
+                )
+                .then(onChoice);
+        }
+    });
+}
+
 function computeReleaseTarget(kind: ReleaseKind, currentVersion: string, baseline: string | undefined): ReleaseTarget {
     if (kind === 'beta') {
         const beta = computeBetaTarget(currentVersion);
@@ -246,12 +291,12 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
         return;
     }
 
-    const result = await vscode.window.withProgress(
+    await vscode.window.withProgress(
         {
             location: vscode.ProgressLocation.Notification,
             title: vscode.l10n.t('Releasing {0} v{1}', pkg.name, target.version),
         },
-        async (progress): Promise<{ published: boolean }> => {
+        async (progress): Promise<void> => {
             if (target.needsBump) {
                 progress.report({ message: vscode.l10n.t('updating package.json…') });
                 bumpManifestVersion(pkg.dir, pkg.version, target.version);
@@ -310,38 +355,11 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
                 }
             }
 
-            progress.report({ message: vscode.l10n.t('waiting for GitHub Actions to publish (usually 1–3 min)…') });
-            const published = await waitForPublish(pkg.name, target.version);
-            return { published };
         }
     );
 
+    // Git work is done → the spinner can stop now. Feedback runs non-blocking.
     const npmUrl = `https://www.npmjs.com/package/${pkg.name}/v/${target.version}`;
     const actionsUrl = `https://github.com/${github.owner}/${github.repo}/actions`;
-    const openNpm = vscode.l10n.t('Open npm');
-    const openActions = vscode.l10n.t('Open GitHub Actions');
-
-    if (result.published) {
-        const choice = await vscode.window.showInformationMessage(
-            vscode.l10n.t('✅ {0}@{1} published on npm.', pkg.name, target.version),
-            openNpm,
-            openActions
-        );
-        if (choice === openNpm) {
-            void vscode.env.openExternal(vscode.Uri.parse(npmUrl));
-        } else if (choice === openActions) {
-            void vscode.env.openExternal(vscode.Uri.parse(actionsUrl));
-        }
-    } else {
-        const choice = await vscode.window.showWarningMessage(
-            vscode.l10n.t(
-                'Tag v{0} was pushed, but the new version has not appeared on npm yet. Check the GitHub Actions run.',
-                target.version
-            ),
-            openActions
-        );
-        if (choice === openActions) {
-            void vscode.env.openExternal(vscode.Uri.parse(actionsUrl));
-        }
-    }
+    announcePublish(pkg.name, target.version, npmUrl, actionsUrl);
 }
