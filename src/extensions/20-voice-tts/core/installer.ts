@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as https from 'https';
 import * as http from 'http';
+import * as crypto from 'crypto';
 import { execFile } from 'child_process';
 
 // ─── Helper: File existence check ──────────────────────────────────
@@ -153,7 +154,20 @@ interface PiperBinaryInfo {
   url: string;
   dirName: string;
   isTarGz: boolean;
+  sha256: string;
 }
+
+// Pinned from the 2023.11.14-2 GitHub release assets. Verified against a
+// direct download of each asset before making the extracted binary executable,
+// so a compromised or tampered asset is rejected before it can run.
+const PIPER_SHA256: Record<string, string> = {
+  piper_windows_amd64: 'f3c58906402b24f3a96d92145f58acba6d86c9b5db896d207f78dc80811efce',
+  piper_macos_aarch64: '6b1eb03b3735946cb35216e063e7eebcc33a6bbf5dd96ec0217959bf1cdcb0c',
+  piper_macos_x64: 'ced85c0a3df13945b1e623b878a48fdc2854d5c485b4b67f62857cf551deaf8',
+  piper_linux_aarch64: 'fea0fd2d87c54dbc7078d0f878289f404bd4d6eea6e7444a77835d1537ab88e',
+  piper_linux_armv7l: 'c6946fcd57c705ed1d4666ea880f80ba0bbbd14de62ecbdd13460baf3bac8e3',
+  piper_linux_x86_64: 'a50cb45f355b7af1f6d758c1b360717877ba0a398cc8cbe6d2a7a3a26e22599',
+};
 
 function getPiperDownloadInfo(): PiperBinaryInfo {
   const platform = process.platform;
@@ -165,6 +179,7 @@ function getPiperDownloadInfo(): PiperBinaryInfo {
         url: `${PIPER_RELEASE_BASE}/piper_windows_amd64.zip`,
         dirName: 'windows_amd64',
         isTarGz: false,
+        sha256: PIPER_SHA256.piper_windows_amd64,
       };
     case 'darwin':
       if (arch === 'arm64') {
@@ -172,12 +187,14 @@ function getPiperDownloadInfo(): PiperBinaryInfo {
           url: `${PIPER_RELEASE_BASE}/piper_macos_aarch64.tar.gz`,
           dirName: 'macos_aarch64',
           isTarGz: true,
+          sha256: PIPER_SHA256.piper_macos_aarch64,
         };
       }
       return {
         url: `${PIPER_RELEASE_BASE}/piper_macos_x64.tar.gz`,
         dirName: 'macos_x64',
         isTarGz: true,
+        sha256: PIPER_SHA256.piper_macos_x64,
       };
     case 'linux':
       if (arch === 'arm64') {
@@ -185,6 +202,7 @@ function getPiperDownloadInfo(): PiperBinaryInfo {
           url: `${PIPER_RELEASE_BASE}/piper_linux_aarch64.tar.gz`,
           dirName: 'linux_aarch64',
           isTarGz: true,
+          sha256: PIPER_SHA256.piper_linux_aarch64,
         };
       }
       if (arch === 'arm') {
@@ -192,16 +210,31 @@ function getPiperDownloadInfo(): PiperBinaryInfo {
           url: `${PIPER_RELEASE_BASE}/piper_linux_armv7l.tar.gz`,
           dirName: 'linux_armv7l',
           isTarGz: true,
+          sha256: PIPER_SHA256.piper_linux_armv7l,
         };
       }
       return {
         url: `${PIPER_RELEASE_BASE}/piper_linux_x86_64.tar.gz`,
         dirName: 'linux_x86_64',
         isTarGz: true,
+        sha256: PIPER_SHA256.piper_linux_x86_64,
       };
     default:
       throw new Error(`Unsupported platform: ${platform}`);
   }
+}
+
+/**
+ * Computes the SHA-256 digest of a file on disk.
+ */
+function sha256File(filePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha256');
+    const stream = fs.createReadStream(filePath);
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(hash.digest('hex')));
+  });
 }
 
 export async function isPiperInstalled(piperPath: string): Promise<boolean> {
@@ -233,6 +266,15 @@ export async function installPiper(
         message: `Downloading Piper engine... ${pct}% (${size})`,
       });
     });
+
+    progress.report({ message: 'Verifying download integrity...' });
+
+    const actualDigest = await sha256File(tempFile);
+    if (actualDigest !== info.sha256) {
+      throw new Error(
+        `Piper download failed integrity check (expected ${info.sha256}, got ${actualDigest}). The file was not installed.`,
+      );
+    }
 
     progress.report({ message: 'Extracting Piper engine...' });
 

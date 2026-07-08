@@ -5,6 +5,13 @@ import { LRUCache } from './utils';
 
 const execAsync = promisify(exec);
 
+const GIT_HASH_RE = /^[0-9a-f]{4,40}$/i;
+
+/** Rejects anything that isn't a plain hex commit hash before it reaches a shell string. */
+function isValidCommitHash(hash: string): boolean {
+    return GIT_HASH_RE.test(hash);
+}
+
 export interface GitCommitInfo {
     hash: string;
     authorName: string;
@@ -205,6 +212,9 @@ export class GitService {
         if (commitHash === '0000000000000000000000000000000000000000') {
             return null;
         }
+        if (!isValidCommitHash(commitHash)) {
+            return null;
+        }
 
         const cacheKey = `${commitHash}:${path.basename(filepath)}:${originalLine}`;
         const cached = this.diffCache.get(cacheKey);
@@ -233,6 +243,9 @@ export class GitService {
         commitHash: string
     ): Promise<string | null> {
         if (commitHash === '0000000000000000000000000000000000000000') {
+            return null;
+        }
+        if (!isValidCommitHash(commitHash)) {
             return null;
         }
 

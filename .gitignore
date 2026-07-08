@@ -24,9 +24,3 @@ Thumbs.db
 voices
 piper
 # analizar
-
-# My Skills: begin
-.claude/
-.agents/
-skills-lock.json
-# My Skills: end
