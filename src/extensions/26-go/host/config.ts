@@ -33,7 +33,7 @@ export class GoLiveConfig {
   }
 
   static get port(): number {
-    return GoLiveConfig.get<number>('port', 3220);
+    return GoLiveConfig.get<number>('port', 3222);
   }
 
   static setPort(port: number): Thenable<void> {
