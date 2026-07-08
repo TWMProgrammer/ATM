@@ -8,7 +8,7 @@ import { GoLiveStatusBar } from './statusbar';
 // GO LIVE — ACTIVATION | MARK: ACTIVATE
 // ======================================
 //
-// ATM module 25-go: a local development server with live reload — a lean,
+// ATM module 26-go: a local development server with live reload — a lean,
 // dependency-light reimagining of Live Server. Registers the Go Live status
 // bar control plus start/stop/changeWorkspace commands.
 

@@ -26,7 +26,7 @@ import { activateBracketLynx } from './22-bracket-lynx';
 import { activateCompareCode } from './23-compare-code';
 import { activateNpmRun } from './24-npm-run';
 import { activateBrowser } from './25-browser';
-import { activateGoLive } from './25-go';
+import { activateGoLive } from './26-go';
 
 /**
  * Runs a synchronous sub-extension activation, isolating failures so one
