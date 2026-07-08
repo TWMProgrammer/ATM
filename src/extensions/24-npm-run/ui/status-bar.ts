@@ -90,22 +90,27 @@ export function showState(state: PackageState): void {
 
     const tooltip = new vscode.MarkdownString(undefined, true);
     tooltip.isTrusted = true;
+    tooltip.supportThemeIcons = true;
     if (publishedVersion) {
         tooltip.appendMarkdown(vscode.l10n.t('**Release {0}** — npm has v{1}', pkg.name, publishedVersion));
     } else {
         tooltip.appendMarkdown(vscode.l10n.t('**Release {0}**', pkg.name));
     }
     if (!target.needsBump) {
-        tooltip.appendMarkdown('\n\n');
+        tooltip.appendMarkdown('\n');
         tooltip.appendMarkdown(vscode.l10n.t('Releasing v{0} from package.json (you set it manually).', target.version));
     }
-    tooltip.appendMarkdown('\n\n');
+    tooltip.appendMarkdown('\n');
     const links: string[] = [];
     if (major) {
-        links.push(`[v${major}](command:atm.npmRun.releaseMajor "${vscode.l10n.t('major — breaking changes')}")`);
+        links.push(
+            `[$(arrow-up) v${major}](command:atm.npmRun.releaseMajor "${vscode.l10n.t('major — breaking changes')}")`
+        );
     }
     if (minor) {
-        links.push(`[v${minor}](command:atm.npmRun.releaseMinor "${vscode.l10n.t('minor — new features')}")`);
+        links.push(
+            `[$(arrow-small-up) v${minor}](command:atm.npmRun.releaseMinor "${vscode.l10n.t('minor — new features')}")`
+        );
     }
     if (beta) {
         links.push(
