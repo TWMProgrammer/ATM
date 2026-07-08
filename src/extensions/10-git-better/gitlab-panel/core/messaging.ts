@@ -46,7 +46,7 @@ export class Messaging {
     /** Open the provided GitHub URL in the default browser. */
     private handleOpenGithub(message: { url: string }) {
         if (!message.url) {
-            vscode.window.showInformationMessage('No GitHub origin found for this repository.');
+            vscode.window.showInformationMessage(vscode.l10n.t('No GitHub origin found for this repository.'));
             return;
         }
         vscode.env.openExternal(vscode.Uri.parse(message.url));

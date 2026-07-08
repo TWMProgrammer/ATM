@@ -52,7 +52,9 @@ async function main() {
 		sourcesContent: false,
 		platform: 'node',
 		outfile: 'dist/extension.js',
-		external: ['vscode', 'NeteaseCloudMusicApi'],
+		// bufferutil / utf-8-validate are optional native accelerators probed by
+		// `ws` inside try/catch — leave them unresolved instead of bundling.
+		external: ['vscode', 'NeteaseCloudMusicApi', 'bufferutil', 'utf-8-validate'],
 		logLevel: 'silent',
 		plugins: [extensionEsbuildProblemMatcherPlugin],
 	});
@@ -69,7 +71,9 @@ async function main() {
 			'src/extensions/14-screenshot-code/ui/webview.ts',
 			'src/extensions/14-screenshot-code/ui/styles.css',
 			'src/extensions/21-atm-translate/ui/atm-translate.ts',
-			'src/extensions/09-focus/screens/atm-data/screenshot/ui/index.ts'
+			'src/extensions/23-compare-code/ui/compare-code.ts',
+			'src/extensions/09-focus/screens/atm-data/screenshot/ui/index.ts',
+			'src/extensions/25-browser/ui/browser.ts'
 		],
 		bundle: true,
 		format: 'iife',

@@ -29,7 +29,7 @@ export function registerCommands(
       await config.update('enabled', !current, vscode.ConfigurationTarget.Global);
 
       const status = !current ? 'Enabled' : 'Disabled';
-      vscode.window.showInformationMessage(`Terminal Sound: ${status}`);
+      vscode.window.showInformationMessage(vscode.l10n.t('Terminal Sound: {0}', status));
       outputChannel.appendLine(`Extension ${status.toLowerCase()} by user`);
     }
   );

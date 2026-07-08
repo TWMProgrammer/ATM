@@ -33,7 +33,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
     if (arg && arg.id) {
       const ext = vscode.extensions.getExtension(arg.id);
       if (!ext) {
-        vscode.window.showInformationMessage(`To translate "${arg.id}", the extension must be installed first.`);
+        vscode.window.showInformationMessage(vscode.l10n.t('To translate "{0}", the extension must be installed first.', arg.id));
         return;
       }
 
@@ -58,7 +58,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
 
         if (!targetText) {
           vscode.window.showInformationMessage(
-            'First, install the extension 😉 and then start translating.'
+            vscode.l10n.t('First, install the extension 😉 and then start translating.')
           );
           return;
         }
@@ -86,7 +86,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
   const translateReleaseNotesHandler = async () => {
     const versionInfo = detectVersionFromReleaseNotesTab();
     if (!versionInfo) {
-      vscode.window.showInformationMessage('Please open the VS Code Release Notes tab first.');
+      vscode.window.showInformationMessage(vscode.l10n.t('Please open the VS Code Release Notes tab first.'));
       return;
     }
 
@@ -113,7 +113,7 @@ export function activateTranslateDoc(context: vscode.ExtensionContext): void {
       const cleanMarkdown = preprocessReleaseNotesMarkdown(markdown, lang.code);
       await translateAndRender(panel, cleanMarkdown, lang.code, controller.signal);
     } catch (error: any) {
-      vscode.window.showErrorMessage(`Failed to translate Release Notes: ${error.message}`);
+      vscode.window.showErrorMessage(vscode.l10n.t('Failed to translate Release Notes: {0}', error.message));
       panel.setError('Could not load or translate the release notes. Please check your connection.');
     }
   };
@@ -179,7 +179,7 @@ async function readExtensionReadme(ext: vscode.Extension<any>): Promise<string> 
     }
   }
 
-  vscode.window.showErrorMessage('Could not find a README file in this extension.');
+  vscode.window.showErrorMessage(vscode.l10n.t('Could not find a README file in this extension.'));
   return '';
 }
 

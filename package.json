@@ -3,7 +3,6 @@
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
   "version": "1.9.6",
-  "packageManager": "bun@1.3.4",
   "vsce": {
     "dependencies": false
   },
@@ -73,113 +72,131 @@
   },
   "activationEvents": [
     "onStartupFinished",
-    "onLanguage:dotenv"
+    "onLanguage:dotenv",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact",
+    "onLanguage:html",
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:vue",
+    "onLanguage:astro",
+    "onLanguage:svelte",
+    "onLanguage:json"
   ],
+  "packageManager": "bun@1.3.4",
+  "l10n": "./l10n",
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
+        "command": "atm.compareCode.open",
+        "title": "ATM: Compare Code",
+        "icon": "$(activate-breakpoints)"
+      },
+      {
         "command": "atm.voiceTts.copyAndRead",
-        "title": "%command.voiceTts.read%"
+        "title": "ATM Voice TTS: Copy & Read"
       },
       {
         "command": "commentsCode.listAnnotations",
-        "title": "%command.comments.list%"
+        "title": "ATM: List TODO / FIXME Annotations"
       },
       {
         "command": "atm.translate-doc.translateExtension",
-        "title": "%command.translate%",
+        "title": "ATM: Translate",
         "icon": "$(globe)"
       },
       {
         "command": "atm.voiceTts.selectVoice",
-        "title": "%command.voiceTts.select%",
+        "title": "ATM Voice TTS: Select Voice",
         "icon": "$(globe)"
       },
       {
         "command": "atm.mdx.preview",
-        "title": "%command.mdx.preview%",
+        "title": "ATM: Open MDX Preview",
         "icon": "$(open-preview)"
       },
       {
         "command": "git-better.copyHash",
-        "title": "%command.git.copyHash%"
+        "title": "ATM Git: Copy Commit Hash"
       },
       {
         "command": "git-better.openGitHub",
-        "title": "%command.git.openGitHub%"
+        "title": "ATM Git: Open Commit on GitHub"
       },
       {
         "command": "git-better.toggleBlame",
-        "title": "%command.git.toggleBlame%"
+        "title": "ATM Git: Toggle Inline Blame"
       },
       {
         "command": "atm.screenshotCode",
-        "title": "%command.screenshot%"
+        "title": "ATM (📸) screenshot"
       },
       {
         "command": "atm.versionPackage.check",
-        "title": "%command.version.check%",
+        "title": "ATM: Check Package Versions",
         "icon": "$(cloud-download)"
       },
       {
         "command": "atm.versionPackage.updateAll",
-        "title": "%command.version.updateAll%",
+        "title": "ATM: Update All Packages",
         "icon": "$(wand)"
       },
       {
         "command": "atm.svgBetter.optimize",
-        "title": "%command.svg.optimize%",
+        "title": "ATM: Optimize SVG",
         "icon": "$(zap)"
       },
       {
         "command": "atm.copyTag.run",
-        "title": "%command.copyTag%"
+        "title": "ATM Copy: Highlight Copied Text"
       },
       {
         "command": "atm.translate-doc.translateReleaseNotes",
-        "title": "%command.translateRelease%",
+        "title": "ATM: Translate Release Notes",
         "icon": "$(globe)"
       },
       {
         "command": "atm.dataId.showConsumption",
-        "title": "%command.dataId%",
+        "title": "ATM: Data AI",
         "icon": "$(sparkle-filled)"
       },
       {
         "command": "envLens.revealValue",
-        "title": "%command.env.reveal%"
+        "title": "Env Lens: Reveal Value"
       },
       {
         "command": "envLens.disableBlur",
-        "title": "%command.env.disableBlur%",
+        "title": "Env Lens: Reveal .env Values",
         "icon": "$(eye-closed)"
       },
       {
         "command": "envLens.enableBlur",
-        "title": "%command.env.enableBlur%",
+        "title": "Env Lens: Hide .env Values",
         "icon": "$(eye)"
       },
       {
         "command": "atm.lint.toggle",
-        "title": "%command.lint.toggle%"
+        "title": "ATM Lint: Toggle Engine"
       },
       {
         "command": "atm.lint.revalidateOpenFiles",
-        "title": "%command.lint.revalidate%",
+        "title": "ATM Lint: Revalidate Open Files",
         "icon": "$(refresh)"
       },
       {
         "command": "atm.music.togglePlayPause",
-        "title": "%command.music.togglePlayPause%"
+        "title": "ATM Music: Play/Pause"
       },
       {
         "command": "atm.music.playRandomAM",
-        "title": "%command.music.playRandomAM%"
+        "title": "ATM Music: Random AM Station"
       },
       {
         "command": "atm.translate.open",
-        "title": "%command.atmTranslate.open%",
+        "title": "ATM: Translator",
         "icon": {
           "light": "src/extensions/21-atm-translate/assets/language.svg",
           "dark": "src/extensions/21-atm-translate/assets/language.svg"
@@ -220,12 +237,79 @@
       {
         "command": "tailwind-css.toggleEnabled",
         "title": "Tailwind CSS: Enable/Disable"
+      },
+      {
+        "command": "atm.bracketLynx.toggle",
+        "title": "Bracket Lynx: Toggle",
+        "icon": "$(bracket-dot)"
+      },
+      {
+        "command": "atm.npmRun.release",
+        "title": "ATM: Release NPM Package",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "atm.npmRun.releaseMajor",
+        "title": "ATM: Release NPM Package (major)",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "atm.npmRun.releaseMinor",
+        "title": "ATM: Release NPM Package (minor)",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "atm.npmRun.releaseBeta",
+        "title": "ATM: Release NPM Package (beta)",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "atm.npmRun.refresh",
+        "title": "ATM: NPM Release — Refresh Status"
+      },
+      {
+        "command": "atm.browser.open",
+        "title": "ATM: Open Browser",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "atm.browser.newTab",
+        "title": "ATM: Browser — New Tab",
+        "icon": "$(add)"
       }
     ],
     "configuration": {
       "type": "object",
       "title": "ATM – Image Preview",
       "properties": {
+        "atm.browser.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a Chromium-based browser (Chrome, Edge, Brave, Chromium, Vivaldi) used by ATM Browser. Leave empty to auto-detect."
+        },
+        "atm.browser.startUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL opened in new ATM Browser tabs. Leave empty for a blank page with the URL bar focused."
+        },
+        "atm.browser.searchEngine": {
+          "type": "string",
+          "enum": [
+            "bing",
+            "google",
+            "duckduckgo",
+            "none"
+          ],
+          "default": "bing",
+          "description": "Search engine used when the ATM Browser URL bar input is not a URL."
+        },
+        "atm.browser.quality": {
+          "type": "number",
+          "default": 80,
+          "minimum": 10,
+          "maximum": 100,
+          "description": "JPEG quality of the ATM Browser page stream (higher = sharper, more CPU)."
+        },
         "atm.image.preview.showImagePreviewOnGutter": {
           "type": "boolean",
           "default": true,
@@ -463,7 +547,7 @@
           "type": "number",
           "default": 1500,
           "minimum": 0,
-          "maximum": 10000,
+          "maximum": 1e4,
           "description": "Debounce time in milliseconds (per terminal)"
         },
         "terminalSound.customSoundPath": {
@@ -473,10 +557,15 @@
         },
         "terminalSound.volume": {
           "type": "number",
-          "default": 1.0,
-          "minimum": 0.0,
-          "maximum": 1.0,
+          "default": 1,
+          "minimum": 0,
+          "maximum": 1,
           "description": "Volume level (0.0 to 1.0)"
+        },
+        "atm.bracketLynx.globalEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Bracket Lynx decorations globally."
         }
       }
     },
@@ -535,20 +624,30 @@
         }
       }
     ],
-	    "keybindings": [
-	      {
-	        "command": "-workbench.action.gotoLine",
-	        "key": "ctrl+g",
-	        "mac": "ctrl+g"
-	      },
-	      {
-	        "command": "atm.translate.open",
-	        "key": "ctrl+g",
-	        "mac": "ctrl+g"
-	      },
-	      {
-	        "command": "atm.voiceTts.copyAndRead",
-	        "key": "shift+space",
+    "keybindings": [
+      {
+        "command": "atm.compareCode.open",
+        "key": "alt+shift+\\",
+        "mac": "alt+shift+\\"
+      },
+      {
+        "command": "atm.browser.open",
+        "key": "alt+shift+b",
+        "mac": "alt+shift+b"
+      },
+      {
+        "command": "-workbench.action.gotoLine",
+        "key": "ctrl+g",
+        "mac": "ctrl+g"
+      },
+      {
+        "command": "atm.translate.open",
+        "key": "ctrl+g",
+        "mac": "ctrl+g"
+      },
+      {
+        "command": "atm.voiceTts.copyAndRead",
+        "key": "shift+space",
         "mac": "cmd+shift+space"
       },
       {
@@ -631,6 +730,11 @@
       ],
       "editor/title": [
         {
+          "command": "atm.compareCode.open",
+          "group": "navigation@3",
+          "when": "resourceScheme == file"
+        },
+        {
           "command": "atm.translate.open",
           "group": "navigation@0",
           "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
@@ -674,6 +778,11 @@
           "command": "envLens.enableBlur",
           "group": "navigation@50",
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
+        },
+        {
+          "command": "atm.bracketLynx.toggle",
+          "group": "navigation@51",
+          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }
       ],
       "extension/context": [
@@ -771,7 +880,7 @@
         {
           "type": "webview",
           "id": "atm-yt-music-view",
-          "name": "%view.music%",
+          "name": "ATM :: Radio/Music · Pomodoro · Data",
           "icon": "$(music)"
         }
       ],
@@ -796,11 +905,11 @@
   },
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",
+    "NeteaseCloudMusicApi": "^4.30.0",
     "file-type": "^21.3.3",
     "get-video-dimensions": "^1.0.0",
     "html-to-image": "^1.11.13",
     "music-metadata": "^11.12.3",
-    "NeteaseCloudMusicApi": "^4.30.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",
@@ -810,7 +919,8 @@
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",
-    "vscode-uri": "^3.1.0"
+    "vscode-uri": "^3.1.0",
+    "ws": "^8.21.0"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
@@ -838,6 +948,7 @@
     "@types/semver": "^7.7.1",
     "@types/svgo": "^2.6.4",
     "@types/vscode": "^1.75.0",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
     "@vitalets/google-translate-api": "^9.2.1",
@@ -856,7 +967,7 @@
     "markdown-it": "^14.1.1",
     "mermaid": "^11.12.3",
     "npm-run-all": "^4.1.5",
-    "ts-morph": "^27.0.2",
+    "ts-morph": "^28.0.0",
     "type-fest": "^5.4.4",
     "typescript": "^5.7.3",
     "vue-eslint-parser": "^10.4.0"

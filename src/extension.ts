@@ -11,6 +11,9 @@ import { mermaidPlugin } from './extensions/12-markdown-md/core/mermaidPlugin';
 import { deactivateFocus } from './extensions/09-focus/focus';
 import { deactivateLint } from './extensions/02-atm-lint/lint';
 import { deactivateGlobalStatusBar } from './extensions/shared/shared';
+import { deactivateBracketLynx } from './extensions/22-bracket-lynx';
+import { deactivateCompareCode } from './extensions/23-compare-code';
+import { deactivateBrowser } from './extensions/25-browser';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
@@ -41,4 +44,7 @@ export async function deactivate(): Promise<void> {
   await deactivateColorDebugging();
   deactivateFocus();
   await deactivateLint();
+  deactivateBracketLynx();
+  deactivateCompareCode();
+  deactivateBrowser();
 }

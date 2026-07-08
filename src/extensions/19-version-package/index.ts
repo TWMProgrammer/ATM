@@ -57,7 +57,7 @@ export function activateVersionPackage(context: vscode.ExtensionContext) {
         if (toUpdate.length > 0) {
             updateAllVersions(toUpdate, editor.document);
         } else {
-            vscode.window.showInformationMessage("All packages are already up-to-date! ✅");
+            vscode.window.showInformationMessage(vscode.l10n.t("All packages are already up-to-date! ✅"));
         }
     }));
 

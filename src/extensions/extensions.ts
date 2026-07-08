@@ -22,6 +22,36 @@ import { activateGlobalStatusBar } from './shared/shared';
 import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
 import { activateAtmTranslate } from './21-atm-translate';
+import { activateBracketLynx } from './22-bracket-lynx';
+import { activateCompareCode } from './23-compare-code';
+import { activateNpmRun } from './24-npm-run';
+import { activateBrowser } from './25-browser';
+
+/**
+ * Runs a synchronous sub-extension activation, isolating failures so one
+ * broken extension cannot prevent the rest from registering.
+ */
+function safeActivate(name: string, fn: () => void): void {
+  try {
+    fn();
+  } catch (error) {
+    console.error(`[${name}] Activation error:`, error);
+  }
+}
+
+/**
+ * Runs an async sub-extension activation, isolating both synchronous throws
+ * and promise rejections.
+ */
+function safeActivateAsync(name: string, fn: () => Promise<unknown>): void {
+  try {
+    fn().catch((error) => {
+      console.error(`[${name}] Activation error:`, error);
+    });
+  } catch (error) {
+    console.error(`[${name}] Activation error:`, error);
+  }
+}
 
 /**
  * Register all sub-extensions here.
@@ -29,32 +59,32 @@ import { activateAtmTranslate } from './21-atm-translate';
  */
 export function activateExtensions(context: vscode.ExtensionContext): void {
   // Inicializamos nuestra barra global de una vez:
-  activateGlobalStatusBar(context);
+  safeActivate('status-bar', () => activateGlobalStatusBar(context));
 
-  activateSettings(context);
-  activateImagePreview(context);
-  activateVoiceTts(context).catch((error) => {
-    console.error('[voice-tts] Activation error:', error);
-  });
-  activateCodeSpell(context);
-  activateErrorLens(context);
-  activateColorBox(context);
-  activateCommentsCode(context);
-  activateTranslateDoc(context);
-  activateMdxPreview(context);
-  activateGitBetter(context);
-  activateColorDebugging(context);
-  activateScreenshotCode(context);
-  activateVersionPackage(context);
-  activateSvgBetter(context);
-  activateDataId(context);
-  activateEnvLens(context);
-  activateMarkdownImageIcons(context);
-  activateFocus(context);
-  activateLint(context);
-  activateTerminalSound(context);
-  activateAtmTranslate(context);
-  activateTailwindFold(context).catch((error) => {
-    console.error('[tailwind-css] Activation error:', error);
-  });
+  safeActivate('settings', () => activateSettings(context));
+  safeActivate('image-preview', () => activateImagePreview(context));
+  safeActivateAsync('voice-tts', () => activateVoiceTts(context));
+  safeActivate('code-spell', () => activateCodeSpell(context));
+  safeActivate('error-lens', () => activateErrorLens(context));
+  safeActivate('color-box', () => activateColorBox(context));
+  safeActivate('comments-code', () => activateCommentsCode(context));
+  safeActivate('translate-doc', () => activateTranslateDoc(context));
+  safeActivate('markdown-mdx', () => activateMdxPreview(context));
+  safeActivate('git-better', () => activateGitBetter(context));
+  safeActivate('color-debugging', () => activateColorDebugging(context));
+  safeActivate('screenshot-code', () => activateScreenshotCode(context));
+  safeActivate('version-package', () => activateVersionPackage(context));
+  safeActivate('svg-better', () => activateSvgBetter(context));
+  safeActivate('ai-data-id', () => activateDataId(context));
+  safeActivate('env-lens', () => activateEnvLens(context));
+  safeActivate('markdown-md', () => activateMarkdownImageIcons(context));
+  safeActivate('focus', () => activateFocus(context));
+  safeActivate('atm-lint', () => activateLint(context));
+  safeActivate('terminal-sound', () => activateTerminalSound(context));
+  safeActivate('atm-translate', () => activateAtmTranslate(context));
+  safeActivateAsync('tailwind-css', () => activateTailwindFold(context));
+  safeActivate('bracket-lynx', () => activateBracketLynx(context));
+  safeActivate('compare-code', () => activateCompareCode(context));
+  safeActivate('npm-run', () => activateNpmRun(context));
+  safeActivate('browser', () => activateBrowser(context));
 }

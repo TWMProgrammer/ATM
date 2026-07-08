@@ -79,7 +79,7 @@ export class ScreenshotPanel {
             return;
           case 'error':
             vscode.window.showErrorMessage(
-              `Screenshot Error: ${message.text}`
+              vscode.l10n.t('Screenshot Error: {0}', message.text)
             );
             return;
         }
@@ -136,7 +136,7 @@ export class ScreenshotPanel {
       const lineCount = plainText.split(/\r\n|\r|\n/).length;
       if (lineCount > 98) {
         vscode.window.showWarningMessage(
-          `Selection too large (${lineCount} lines). Max allowed is 98 for performance.`
+          vscode.l10n.t('Selection too large ({0} lines). Max allowed is 98 for performance.', lineCount)
         );
         return;
       }
@@ -188,10 +188,10 @@ export class ScreenshotPanel {
       if (uri) {
         const buffer = Buffer.from(base64Data, 'base64');
         await vscode.workspace.fs.writeFile(uri, buffer);
-        vscode.window.showInformationMessage('Screenshot saved! 📸');
+        vscode.window.showInformationMessage(vscode.l10n.t('Screenshot saved! 📸'));
       }
     } catch (error) {
-      vscode.window.showErrorMessage('Failed to save the screenshot.');
+      vscode.window.showErrorMessage(vscode.l10n.t('Failed to save the screenshot.'));
       console.error('[ScreenshotPanel]', error);
     }
   }
