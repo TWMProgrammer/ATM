@@ -73,5 +73,9 @@
   "Could not test audio. Make sure Terminal Sound extension is active.": "无法测试音频。确保终端声音扩展处于活动状态。",
   "Terminal Audio {0}": "终端音频 {0}",
   "No GitHub origin found for this repository.": "找不到此存储库的 GitHub 来源。",
-  "Screenshot saved successfully! 📸": "截图保存成功！ 📸"
+  "Screenshot saved successfully! 📸": "截图保存成功！ 📸",
+  "ATM Formatter: no active document": "ATM Formatter: 没有活动文档",
+  "ATM Formatter: {0}": "ATM Formatter: {0}",
+  "ATM Formatter: language \"{0}\" is not supported": "ATM Formatter: 不支持语言\"{0}\"",
+  "Format with ATM Formatter": "使用 ATM Formatter 格式化"
 }

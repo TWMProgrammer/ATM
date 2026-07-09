@@ -73,5 +73,9 @@
   "Could not test audio. Make sure Terminal Sound extension is active.": "Không thể kiểm tra âm thanh. Hãy đảm bảo tiện ích mở rộng Terminal Sound đang hoạt động.",
   "Terminal Audio {0}": "Âm thanh Terminal {0}",
   "No GitHub origin found for this repository.": "Không tìm thấy nguồn GitHub cho kho lưu trữ này.",
-  "Screenshot saved successfully! 📸": "Lưu ảnh chụp màn hình thành công! 📸"
+  "Screenshot saved successfully! 📸": "Lưu ảnh chụp màn hình thành công! 📸",
+  "ATM Formatter: no active document": "ATM Formatter: không có tài liệu hoạt động",
+  "ATM Formatter: {0}": "ATM Formatter: {0}",
+  "ATM Formatter: language \"{0}\" is not supported": "ATM Formatter: ngôn ngữ \"{0}\" không được hỗ trợ",
+  "Format with ATM Formatter": "Định dạng với ATM Formatter"
 }
