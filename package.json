@@ -1264,8 +1264,9 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^4.0.0",
-    "prettier-plugin-astro": "./prettier-plugin-astro-main",
+    "prettier-plugin-astro": "^0.14.1",
     "sass-formatter": "^0.8.0",
+    "prettier": "3.7.4",
 
     "@mdx-js/mdx": "^3.1.1",
     "NeteaseCloudMusicApi": "^4.30.0",
@@ -1273,7 +1274,6 @@
     "get-video-dimensions": "^1.0.0",
     "html-to-image": "^1.11.13",
     "music-metadata": "^11.12.3",
-    "prettier": "3.7.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",

@@ -2,6 +2,11 @@
 .vscode-test/**
 out/**
 node_modules/**
+# Astro formatter deps are externalized by esbuild (WASM parser stays lazy),
+# so they must ship in the .vsix — re-include them after the blanket ignore.
+!node_modules/@astrojs/compiler/**
+!node_modules/sass-formatter/**
+!node_modules/suf-log/**
 src/**
 !src/**/*.html
 !src/**/*.css
