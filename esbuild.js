@@ -54,7 +54,19 @@ async function main() {
 		outfile: 'dist/extension.js',
 		// bufferutil / utf-8-validate are optional native accelerators probed by
 		// `ws` inside try/catch — leave them unresolved instead of bundling.
-		external: ['vscode', 'NeteaseCloudMusicApi', 'bufferutil', 'utf-8-validate'],
+		// @astrojs/compiler loads a ~5 MB WASM file at runtime via import.meta.url;
+		// externalizing keeps the WASM lazy-loaded from node_modules only when
+		// an .astro file is formatted.
+		external: [
+			'vscode',
+			'NeteaseCloudMusicApi',
+			'bufferutil',
+			'utf-8-validate',
+			'@astrojs/compiler',
+			'@astrojs/compiler/sync',
+			'@astrojs/compiler/utils',
+			'sass-formatter',
+		],
 		logLevel: 'silent',
 		plugins: [extensionEsbuildProblemMatcherPlugin],
 	});
