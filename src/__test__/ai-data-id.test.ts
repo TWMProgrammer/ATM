@@ -43,23 +43,23 @@ suite('AI Data Extension – Unit Tests', () => {
 
 	suite('getStatusColor', () => {
 		test('returns red for danger zone (< 15%)', () => {
-			assert.strictEqual(getStatusColor(0), '#f87171');
-			assert.strictEqual(getStatusColor(14), '#f87171');
+			assert.strictEqual(getStatusColor(0), '#f43f5e');
+			assert.strictEqual(getStatusColor(14), '#f43f5e');
 		});
 
 		test('returns yellow for warning zone (15–39%)', () => {
-			assert.strictEqual(getStatusColor(15), '#facc15');
-			assert.strictEqual(getStatusColor(39), '#facc15');
+			assert.strictEqual(getStatusColor(15), '#f59e0b');
+			assert.strictEqual(getStatusColor(39), '#f59e0b');
 		});
 
 		test('returns cyan for info zone (40–69%)', () => {
-			assert.strictEqual(getStatusColor(40), '#22d3ee');
-			assert.strictEqual(getStatusColor(69), '#22d3ee');
+			assert.strictEqual(getStatusColor(40), '#0ea5e9');
+			assert.strictEqual(getStatusColor(69), '#0ea5e9');
 		});
 
 		test('returns green for healthy zone (≥ 70%)', () => {
-			assert.strictEqual(getStatusColor(70), '#4ade80');
-			assert.strictEqual(getStatusColor(100), '#4ade80');
+			assert.strictEqual(getStatusColor(70), '#10b981');
+			assert.strictEqual(getStatusColor(100), '#10b981');
 		});
 	});
 

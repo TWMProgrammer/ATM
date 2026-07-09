@@ -282,6 +282,16 @@
       "type": "object",
       "title": "ATM – Image Preview",
       "properties": {
+        "atm.layout.startupMode": {
+          "type": "string",
+          "enum": [
+            "pro",
+            "normal",
+            "none"
+          ],
+          "default": "none",
+          "description": "Choose which layout mode to display upon extension startup. 'pro' places the sidebar on the right and activity bar at the top. 'normal' places the sidebar on the left and activity bar on the default location. 'none' keeps your current layout configuration without making any changes."
+        },
         "atm.browser.executablePath": {
           "type": "string",
           "default": "",
@@ -566,6 +576,136 @@
           "type": "boolean",
           "default": true,
           "description": "Enable Bracket Lynx decorations globally."
+        },
+        "atm.modules.settings.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable settings module (applies custom IDE native settings)."
+        },
+        "atm.modules.imagePreview.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Gutter Image Previews module."
+        },
+        "atm.modules.voiceTts.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Text-to-Speech (Piper voice) module."
+        },
+        "atm.modules.codeSpell.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Code Spell Checker module."
+        },
+        "atm.modules.errorLens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Inline Diagnostics (Error Lens) module."
+        },
+        "atm.modules.colorBox.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Color Decoration box module."
+        },
+        "atm.modules.commentsCode.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable TODO/FIXME Indexer comments-code module."
+        },
+        "atm.modules.translateDoc.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Translation engine (translate-doc) module."
+        },
+        "atm.modules.markdownMdx.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable MDX Preview support module."
+        },
+        "atm.modules.gitBetter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Git Better module."
+        },
+        "atm.modules.colorDebugging.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Color Debugging module."
+        },
+        "atm.modules.screenshotCode.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Code Screenshot module."
+        },
+        "atm.modules.versionPackage.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable package.json dependency checker module."
+        },
+        "atm.modules.svgBetter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable SVG optimization/utilities module."
+        },
+        "atm.modules.aiDataId.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable AI Data consumption (ai-data-id) module."
+        },
+        "atm.modules.envLens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Env Lens (.env value blur/masking) module."
+        },
+        "atm.modules.markdownMd.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Markdown enhancements/icons module."
+        },
+        "atm.modules.focus.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Focus timer module."
+        },
+        "atm.modules.atmLint.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable ATM Lint module."
+        },
+        "atm.modules.terminalSound.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Terminal sound alerts module."
+        },
+        "atm.modules.atmTranslate.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable ATM Translate core panel module."
+        },
+        "atm.modules.tailwindCss.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Tailwind CSS class folding module."
+        },
+        "atm.modules.bracketLynx.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Bracket Lynx editor lines decoration module."
+        },
+        "atm.modules.compareCode.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Compare Code diff utility module."
+        },
+        "atm.modules.npmRun.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable NPM Release helper module."
+        },
+        "atm.modules.browser.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable ATM Browser engine module."
         }
       }
     },

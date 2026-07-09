@@ -80,7 +80,7 @@ suite('ATM Lint Engine - Quick Fixes', () => {
 
 		const actions = engine.getCodeActions(uri, diagnostic, { includeSuggestions: true });
 		assert.strictEqual(actions.length, 1);
-		assert.strictEqual(actions[0].title, "Lint [✨]: Use '===' instead of '=='. (eqeqeq)");
+		assert.strictEqual(actions[0].title, "Lint [🔒]: Use '===' instead of '=='. (eqeqeq)");
 
 		const edit = actions[0].edit?.changes?.[uri]?.[0];
 		assert.ok(edit);

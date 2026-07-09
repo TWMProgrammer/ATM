@@ -13,9 +13,11 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
    * ========================================================= */
   const minimapConfig = vscode.workspace.getConfiguration('editor.minimap');
   const sectionRegex = '^[ \\t]*(?:\\/\\/|#|<!--|;|\\/\\*)[ \\t]*(MARK|TODO|FIXME):';
-  minimapConfig.update('sectionHeaderDetectionRegExp', sectionRegex, true).then(undefined, (err) => {
-    console.error('[Comments Code] Failed to update minimap regex:', err);
-  });
+  if (minimapConfig.has('sectionHeaderDetectionRegExp')) {
+    minimapConfig.update('sectionHeaderDetectionRegExp', sectionRegex, true).then(undefined, (err) => {
+      console.error('[Comments Code] Failed to update minimap regex:', err);
+    });
+  }
 
   /* =========================================================
    * 🔄 DEBOUNCE CACHE INVALIDATION

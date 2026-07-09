@@ -1,4 +1,4 @@
-import type * as vscode from 'vscode';
+import * as vscode from 'vscode';
 import { activateSettings } from '../settings/settings';
 import { activateImagePreview } from './11-image-preview';
 import { activateVoiceTts } from './20-voice-tts';
@@ -61,30 +61,99 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   // Inicializamos nuestra barra global de una vez:
   safeActivate('status-bar', () => activateGlobalStatusBar(context));
 
-  safeActivate('settings', () => activateSettings(context));
-  safeActivate('image-preview', () => activateImagePreview(context));
-  safeActivateAsync('voice-tts', () => activateVoiceTts(context));
-  safeActivate('code-spell', () => activateCodeSpell(context));
-  safeActivate('error-lens', () => activateErrorLens(context));
-  safeActivate('color-box', () => activateColorBox(context));
-  safeActivate('comments-code', () => activateCommentsCode(context));
-  safeActivate('translate-doc', () => activateTranslateDoc(context));
-  safeActivate('markdown-mdx', () => activateMdxPreview(context));
-  safeActivate('git-better', () => activateGitBetter(context));
-  safeActivate('color-debugging', () => activateColorDebugging(context));
-  safeActivate('screenshot-code', () => activateScreenshotCode(context));
-  safeActivate('version-package', () => activateVersionPackage(context));
-  safeActivate('svg-better', () => activateSvgBetter(context));
-  safeActivate('ai-data-id', () => activateDataId(context));
-  safeActivate('env-lens', () => activateEnvLens(context));
-  safeActivate('markdown-md', () => activateMarkdownImageIcons(context));
-  safeActivate('focus', () => activateFocus(context));
-  safeActivate('atm-lint', () => activateLint(context));
-  safeActivate('terminal-sound', () => activateTerminalSound(context));
-  safeActivate('atm-translate', () => activateAtmTranslate(context));
-  safeActivateAsync('tailwind-css', () => activateTailwindFold(context));
-  safeActivate('bracket-lynx', () => activateBracketLynx(context));
-  safeActivate('compare-code', () => activateCompareCode(context));
-  safeActivate('npm-run', () => activateNpmRun(context));
-  safeActivate('browser', () => activateBrowser(context));
+  const config = vscode.workspace.getConfiguration('atm.modules');
+
+  if (config.get<boolean>('settings.enabled', true)) {
+    safeActivate('settings', () => activateSettings(context));
+  }
+  if (config.get<boolean>('imagePreview.enabled', true)) {
+    safeActivate('image-preview', () => activateImagePreview(context));
+  }
+  if (config.get<boolean>('voiceTts.enabled', true)) {
+    safeActivateAsync('voice-tts', () => activateVoiceTts(context));
+  }
+  if (config.get<boolean>('codeSpell.enabled', true)) {
+    safeActivate('code-spell', () => activateCodeSpell(context));
+  }
+  if (config.get<boolean>('errorLens.enabled', true)) {
+    safeActivate('error-lens', () => activateErrorLens(context));
+  }
+  if (config.get<boolean>('colorBox.enabled', true)) {
+    safeActivate('color-box', () => activateColorBox(context));
+  }
+  if (config.get<boolean>('commentsCode.enabled', true)) {
+    safeActivate('comments-code', () => activateCommentsCode(context));
+  }
+  if (config.get<boolean>('translateDoc.enabled', true)) {
+    safeActivate('translate-doc', () => activateTranslateDoc(context));
+  }
+  if (config.get<boolean>('markdownMdx.enabled', true)) {
+    safeActivate('markdown-mdx', () => activateMdxPreview(context));
+  }
+  if (config.get<boolean>('gitBetter.enabled', true)) {
+    safeActivate('git-better', () => activateGitBetter(context));
+  }
+  if (config.get<boolean>('colorDebugging.enabled', true)) {
+    safeActivate('color-debugging', () => activateColorDebugging(context));
+  }
+  if (config.get<boolean>('screenshotCode.enabled', true)) {
+    safeActivate('screenshot-code', () => activateScreenshotCode(context));
+  }
+  if (config.get<boolean>('versionPackage.enabled', true)) {
+    safeActivate('version-package', () => activateVersionPackage(context));
+  }
+  if (config.get<boolean>('svgBetter.enabled', true)) {
+    safeActivate('svg-better', () => activateSvgBetter(context));
+  }
+  if (config.get<boolean>('aiDataId.enabled', true)) {
+    safeActivate('ai-data-id', () => activateDataId(context));
+  }
+  if (config.get<boolean>('envLens.enabled', true)) {
+    safeActivate('env-lens', () => activateEnvLens(context));
+  }
+  if (config.get<boolean>('markdownMd.enabled', true)) {
+    safeActivate('markdown-md', () => activateMarkdownImageIcons(context));
+  }
+  if (config.get<boolean>('focus.enabled', true)) {
+    safeActivate('focus', () => activateFocus(context));
+  }
+  if (config.get<boolean>('atmLint.enabled', true)) {
+    safeActivate('atm-lint', () => activateLint(context));
+  }
+  if (config.get<boolean>('terminalSound.enabled', true)) {
+    safeActivate('terminal-sound', () => activateTerminalSound(context));
+  }
+  if (config.get<boolean>('atmTranslate.enabled', true)) {
+    safeActivate('atm-translate', () => activateAtmTranslate(context));
+  }
+  if (config.get<boolean>('tailwindCss.enabled', true)) {
+    safeActivateAsync('tailwind-css', () => activateTailwindFold(context));
+  }
+  if (config.get<boolean>('bracketLynx.enabled', true)) {
+    safeActivate('bracket-lynx', () => activateBracketLynx(context));
+  }
+  if (config.get<boolean>('compareCode.enabled', true)) {
+    safeActivate('compare-code', () => activateCompareCode(context));
+  }
+  if (config.get<boolean>('npmRun.enabled', true)) {
+    safeActivate('npm-run', () => activateNpmRun(context));
+  }
+  if (config.get<boolean>('browser.enabled', true)) {
+    safeActivate('browser', () => activateBrowser(context));
+  }
+
+  // Automatic reload on configuration change
+  let reloadTimeout: NodeJS.Timeout | undefined;
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('atm.modules')) {
+        if (reloadTimeout) {
+          clearTimeout(reloadTimeout);
+        }
+        reloadTimeout = setTimeout(() => {
+          vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }, 1000);
+      }
+    })
+  );
 }
