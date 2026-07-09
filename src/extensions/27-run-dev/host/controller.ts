@@ -373,7 +373,10 @@ export class RunDevController {
       this.statusBar.showRunning(session.framework.label, port, url);
     }
 
-    if (url && session.framework.opensBrowser && RunDevConfig.autoOpen) {
+    // Only auto-open the browser on a clean start. On an error we leave it
+    // closed — the user opens it deliberately via the pill's ▶ button once
+    // they want to inspect the error page.
+    if (!session.sawError && url && session.framework.opensBrowser && RunDevConfig.autoOpen) {
       this.openUrl(url);
     }
     this.setupAutoRestart(session);
