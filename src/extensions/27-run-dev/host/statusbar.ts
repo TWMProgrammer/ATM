@@ -12,6 +12,8 @@ import { RunDevConfig } from './config';
 
 const COMMAND_START = 'atm.runDev.start';
 const COMMAND_STOP = 'atm.runDev.stop';
+const COMMAND_RESTART = 'atm.runDev.restart';
+const COMMAND_OPEN = 'atm.runDev.openBrowser';
 
 export class RunDevStatusBar {
   private readonly item: vscode.StatusBarItem;
@@ -45,15 +47,46 @@ export class RunDevStatusBar {
 
   showRunning(label: string, port: number | undefined, url: string | undefined): void {
     this.item.text = port ? `$(debug-stop) ${label} :${port}` : `$(debug-stop) ${label}`;
+    this.item.tooltip = this.actionTooltip(vscode.l10n.t('{0} · running', label), url);
+    this.item.command = COMMAND_STOP;
+    this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+  }
+
+  /**
+   * The dev server process is still alive (unlike showFailed) but its own
+   * output just logged an app-level error (bad import, runtime exception, …).
+   * The controller reveals the terminal alongside this (without stealing
+   * focus) so the user can see what broke, and does NOT auto-open the browser
+   * — the ▶ button below does that on demand. Click still stops the server.
+   */
+  showRunningWithError(label: string, port: number | undefined, url: string | undefined): void {
+    this.item.text = port ? `$(warning) ${label} :${port}` : `$(warning) ${label}`;
+    this.item.tooltip = this.actionTooltip(vscode.l10n.t('{0} · error — see terminal', label), url);
+    this.item.command = COMMAND_STOP;
+    this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+  }
+
+  /**
+   * Compact tooltip with clickable command buttons: ▶ opens the browser (handy
+   * after an error, since it's no longer auto-opened) and ⟳ restarts (re-runs
+   * once you've fixed the code, re-opening the browser on success). The pill
+   * click itself stops. `isTrusted` is scoped to just these two commands.
+   */
+  private actionTooltip(headline: string, url: string | undefined): vscode.MarkdownString {
     const tip = new vscode.MarkdownString(undefined, true);
-    tip.appendMarkdown(vscode.l10n.t('{0} dev server is running. Click to stop.', label));
+    tip.isTrusted = { enabledCommands: [COMMAND_OPEN, COMMAND_RESTART] };
+    tip.appendMarkdown(headline);
     if (url) {
       tip.appendMarkdown(`\n\n$(globe) ${url}`);
     }
-    tip.appendMarkdown('\n\n' + vscode.l10n.t('Restart: ctrl+g  ·  Stop: ctrl+alt+g'));
-    this.item.tooltip = tip;
-    this.item.command = COMMAND_STOP;
-    this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+    const open = vscode.l10n.t('Open');
+    const restart = vscode.l10n.t('Restart');
+    // Keyboard shortcuts live in the hover titles so the visible row stays short.
+    tip.appendMarkdown(
+      `\n\n[$(play) ${open}](command:${COMMAND_OPEN} "${vscode.l10n.t('Open in browser')}")` +
+        `  ·  [$(refresh) ${restart}](command:${COMMAND_RESTART} "${vscode.l10n.t('Restart (ctrl+g)')}")`
+    );
+    return tip;
   }
 
   showFailed(): void {

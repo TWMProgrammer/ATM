@@ -510,8 +510,8 @@
         },
         "atm.runDev.revealTerminalOnStart": {
           "type": "boolean",
-          "default": true,
-          "description": "Focus the dev-server terminal when it starts. When false, it runs in the background panel without stealing focus."
+          "default": false,
+          "description": "Reveal the dev-server terminal panel when it starts (without stealing editor focus). When false (default), it stays hidden — the status bar shows starting/running/failed, and the terminal only auto-opens (with focus) if the dev server exits with an error."
         },
         "atm.runDev.showOnStatusbar": {
           "type": "boolean",
