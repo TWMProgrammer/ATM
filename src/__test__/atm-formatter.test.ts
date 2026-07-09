@@ -95,6 +95,27 @@ suite('ATM Formatter — Language Registry', () => {
 		assert.ok(ids.includes('typescript'));
 		assert.ok(ids.includes('typescriptreact'));
 		assert.ok(ids.includes('css'));
+		assert.ok(ids.includes('astro'));
+	});
+
+	test('astro language ID is supported', () => {
+		assert.ok(languageRegistry.isLanguageSupported('astro'));
+	});
+
+	test('getByExtension finds .astro files', () => {
+		const desc = languageRegistry.getByExtension('.astro');
+		assert.ok(desc);
+		assert.strictEqual(desc.id, 'astro');
+	});
+
+	test('astro does not support range formatting', () => {
+		const desc = languageRegistry.getByLanguageId('astro');
+		assert.strictEqual(desc?.rangeFormatting, false);
+	});
+
+	test('getRangeFormattingLanguageIds excludes astro', () => {
+		const ids = languageRegistry.getRangeFormattingLanguageIds();
+		assert.strictEqual(ids.includes('astro'), false);
 	});
 });
 
@@ -244,5 +265,27 @@ suite('ATM Formatter — Formatter Service', () => {
 
 	test('supportsRangeFormatting returns false for css', () => {
 		assert.strictEqual(service.supportsRangeFormatting('css'), false);
+	});
+
+	test('getParserForLanguageId returns astro parser', () => {
+		assert.strictEqual(service.getParserForLanguageId('astro'), 'astro');
+	});
+
+	test('formats Astro code', async () => {
+		const result = await service.formatDocument({
+			text: '---\nconst x=1\n---\n<div style="color:red">{x}</div>',
+			parser: 'astro',
+		});
+		assert.strictEqual(result.error, undefined);
+		assert.ok(result.formatted.includes('const x = 1'));
+	});
+
+	test('formats Astro with embedded CSS', async () => {
+		const result = await service.formatDocument({
+			text: '---\nconst x=1\n---\n<style>body{color:red}</style>',
+			parser: 'astro',
+		});
+		assert.strictEqual(result.error, undefined);
+		assert.ok(result.formatted.length > 0);
 	});
 });

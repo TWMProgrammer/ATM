@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "1.9.6",
+  "version": "2.0.0",
   "vsce": {
     "dependencies": false
   },
@@ -817,11 +817,6 @@
           "default": true,
           "description": "Enable Bracket Lynx decorations globally."
         },
-
-
-
-
-
         "atm.formatter.enable": {
           "type": "boolean",
           "default": true,
@@ -829,7 +824,7 @@
         },
         "atm.formatter.printWidth": {
           "type": "number",
-          "default": 80,
+          "default": 120,
           "minimum": 1,
           "description": "Maximum line width that Prettier will wrap to."
         },
@@ -851,7 +846,7 @@
         },
         "atm.formatter.singleQuote": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Use single quotes instead of double quotes."
         },
         "atm.formatter.trailingComma": {
@@ -1268,13 +1263,17 @@
     }
   },
   "dependencies": {
+    "@astrojs/compiler": "^4.0.0",
+    "prettier-plugin-astro": "^0.14.1",
+    "sass-formatter": "^0.8.0",
+    "prettier": "3.7.4",
+
     "@mdx-js/mdx": "^3.1.1",
     "NeteaseCloudMusicApi": "^4.30.0",
     "file-type": "^21.3.3",
     "get-video-dimensions": "^1.0.0",
     "html-to-image": "^1.11.13",
     "music-metadata": "^11.12.3",
-    "prettier": "3.7.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remark-frontmatter": "^5.0.0",
