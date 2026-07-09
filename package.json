@@ -846,7 +846,7 @@
         },
         "atm.formatter.singleQuote": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Use single quotes instead of double quotes."
         },
         "atm.formatter.trailingComma": {
