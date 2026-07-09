@@ -1,4 +1,23 @@
 const esbuild = require("esbuild");
+const fs = require("fs");
+const path = require("path");
+
+// Runtime deps externalized in the extension bundle (see `external` below).
+// vsce ("vsce": { "dependencies": false } in package.json) NEVER packs root
+// node_modules — .vscodeignore negations are ignored for it — so copy the full
+// dependency closure into dist/node_modules: Node resolves it first from
+// dist/extension.js. Keep in sync with `external` + package deps.
+const RUNTIME_DEPS = ['@astrojs/compiler', 'sass-formatter', 'suf-log', 's.color'];
+
+function copyRuntimeDeps() {
+	for (const dep of RUNTIME_DEPS) {
+		const src = path.join(__dirname, 'node_modules', dep);
+		const dest = path.join(__dirname, 'dist', 'node_modules', dep);
+		fs.rmSync(dest, { recursive: true, force: true });
+		// dereference: bun/pnpm may symlink packages
+		fs.cpSync(src, dest, { recursive: true, dereference: true });
+	}
+}
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -135,6 +154,7 @@ async function main() {
 		await focusWebviewCtx.watch();
 		await serverCtx.watch();
 	} else {
+		copyRuntimeDeps();
 		await extensionCtx.rebuild();
 		await extensionCtx.dispose();
 		await browserCtx.rebuild();

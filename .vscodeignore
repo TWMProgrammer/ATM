@@ -1,12 +1,10 @@
 .vscode/**
 .vscode-test/**
 out/**
+# Root node_modules never ships (vsce "dependencies": false ignores negations).
+# Externalized astro-formatter deps ship via dist/node_modules — copied by
+# copyRuntimeDeps() in esbuild.js.
 node_modules/**
-# Astro formatter deps are externalized by esbuild (WASM parser stays lazy),
-# so they must ship in the .vsix — re-include them after the blanket ignore.
-!node_modules/@astrojs/compiler/**
-!node_modules/sass-formatter/**
-!node_modules/suf-log/**
 src/**
 !src/**/*.html
 !src/**/*.css

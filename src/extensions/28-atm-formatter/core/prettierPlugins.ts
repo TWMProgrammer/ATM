@@ -24,32 +24,49 @@
  * ════════════════════════════════════════════════════════════════════
  */
 
+import type { Options } from 'prettier';
+
 // Prettier 3.x built-in parser packages — bundled by esbuild.
 import * as typescriptPlugin from 'prettier/plugins/typescript';
 import * as estreePlugin from 'prettier/plugins/estree';
 import * as postcssPlugin from 'prettier/plugins/postcss';
 import * as babelPlugin from 'prettier/plugins/babel';
 
-// prettier-plugin-astro — printer logic is bundled (~30 KB).
-// Its WASM parser (@astrojs/compiler) is externalized and lazy-loaded.
-import * as astroPlugin from 'prettier-plugin-astro';
+type PrettierPlugins = NonNullable<Options['plugins']>;
 
 // ── Future plugin packages ────────────────────────────────────────────
 // import * as lynxPlugin from 'prettier-plugin-lynx';
 
-/**
- * All bundled Prettier plugins, passed to every `format()` / `getSupportInfo()`
- * call.  Prettier resolves the correct plugin internally based on the
- * `parser` option.
- *
- * `babelPlugin` is required by `prettier-plugin-astro` for formatting
- * embedded JS expressions and `<script>` tags inside `.astro` files.
- */
-export const bundledPlugins = [
+// Statically bundled plugins. babel is required by prettier-plugin-astro
+// for embedded JS/<script> in .astro files.
+const staticPlugins: PrettierPlugins = [
 	typescriptPlugin,
 	estreePlugin,
 	postcssPlugin,
 	babelPlugin,
-	astroPlugin,
 	// lynxPlugin,
 ];
+
+let allPlugins: PrettierPlugins | null = null;
+
+/**
+ * All Prettier plugins, passed to every `format()` call — Prettier picks by
+ * the `parser` option.
+ *
+ * prettier-plugin-astro is dynamic-imported: its top-level requires of
+ * '@astrojs/compiler/sync' + 'sass-formatter' (externalized in esbuild.js,
+ * shipped in dist/node_modules) must NOT run at activation — if they're
+ * missing only .astro formatting breaks, never the whole extension.
+ */
+export async function getBundledPlugins(): Promise<PrettierPlugins> {
+	if (!allPlugins) {
+		try {
+			const astroPlugin = await import('prettier-plugin-astro');
+			allPlugins = [...staticPlugins, astroPlugin];
+		} catch {
+			// astro deps unavailable — keep formatter alive for other languages
+			allPlugins = staticPlugins;
+		}
+	}
+	return allPlugins;
+}

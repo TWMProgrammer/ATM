@@ -1,5 +1,5 @@
 import { format as prettierFormat } from 'prettier/standalone';
-import { bundledPlugins } from './prettierPlugins';
+import { getBundledPlugins } from './prettierPlugins';
 import { languageRegistry } from './languageRegistry';
 import type { FormatDocumentInput, FormatRangeInput, FormatResult } from './types';
 
@@ -20,7 +20,7 @@ export class FormatterService {
 		try {
 			const formatted = await prettierFormat(input.text, {
 				parser: input.parser,
-				plugins: bundledPlugins,
+				plugins: await getBundledPlugins(),
 				filepath: input.filepath,
 				...input.config,
 			});
@@ -39,7 +39,7 @@ export class FormatterService {
 		try {
 			const formatted = await prettierFormat(input.text, {
 				parser: input.parser,
-				plugins: bundledPlugins,
+				plugins: await getBundledPlugins(),
 				filepath: input.filepath,
 				rangeStart: input.rangeStart,
 				rangeEnd: input.rangeEnd,
