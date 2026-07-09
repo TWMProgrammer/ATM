@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "1.9.6",
+  "version": "2.0.0",
   "vsce": {
     "dependencies": false
   },
@@ -310,6 +310,20 @@
         "command": "atm.runDev.openBrowser",
         "title": "ATM: Run Dev — Open in Browser",
         "icon": "$(globe)"
+      },
+      {
+        "command": "atm.formatter.formatDocument",
+        "title": "ATM Formatter: Format Document",
+        "icon": "$(paint)"
+      },
+      {
+        "command": "atm.formatter.forceFormat",
+        "title": "ATM Formatter: Force Format (ignore .atmignore)",
+        "icon": "$(paint)"
+      },
+      {
+        "command": "atm.formatter.showOutput",
+        "title": "ATM Formatter: Show Output"
       }
     ],
     "configuration": {
@@ -802,6 +816,83 @@
           "type": "boolean",
           "default": true,
           "description": "Enable Bracket Lynx decorations globally."
+        },
+        "atm.formatter.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable ATM Formatter for TypeScript, TSX, and CSS files."
+        },
+        "atm.formatter.printWidth": {
+          "type": "number",
+          "default": 120,
+          "minimum": 1,
+          "description": "Maximum line width that Prettier will wrap to."
+        },
+        "atm.formatter.tabWidth": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "description": "Number of spaces per indentation level."
+        },
+        "atm.formatter.useTabs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Indent with tabs instead of spaces."
+        },
+        "atm.formatter.semi": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add semicolons to the end of statements."
+        },
+        "atm.formatter.singleQuote": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use single quotes instead of double quotes."
+        },
+        "atm.formatter.trailingComma": {
+          "type": "string",
+          "enum": ["none", "es5", "all"],
+          "default": "all",
+          "enumDescriptions": [
+            "No trailing commas.",
+            "Trailing commas where valid in ES5 (objects, arrays).",
+            "Trailing commas wherever possible."
+          ],
+          "description": "Controls trailing commas in multi-line constructs."
+        },
+        "atm.formatter.bracketSpacing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add spaces between brackets in object literals."
+        },
+        "atm.formatter.bracketSameLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Put the closing > of multi-line JSX/HTML on the same line as the last line."
+        },
+        "atm.formatter.arrowParens": {
+          "type": "string",
+          "enum": ["avoid", "always"],
+          "default": "always",
+          "enumDescriptions": ["Omit parens for single arrow function parameters.", "Always include parens."],
+          "description": "Parentheses around single arrow function parameter."
+        },
+        "atm.formatter.endOfLine": {
+          "type": "string",
+          "enum": ["auto", "lf", "crlf", "cr"],
+          "default": "lf",
+          "enumDescriptions": ["Maintain existing line endings.", "Force LF.", "Force CRLF.", "Force CR (old Mac)."],
+          "description": "Line ending style for formatted output."
+        },
+        "atm.formatter.requireConfig": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only format files when a Prettier config file (.prettierrc or package.json) is found."
+        },
+        "atm.formatter.ignorePath": {
+          "type": "string",
+          "default": ".atmignore",
+          "description": "Path to the ignore file (relative to the workspace root). Lists files that ATM Formatter should skip."
         }
       }
     },
@@ -1172,6 +1263,11 @@
     }
   },
   "dependencies": {
+    "@astrojs/compiler": "^4.0.0",
+    "prettier-plugin-astro": "^0.14.1",
+    "sass-formatter": "^0.8.0",
+    "prettier": "3.7.4",
+
     "@mdx-js/mdx": "^3.1.1",
     "NeteaseCloudMusicApi": "^4.30.0",
     "file-type": "^21.3.3",

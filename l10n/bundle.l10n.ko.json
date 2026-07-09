@@ -73,5 +73,9 @@
   "Could not test audio. Make sure Terminal Sound extension is active.": "오디오를 테스트할 수 없습니다. 터미널 사운드 확장이 활성화되어 있는지 확인하세요.",
   "Terminal Audio {0}": "터미널 오디오 {0}",
   "No GitHub origin found for this repository.": "이 저장소의 GitHub 원본을 찾을 수 없습니다.",
-  "Screenshot saved successfully! 📸": "스크린샷이 성공적으로 저장되었습니다! 📸"
+  "Screenshot saved successfully! 📸": "스크린샷이 성공적으로 저장되었습니다! 📸",
+  "ATM Formatter: no active document": "ATM Formatter: 활성 문서가 없습니다",
+  "ATM Formatter: {0}": "ATM Formatter: {0}",
+  "ATM Formatter: language \"{0}\" is not supported": "ATM Formatter: 언어 \"{0}\"이(가) 지원되지 않습니다",
+  "Format with ATM Formatter": "ATM Formatter로 포맷"
 }

@@ -16,6 +16,7 @@ import { deactivateCompareCode } from './extensions/23-compare-code';
 import { deactivateBrowser } from './extensions/25-browser';
 import { deactivateGoLive } from './extensions/26-go';
 import { deactivateRunDev } from './extensions/27-run-dev';
+import { deactivateAtmFormatter } from './extensions/28-atm-formatter';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
@@ -51,4 +52,5 @@ export async function deactivate(): Promise<void> {
   deactivateBrowser();
   await deactivateGoLive();
   deactivateRunDev();
+  deactivateAtmFormatter();
 }
