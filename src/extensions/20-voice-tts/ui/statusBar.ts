@@ -153,8 +153,19 @@ export async function updateVoiceStatusBar(
 ): Promise<void> {
   const voices = await getAvailableVoices(context);
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
-  const currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
+  let currentVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
   const icon = STATUS_BAR_CONFIG.voice.icon;
+
+  // configured voice missing but another exists (possibly shared by a sibling
+  // bastndev.* extension) → adopt it instead of showing red "No Voice"
+  if (voices.length > 0 && !voices.includes(currentVoice)) {
+    currentVoice = voices[0];
+    await config.update(
+      'voice',
+      currentVoice,
+      vscode.ConfigurationTarget.Global,
+    );
+  }
 
   if (voices.length === 0) {
     voiceItem.text = `$(${icon}) No Voice`;

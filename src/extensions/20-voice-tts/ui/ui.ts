@@ -16,11 +16,11 @@ import {
   fileExists,
   getPiperPath,
   getResourcesBasePath,
+  resolvePiperExecutablePath,
 } from '../core/core';
 import {
   downloadFile,
   formatBytes,
-  isPiperInstalled,
   installPiper,
 } from '../core/installer';
 import type { PresetVoice, PresetLanguage } from '../core/types';
@@ -266,7 +266,9 @@ async function executeVoiceDownload(
           'piper',
         );
 
-        if (!(await isPiperInstalled(piperPath))) {
+        // reuse a sibling bastndev.* extension's engine instead of re-downloading it
+        const existingPiper = await resolvePiperExecutablePath(context);
+        if (!(await fileExists(existingPiper))) {
           progress.report({
             message: 'Installing Piper TTS engine (first time only)...',
           });
