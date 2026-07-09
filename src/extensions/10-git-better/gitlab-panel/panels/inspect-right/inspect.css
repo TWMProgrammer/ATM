@@ -246,6 +246,26 @@
     color: var(--text-primary);
 }
 
+/* ── Responsive: overlay drawer on narrow panels ──────── */
+/* `body .inspect-panel` outranks the critical inline CSS in index.html,
+   which is parsed after the linked stylesheets and would win ties */
+@media (max-width: 640px) {
+    body .inspect-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        height: 100%;
+        width: min(var(--inspect-panel-width), calc(100vw - var(--sidebar-width) - 48px));
+        box-shadow: -8px 0 24px rgba(0, 0, 0, 0.35);
+    }
+
+    body .inspect-panel.collapsed {
+        width: 36px;
+        box-shadow: none;
+    }
+}
+
 /* ── Updating State (loading new commit) ──────────────── */
 .inspect-panel.updating .inspect-body {
     opacity: 0.4;
