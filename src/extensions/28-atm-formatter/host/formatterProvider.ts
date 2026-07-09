@@ -46,11 +46,11 @@ function resolveFullConfig(document: vscode.TextDocument): { config: FormatterCo
 	return { config: merged, hasConfigFile: prettierConfig.configPath !== null };
 }
 
-/** Check if a document is ignored by .prettierignore. */
-function isDocumentIgnored(document: vscode.TextDocument): boolean {
+/** Check if a document is ignored by .atmignore. */
+export function isDocumentIgnored(document: vscode.TextDocument): boolean {
 	if (document.uri.scheme !== 'file') { return false; }
 	const workspaceRoot = getWorkspaceRoot(document);
-	const ignorePathSetting = vscode.workspace.getConfiguration().get<string>(formatterSettingKeys.ignorePath) ?? '.prettierignore';
+	const ignorePathSetting = vscode.workspace.getConfiguration().get<string>(formatterSettingKeys.ignorePath) ?? '.atmignore';
 	const patterns = readIgnorePatterns(ignorePathSetting, workspaceRoot);
 	if (patterns.length === 0) { return false; }
 	return isPathIgnored(document.uri.fsPath, workspaceRoot, patterns);
@@ -178,7 +178,7 @@ export class AtmFormatterProvider
 		return computeMinimalEdit(document, text, result.formatted);
 	}
 
-	/** Force format — ignores .prettierignore and requireConfig. */
+	/** Force format — ignores .atmignore and requireConfig. */
 	async forceFormat(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
 		const parser = formatterService.getParserForLanguageId(document.languageId);
 		if (!parser) {
@@ -218,6 +218,7 @@ export class AtmFormatterCodeActionProvider implements vscode.CodeActionProvider
 		}
 
 		if (!languageRegistry.isLanguageSupported(document.languageId)) { return []; }
+		if (isDocumentIgnored(document)) { return []; }
 
 		const action = new vscode.CodeAction(
 			vscode.l10n.t('Format with ATM Formatter'),

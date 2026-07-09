@@ -112,10 +112,10 @@ export function resolveConfigForFile(
 	return { config, configPath };
 }
 
-/* ── .prettierignore ───────────────────────────────────────────────── */
+/* ── .atmignore ────────────────────────────────────────────────────── */
 
 /**
- * Reads a `.prettierignore` file and returns the list of non-comment,
+ * Reads a `.atmignore` file and returns the list of non-comment,
  * non-empty patterns.  Returns `[]` if the file doesn't exist.
  */
 export function readIgnorePatterns(ignorePath: string, workspaceRoot: string): string[] {

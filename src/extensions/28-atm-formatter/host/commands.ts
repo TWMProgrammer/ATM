@@ -6,7 +6,8 @@ import type { FormatterStatusBar } from './statusBar';
  * Registers the `atm.formatter.*` commands.
  *
  * Commands:
- *  - `atm.formatter.formatDocument` — format the active document (forced)
+ *  - `atm.formatter.formatDocument` — format the active document (respects .atmignore)
+ *  - `atm.formatter.forceFormat`    — format ignoring .atmignore and requireConfig
  *  - `atm.formatter.showOutput`     — reveal the output channel
  */
 
@@ -25,7 +26,7 @@ export function registerFormatterCommands(
 			}
 
 			const document = await vscode.workspace.openTextDocument(targetUri);
-			const edits = await provider.forceFormat(document);
+			const edits = await provider.formatDocument(document);
 			if (edits.length === 0) { return; }
 
 			const workspaceEdit = new vscode.WorkspaceEdit();
@@ -33,6 +34,25 @@ export function registerFormatterCommands(
 			const success = await vscode.workspace.applyEdit(workspaceEdit);
 			if (success) {
 				outputChannel.appendLine(`[formatter] Applied ${edits.length} edit(s) to ${document.fileName}`);
+			}
+		}),
+
+		vscode.commands.registerCommand('atm.formatter.forceFormat', async (uri?: vscode.Uri) => {
+			const targetUri = uri ?? vscode.window.activeTextEditor?.document.uri;
+			if (!targetUri) {
+				vscode.window.showWarningMessage(vscode.l10n.t('ATM Formatter: no active document'));
+				return;
+			}
+
+			const document = await vscode.workspace.openTextDocument(targetUri);
+			const edits = await provider.forceFormat(document);
+			if (edits.length === 0) { return; }
+
+			const workspaceEdit = new vscode.WorkspaceEdit();
+			workspaceEdit.set(targetUri, edits);
+			const success = await vscode.workspace.applyEdit(workspaceEdit);
+			if (success) {
+				outputChannel.appendLine(`[formatter] Force-applied ${edits.length} edit(s) to ${document.fileName}`);
 			}
 		}),
 

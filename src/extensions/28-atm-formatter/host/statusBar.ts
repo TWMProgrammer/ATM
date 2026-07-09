@@ -1,10 +1,16 @@
 import * as vscode from 'vscode';
 import { formatterSettingKeys } from '../core/options';
 import { languageRegistry } from '../core/languageRegistry';
+import { isDocumentIgnored } from './formatterProvider';
 
 /**
  * Status bar item showing whether ATM Formatter is active for the current
- * document's language.  Clicking it reveals the output channel.
+ * document's language.
+ *
+ * States:
+ *  - Green  $(check)     — supported and not ignored
+ *  - Yellow $(warning)   — supported but ignored by .atmignore
+ *  - Hidden               — unsupported language or no editor
  */
 export class FormatterStatusBar {
 	private readonly item: vscode.StatusBarItem;
@@ -13,8 +19,6 @@ export class FormatterStatusBar {
 	constructor(outputChannel: vscode.OutputChannel) {
 		this.outputChannel = outputChannel;
 		this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 50);
-		this.item.text = '$(check) ATM Formatter';
-		this.item.tooltip = 'ATM Formatter is active';
 		this.item.command = 'atm.formatter.showOutput';
 	}
 
@@ -22,8 +26,9 @@ export class FormatterStatusBar {
 	update(editor: vscode.TextEditor | undefined): void {
 		const enabled = vscode.workspace.getConfiguration().get<boolean>(formatterSettingKeys.enable, true);
 		if (!enabled) {
-			this.item.text = '$(circle-slash) ATM Formatter';
+			this.item.text = '$(circle-slash) ATM Fmt';
 			this.item.tooltip = 'ATM Formatter is disabled';
+			this.item.backgroundColor = undefined;
 			this.item.hide();
 			return;
 		}
@@ -34,12 +39,22 @@ export class FormatterStatusBar {
 		}
 
 		const supported = languageRegistry.isLanguageSupported(editor.document.languageId);
-		if (supported) {
-			this.item.text = '$(check) ATM Fmt';
-			this.item.tooltip = `ATM Formatter — ${editor.document.languageId}`;
+		if (!supported) {
+			this.item.hide();
+			return;
+		}
+
+		const ignored = isDocumentIgnored(editor.document);
+		if (ignored) {
+			this.item.text = '$(warning) ATM Fmt';
+			this.item.tooltip = `ATM Formatter — ${editor.document.languageId} (ignored by .atmignore)`;
+			this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
 			this.item.show();
 		} else {
-			this.item.hide();
+			this.item.text = '$(check) ATM Fmt';
+			this.item.tooltip = `ATM Formatter — ${editor.document.languageId}`;
+			this.item.backgroundColor = undefined;
+			this.item.show();
 		}
 	}
 

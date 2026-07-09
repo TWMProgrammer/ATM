@@ -317,6 +317,11 @@
         "icon": "$(paint)"
       },
       {
+        "command": "atm.formatter.forceFormat",
+        "title": "ATM Formatter: Force Format (ignore .atmignore)",
+        "icon": "$(paint)"
+      },
+      {
         "command": "atm.formatter.showOutput",
         "title": "ATM Formatter: Show Output"
       }
@@ -816,7 +821,7 @@
 
 
 
-        
+
         "atm.formatter.enable": {
           "type": "boolean",
           "default": true,
@@ -891,8 +896,8 @@
         },
         "atm.formatter.ignorePath": {
           "type": "string",
-          "default": ".prettierignore",
-          "description": "Path to the ignore file (relative to the workspace root)."
+          "default": ".atmignore",
+          "description": "Path to the ignore file (relative to the workspace root). Lists files that ATM Formatter should skip."
         }
       }
     },
