@@ -1,7 +1,7 @@
 import type { Repository } from './git';
 
 /**
- * Inserts `valueOfGitmoji` into the repository commit message box.
+ * Inserts `valueOfCommitEmoji` into the repository commit message box.
  *
  * - `asSuffix = false` → strips existing leading emoji/codes, then prepends.
  * - `asSuffix = true`  → strips existing trailing emoji/codes, then appends.
@@ -9,7 +9,7 @@ import type { Repository } from './git';
  */
 export function updateCommit(
 	repository: Repository,
-	valueOfGitmoji: string,
+	valueOfCommitEmoji: string,
 	asSuffix: boolean,
 	tokensToStrip: string[],
 	canRepeat: boolean = false,
@@ -24,13 +24,13 @@ export function updateCommit(
 		if (!canRepeat) {
 			current = removeLeadingTokens(current, startTokenRegex);
 		}
-		repository.inputBox.value = `${valueOfGitmoji} ${current}`;
+		repository.inputBox.value = `${valueOfCommitEmoji} ${current}`;
 	} else {
 		if (!canRepeat) {
 			current = removeTrailingTokens(current, endTokenRegex);
 		}
 		const sep = current.length > 0 ? ' ' : '';
-		repository.inputBox.value = `${current}${sep}${valueOfGitmoji}`;
+		repository.inputBox.value = `${current}${sep}${valueOfCommitEmoji}`;
 	}
 }
 
@@ -43,7 +43,7 @@ export function buildTokenPattern(tokens: string[]): string {
 }
 
 /**
- * Repeatedly removes consecutive leading gitmoji tokens from `text`.
+ * Repeatedly removes consecutive leading commit emoji tokens from `text`.
  */
 export function removeLeadingTokens(text: string, tokenAtStart: RegExp): string {
 	let result = text.replace(/^\s+/, '');
@@ -55,7 +55,7 @@ export function removeLeadingTokens(text: string, tokenAtStart: RegExp): string 
 }
 
 /**
- * Repeatedly removes consecutive trailing gitmoji tokens from `text`.
+ * Repeatedly removes consecutive trailing commit emoji tokens from `text`.
  */
 export function removeTrailingTokens(text: string, tokenAtEnd: RegExp): string {
 	let result = text.replace(/\s+$/, '');

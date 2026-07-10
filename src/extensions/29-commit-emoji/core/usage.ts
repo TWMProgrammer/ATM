@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { GitmojiEntry } from './types';
+import type { CommitEmojiEntry } from './types';
 
 const STORAGE_KEY = 'atm.commitEmoji.usage';
 
@@ -32,9 +32,9 @@ export async function incrementUsageCount(
  * order for ties (stable sort).
  */
 export function sortEmojisByUsage(
-	emojis: Array<Partial<GitmojiEntry>>,
+	emojis: Array<Partial<CommitEmojiEntry>>,
 	usage: Record<string, number>,
-): Array<Partial<GitmojiEntry>> {
+): Array<Partial<CommitEmojiEntry>> {
 	return emojis
 		.map((item, idx) => ({ item, idx }))
 		.sort((a, b) => {

@@ -345,7 +345,7 @@
       },
       {
         "command": "atm.commitEmoji.show",
-        "title": "ATM: Commit Emoji (Gitmoji)",
+        "title": "ATM: Commit Emoji",
         "icon": "$(smiley)"
       }
     ],
@@ -367,14 +367,14 @@
           "default": [],
           "items": {
             "type": "object",
-            "title": "A custom gitmoji entry",
+            "title": "A custom commit emoji entry",
             "properties": {
               "emoji": { "type": "string" },
               "code":  { "type": "string" },
               "description": { "type": "string" }
             }
           },
-          "description": "Add custom emoji entries that appear alongside the built-in gitmoji list."
+          "description": "Add custom emoji entries that appear alongside the built-in commit emoji list."
         },
         "atm.commitEmoji.outputType": {
           "type": "string",
@@ -382,19 +382,19 @@
           "enum": ["emoji", "code"],
           "enumDescriptions": [
             "Insert the emoji character (e.g. ✨).",
-            "Insert the gitmoji code (e.g. :sparkles:)."
+            "Insert the commit emoji code (e.g. :sparkles:)."
           ],
-          "description": "Whether to insert the emoji character or its gitmoji code into the commit message."
+          "description": "Whether to insert the emoji character or its commit emoji code into the commit message."
         },
         "atm.commitEmoji.onlyUseCustomEmoji": {
           "type": "boolean",
           "default": false,
-          "description": "When enabled, only the custom emoji list is shown — built-in gitmoji entries are hidden."
+          "description": "When enabled, only the custom emoji list is shown — built-in commit emoji entries are hidden."
         },
         "atm.commitEmoji.showEmojiCode": {
           "type": "boolean",
           "default": false,
-          "description": "Show the gitmoji code (e.g. :sparkles:) next to each emoji in the picker."
+          "description": "Show the commit emoji code (e.g. :sparkles:) next to each emoji in the picker."
         },
         "atm.commitEmoji.insertPosition": {
           "type": "string",

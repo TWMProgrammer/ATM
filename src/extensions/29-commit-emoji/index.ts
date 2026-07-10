@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import Gitmoji from './core/gitmoji';
-import type { CustomGitmojiEntry } from './core/types';
+import CommitEmoji from './data';
+import type { CustomCommitEmojiEntry } from './core/types';
 import { loadUsageCounts, sortEmojisByUsage, incrementUsageCount } from './core/usage';
 import { updateCommit, buildTokenPattern } from './core/commitUtils';
 import {
@@ -22,7 +22,7 @@ export function activateCommitEmoji(context: vscode.ExtensionContext): void {
 
 		// ── Read configuration ────────────────────────────────────────────────
 		const cfg = vscode.workspace.getConfiguration('atm.commitEmoji');
-		const addCustomEmoji = cfg.get<CustomGitmojiEntry[]>('addCustomEmoji', []);
+		const addCustomEmoji = cfg.get<CustomCommitEmojiEntry[]>('addCustomEmoji', []);
 		const showEmojiCode  = cfg.get<boolean>('showEmojiCode', false);
 		const onlyCustom     = cfg.get<boolean>('onlyUseCustomEmoji', false);
 		const autoMatch      = cfg.get<boolean>('autoMatch', false);
@@ -33,7 +33,7 @@ export function activateCommitEmoji(context: vscode.ExtensionContext): void {
 		// ── Build emoji list ──────────────────────────────────────────────────
 		const allEmojis = onlyCustom
 			? [...addCustomEmoji]
-			: [...Gitmoji, ...addCustomEmoji];
+			: [...CommitEmoji, ...addCustomEmoji];
 
 		let emojis = [...allEmojis];
 
@@ -62,7 +62,7 @@ export function activateCommitEmoji(context: vscode.ExtensionContext): void {
 		}));
 
 		const selected = await vscode.window.showQuickPick(items, {
-			placeHolder: 'Select a gitmoji for your commit message',
+			placeHolder: 'Select a commit emoji for your commit message',
 			matchOnDescription: true,
 		});
 		if (!selected) {return;}
