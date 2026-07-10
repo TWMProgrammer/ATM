@@ -203,6 +203,14 @@
         }
       },
       {
+        "command": "atm.ira.open",
+        "title": "ATM: IRA",
+        "icon": {
+          "light": "src/extensions/21-atm-translate/assets/atm-logo.png",
+          "dark": "src/extensions/21-atm-translate/assets/atm-logo.png"
+        }
+      },
+      {
         "command": "atm.translate.setDeepLApiKey",
         "title": "ATM Translate: Set DeepL API Key",
         "icon": "$(key)"
@@ -1096,6 +1104,11 @@
         {
           "command": "atm.translate.open",
           "group": "navigation@0",
+          "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
+        },
+        {
+          "command": "atm.ira.open",
+          "group": "navigation@-1",
           "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
         },
         {
