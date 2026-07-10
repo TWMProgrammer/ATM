@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+	<style>
+		.icon-stroke { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+		.icon-fill { fill: #fff; stroke: none; }
+		.git-trunk { stroke-dasharray: 64; stroke-dashoffset: 64; animation: gitDraw 3.2s ease-in-out infinite; }
+		.git-branch { stroke-dasharray: 44; stroke-dashoffset: 44; animation: gitDraw 3.2s ease-in-out infinite; animation-delay: .3s; }
+		@keyframes gitDraw { 0% { stroke-dashoffset: 64; } 45% { stroke-dashoffset: 0; } 75% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -64; } }
+		.git-node { transform-box: fill-box; transform-origin: center; opacity: .7; animation: gitNodePulse 3.2s ease-in-out infinite; }
+		.git-node--1 { animation-delay: 0s; }
+		.git-node--2 { animation-delay: .5s; }
+		.git-node--3 { animation-delay: 1s; }
+		@keyframes gitNodePulse { 0%, 100% { transform: scale(1); opacity: .7; } 50% { transform: scale(1.35); opacity: 1; } }
+		@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+	</style>
+	<line x1="30" y1="18" x2="30" y2="82" class="icon-stroke git-line git-trunk"/>
+	<path d="M30 50 C 46 50, 54 50, 70 50" class="icon-stroke git-line git-branch"/>
+	<circle cx="30" cy="18" r="7" class="icon-fill git-node git-node--1"/>
+	<circle cx="30" cy="82" r="7" class="icon-fill git-node git-node--2"/>
+	<circle cx="70" cy="50" r="7" class="icon-fill git-node git-node--3"/>
+</svg>
