@@ -13,7 +13,7 @@ export function activateIra(context: vscode.ExtensionContext) {
     );
     
     panel.iconPath = vscode.Uri.file(
-      context.asAbsolutePath('src/extensions/21-atm-translate/assets/atm-logo.png')
+      context.asAbsolutePath('src/assets/atm-logo.png')
     );
 
     vscode.commands.executeCommand('setContext', 'atm.ira.active', true);

@@ -206,8 +206,8 @@
         "command": "atm.ira.open",
         "title": "ATM: IRA",
         "icon": {
-          "light": "src/extensions/21-atm-translate/assets/atm-logo.png",
-          "dark": "src/extensions/21-atm-translate/assets/atm-logo.png"
+          "light": "src/assets/atm-logo.png",
+          "dark": "src/assets/atm-logo.png"
         }
       },
       {
