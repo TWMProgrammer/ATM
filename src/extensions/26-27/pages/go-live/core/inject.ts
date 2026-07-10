@@ -77,14 +77,14 @@ const SNIPPET = `\n<!-- ATM Go Live -->\n<script>\n${CLIENT}\n</script>\n`;
  * runs after the page's own markup.
  */
 export function injectReloadClient(html: string): string {
-  const lower = html.toLowerCase();
-  const bodyClose = lower.lastIndexOf('</body>');
-  if (bodyClose !== -1) {
-    return html.slice(0, bodyClose) + SNIPPET + html.slice(bodyClose);
-  }
-  const htmlClose = lower.lastIndexOf('</html>');
-  if (htmlClose !== -1) {
-    return html.slice(0, htmlClose) + SNIPPET + html.slice(htmlClose);
-  }
-  return html + SNIPPET;
+	const lower = html.toLowerCase();
+	const bodyClose = lower.lastIndexOf('</body>');
+	if (bodyClose !== -1) {
+		return html.slice(0, bodyClose) + SNIPPET + html.slice(bodyClose);
+	}
+	const htmlClose = lower.lastIndexOf('</html>');
+	if (htmlClose !== -1) {
+		return html.slice(0, htmlClose) + SNIPPET + html.slice(htmlClose);
+	}
+	return html + SNIPPET;
 }
