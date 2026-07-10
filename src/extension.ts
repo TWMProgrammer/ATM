@@ -12,7 +12,7 @@ import { deactivateFocus } from './extensions/09-focus/focus';
 import { deactivateLint } from './extensions/02-atm-lint/lint';
 import { deactivateGlobalStatusBar } from './extensions/shared/shared';
 import { deactivateBracketLynx } from './extensions/22-bracket-lynx';
-import { deactivateCompareCode } from './extensions/23-compare-code';
+import { deactivateCompareCode } from './extensions/21-23-25';
 import { deactivateBrowser } from './extensions/25-browser';
 import { deactivateGoLive } from './extensions/26-go';
 import { deactivateRunDev } from './extensions/27-run-dev';

@@ -9,7 +9,7 @@ import * as vscode from 'vscode';
  * keeps them in sync when the user switches color theme.
  */
 
-const MODULE_SEGMENTS = ['src', 'extensions', '23-compare-code'] as const;
+const MODULE_SEGMENTS = ['src', 'extensions', '21-23-25', 'pages', 'compare-code'] as const;
 
 /** Icon file names (without extension) keyed by their template placeholder role. */
 const ICON_NAMES = {

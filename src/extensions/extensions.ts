@@ -22,13 +22,13 @@ import { activateGlobalStatusBar } from './shared/shared';
 import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
 import { activateBracketLynx } from './22-bracket-lynx';
-import { activateCompareCode } from './23-compare-code';
+
 import { activateNpmRun } from './24-npm-run';
 import { activateBrowser } from './25-browser';
 import { activateGoLive } from './26-go';
 import { activateRunDev } from './27-run-dev';
 import { activateAtmFormatter } from './28-atm-formatter';
-import { activateIra, activateGitCommands, activateAtmTranslate } from './21-23-25';
+import { activateIra, activateGitCommands, activateAtmTranslate, activateCompareCode } from './21-23-25';
 
 /**
  * Runs a synchronous sub-extension activation, isolating failures so one

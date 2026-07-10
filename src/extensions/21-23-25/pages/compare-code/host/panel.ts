@@ -15,7 +15,7 @@ import { handleWebviewMessage } from './messages';
 
 export const compareCodeViewType = 'atm.compareCode';
 
-const MODULE_SEGMENTS = ['src', 'extensions', '23-compare-code'] as const;
+const MODULE_SEGMENTS = ['src', 'extensions', '21-23-25', 'pages', 'compare-code'] as const;
 
 let comparePanel: vscode.WebviewPanel | undefined;
 let iconManager: DynamicIconManager | undefined;

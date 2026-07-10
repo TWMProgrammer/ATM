@@ -3,8 +3,9 @@ import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { activateGitCommands } from './pages/git-commands';
 import { activateAtmTranslate } from './pages/translate';
+import { activateCompareCode, deactivateCompareCode } from './pages/compare-code';
 
-export { activateGitCommands, activateAtmTranslate };
+export { activateGitCommands, activateAtmTranslate, activateCompareCode, deactivateCompareCode };
 
 type LaunchAction = 'browser' | 'compare' | 'translate' | 'git';
 
