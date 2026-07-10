@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,35 @@
 </head>
 <body>
 	<div class="panels">
-		<div class="panel panel--red"></div>
-		<div class="panel panel--green"></div>
-		<div class="panel panel--yellow"></div>
-		<div class="panel panel--blue"></div>
+
+		<!-- 1. rojo -> abrira un navegador -->
+		<div class="panel panel--red" role="button" tabindex="0" aria-label="Abrir navegador">
+			<div class="icon-wrap">
+				<!-- ATM_IRA_ICON_BROWSER -->
+			</div>
+		</div>
+
+		<!-- 2. verde -> comparador de codigo -->
+		<div class="panel panel--green" role="button" tabindex="0" aria-label="Comparar codigo">
+			<div class="icon-wrap">
+				<!-- ATM_IRA_ICON_COMPARE -->
+			</div>
+		</div>
+
+		<!-- 3. amarillo -> traductor de idiomas -->
+		<div class="panel panel--yellow" role="button" tabindex="0" aria-label="Traducir idioma">
+			<div class="icon-wrap">
+				<!-- ATM_IRA_ICON_TRANSLATE -->
+			</div>
+		</div>
+
+		<!-- 4. azul -> atajos de git / github -->
+		<div class="panel panel--blue" role="button" tabindex="0" aria-label="Acciones de git">
+			<div class="icon-wrap">
+				<!-- ATM_IRA_ICON_GIT -->
+			</div>
+		</div>
+
 	</div>
 </body>
 </html>
