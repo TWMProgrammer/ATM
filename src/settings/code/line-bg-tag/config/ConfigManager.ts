@@ -3,7 +3,7 @@ import { LINE_BG_COLORS } from '../ui/colors';
 
 export class ConfigManager {
   public colors: string[] = [];
-  public errorColor: string = '';
+
   public tabmixColor: string = '';
   public indicatorStyle: string = '';
   public lineWidth: number = 1;
@@ -12,13 +12,13 @@ export class ConfigManager {
   public colorOnWhiteSpaceOnly: boolean = false;
   public includedLanguages: string[] = [];
   public excludedLanguages: string[] = [];
-  public ignoreErrorLanguages: string[] = [];
+
   public applyNativeEnhancements: boolean = true;
 
   // Sets for O(1) lookup instead of O(n) includes()
   private includedSet: Set<string> = new Set();
   private excludedSet: Set<string> = new Set();
-  private ignoreErrorSet: Set<string> = new Set();
+
 
   constructor() {
     this.reload();
@@ -31,8 +31,6 @@ export class ConfigManager {
     this.colors =
       config.get<string[]>('colors') ?? LINE_BG_COLORS.defaultColors;
 
-    this.errorColor =
-      config.get<string>('errorColor') ?? LINE_BG_COLORS.defaultErrorColor;
     this.tabmixColor = config.get<string>('tabmixColor') ?? '';
     this.indicatorStyle = config.get<string>('indicatorStyle') ?? 'classic';
     this.lineWidth = config.get<number>('lightIndicatorStyleLineWidth') ?? 1;
@@ -44,13 +42,12 @@ export class ConfigManager {
 
     this.includedLanguages = config.get<string[]>('includedLanguages') ?? [];
     this.excludedLanguages = config.get<string[]>('excludedLanguages') ?? [];
-    this.ignoreErrorLanguages =
-      config.get<string[]>('ignoreErrorLanguages') ?? [];
+
 
     // Build Sets for O(1) lookup
     this.includedSet = new Set(this.includedLanguages);
     this.excludedSet = new Set(this.excludedLanguages);
-    this.ignoreErrorSet = new Set(this.ignoreErrorLanguages);
+
 
     const ignorePatternsConfig = config.get<any[]>('ignoreLinePatterns') ?? [];
 
@@ -87,13 +84,5 @@ export class ConfigManager {
       return false;
     }
     return true;
-  }
-
-  /** O(1) error-skip check via Set */
-  public shouldSkipErrors(langId: string): boolean {
-    if (this.ignoreErrorSet.size === 0) {
-      return false;
-    }
-    return this.ignoreErrorSet.has('*') || this.ignoreErrorSet.has(langId);
   }
 }
