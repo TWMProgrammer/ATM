@@ -255,13 +255,9 @@ function renderHoverUI(): void {
         // Update status bar text and colors
         globalStatusBarItem.text = CONSTANTS.STATUS_BAR_TEXT;
 
-        if (toolRegistry.size > 0) {
-            globalStatusBarItem.color = new vscode.ThemeColor('statusBarItem.prominentForeground');
-            globalStatusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
-        } else {
-            globalStatusBarItem.color = undefined;
-            globalStatusBarItem.backgroundColor = undefined;
-        }
+        // Ensure standard theme inheritance (prevents dark grey contrast in debug mode)
+        globalStatusBarItem.color = undefined;
+        globalStatusBarItem.backgroundColor = undefined;
 
         const stats = getToolStats();
         globalStatusBarItem.accessibilityInformation = {
