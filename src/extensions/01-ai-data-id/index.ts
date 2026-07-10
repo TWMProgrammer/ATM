@@ -163,7 +163,11 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 						lastReportedPercentage = globalPct;
 						// low quota renders plain (like the ATM item next to it) — no warning icon/yellow
 						statusBarItem.text = `${ICON_DEFAULT} AI ${globalPct}%`;
-						statusBarItem.color = undefined;
+						if (globalPct === 0) {
+							statusBarItem.color = new vscode.ThemeColor('disabledForeground');
+						} else {
+							statusBarItem.color = undefined;
+						}
 					}
 				}
 			}
