@@ -1,3 +1,14 @@
+:root {
+	--space: 1rem;
+	--bg: #09090b;
+	--fg: #e3e3e3;
+	--surface-1: #101012;
+	--surface-2: #27272a;
+	--surface-3: #52525b;
+	--ease-out: cubic-bezier(0.5, 1, 0.89, 1);
+	--ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
 * {
 	margin: 0;
 	padding: 0;
@@ -12,12 +23,16 @@ body,
 
 body {
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	color: var(--fg);
+	background: var(--bg);
 }
 
 .panels {
 	display: flex;
 	width: 100%;
 	overflow: hidden;
+	gap: var(--space);
+	padding: var(--space);
 }
 
 .panel {
@@ -30,105 +45,158 @@ body {
 	justify-content: center;
 	overflow: hidden;
 	cursor: pointer;
-	transition: flex-grow 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-		filter 0.45s ease,
-		box-shadow 0.45s ease;
+	border: 1px solid var(--surface-2);
+	border-radius: 14px;
+	background: var(--surface-1);
+	color: var(--surface-3);
+	isolation: isolate;
+	user-select: none;
+	transition: border-color 600ms var(--ease-out),
+		transform 0.45s var(--ease-out),
+		box-shadow 0.45s var(--ease-out),
+		color 300ms var(--ease-out);
 }
 
-/* glow radial que aparece detras del icono en hover */
+/* subtle bottom-left vignette over the surface */
 .panel::before {
 	content: '';
 	position: absolute;
-	width: 60%;
+	inset: 0;
+	background: radial-gradient(circle at bottom left, transparent 55%, var(--surface-1));
+	pointer-events: none;
+	transition: opacity 900ms var(--ease-out);
+	z-index: 1;
+}
+
+/* center glow that blooms behind the icon on hover */
+.panel::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 70%;
 	aspect-ratio: 1;
 	border-radius: 50%;
-	background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, transparent 70%);
+	background: radial-gradient(circle, var(--bg) 0%, transparent 65%);
 	opacity: 0;
-	transform: scale(0.6);
-	transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+	transform: scale(0.7);
+	transition: opacity 800ms var(--ease-out), transform 800ms var(--ease-out);
 	pointer-events: none;
-}
-
-.panel:hover {
-	flex-grow: 1.55;
-	filter: brightness(1.06);
-	z-index: 2;
-}
-
-.panel:hover::before {
-	opacity: 1;
-	transform: scale(1.4);
-}
-
-.panel:active {
-	flex-grow: 1.35;
-	filter: brightness(1.02);
+	z-index: 1;
 }
 
 .panel:focus-visible {
-	outline: 3px solid #fff;
+	outline: 3px solid var(--active-color, #fff);
 	outline-offset: -6px;
 }
 
-.panel--red {
-	background-color: #ef4444;
+.panel:hover,
+.panel:focus-within {
+	border-color: var(--active-color, var(--fg));
+	color: var(--active-color, var(--fg));
+	transform: translateY(-6px);
+	box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.75);
+	transition: border-color 800ms var(--ease-in-out),
+		transform 0.45s var(--ease-in-out),
+		box-shadow 0.45s var(--ease-in-out),
+		color 300ms var(--ease-in-out);
 }
 
-.panel--green {
-	background-color: #22c55e;
+.panel:hover::before,
+.panel:focus-within::before {
+	opacity: 0;
 }
 
-.panel--yellow {
-	background-color: #eab308;
+.panel:hover::after,
+.panel:focus-within::after {
+	opacity: 1;
+	transform: scale(1.1);
 }
 
-.panel--blue {
-	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+.panel:active {
+	transform: translateY(-2px) scale(0.99);
 }
 
-/* ---- icono: contenedor comun ---- */
-.icon-wrap {
+/* pixel shimmer canvas sits behind everything */
+.panel pixel-canvas {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+}
+
+/* content stack: icon + label */
+.content {
 	position: relative;
-	z-index: 1;
-	width: min(28%, 100px);
-	aspect-ratio: 1;
-	transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1.1rem;
 }
 
-.panel:hover .icon-wrap {
-	transform: translateY(-10px) scale(1.15);
+.icon-wrap {
+	width: min(26%, 96px);
+	aspect-ratio: 1;
+	transition: transform 0.45s var(--ease-out);
+}
+
+.panel:hover .icon-wrap,
+.panel:focus-within .icon-wrap {
+	transform: translateY(-8px) scale(1.12);
+	transition: transform 0.45s var(--ease-in-out);
 }
 
 .panel:active .icon-wrap {
-	transform: translateY(-2px) scale(1.05);
+	transform: translateY(-2px) scale(1.04);
 }
 
-.icon {
+.label {
+	font-size: 0.95rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--fg);
+	opacity: 0;
+	transform: translateY(8px);
+	transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
+}
+
+.panel:hover .label,
+.panel:focus-within .label {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+/* ---- icon: shared stroke/fill driven by the card color ---- */
+.icon-wrap svg {
 	width: 100%;
 	height: 100%;
+	display: block;
 	overflow: visible;
-	filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+	filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
 	transition: filter 0.45s ease;
 }
 
-.panel:hover .icon {
-	filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.4));
+.panel:hover .icon-wrap svg,
+.panel:focus-within .icon-wrap svg {
+	filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.5));
 }
 
 .icon-stroke {
 	fill: none;
-	stroke: #fff;
+	stroke: currentColor;
 	stroke-width: 4;
 	stroke-linecap: round;
 	stroke-linejoin: round;
 }
 
 .icon-fill {
-	fill: #fff;
+	fill: currentColor;
 	stroke: none;
 }
 
-/* ---- 1. rojo: brujula / navegador ---- */
+/* ---- 1. browser: compass / navigator ---- */
 .compass-ring {
 	opacity: .9;
 }
@@ -143,7 +211,7 @@ body {
 	animation: compassSpin 7s linear infinite;
 }
 
-.panel--red:hover .compass-needle {
+.panel:hover .compass-needle {
 	animation-duration: 1.6s;
 }
 
@@ -161,7 +229,7 @@ body {
 	}
 }
 
-/* ---- 2. verde: comparador de codigo (diff) ---- */
+/* ---- 2. compare: diff swap arrows ---- */
 .file-line {
 	opacity: .8;
 }
@@ -193,7 +261,7 @@ body {
 	}
 }
 
-/* ---- 3. amarillo: traductor de idiomas ---- */
+/* ---- 3. translate: breathing speech bubbles ---- */
 .bubble-line {
 	opacity: .85;
 }
@@ -256,7 +324,7 @@ body {
 	}
 }
 
-/* ---- 4. azul: atajos de git ---- */
+/* ---- 4. git: drawn trunk + pulsing nodes ---- */
 .git-trunk {
 	stroke-dasharray: 64;
 	stroke-dashoffset: 64;
@@ -330,10 +398,6 @@ body {
 		flex: 1 1 25%;
 		width: 100%;
 		height: auto;
-	}
-
-	.panel:hover {
-		flex-grow: 1.25;
 	}
 }
 
