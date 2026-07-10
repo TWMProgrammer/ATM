@@ -35,11 +35,6 @@ export function activateGoLive(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('atm.goLive.changeWorkspace', () => {
 			guard(() => activeController.changeWorkspace());
 		}),
-		vscode.workspace.onDidChangeConfiguration((event) => {
-			if (event.affectsConfiguration('atm.goLive.showOnStatusbar')) {
-				statusBar?.syncVisibility();
-			}
-		}),
 		{ dispose: () => void activeController.dispose() },
 		statusBar
 	);

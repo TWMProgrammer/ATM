@@ -81,10 +81,6 @@ export class GoLiveConfig {
 		return GoLiveConfig.get<string>('spaFile', '').trim();
 	}
 
-	static get showOnStatusbar(): boolean {
-		return GoLiveConfig.get<boolean>('showOnStatusbar', true);
-	}
-
 	static get multiRootWorkspaceName(): string {
 		return GoLiveConfig.get<string>('multiRootWorkspaceName', '');
 	}

@@ -401,11 +401,6 @@
           "default": false,
           "description": "Add a permissive 'Access-Control-Allow-Origin: *' header to every response."
         },
-        "atm.goLive.showOnStatusbar": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show the Go Live control in the status bar."
-        },
         "atm.goLive.ignoreFiles": {
           "type": "array",
           "items": {
@@ -544,11 +539,6 @@
           "type": "boolean",
           "default": false,
           "description": "Reveal the dev-server terminal panel when it starts (without stealing editor focus). When false (default), it stays hidden — the status bar shows starting/running/failed, and the terminal only auto-opens (with focus) if the dev server exits with an error."
-        },
-        "atm.runDev.showOnStatusbar": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show the Run Dev control in the status bar."
         },
         "atm.goLiveDev.showOnStatusbar": {
           "type": "boolean",
