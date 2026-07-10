@@ -16,7 +16,7 @@ import { FromWebviewMessage, ToWebviewMessage } from './messages';
 
 export const browserViewType = 'atm.browser';
 
-const MODULE_SEGMENTS = ['src', 'extensions', '25-browser'] as const;
+const MODULE_SEGMENTS = ['src', 'extensions', '21-23-25', 'pages', 'browser'] as const;
 
 const panels = new Set<BrowserPanel>();
 let lastFocused: BrowserPanel | undefined;

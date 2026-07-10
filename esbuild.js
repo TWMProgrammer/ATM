@@ -104,7 +104,7 @@ async function main() {
 			'src/extensions/21-23-25/pages/translate/ui/atm-translate.ts',
 			'src/extensions/21-23-25/pages/compare-code/ui/compare-code.ts',
 			'src/extensions/09-focus/screens/atm-data/screenshot/ui/index.ts',
-			'src/extensions/25-browser/ui/browser.ts',
+			'src/extensions/21-23-25/pages/browser/ui/browser.ts',
 			'src/extensions/21-23-25/ui/ira.ts',
 			'src/extensions/21-23-25/pages/git-commands/ui/git-commands.ts'
 		],
