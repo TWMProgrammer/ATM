@@ -32,11 +32,11 @@ export class GoLiveDevStatusBar {
   private _runDevLabel = 'Dev';
 
   constructor() {
-    // Left side, high priority (100) so it stays close to the left edge
+    // Left side, lower priority (40) so it appears to the right of the Diagnostics (Errors/Warnings)
     this.item = vscode.window.createStatusBarItem(
       'atm.goLiveDev.status',
       vscode.StatusBarAlignment.Left,
-      100
+      40
     );
     this.item.name = 'ATM Go Live (Dev)';
     this.render();
