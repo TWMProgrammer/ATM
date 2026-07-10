@@ -347,6 +347,11 @@
         "command": "atm.commitEmoji.show",
         "title": "ATM: Commit Emoji",
         "icon": "$(smiley)"
+      },
+      {
+        "command": "atm.commitEmoji.auto",
+        "title": "ATM: Commit Emoji (Auto-assign best)",
+        "icon": "$(sparkle)"
       }
     ],
     "configuration": {
@@ -1031,6 +1036,11 @@
       }
     ],
     "keybindings": [
+      {
+        "command": "atm.commitEmoji.auto",
+        "key": "alt+.",
+        "mac": "alt+."
+      },
       {
         "command": "atm.commitEmoji.show",
         "key": "ctrl+alt+.",

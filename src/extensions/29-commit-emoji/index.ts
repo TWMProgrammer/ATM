@@ -3,6 +3,7 @@ import CommitEmoji from './data';
 import type { CustomCommitEmojiEntry } from './core/types';
 import { loadUsageCounts, sortEmojisByUsage, incrementUsageCount } from './core/usage';
 import { updateCommit, buildTokenPattern } from './core/commitUtils';
+import { getBestEmojiForCommit } from './core/autoEmoji';
 import {
 	getGitExtension,
 	focusScmInputForRepoIndex,
@@ -128,6 +129,52 @@ export function activateCommitEmoji(context: vscode.ExtensionContext): void {
 	});
 
 	context.subscriptions.push(disposable);
+
+	const autoDisposable = vscode.commands.registerCommand('atm.commitEmoji.auto', async (uri?) => {
+		const git = getGitExtension();
+		if (!git) {
+			vscode.window.showErrorMessage('ATM Commit Emoji: Unable to load Git Extension');
+			return;
+		}
+
+		const cfg = vscode.workspace.getConfiguration('atm.commitEmoji');
+		const addCustomEmoji = cfg.get<CustomCommitEmojiEntry[]>('addCustomEmoji', []);
+		const outputType = cfg.get<string>('outputType', 'emoji');
+		const insertPosition = cfg.get<string>('insertPosition', 'start');
+		const canRepeat = cfg.get<boolean>('canRepeat', false);
+
+		let targetRepo = git.repositories[0];
+		if (uri) {
+			const uriPath = (uri as any)._rootUri?.path ?? (uri as any).rootUri?.path;
+			const found = git.repositories.find((r) => r.rootUri.path === uriPath);
+			if (found) { targetRepo = found; }
+		}
+		if (!targetRepo) { return; }
+		
+		const bestEmoji = getBestEmojiForCommit(targetRepo.inputBox.value, context, addCustomEmoji as any);
+		if (!bestEmoji) { return; }
+
+		await incrementUsageCount(context, bestEmoji.code, bestEmoji.emoji);
+		
+		const valueToAdd = outputType === 'emoji' ? (bestEmoji.emoji ?? '') : (bestEmoji.code ?? '');
+		const allTokens = Array.from(new Set([
+			...[...CommitEmoji, ...addCustomEmoji].map((e) => e.emoji).filter(Boolean) as string[],
+			...[...CommitEmoji, ...addCustomEmoji].map((e) => e.code).filter(Boolean) as string[],
+		]));
+
+		const preferCursor = insertPosition === 'cursor';
+		if (preferCursor) {
+			if (await tryInsertIntoCommitEditor(valueToAdd)) {return;}
+			const targetIndex = git.repositories.findIndex((r) => r.rootUri.path === targetRepo.rootUri.path);
+			await focusScmInputForRepoIndex(targetIndex);
+			if (await tryTypeIntoScmInput(valueToAdd)) {return;}
+			updateCommit(targetRepo, valueToAdd, false, allTokens, canRepeat);
+		} else {
+			const useSuffix = insertPosition === 'end';
+			updateCommit(targetRepo, valueToAdd, useSuffix, allTokens, canRepeat);
+		}
+	});
+	context.subscriptions.push(autoDisposable);
 }
 
 // Re-export token helpers for potential use by tests
