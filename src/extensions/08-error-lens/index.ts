@@ -21,7 +21,12 @@ export function activateErrorLens(context: vscode.ExtensionContext): void {
     }
     diagnosticTimer = setTimeout(() => {
       for (const editor of vscode.window.visibleTextEditors) {
-        updateDecorationsForEditor(editor, styles);
+        // one failing editor must not block clearing decorations in the rest
+        try {
+          updateDecorationsForEditor(editor, styles);
+        } catch (err) {
+          console.error('[error-lens] Failed to update decorations:', err);
+        }
       }
     }, DEBOUNCE_MS);
   };

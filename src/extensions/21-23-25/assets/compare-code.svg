@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+	<style>
+		.icon-stroke { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+		.icon-fill { fill: #fff; stroke: none; }
+		.file-line { opacity: .8; }
+		.swap-arrow { opacity: .9; }
+		.swap-arrow--top, .arrowhead--top { animation: diffPulse 2.6s ease-in-out infinite; }
+		.swap-arrow--bottom, .arrowhead--bottom { animation: diffPulse 2.6s ease-in-out infinite; animation-delay: 1.3s; }
+		@keyframes diffPulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+		@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+	</style>
+	<rect x="8" y="18" width="30" height="64" rx="5" class="icon-stroke"/>
+	<line x1="15" y1="32" x2="31" y2="32" class="icon-stroke file-line"/>
+	<line x1="15" y1="42" x2="31" y2="42" class="icon-stroke file-line"/>
+	<line x1="15" y1="52" x2="25" y2="52" class="icon-stroke file-line"/>
+	<rect x="62" y="18" width="30" height="64" rx="5" class="icon-stroke"/>
+	<line x1="69" y1="32" x2="85" y2="32" class="icon-stroke file-line"/>
+	<line x1="69" y1="42" x2="85" y2="42" class="icon-stroke file-line"/>
+	<line x1="69" y1="52" x2="79" y2="52" class="icon-stroke file-line"/>
+	<path d="M40 38 C 46 38, 50 38, 54 38" class="icon-stroke swap-arrow swap-arrow--top"/>
+	<polygon points="54,34 61,38 54,42" class="icon-fill arrowhead arrowhead--top"/>
+	<path d="M60 62 C 54 62, 50 62, 46 62" class="icon-stroke swap-arrow swap-arrow--bottom"/>
+	<polygon points="46,58 39,62 46,66" class="icon-fill arrowhead arrowhead--bottom"/>
+</svg>
