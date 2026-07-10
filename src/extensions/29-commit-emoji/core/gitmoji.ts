@@ -3,10 +3,12 @@ import * as vscode from 'vscode';
 import type { GitmojiEntry } from './types';
 
 const Gitmoji: GitmojiEntry[] = [
+	{ emoji: '🏗️', code: ':building_construction:', description: vscode.l10n.t('Make architectural changes') },
+	{ emoji: '🔧', code: ':wrench:', description: vscode.l10n.t('Add or update configuration files') },
+	{ emoji: '🐛', code: ':bug:', description: vscode.l10n.t('Fix a bug') },
 	{ emoji: '🎨', code: ':art:', description: vscode.l10n.t('Improve structure/format of the code') },
 	{ emoji: '⚡️', code: ':zap:', description: vscode.l10n.t('Improve performance') },
 	{ emoji: '🔥', code: ':fire:', description: vscode.l10n.t('Remove code or files') },
-	{ emoji: '🐛', code: ':bug:', description: vscode.l10n.t('Fix a bug') },
 	{ emoji: '🚑', code: ':ambulance:', description: vscode.l10n.t('Critical hotfix') },
 	{ emoji: '✨', code: ':sparkles:', description: vscode.l10n.t('Introduce new features') },
 	{ emoji: '📝', code: ':memo:', description: vscode.l10n.t('Add or update documentation') },
@@ -28,7 +30,6 @@ const Gitmoji: GitmojiEntry[] = [
 	{ emoji: '♻️', code: ':recycle:', description: vscode.l10n.t('Refactor code') },
 	{ emoji: '➕', code: ':heavy_plus_sign:', description: vscode.l10n.t('Add a dependency') },
 	{ emoji: '➖', code: ':heavy_minus_sign:', description: vscode.l10n.t('Remove a dependency') },
-	{ emoji: '🔧', code: ':wrench:', description: vscode.l10n.t('Add or update configuration files') },
 	{ emoji: '🔨', code: ':hammer:', description: vscode.l10n.t('Add or update development scripts') },
 	{ emoji: '🌐', code: ':globe_with_meridians:', description: vscode.l10n.t('Internationalization and localization') },
 	{ emoji: '✏️', code: ':pencil2:', description: vscode.l10n.t('Fix typos') },
@@ -50,7 +51,6 @@ const Gitmoji: GitmojiEntry[] = [
 	{ emoji: '🔇', code: ':mute:', description: vscode.l10n.t('Remove logs') },
 	{ emoji: '👥', code: ':busts_in_silhouette:', description: vscode.l10n.t('Add or update contributor(s)') },
 	{ emoji: '🚸', code: ':children_crossing:', description: vscode.l10n.t('Improve user experience/usability') },
-	{ emoji: '🏗️', code: ':building_construction:', description: vscode.l10n.t('Make architectural changes') },
 	{ emoji: '📱', code: ':iphone:', description: vscode.l10n.t('Work on responsive design') },
 	{ emoji: '🤡', code: ':clown_face:', description: vscode.l10n.t('Mock things') },
 	{ emoji: '🥚', code: ':egg:', description: vscode.l10n.t('Add or update an easter egg') },
