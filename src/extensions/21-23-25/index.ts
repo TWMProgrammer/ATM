@@ -12,6 +12,20 @@ export function activateIra(context: vscode.ExtensionContext) {
       }
     );
     
+    panel.iconPath = vscode.Uri.file(
+      context.asAbsolutePath('src/extensions/21-atm-translate/assets/atm-logo.png')
+    );
+
+    vscode.commands.executeCommand('setContext', 'atm.ira.active', true);
+
+    panel.onDidChangeViewState(e => {
+      vscode.commands.executeCommand('setContext', 'atm.ira.active', e.webviewPanel.active);
+    });
+
+    panel.onDidDispose(() => {
+      vscode.commands.executeCommand('setContext', 'atm.ira.active', false);
+    });
+
     panel.webview.html = getWebviewContent();
   });
 
