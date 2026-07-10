@@ -16,17 +16,6 @@ export function activateBrowser(context: vscode.ExtensionContext): void {
     })
   );
 
-  const item = vscode.window.createStatusBarItem(
-    'atm.browser.status',
-    vscode.StatusBarAlignment.Right,
-    89
-  );
-  item.name = 'ATM Browser';
-  item.text = '$(globe)';
-  item.tooltip = vscode.l10n.t('Open Browser');
-  item.command = 'atm.browser.open';
-  item.show();
-  context.subscriptions.push(item);
 }
 
 function guard(fn: () => void): void {

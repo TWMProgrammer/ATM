@@ -198,8 +198,8 @@
         "command": "atm.translate.open",
         "title": "ATM: Translator",
         "icon": {
-          "light": "src/extensions/21-atm-translate/assets/language.svg",
-          "dark": "src/extensions/21-atm-translate/assets/language.svg"
+          "light": "src/extensions/21-23-25/pages/translate/assets/language.svg",
+          "dark": "src/extensions/21-23-25/pages/translate/assets/language.svg"
         }
       },
       {
@@ -1106,16 +1106,7 @@
         }
       ],
       "editor/title": [
-        {
-          "command": "atm.compareCode.open",
-          "group": "navigation@3",
-          "when": "resourceScheme == file"
-        },
-        {
-          "command": "atm.translate.open",
-          "group": "navigation@0",
-          "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
-        },
+
         {
           "command": "atm.ira.open",
           "group": "navigation@-1",
@@ -1160,11 +1151,6 @@
           "command": "envLens.enableBlur",
           "group": "navigation@50",
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
-        },
-        {
-          "command": "atm.bracketLynx.toggle",
-          "group": "navigation@51",
-          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }
       ],
       "extension/context": [

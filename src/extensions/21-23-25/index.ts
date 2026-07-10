@@ -2,8 +2,11 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { activateGitCommands } from './pages/git-commands';
+import { activateAtmTranslate } from './pages/translate';
+import { activateCompareCode, deactivateCompareCode } from './pages/compare-code';
+import { activateBrowser, deactivateBrowser } from './pages/browser';
 
-export { activateGitCommands };
+export { activateGitCommands, activateAtmTranslate, activateCompareCode, deactivateCompareCode, activateBrowser, deactivateBrowser };
 
 type LaunchAction = 'browser' | 'compare' | 'translate' | 'git';
 
