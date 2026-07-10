@@ -1,0 +1,148 @@
+/* Git Commands — command data.
+ * All categories and commands live here. Add new commands or whole
+ * categories in this single file — nothing else needs to change. */
+
+import type { GitCategory } from './types';
+
+export const GIT_CATEGORIES: GitCategory[] = [
+	{
+		name: 'Setup',
+		color: '#a78bfa',
+		icon: '⚙️',
+		commands: [
+			{ command: 'git init',                          desc: 'Initialize a new local repository',                    icon: '🗂️' },
+			{ command: 'git clone <url>',                   desc: 'Clone a remote repository locally',                    icon: '📦' },
+			{ command: 'git config --global user.name',     desc: 'Set your global username',                             icon: '👤' },
+			{ command: 'git config --global user.email',    desc: 'Set your global email address',                        icon: '📧' },
+		],
+	},
+	{
+		name: 'Staging & Snapshot',
+		color: '#60a5fa',
+		icon: '📸',
+		commands: [
+			{ command: 'git status',                        desc: 'Show working tree status',                             icon: '📊' },
+			{ command: 'git add .',                         desc: 'Stage all changes in the current directory',            icon: '➕' },
+			{ command: 'git add <file>',                    desc: 'Stage a specific file',                                icon: '📄' },
+			{ command: 'git commit -m "<message>"',         desc: 'Commit staged changes with a message',                 icon: '✅' },
+			{ command: 'git commit --amend',                desc: 'Modify the most recent commit',                        icon: '✏️' },
+			{ command: 'git diff',                          desc: 'Show unstaged changes',                                icon: '🔍' },
+			{ command: 'git diff --staged',                 desc: 'Show staged changes (vs last commit)',                  icon: '🔎' },
+		],
+	},
+	{
+		name: 'Branching',
+		color: '#4ade80',
+		icon: '🌿',
+		commands: [
+			{ command: 'git branch',                        desc: 'List all local branches',                              icon: '📋' },
+			{ command: 'git branch <name>',                 desc: 'Create a new branch',                                  icon: '🌱' },
+			{ command: 'git branch -d <name>',              desc: 'Delete a local branch (safe)',                         icon: '🗑️' },
+			{ command: 'git branch -D <name>',              desc: 'Force-delete a local branch',                         icon: '💥' },
+			{ command: 'git switch <name>',                 desc: 'Switch to an existing branch',                         icon: '🔀' },
+			{ command: 'git switch -c <name>',              desc: 'Create and switch to a new branch',                    icon: '✨' },
+			{ command: 'git checkout <name>',               desc: 'Switch branches (classic syntax)',                      icon: '🔃' },
+			{ command: 'git checkout -b <name>',            desc: 'Create and checkout a new branch (classic)',            icon: '🆕' },
+		],
+	},
+	{
+		name: 'Merging & Rebasing',
+		color: '#f472b6',
+		icon: '🔀',
+		commands: [
+			{ command: 'git merge <branch>',                desc: 'Merge a branch into the current branch',               icon: '🔗' },
+			{ command: 'git merge --no-ff <branch>',        desc: 'Merge with a merge commit (no fast-forward)',          icon: '🔀' },
+			{ command: 'git merge --abort',                 desc: 'Abort an in-progress merge',                          icon: '🚫' },
+			{ command: 'git rebase <branch>',               desc: 'Rebase current branch onto another',                   icon: '📐' },
+			{ command: 'git rebase -i HEAD~<n>',            desc: 'Interactive rebase of last n commits',                 icon: '🎛️' },
+			{ command: 'git rebase --abort',                desc: 'Abort an in-progress rebase',                         icon: '🛑' },
+			{ command: 'git rebase --continue',             desc: 'Continue rebase after resolving conflicts',            icon: '▶️' },
+		],
+	},
+	{
+		name: 'Remote',
+		color: '#fb923c',
+		icon: '🌐',
+		commands: [
+			{ command: 'git remote -v',                     desc: 'List all configured remotes',                          icon: '🔗' },
+			{ command: 'git remote add origin <url>',       desc: 'Add a new remote named "origin"',                      icon: '➕' },
+			{ command: 'git remote remove <name>',          desc: 'Remove a remote',                                      icon: '🗑️' },
+			{ command: 'git fetch',                         desc: 'Download changes without merging',                     icon: '⬇️' },
+			{ command: 'git fetch --all',                   desc: 'Fetch from all remotes',                               icon: '⬇️' },
+			{ command: 'git pull',                          desc: 'Fetch and merge from remote',                          icon: '🔽' },
+			{ command: 'git pull --rebase',                 desc: 'Fetch and rebase instead of merge',                    icon: '📐' },
+			{ command: 'git push',                          desc: 'Push commits to remote',                               icon: '⬆️' },
+			{ command: 'git push -u origin <branch>',       desc: 'Push and set upstream tracking branch',                icon: '🚀' },
+			{ command: 'git push --force-with-lease',       desc: 'Safe force push (checks remote state)',                icon: '⚡' },
+		],
+	},
+	{
+		name: 'Stash',
+		color: '#facc15',
+		icon: '🗃️',
+		commands: [
+			{ command: 'git stash',                         desc: 'Stash current working directory changes',              icon: '📦' },
+			{ command: 'git stash push -m "<name>"',        desc: 'Stash with a descriptive name',                       icon: '🏷️' },
+			{ command: 'git stash list',                    desc: 'List all stash entries',                               icon: '📋' },
+			{ command: 'git stash pop',                     desc: 'Apply and drop the latest stash',                      icon: '📤' },
+			{ command: 'git stash apply stash@{n}',         desc: 'Apply a specific stash entry',                         icon: '📥' },
+			{ command: 'git stash drop stash@{n}',          desc: 'Delete a specific stash entry',                        icon: '🗑️' },
+			{ command: 'git stash clear',                   desc: 'Remove all stash entries',                             icon: '🧹' },
+		],
+	},
+	{
+		name: 'History & Log',
+		color: '#38bdf8',
+		icon: '📜',
+		commands: [
+			{ command: 'git log',                           desc: 'Show commit history',                                  icon: '📜' },
+			{ command: 'git log --oneline',                 desc: 'Compact one-line commit log',                          icon: '📝' },
+			{ command: 'git log --oneline --graph',         desc: 'ASCII branch graph with log',                          icon: '🌳' },
+			{ command: 'git log -p',                        desc: 'Show commit history with diffs (patches)',              icon: '🔍' },
+			{ command: 'git log --author="<name>"',         desc: 'Filter commits by author',                             icon: '👤' },
+			{ command: 'git blame <file>',                  desc: 'Show who changed each line of a file',                 icon: '🕵️' },
+			{ command: 'git show <commit>',                 desc: 'Show metadata and diff for a commit',                  icon: '🔎' },
+			{ command: 'git shortlog -sn',                  desc: 'Summarize commits by author count',                    icon: '📊' },
+		],
+	},
+	{
+		name: 'Undoing',
+		color: '#f87171',
+		icon: '↩️',
+		commands: [
+			{ command: 'git restore <file>',                desc: 'Discard unstaged changes in a file',                   icon: '↩️' },
+			{ command: 'git restore --staged <file>',       desc: 'Unstage a file (keep changes)',                        icon: '⏪' },
+			{ command: 'git reset HEAD~1',                  desc: 'Undo last commit, keep changes staged',                icon: '⬅️' },
+			{ command: 'git reset --soft HEAD~1',           desc: 'Undo last commit, keep changes staged',                icon: '🔙' },
+			{ command: 'git reset --hard HEAD~1',           desc: 'Undo last commit and discard all changes',             icon: '💣' },
+			{ command: 'git revert <commit>',               desc: 'Create new commit that undoes a commit',               icon: '🔄' },
+			{ command: 'git clean -fd',                     desc: 'Remove untracked files and directories',               icon: '🧹' },
+		],
+	},
+	{
+		name: 'Tags',
+		color: '#e879f9',
+		icon: '🏷️',
+		commands: [
+			{ command: 'git tag',                           desc: 'List all tags',                                        icon: '🏷️' },
+			{ command: 'git tag <name>',                    desc: 'Create a lightweight tag',                             icon: '🔖' },
+			{ command: 'git tag -a <name> -m "<msg>"',      desc: 'Create an annotated tag with message',                 icon: '📌' },
+			{ command: 'git push origin <tag>',             desc: 'Push a specific tag to remote',                        icon: '⬆️' },
+			{ command: 'git push origin --tags',            desc: 'Push all local tags to remote',                        icon: '🚀' },
+			{ command: 'git tag -d <name>',                 desc: 'Delete a local tag',                                   icon: '🗑️' },
+		],
+	},
+	{
+		name: 'Advanced',
+		color: '#94a3b8',
+		icon: '🛠️',
+		commands: [
+			{ command: 'git cherry-pick <commit>',          desc: 'Apply a commit from another branch',                   icon: '🍒' },
+			{ command: 'git bisect start',                  desc: 'Start binary search for buggy commit',                 icon: '🔬' },
+			{ command: 'git reflog',                        desc: 'Show history of HEAD movements',                       icon: '📓' },
+			{ command: 'git submodule add <url>',           desc: 'Add a submodule to the repository',                    icon: '🧩' },
+			{ command: 'git worktree add <path> <branch>',  desc: 'Checkout a branch in a separate directory',            icon: '🌲' },
+			{ command: 'git archive --format=zip HEAD',     desc: 'Export the repo as a zip archive',                     icon: '📦' },
+		],
+	},
+];
