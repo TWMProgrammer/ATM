@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "atmignore",
+  "scopeName": "source.atmignore",
+  "patterns": [
+    {
+      "begin": "(?:^|\\s)(#)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.comment.atmignore"
+        }
+      },
+      "end": "$",
+      "name": "comment.line.number-sign.atmignore"
+    },
+    {
+      "begin": "(?:^|\\s)(//)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.comment.atmignore"
+        }
+      },
+      "end": "$",
+      "name": "comment.line.double-slash.atmignore"
+    }
+  ]
+}
