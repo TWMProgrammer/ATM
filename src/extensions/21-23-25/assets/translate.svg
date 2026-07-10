@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+	<style>
+		.icon-stroke { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+		.icon-fill { fill: #fff; stroke: none; }
+		.bubble-line { opacity: .85; }
+		.bubble--a { animation: bubbleBreathe 3s ease-in-out infinite; }
+		.bubble--b { animation: bubbleBreathe 3s ease-in-out infinite; animation-delay: 1.5s; }
+		@keyframes bubbleBreathe { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
+		.chevron-up { animation: chevronUp 2.2s ease-in-out infinite; }
+		.chevron-down { animation: chevronDown 2.2s ease-in-out infinite; animation-delay: 1.1s; }
+		@keyframes chevronUp { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+		@keyframes chevronDown { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(3px); } }
+		@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+	</style>
+	<rect x="10" y="18" width="50" height="32" rx="9" class="icon-stroke bubble bubble--a"/>
+	<polygon points="20,50 20,60 30,50" class="icon-fill bubble bubble--a"/>
+	<line x1="19" y1="29" x2="45" y2="29" class="icon-stroke bubble-line"/>
+	<line x1="19" y1="38" x2="37" y2="38" class="icon-stroke bubble-line"/>
+	<rect x="40" y="50" width="50" height="32" rx="9" class="icon-stroke bubble bubble--b"/>
+	<polygon points="80,82 80,92 70,82" class="icon-fill bubble bubble--b"/>
+	<line x1="49" y1="61" x2="75" y2="61" class="icon-stroke bubble-line"/>
+	<line x1="49" y1="70" x2="65" y2="70" class="icon-stroke bubble-line"/>
+	<polyline points="45,45 50,38 55,45" class="icon-stroke chevron chevron-up"/>
+	<polyline points="45,55 50,62 55,55" class="icon-stroke chevron chevron-down"/>
+</svg>
