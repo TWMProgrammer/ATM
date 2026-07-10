@@ -26,7 +26,7 @@ export class FormatterStatusBar {
 	update(editor: vscode.TextEditor | undefined): void {
 		const enabled = vscode.workspace.getConfiguration().get<boolean>(formatterSettingKeys.enable, true);
 		if (!enabled) {
-			this.item.text = '$(circle-slash) ATM Fmt';
+			this.item.text = '$(circle-slash) Format |';
 			this.item.tooltip = 'ATM Formatter is disabled';
 			this.item.backgroundColor = undefined;
 			this.item.hide();
@@ -46,12 +46,12 @@ export class FormatterStatusBar {
 
 		const ignored = isDocumentIgnored(editor.document);
 		if (ignored) {
-			this.item.text = '$(warning) ATM Fmt';
+			this.item.text = '$(warning) Format |';
 			this.item.tooltip = `ATM Formatter — ${editor.document.languageId} (ignored by .atmignore)`;
 			this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
 			this.item.show();
 		} else {
-			this.item.text = '$(check) ATM Fmt';
+			this.item.text = '$(check) Format |';
 			this.item.tooltip = `ATM Formatter — ${editor.document.languageId}`;
 			this.item.backgroundColor = undefined;
 			this.item.show();

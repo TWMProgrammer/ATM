@@ -21,15 +21,14 @@ import { activateLint } from './02-atm-lint/lint';
 import { activateGlobalStatusBar } from './shared/shared';
 import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
-import { activateAtmTranslate } from './21-atm-translate';
 import { activateBracketLynx } from './22-bracket-lynx';
-import { activateCompareCode } from './23-compare-code';
+
 import { activateNpmRun } from './24-npm-run';
-import { activateBrowser } from './25-browser';
-import { activateGoLive } from './26-go';
-import { activateRunDev } from './27-run-dev';
+
+import { activateGoLiveDev, activateGoLive, activateRunDev } from './26-27';
 import { activateAtmFormatter } from './28-atm-formatter';
-import { activateIra } from './21-23-25';
+import { activateCommitEmoji } from './29-commit-emoji';
+import { activateIra, activateGitCommands, activateAtmTranslate, activateCompareCode, activateBrowser } from './21-23-25';
 
 /**
  * Runs a synchronous sub-extension activation, isolating failures so one
@@ -93,6 +92,9 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   safeActivate('browser', () => activateBrowser(context));
   safeActivate('go-live', () => activateGoLive(context));
   safeActivate('run-dev', () => activateRunDev(context));
+  safeActivate('go-live-dev', () => activateGoLiveDev(context));
   safeActivate('atm-formatter', () => activateAtmFormatter(context));
   safeActivate('ira', () => activateIra(context));
+  safeActivate('git-commands', () => activateGitCommands(context));
+  safeActivate('commit-emoji', () => activateCommitEmoji(context));
 }

@@ -1,6 +1,12 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
+import { activateGitCommands } from './pages/git-commands';
+import { activateAtmTranslate } from './pages/translate';
+import { activateCompareCode, deactivateCompareCode } from './pages/compare-code';
+import { activateBrowser, deactivateBrowser } from './pages/browser';
+
+export { activateGitCommands, activateAtmTranslate, activateCompareCode, deactivateCompareCode, activateBrowser, deactivateBrowser };
 
 type LaunchAction = 'browser' | 'compare' | 'translate' | 'git';
 
@@ -8,7 +14,7 @@ const launchCommands: Record<LaunchAction, string> = {
 	browser: 'atm.browser.open',
 	compare: 'atm.compareCode.open',
 	translate: 'atm.translate.open',
-	git: 'git-better.openGitHub',
+	git: 'atm.gitCommands.open',
 };
 
 export function activateIra(context: vscode.ExtensionContext) {

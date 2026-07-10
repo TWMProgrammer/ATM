@@ -198,8 +198,8 @@
         "command": "atm.translate.open",
         "title": "ATM: Translator",
         "icon": {
-          "light": "src/extensions/21-atm-translate/assets/language.svg",
-          "dark": "src/extensions/21-atm-translate/assets/language.svg"
+          "light": "src/extensions/21-23-25/pages/translate/assets/language.svg",
+          "dark": "src/extensions/21-23-25/pages/translate/assets/language.svg"
         }
       },
       {
@@ -209,6 +209,11 @@
           "light": "src/assets/atm-logo.png",
           "dark": "src/assets/atm-logo.png"
         }
+      },
+      {
+        "command": "atm.gitCommands.open",
+        "title": "ATM: Git Commands",
+        "icon": "$(git-branch)"
       },
       {
         "command": "atm.translate.setDeepLApiKey",
@@ -332,6 +337,21 @@
       {
         "command": "atm.formatter.showOutput",
         "title": "ATM Formatter: Show Output"
+      },
+      {
+        "command": "atm.goLiveDev.toggle",
+        "title": "ATM: Go Live (Dev) — Quick Launch",
+        "icon": "$(broadcast)"
+      },
+      {
+        "command": "atm.commitEmoji.show",
+        "title": "ATM: Commit Emoji",
+        "icon": "$(smiley)"
+      },
+      {
+        "command": "atm.commitEmoji.auto",
+        "title": "ATM: Commit Emoji (Auto-assign best)",
+        "icon": "$(sparkle)"
       }
     ],
     "configuration": {
@@ -345,6 +365,67 @@
           "maximum": 65535,
           "description": "Port for ATM Live Server (Go Live). If it is busy, the next free port is used automatically."
         },
+
+
+        "atm.commitEmoji.addCustomEmoji": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "title": "A custom commit emoji entry",
+            "properties": {
+              "emoji": { "type": "string" },
+              "code":  { "type": "string" },
+              "description": { "type": "string" }
+            }
+          },
+          "description": "Add custom emoji entries that appear alongside the built-in commit emoji list."
+        },
+        "atm.commitEmoji.outputType": {
+          "type": "string",
+          "default": "emoji",
+          "enum": ["emoji", "code"],
+          "enumDescriptions": [
+            "Insert the emoji character (e.g. ✨).",
+            "Insert the commit emoji code (e.g. :sparkles:)."
+          ],
+          "description": "Whether to insert the emoji character or its commit emoji code into the commit message."
+        },
+        "atm.commitEmoji.onlyUseCustomEmoji": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, only the custom emoji list is shown — built-in commit emoji entries are hidden."
+        },
+        "atm.commitEmoji.showEmojiCode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the commit emoji code (e.g. :sparkles:) next to each emoji in the picker."
+        },
+        "atm.commitEmoji.insertPosition": {
+          "type": "string",
+          "default": "start",
+          "enum": ["start", "end", "cursor"],
+          "enumDescriptions": [
+            "Prepend the emoji at the beginning of the commit message.",
+            "Append the emoji at the end of the commit message.",
+            "Insert the emoji at the current cursor position."
+          ],
+          "description": "Where to insert the selected emoji in the commit message."
+        },
+        "atm.commitEmoji.autoMatch": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically filter the emoji picker based on keywords found in the current commit message."
+        },
+        "atm.commitEmoji.canRepeat": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple emoji in sequence without stripping previously inserted ones."
+        },
+
+
+
+
         "atm.goLive.host": {
           "type": "string",
           "default": "127.0.0.1",
@@ -390,11 +471,6 @@
           "type": "boolean",
           "default": false,
           "description": "Add a permissive 'Access-Control-Allow-Origin: *' header to every response."
-        },
-        "atm.goLive.showOnStatusbar": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show the Go Live control in the status bar."
         },
         "atm.goLive.ignoreFiles": {
           "type": "array",
@@ -535,10 +611,10 @@
           "default": false,
           "description": "Reveal the dev-server terminal panel when it starts (without stealing editor focus). When false (default), it stays hidden — the status bar shows starting/running/failed, and the terminal only auto-opens (with focus) if the dev server exits with an error."
         },
-        "atm.runDev.showOnStatusbar": {
+        "atm.goLiveDev.showOnStatusbar": {
           "type": "boolean",
           "default": true,
-          "description": "Show the Run Dev control in the status bar."
+          "description": "Show the combined Go Live (Dev) pill on the left side of the status bar."
         },
         "atm.browser.executablePath": {
           "type": "string",
@@ -961,9 +1037,24 @@
     ],
     "keybindings": [
       {
+        "command": "atm.commitEmoji.auto",
+        "key": "alt+.",
+        "mac": "alt+."
+      },
+      {
+        "command": "atm.commitEmoji.show",
+        "key": "ctrl+alt+.",
+        "mac": "cmd+alt+."
+      },
+      {
         "command": "atm.compareCode.open",
         "key": "alt+shift+\\",
         "mac": "alt+shift+\\"
+      },
+      {
+        "command": "atm.ira.open",
+        "key": "ctrl+alt+\\",
+        "mac": "ctrl+cmd+\\"
       },
       {
         "command": "atm.browser.open",
@@ -1096,16 +1187,7 @@
         }
       ],
       "editor/title": [
-        {
-          "command": "atm.compareCode.open",
-          "group": "navigation@3",
-          "when": "resourceScheme == file"
-        },
-        {
-          "command": "atm.translate.open",
-          "group": "navigation@0",
-          "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
-        },
+
         {
           "command": "atm.ira.open",
           "group": "navigation@-1",
@@ -1150,17 +1232,19 @@
           "command": "envLens.enableBlur",
           "group": "navigation@50",
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
-        },
-        {
-          "command": "atm.bracketLynx.toggle",
-          "group": "navigation@51",
-          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }
       ],
       "extension/context": [
         {
           "command": "atm.translate-doc.translateExtension",
           "group": "1_modification"
+        }
+      ],
+      "scm/title": [
+        {
+          "when": "scmProvider == git",
+          "command": "atm.commitEmoji.show",
+          "group": "navigation"
         }
       ]
     },
