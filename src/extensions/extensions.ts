@@ -27,6 +27,7 @@ import { activateNpmRun } from './24-npm-run';
 
 import { activateGoLiveDev, activateGoLive, activateRunDev } from './26-27';
 import { activateAtmFormatter } from './28-atm-formatter';
+import { activateCommitEmoji } from './29-commit-emoji';
 import { activateIra, activateGitCommands, activateAtmTranslate, activateCompareCode, activateBrowser } from './21-23-25';
 
 /**
@@ -95,4 +96,5 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   safeActivate('atm-formatter', () => activateAtmFormatter(context));
   safeActivate('ira', () => activateIra(context));
   safeActivate('git-commands', () => activateGitCommands(context));
+  safeActivate('commit-emoji', () => activateCommitEmoji(context));
 }

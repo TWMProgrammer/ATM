@@ -342,6 +342,11 @@
         "command": "atm.goLiveDev.toggle",
         "title": "ATM: Go Live (Dev) — Quick Launch",
         "icon": "$(broadcast)"
+      },
+      {
+        "command": "atm.commitEmoji.show",
+        "title": "ATM: Commit Emoji (Gitmoji)",
+        "icon": "$(smiley)"
       }
     ],
     "configuration": {
@@ -355,6 +360,67 @@
           "maximum": 65535,
           "description": "Port for ATM Live Server (Go Live). If it is busy, the next free port is used automatically."
         },
+
+
+        "atm.commitEmoji.addCustomEmoji": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "title": "A custom gitmoji entry",
+            "properties": {
+              "emoji": { "type": "string" },
+              "code":  { "type": "string" },
+              "description": { "type": "string" }
+            }
+          },
+          "description": "Add custom emoji entries that appear alongside the built-in gitmoji list."
+        },
+        "atm.commitEmoji.outputType": {
+          "type": "string",
+          "default": "emoji",
+          "enum": ["emoji", "code"],
+          "enumDescriptions": [
+            "Insert the emoji character (e.g. ✨).",
+            "Insert the gitmoji code (e.g. :sparkles:)."
+          ],
+          "description": "Whether to insert the emoji character or its gitmoji code into the commit message."
+        },
+        "atm.commitEmoji.onlyUseCustomEmoji": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, only the custom emoji list is shown — built-in gitmoji entries are hidden."
+        },
+        "atm.commitEmoji.showEmojiCode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the gitmoji code (e.g. :sparkles:) next to each emoji in the picker."
+        },
+        "atm.commitEmoji.insertPosition": {
+          "type": "string",
+          "default": "start",
+          "enum": ["start", "end", "cursor"],
+          "enumDescriptions": [
+            "Prepend the emoji at the beginning of the commit message.",
+            "Append the emoji at the end of the commit message.",
+            "Insert the emoji at the current cursor position."
+          ],
+          "description": "Where to insert the selected emoji in the commit message."
+        },
+        "atm.commitEmoji.autoMatch": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically filter the emoji picker based on keywords found in the current commit message."
+        },
+        "atm.commitEmoji.canRepeat": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple emoji in sequence without stripping previously inserted ones."
+        },
+
+
+
+
         "atm.goLive.host": {
           "type": "string",
           "default": "127.0.0.1",
@@ -1157,6 +1223,13 @@
         {
           "command": "atm.translate-doc.translateExtension",
           "group": "1_modification"
+        }
+      ],
+      "scm/title": [
+        {
+          "when": "scmProvider == git",
+          "command": "atm.commitEmoji.show",
+          "group": "navigation"
         }
       ]
     },
