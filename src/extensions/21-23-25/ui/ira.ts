@@ -140,7 +140,6 @@ class PixelCanvas extends HTMLElement {
 	private canvas!: HTMLCanvasElement;
 	private ctx!: CanvasRenderingContext2D;
 	private pixels: Pixel[] = [];
-	private pixelsCreated = false;
 	private timeInterval = 1000 / 60;
 	private timePrevious = 0;
 	private reducedMotion = false;
@@ -273,26 +272,8 @@ class PixelCanvas extends HTMLElement {
 	}
 
 	private handleAnimation(name: 'appear' | 'disappear'): void {
-		this.ensurePixels();
 		cancelAnimationFrame(this.animation);
 		this.animation = requestAnimationFrame(() => this.runFrame(name));
-	}
-
-	/* One-time entrance shimmer: appear, hold briefly, then dissolve. Called
-	 * once per canvas on load so the squares show up intentionally instead of
-	 * leaving the card looking empty until the first hover. */
-	sweep(): void {
-		this.ensurePixels();
-		this.handleAnimation('appear');
-		window.setTimeout(() => this.handleAnimation('disappear'), 650);
-	}
-
-	private ensurePixels(): void {
-		if (this.pixelsCreated) {
-			return;
-		}
-		this.createPixels();
-		this.pixelsCreated = true;
 	}
 
 	private init(): void {
@@ -300,19 +281,12 @@ class PixelCanvas extends HTMLElement {
 		const width = Math.floor(rect.width);
 		const height = Math.floor(rect.height);
 
+		this.pixels = [];
 		this.canvas.width = width;
 		this.canvas.height = height;
 		this.canvas.style.width = `${width}px`;
 		this.canvas.style.height = `${height}px`;
-
-		/* Don't allocate pixels on the very first init (keeps open snappy).
-		 * Recreate them on resize only if they were already built. */
-		if (this.pixelsCreated) {
-			this.pixels = [];
-			this.pixelsCreated = false;
-			this.createPixels();
-			this.pixelsCreated = true;
-		}
+		this.createPixels();
 	}
 
 	private getDistanceToCanvasCenter(x: number, y: number): number {
@@ -358,28 +332,6 @@ class PixelCanvas extends HTMLElement {
 }
 
 PixelCanvas.register();
-
-/* ------------------------------------------------------------------ */
-/* entrance shimmer: stagger a one-time sweep across all cards so the */
-/* pixel squares appear right after the cards animate in.              */
-/* ------------------------------------------------------------------ */
-
-function runEntranceSweep(): void {
-	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-		return;
-	}
-
-	const canvases = document.querySelectorAll<PixelCanvas>('pixel-canvas');
-	canvases.forEach((canvas, index) => {
-		window.setTimeout(() => canvas.sweep(), 280 + index * 110);
-	});
-}
-
-if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', runEntranceSweep);
-} else {
-	runEntranceSweep();
-}
 
 /* ------------------------------------------------------------------ */
 /* card activation                                                     */
