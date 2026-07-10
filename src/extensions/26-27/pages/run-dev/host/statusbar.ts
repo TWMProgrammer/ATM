@@ -2,7 +2,7 @@
 
 import * as vscode from 'vscode';
 import { RunDevConfig } from './config';
-import { getGoLiveDevBar } from '../../26-27';
+import { getGoLiveDevBar } from '../../..';
 
 // ======================================
 // RUN DEV — STATUS BAR | MARK: STATUSBAR

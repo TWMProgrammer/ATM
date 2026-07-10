@@ -25,8 +25,7 @@ import { activateBracketLynx } from './22-bracket-lynx';
 
 import { activateNpmRun } from './24-npm-run';
 
-import { activateRunDev } from './27-run-dev';
-import { activateGoLiveDev, activateGoLive } from './26-27';
+import { activateGoLiveDev, activateGoLive, activateRunDev } from './26-27';
 import { activateAtmFormatter } from './28-atm-formatter';
 import { activateIra, activateGitCommands, activateAtmTranslate, activateCompareCode, activateBrowser } from './21-23-25';
 
