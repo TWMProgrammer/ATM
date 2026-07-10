@@ -1151,11 +1151,6 @@
           "command": "envLens.enableBlur",
           "group": "navigation@50",
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
-        },
-        {
-          "command": "atm.bracketLynx.toggle",
-          "group": "navigation@51",
-          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }
       ],
       "extension/context": [
