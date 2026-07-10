@@ -337,6 +337,11 @@
       {
         "command": "atm.formatter.showOutput",
         "title": "ATM Formatter: Show Output"
+      },
+      {
+        "command": "atm.goLiveDev.toggle",
+        "title": "ATM: Go Live (Dev) — Quick Launch",
+        "icon": "$(broadcast)"
       }
     ],
     "configuration": {
@@ -395,11 +400,6 @@
           "type": "boolean",
           "default": false,
           "description": "Add a permissive 'Access-Control-Allow-Origin: *' header to every response."
-        },
-        "atm.goLive.showOnStatusbar": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show the Go Live control in the status bar."
         },
         "atm.goLive.ignoreFiles": {
           "type": "array",
@@ -540,10 +540,10 @@
           "default": false,
           "description": "Reveal the dev-server terminal panel when it starts (without stealing editor focus). When false (default), it stays hidden — the status bar shows starting/running/failed, and the terminal only auto-opens (with focus) if the dev server exits with an error."
         },
-        "atm.runDev.showOnStatusbar": {
+        "atm.goLiveDev.showOnStatusbar": {
           "type": "boolean",
           "default": true,
-          "description": "Show the Run Dev control in the status bar."
+          "description": "Show the combined Go Live (Dev) pill on the left side of the status bar."
         },
         "atm.browser.executablePath": {
           "type": "string",

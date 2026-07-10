@@ -34,11 +34,6 @@ export function activateRunDev(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('atm.runDev.openBrowser', () => {
       guard(() => active.openBrowser());
     }),
-    vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('atm.runDev.showOnStatusbar')) {
-        statusBar?.syncVisibility();
-      }
-    }),
     { dispose: () => active.dispose() },
     statusBar
   );

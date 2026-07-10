@@ -48,7 +48,7 @@ export interface RenderContext {
 // Constants
 export const CONSTANTS = {
     STATUS_BAR_PRIORITY: 95,
-    STATUS_BAR_TEXT: '$(verified-filled) ATM',
+    STATUS_BAR_TEXT: '| ㅤ$(verified-filled) ATMㅤ |',
     DEBOUNCE_DELAY: 150,
     COMMANDS: {
         STATUS_CLICKED: 'atm.global.statusClicked',
