@@ -134,39 +134,90 @@ export async function getResourcesBasePath(
   return globalDir;
 }
 
-export async function getPiperPath(
-  context: vscode.ExtensionContext,
-): Promise<string> {
+// Pure path math shared by the "own" resolver and the sibling-storage scan below.
+function computePiperExecutableFromBase(baseDir: string): string {
   const platform = os.platform();
   const arch = os.arch();
-  const baseDir = await getResourcesBasePath(context);
-
-  let piperPath: string;
 
   switch (platform) {
     case 'win32':
-      piperPath = path.join(baseDir, 'piper', 'windows_amd64', 'piper.exe');
-      break;
+      return path.join(baseDir, 'piper', 'windows_amd64', 'piper.exe');
     case 'darwin':
-      piperPath =
-        arch === 'arm64'
-          ? path.join(baseDir, 'piper', 'macos_aarch64', 'piper')
-          : path.join(baseDir, 'piper', 'macos_x64', 'piper');
-      break;
+      return arch === 'arm64'
+        ? path.join(baseDir, 'piper', 'macos_aarch64', 'piper')
+        : path.join(baseDir, 'piper', 'macos_x64', 'piper');
     case 'linux':
       if (arch === 'arm64') {
-        piperPath = path.join(baseDir, 'piper', 'linux_aarch64', 'piper');
-      } else if (arch === 'arm') {
-        piperPath = path.join(baseDir, 'piper', 'linux_armv7l', 'piper');
-      } else {
-        piperPath = path.join(baseDir, 'piper', 'linux_x86_64', 'piper');
+        return path.join(baseDir, 'piper', 'linux_aarch64', 'piper');
       }
-      break;
+      if (arch === 'arm') {
+        return path.join(baseDir, 'piper', 'linux_armv7l', 'piper');
+      }
+      return path.join(baseDir, 'piper', 'linux_x86_64', 'piper');
     default:
       throw new Error(`Unsupported platform: ${platform}`);
   }
+}
 
-  return piperPath;
+export async function getPiperPath(
+  context: vscode.ExtensionContext,
+): Promise<string> {
+  const baseDir = await getResourcesBasePath(context);
+  return computePiperExecutableFromBase(baseDir);
+}
+
+// Sibling bastndev.* extensions (e.g. bastndev.f1) that share the same
+// globalStorage root and may already have Piper/voices installed.
+async function getSiblingBastndevDirs(
+  context: vscode.ExtensionContext,
+): Promise<string[]> {
+  const ownDir = context.globalStorageUri.fsPath;
+  const storageRoot = path.dirname(ownDir);
+  const ownName = path.basename(ownDir);
+  const dirs: string[] = [];
+
+  try {
+    const entries = await fs.promises.readdir(storageRoot, {
+      withFileTypes: true,
+    });
+    for (const entry of entries) {
+      if (
+        entry.isDirectory() &&
+        entry.name.startsWith('bastndev.') &&
+        entry.name !== ownName
+      ) {
+        dirs.push(path.join(storageRoot, entry.name));
+      }
+    }
+  } catch {
+    // storage root unreadable — no siblings to reuse
+  }
+
+  return dirs;
+}
+
+/**
+ * Resolves a working Piper executable: prefers this extension's own install,
+ * falls back to a sibling bastndev.* extension's install to avoid re-downloading
+ * the ~20MB engine. Falls back to the (possibly nonexistent) own path so
+ * callers get a stable value to report in error messages.
+ */
+export async function resolvePiperExecutablePath(
+  context: vscode.ExtensionContext,
+): Promise<string> {
+  const ownPath = await getPiperPath(context);
+  if (await fileExists(ownPath)) {
+    return ownPath;
+  }
+
+  for (const dir of await getSiblingBastndevDirs(context)) {
+    const candidate = computePiperExecutableFromBase(dir);
+    if (await fileExists(candidate)) {
+      return candidate;
+    }
+  }
+
+  return ownPath;
 }
 
 export async function getVoicePath(
@@ -175,7 +226,12 @@ export async function getVoicePath(
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
   const selectedVoice = config.get<string>('voice') ?? DEFAULT_VOICE;
   const baseDir = await getResourcesBasePath(context);
-  return path.join(baseDir, 'voices', `${selectedVoice}.onnx`);
+  const ownPath = path.join(baseDir, 'voices', `${selectedVoice}.onnx`);
+  if (await fileExists(ownPath)) {
+    return ownPath;
+  }
+  // reuse the same voice downloaded by a sibling bastndev.* extension
+  return (await resolveVoiceModelPath(context, selectedVoice)) ?? ownPath;
 }
 
 export async function getVoicesDir(
@@ -201,13 +257,23 @@ export async function getPlaybackCommand(
 
   switch (platform) {
     case 'win32': {
-      const playPath = path.join(
+      const ownPlayPath = path.join(
         baseDir,
         'piper',
         'windows_amd64',
         'sox',
         'play.exe',
       );
+      let playPath = ownPlayPath;
+      if (!(await fileExists(ownPlayPath))) {
+        for (const dir of await getSiblingBastndevDirs(context)) {
+          const candidate = path.join(dir, 'piper', 'windows_amd64', 'sox', 'play.exe');
+          if (await fileExists(candidate)) {
+            playPath = candidate;
+            break;
+          }
+        }
+      }
       return {
         command: playPath,
         args: [
@@ -254,27 +320,80 @@ export async function fileExists(filePath: string): Promise<boolean> {
 }
 
 /* =========================================================
+ * 🤝 SHARED VOICES (sibling bastndev.* extensions)
+ * ========================================================= */
+
+// Sibling extensions (e.g. bastndev.f1) store piper voices with the same
+// layout: <globalStorage>/<publisher.ext>/voices/*.onnx(+.onnx.json).
+// Reusing them avoids duplicate downloads across extensions.
+export async function getSharedVoicesDirs(
+  context: vscode.ExtensionContext,
+): Promise<string[]> {
+  const dirs: string[] = [];
+
+  for (const siblingDir of await getSiblingBastndevDirs(context)) {
+    const voicesDir = path.join(siblingDir, 'voices');
+    if (await fileExists(voicesDir)) {
+      dirs.push(voicesDir);
+    }
+  }
+
+  return dirs;
+}
+
+// First dir containing both model and config wins; own dir has priority.
+// Config json must sit next to the model (piper resolves <model>.json).
+export async function resolveVoiceModelPath(
+  context: vscode.ExtensionContext,
+  voiceId: string,
+): Promise<string | null> {
+  const dirs = [
+    await getVoicesDir(context),
+    ...(await getSharedVoicesDirs(context)),
+  ];
+
+  for (const dir of dirs) {
+    const modelPath = path.join(dir, `${voiceId}.onnx`);
+    if (
+      (await fileExists(modelPath)) &&
+      (await fileExists(`${modelPath}.json`))
+    ) {
+      return modelPath;
+    }
+  }
+  return null;
+}
+
+/* =========================================================
  * 🎤 VOICES MANAGEMENT (ASYNC + CACHED)
  * ========================================================= */
 
 export async function getAvailableVoices(
   context: vscode.ExtensionContext,
 ): Promise<string[]> {
-  const voicesDir = await getVoicesDir(context);
+  const dirs = [
+    await getVoicesDir(context),
+    ...(await getSharedVoicesDirs(context)),
+  ];
+  const voices = new Set<string>();
 
-  try {
-    const exists = await fileExists(voicesDir);
-    if (!exists) {
-      return [];
+  for (const dir of dirs) {
+    try {
+      if (!(await fileExists(dir))) {
+        continue;
+      }
+      const files = await fs.promises.readdir(dir);
+      for (const file of files) {
+        if (file.endsWith('.onnx')) {
+          voices.add(path.basename(file, '.onnx'));
+        }
+      }
+    } catch (error) {
+      console.error('[voice-tts] Error reading voices directory:', error);
     }
-    const files = await fs.promises.readdir(voicesDir);
-    return files
-      .filter((file) => file.endsWith('.onnx'))
-      .map((file) => path.basename(file, '.onnx'));
-  } catch (error) {
-    console.error('[voice-tts] Error reading voices directory:', error);
-    return [];
   }
+
+  return [...voices];
 }
 
 export function getVoiceLabel(voice: string): string {
@@ -377,10 +496,8 @@ export async function isVoiceInstalled(
   context: vscode.ExtensionContext,
   voiceId: string,
 ): Promise<boolean> {
-  const { modelPath, configPath } = await getVoiceFilePaths(context, voiceId);
-  const modelExists = await fileExists(modelPath);
-  const configExists = await fileExists(configPath);
-  return modelExists && configExists;
+  // own dir or any sibling bastndev.* extension counts as installed
+  return (await resolveVoiceModelPath(context, voiceId)) !== null;
 }
 
 export async function deleteVoiceFiles(
@@ -452,7 +569,7 @@ export async function readText(
 
   stopCurrentPlayback();
 
-  const piperPath = await getPiperPath(context);
+  const piperPath = await resolvePiperExecutablePath(context);
   const voicePath = await getVoicePath(context);
 
   const piperExists = await fileExists(piperPath);

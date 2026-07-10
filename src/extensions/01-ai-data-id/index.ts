@@ -100,15 +100,6 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 			.join('|');
 	}
 
-	/** Selects the appropriate status bar icon based on the engineered percentage. */
-	function getStatusBarIcon(minRemaining: number): string {
-		// 20% is considered a danger zone (quota might be exhausted shortly).
-		if (minRemaining <= 20) { 
-			return `$(warning)`; 
-		}
-		return ICON_DEFAULT;
-	}
-
 	/**
 	 * Fetches quota data and updates the status bar item.
 	 * Handles connection initialization, hash-based deduplication,
@@ -170,8 +161,9 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					} else {
 						const globalPct = Math.round(engineered.percentage);
 						lastReportedPercentage = globalPct;
-						statusBarItem.text = `${getStatusBarIcon(globalPct)} AI ${globalPct}%`;
-						statusBarItem.color = globalPct <= 20 ? new vscode.ThemeColor('editorWarning.foreground') : undefined;
+						// low quota renders plain (like the ATM item next to it) — no warning icon/yellow
+						statusBarItem.text = `${ICON_DEFAULT} AI ${globalPct}%`;
+						statusBarItem.color = undefined;
 					}
 				}
 			}

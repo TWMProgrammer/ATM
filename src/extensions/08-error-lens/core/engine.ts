@@ -64,6 +64,12 @@ export function updateDecorationsForEditor(
   }
 
   for (const [line, diagnostic] of diagnosticsByLine) {
+    // Diagnostics arrive async and can be stale: a fix that removes lines may
+    // leave ranges past EOF; lineAt would throw and abort before setDecorations
+    // clears old lenses (stale-decoration bug). Skip them.
+    if (line >= document.lineCount) {
+      continue;
+    }
     const text = document.lineAt(line).text;
 
     const endPos = new vscode.Position(line, text.length);
@@ -74,7 +80,7 @@ export function updateDecorationsForEditor(
 
     // Performance & Aesthetics: cut huge strings to avoid UI destruction
     if (cleanMsg.length > 100) {
-      cleanMsg = cleanMsg.substring(0, 111) + '...';
+      cleanMsg = cleanMsg.substring(0, 100) + '...';
     }
 
     if (!cleanMsg) {

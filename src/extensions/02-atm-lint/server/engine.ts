@@ -139,8 +139,12 @@ export class LintEngine {
 			const errorMessage = error instanceof Error ? error.message : String(error);
 			this.log(`[Engine] Lint failed for ${filePath}: ${errorMessage}`);
 
-			const cwd = this.resolveCwd(filePath);
-			this.instances.delete(cwd);
+			// Only drop the cached instance on config-related errors; deleting on every
+			// failure rebuilds ESLint (expensive) per keystroke in broken projects.
+			if (/config/i.test(errorMessage)) {
+				const cwd = this.resolveCwd(filePath);
+				this.instances.delete(cwd);
+			}
 			this.clearDocumentData(uri);
 
 			if (this.onStatusChange) {
@@ -229,22 +233,22 @@ export class LintEngine {
 		const rule = (ruleId || '').toLowerCase();
 		const desc = (description || '').toLowerCase();
 
-		// Eliminar / Limpiar
+		// removal/cleanup
 		if (rule.includes('unused') || rule.includes('empty') || desc.includes('remove') || desc.includes('delete')) {
-			return '🗑️'; 
+			return '🗑️';
 		}
-		
-		// Estilo / Formato
+
+		// style/format
 		if (rule.includes('quotes') || rule.includes('semi') || rule.includes('indent') || rule.includes('space') || rule.includes('comma')) {
 			return '🎨';
 		}
 
-		// Estricto / Seguridad / Best Practices
+		// strictness/security/best-practices
 		if (rule.includes('eqeqeq') || rule.includes('eval') || rule.includes('var')) {
 			return '🔒';
 		}
 
-		// Modernización / Sugerencias
+		// modernization/suggestions
 		if (rule.includes('prefer') || desc.includes('use')) {
 			return '✨';
 		}

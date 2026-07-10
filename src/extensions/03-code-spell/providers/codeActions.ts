@@ -56,25 +56,11 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
     }
 
     /* =========================================================
-     * 👤 USER SETTINGS ACTION
-     * Action: Add to User Settings (Shorter text first)
-     * ========================================================= */
-    const userAction = new vscode.CodeAction(
-      `👤 Add "${word}" to User Settings`,
-      vscode.CodeActionKind.QuickFix,
-    );
-    userAction.command = {
-      command: 'atm.code-spell.addWordUser',
-      title: 'Add Word User',
-      arguments: [word],
-    };
-
-    /* =========================================================
-     * 🏢 WORKSPACE SETTINGS ACTION
-     * Action: Add to Workspace Settings (Longer text at the end)
+     * 🏢 WORKSPACE SETTINGS ACTION (middle)
+     * Saves into .vscode/settings.json of the current workspace
      * ========================================================= */
     const workspaceAction = new vscode.CodeAction(
-      `👤 Add "${word}" to Workspace Settings`,
+      `📁 Add "${word}" to Workspace (.vscode/settings.json)`,
       vscode.CodeActionKind.QuickFix,
     );
     workspaceAction.command = {
@@ -83,7 +69,21 @@ export class SpellCodeActionProvider implements vscode.CodeActionProvider {
       arguments: [word],
     };
 
-    actions.push(userAction, workspaceAction);
+    /* =========================================================
+     * 👤 USER SETTINGS ACTION (last)
+     * Saves into the global user settings.json
+     * ========================================================= */
+    const userAction = new vscode.CodeAction(
+      `👤 Add "${word}" to User Settings (settings.json)`,
+      vscode.CodeActionKind.QuickFix,
+    );
+    userAction.command = {
+      command: 'atm.code-spell.addWordUser',
+      title: 'Add Word User',
+      arguments: [word],
+    };
+
+    actions.push(workspaceAction, userAction);
 
     return actions;
   }
