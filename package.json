@@ -1032,6 +1032,11 @@
     ],
     "keybindings": [
       {
+        "command": "atm.commitEmoji.show",
+        "key": "ctrl+alt+.",
+        "mac": "cmd+alt+."
+      },
+      {
         "command": "atm.compareCode.open",
         "key": "alt+shift+\\",
         "mac": "alt+shift+\\"
