@@ -211,6 +211,11 @@
         }
       },
       {
+        "command": "atm.gitCommands.open",
+        "title": "ATM: Git Commands",
+        "icon": "$(git-branch)"
+      },
+      {
         "command": "atm.translate.setDeepLApiKey",
         "title": "ATM Translate: Set DeepL API Key",
         "icon": "$(key)"
