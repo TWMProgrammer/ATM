@@ -2,8 +2,9 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { activateGitCommands } from './pages/git-commands';
+import { activateAtmTranslate } from './pages/translate';
 
-export { activateGitCommands };
+export { activateGitCommands, activateAtmTranslate };
 
 type LaunchAction = 'browser' | 'compare' | 'translate' | 'git';
 

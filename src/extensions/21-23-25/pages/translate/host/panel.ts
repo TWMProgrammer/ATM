@@ -27,7 +27,7 @@ export function openTranslatorPanel(context: vscode.ExtensionContext, text?: str
 			retainContextWhenHidden: true,
 			localResourceRoots: [
 				vscode.Uri.joinPath(context.extensionUri, 'dist'),
-				vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-atm-translate', 'assets'),
+				vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-23-25', 'pages', 'translate', 'assets'),
 			],
 		}
 	);
@@ -41,7 +41,7 @@ export function setupTranslatorPanel(
 	initialText?: string,
 ): void {
 	panel.iconPath = vscode.Uri.joinPath(
-		context.extensionUri, 'src', 'extensions', '21-atm-translate', 'assets', 'atm-logo.png'
+		context.extensionUri, 'src', 'extensions', '21-23-25', 'pages', 'translate', 'assets', 'atm-logo.png'
 	);
 
 	panel.webview.html = getTranslatorHtml(context, panel.webview);
@@ -87,7 +87,7 @@ function getInitialText(text?: string): string {
 }
 
 function getTranslatorHtml(context: vscode.ExtensionContext, webview: vscode.Webview): string {
-	const uiRoot = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-atm-translate', 'ui');
+	const uiRoot = vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-23-25', 'pages', 'translate', 'ui');
 	const html   = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'atm-translate.html').fsPath, 'utf8');
 	const css    = fs.readFileSync(vscode.Uri.joinPath(uiRoot, 'atm-translate.css').fsPath, 'utf8');
 
@@ -96,7 +96,7 @@ function getTranslatorHtml(context: vscode.ExtensionContext, webview: vscode.Web
 	);
 
 	const logoUri = webview.asWebviewUri(
-		vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-atm-translate', 'assets', 'atm-logo.png')
+		vscode.Uri.joinPath(context.extensionUri, 'src', 'extensions', '21-23-25', 'pages', 'translate', 'assets', 'atm-logo.png')
 	);
 
 	const nonce = crypto.randomUUID().replace(/-/g, '');

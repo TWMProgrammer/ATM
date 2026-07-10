@@ -198,8 +198,8 @@
         "command": "atm.translate.open",
         "title": "ATM: Translator",
         "icon": {
-          "light": "src/extensions/21-atm-translate/assets/language.svg",
-          "dark": "src/extensions/21-atm-translate/assets/language.svg"
+          "light": "src/extensions/21-23-25/pages/translate/assets/language.svg",
+          "dark": "src/extensions/21-23-25/pages/translate/assets/language.svg"
         }
       },
       {
