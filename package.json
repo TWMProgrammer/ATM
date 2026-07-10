@@ -194,7 +194,14 @@
         "command": "atm.music.playRandomAM",
         "title": "ATM Music: Random AM Station"
       },
-
+      {
+        "command": "atm.translate.open",
+        "title": "ATM: Translator",
+        "icon": {
+          "light": "src/extensions/21-23-25/pages/translate/assets/language.svg",
+          "dark": "src/extensions/21-23-25/pages/translate/assets/language.svg"
+        }
+      },
       {
         "command": "atm.ira.open",
         "title": "ATM: IRA",
