@@ -971,6 +971,11 @@
         "mac": "alt+shift+\\"
       },
       {
+        "command": "atm.ira.open",
+        "key": "ctrl+alt+\\",
+        "mac": "ctrl+cmd+\\"
+      },
+      {
         "command": "atm.browser.open",
         "key": "alt+shift+b",
         "mac": "alt+shift+b"
