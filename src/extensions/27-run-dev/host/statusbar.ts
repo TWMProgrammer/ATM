@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import { RunDevConfig } from './config';
+import { getGoLiveDevBar } from '../../26-27';
 
 // ======================================
 // RUN DEV — STATUS BAR | MARK: STATUSBAR
@@ -36,6 +37,7 @@ export class RunDevStatusBar {
     this.item.tooltip = vscode.l10n.t('Start the project dev server (alt+g)');
     this.item.command = COMMAND_START;
     this.item.backgroundColor = undefined;
+    getGoLiveDevBar()?.setRunDevIdle();
   }
 
   showStarting(label: string): void {
@@ -43,6 +45,7 @@ export class RunDevStatusBar {
     this.item.tooltip = vscode.l10n.t('Starting the dev server…');
     this.item.command = COMMAND_STOP;
     this.item.backgroundColor = undefined;
+    getGoLiveDevBar()?.setRunDevStarting(label);
   }
 
   showRunning(label: string, port: number | undefined, url: string | undefined): void {
@@ -50,6 +53,7 @@ export class RunDevStatusBar {
     this.item.tooltip = this.actionTooltip(vscode.l10n.t('{0} · running', label), url);
     this.item.command = COMMAND_STOP;
     this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+    getGoLiveDevBar()?.setRunDevRunning(label);
   }
 
   /**
@@ -64,6 +68,7 @@ export class RunDevStatusBar {
     this.item.tooltip = this.actionTooltip(vscode.l10n.t('{0} · error — see terminal', label), url);
     this.item.command = COMMAND_STOP;
     this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    getGoLiveDevBar()?.setRunDevError(label);
   }
 
   /**
@@ -94,6 +99,7 @@ export class RunDevStatusBar {
     this.item.tooltip = vscode.l10n.t('The dev server exited with an error. Click to retry.');
     this.item.command = COMMAND_START;
     this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+    getGoLiveDevBar()?.setRunDevFailed();
   }
 
   syncVisibility(): void {

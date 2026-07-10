@@ -2,6 +2,7 @@
 
 import * as vscode from 'vscode';
 import { GoLiveConfig } from './config';
+import { getGoLiveDevBar } from '../../26-27';
 
 // ======================================
 // GO LIVE — STATUS BAR | MARK: STATUSBAR
@@ -35,6 +36,7 @@ export class GoLiveStatusBar {
     this.item.tooltip = vscode.l10n.t('Click to start ATM Live Server');
     this.item.command = COMMAND_START;
     this.item.backgroundColor = undefined;
+    getGoLiveDevBar()?.setGoLiveIdle();
   }
 
   showWorking(message: string): void {
@@ -42,6 +44,7 @@ export class GoLiveStatusBar {
     this.item.tooltip = vscode.l10n.t('Working…');
     this.item.command = undefined;
     this.item.backgroundColor = undefined;
+    getGoLiveDevBar()?.setGoLiveStarting();
   }
 
   showLive(port: number, lanUrl?: string): void {
@@ -54,6 +57,7 @@ export class GoLiveStatusBar {
     this.item.tooltip = tip;
     this.item.command = COMMAND_STOP;
     this.item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+    getGoLiveDevBar()?.setGoLiveLive(port);
   }
 
   /** Re-apply the visibility preference after a settings change. */

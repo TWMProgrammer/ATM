@@ -337,6 +337,11 @@
       {
         "command": "atm.formatter.showOutput",
         "title": "ATM Formatter: Show Output"
+      },
+      {
+        "command": "atm.goLiveDev.toggle",
+        "title": "ATM: Go Live (Dev) — Quick Launch",
+        "icon": "$(broadcast)"
       }
     ],
     "configuration": {
@@ -544,6 +549,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show the Run Dev control in the status bar."
+        },
+        "atm.goLiveDev.showOnStatusbar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the combined Go Live (Dev) pill on the left side of the status bar."
         },
         "atm.browser.executablePath": {
           "type": "string",

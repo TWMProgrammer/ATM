@@ -27,6 +27,7 @@ import { activateNpmRun } from './24-npm-run';
 
 import { activateGoLive } from './26-go';
 import { activateRunDev } from './27-run-dev';
+import { activateGoLiveDev } from './26-27';
 import { activateAtmFormatter } from './28-atm-formatter';
 import { activateIra, activateGitCommands, activateAtmTranslate, activateCompareCode, activateBrowser } from './21-23-25';
 
@@ -92,6 +93,7 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   safeActivate('browser', () => activateBrowser(context));
   safeActivate('go-live', () => activateGoLive(context));
   safeActivate('run-dev', () => activateRunDev(context));
+  safeActivate('go-live-dev', () => activateGoLiveDev(context));
   safeActivate('atm-formatter', () => activateAtmFormatter(context));
   safeActivate('ira', () => activateIra(context));
   safeActivate('git-commands', () => activateGitCommands(context));
