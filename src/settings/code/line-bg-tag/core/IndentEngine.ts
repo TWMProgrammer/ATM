@@ -46,9 +46,6 @@ export class IndentEngine {
     for (const dt of this.decorator.decorationTypes) {
       editor.setDecorations(dt, empty);
     }
-    if (this.decorator.errorDecorationType) {
-      editor.setDecorations(this.decorator.errorDecorationType, empty);
-    }
     if (this.decorator.tabmixDecorationType) {
       editor.setDecorations(this.decorator.tabmixDecorationType, empty);
     }
@@ -85,10 +82,8 @@ export class IndentEngine {
     for (let i = 0; i < colorCount; i++) {
       decorators[i] = [];
     }
-    const errorDecorator: vscode.DecorationOptions[] = [];
     const tabmixDecorator: vscode.DecorationOptions[] = [];
 
-    const skipAllErrors = this.config.shouldSkipErrors(langId);
     const hasTabmix = this.decorator.tabmixDecorationType !== null;
     const hasIgnorePatterns = this.config.ignoreLinePatterns.length > 0;
     const colorOnWhiteSpaceOnly = this.config.colorOnWhiteSpaceOnly;
@@ -132,10 +127,10 @@ export class IndentEngine {
           continue;
         }
 
-        // Check if the line should skip error coloring
-        let skip = skipAllErrors;
+        // Check if the line should skip tabmix coloring based on ignore patterns
+        let skip = false;
 
-        if (!skip && hasIgnorePatterns) {
+        if (hasIgnorePatterns) {
           const ignorePatterns = this.config.ignoreLinePatterns;
           const patternsLen = ignorePatterns.length;
           for (let i = 0; i < patternsLen; i++) {
@@ -153,65 +148,58 @@ export class IndentEngine {
           indentWidth += text.charCodeAt(i) === CHAR_TAB ? tabSize : 1;
         }
 
-        // Indent error detection (not a multiple of tabSize)
-        if (!skip && indentWidth % tabSize !== 0) {
-          errorDecorator.push({
-            range: new vscode.Range(lineIndex, 0, lineIndex, wsEnd),
-          });
-        } else {
-          // Count tabs vs spaces for tabmix detection (only if feature enabled)
-          let hasTabMix = false;
-          if (!skip && hasTabmix) {
-            let sawTab = false;
-            let sawSpace = false;
-            for (let i = 0; i < wsEnd; i++) {
-              if (text.charCodeAt(i) === CHAR_TAB) {
-                sawTab = true;
-              } else {
-                sawSpace = true;
-              }
-              if (sawTab && sawSpace) {
-                hasTabMix = true;
-                break; // Early exit
-              }
+        // Count tabs vs spaces for tabmix detection (only if feature enabled)
+        let hasTabMix = false;
+        if (!skip && hasTabmix) {
+          let sawTab = false;
+          let sawSpace = false;
+          for (let i = 0; i < wsEnd; i++) {
+            if (text.charCodeAt(i) === CHAR_TAB) {
+              sawTab = true;
+            } else {
+              sawSpace = true;
+            }
+            if (sawTab && sawSpace) {
+              hasTabMix = true;
+              break; // Early exit
             }
           }
+        }
 
-          // Parse indent blocks positionally
-          let charIndex = 0;
-          let blockIndex = 0;
+        // Parse indent blocks positionally
+        let charIndex = 0;
+        let blockIndex = 0;
 
-          while (charIndex < wsEnd) {
-            const blockStart = charIndex;
+        while (charIndex < wsEnd) {
+          const blockStart = charIndex;
 
-            if (text.charCodeAt(charIndex) === CHAR_TAB) {
-              charIndex++;
-            } else {
-              charIndex += tabSize;
-            }
-
-            // Clamp to whitespace boundary
-            if (colorOnWhiteSpaceOnly && charIndex > wsEnd) {
-              charIndex = wsEnd;
-            }
-
-            const decoration: vscode.DecorationOptions = {
-              range: new vscode.Range(
-                lineIndex,
-                blockStart,
-                lineIndex,
-                charIndex,
-              ),
-            };
-
-            if (!skip && hasTabMix) {
-              tabmixDecorator.push(decoration);
-            } else {
-              decorators[blockIndex % colorCount].push(decoration);
-            }
-
-            blockIndex++;
+          if (text.charCodeAt(charIndex) === CHAR_TAB) {
+            charIndex++;
+          } else {
+            charIndex += tabSize;
           }
+
+          // Clamp to whitespace boundary
+          if (colorOnWhiteSpaceOnly && charIndex > wsEnd) {
+            charIndex = wsEnd;
+          }
+
+          const decoration: vscode.DecorationOptions = {
+            range: new vscode.Range(
+              lineIndex,
+              blockStart,
+              lineIndex,
+              charIndex,
+            ),
+          };
+
+          if (!skip && hasTabMix) {
+            tabmixDecorator.push(decoration);
+          } else {
+            decorators[blockIndex % colorCount].push(decoration);
+          }
+
+          blockIndex++;
         }
       }
     }
@@ -222,9 +210,6 @@ export class IndentEngine {
       editor.setDecorations(decorationTypes[i], decorators[i]);
     }
 
-    if (this.decorator.errorDecorationType) {
-      editor.setDecorations(this.decorator.errorDecorationType, errorDecorator);
-    }
 
     if (this.decorator.tabmixDecorationType) {
       editor.setDecorations(

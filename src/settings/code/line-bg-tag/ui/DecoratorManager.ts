@@ -3,7 +3,7 @@ import { ConfigManager } from '../config/ConfigManager';
 
 export class DecoratorManager {
   public decorationTypes: vscode.TextEditorDecorationType[] = [];
-  public errorDecorationType: vscode.TextEditorDecorationType | null = null;
+
   public tabmixDecorationType: vscode.TextEditorDecorationType | null = null;
   private config: ConfigManager;
 
@@ -19,7 +19,7 @@ export class DecoratorManager {
   public buildDecorations() {
     this.disposeAll();
 
-    const { colors, indicatorStyle, lineWidth, errorColor, tabmixColor } =
+    const { colors, indicatorStyle, lineWidth, tabmixColor } =
       this.config;
 
     for (const color of colors) {
@@ -37,9 +37,6 @@ export class DecoratorManager {
       );
     }
 
-    this.errorDecorationType = vscode.window.createTextEditorDecorationType({
-      backgroundColor: errorColor,
-    });
 
     if (tabmixColor) {
       this.tabmixDecorationType = vscode.window.createTextEditorDecorationType({
@@ -58,9 +55,7 @@ export class DecoratorManager {
       for (const dt of this.decorationTypes) {
         editor.setDecorations(dt, empty);
       }
-      if (this.errorDecorationType) {
-        editor.setDecorations(this.errorDecorationType, empty);
-      }
+
       if (this.tabmixDecorationType) {
         editor.setDecorations(this.tabmixDecorationType, empty);
       }
@@ -77,10 +72,7 @@ export class DecoratorManager {
     }
     this.decorationTypes = [];
 
-    if (this.errorDecorationType) {
-      this.errorDecorationType.dispose();
-      this.errorDecorationType = null;
-    }
+
     if (this.tabmixDecorationType) {
       this.tabmixDecorationType.dispose();
       this.tabmixDecorationType = null;

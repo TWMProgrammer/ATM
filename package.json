@@ -982,6 +982,11 @@
     },
     "grammars": [
       {
+        "language": "atmignore",
+        "scopeName": "source.atmignore",
+        "path": "./src/extensions/28-atm-formatter/syntaxes/atmignore.tmLanguage.json"
+      },
+      {
         "language": "mdx",
         "scopeName": "source.mdx",
         "path": "./src/extensions/13-markdown-mdx/syntaxes/source.mdx.tmLanguage",
@@ -1137,6 +1142,16 @@
       }
     ],
     "languages": [
+      {
+        "id": "atmignore",
+        "aliases": [
+          "ATM Ignore"
+        ],
+        "filenames": [
+          ".atmignore"
+        ],
+        "configuration": "./src/extensions/28-atm-formatter/syntaxes/language-configuration.json"
+      },
       {
         "id": "mdx",
         "aliases": [
