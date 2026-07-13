@@ -5,7 +5,7 @@ import { bumpVersion, computeBetaTarget, computeTarget, isReleaseBranch } from '
 let item: vscode.StatusBarItem | undefined;
 
 export function createStatusBar(context: vscode.ExtensionContext): void {
-    item = vscode.window.createStatusBarItem('atm.npmRun.status', vscode.StatusBarAlignment.Right, 90);
+    item = vscode.window.createStatusBarItem('atm.npmRun.status', vscode.StatusBarAlignment.Right, 999);
     item.name = 'ATM NPM Release';
     context.subscriptions.push(item);
 }
