@@ -917,7 +917,7 @@
         "atm.formatter.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable ATM Formatter for TypeScript, TSX, and CSS files."
+          "description": "Enable ATM Formatter for TypeScript, TSX, CSS, Astro, and JSON files."
         },
         "atm.formatter.printWidth": {
           "type": "number",

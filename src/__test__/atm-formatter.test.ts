@@ -25,8 +25,8 @@ suite('ATM Formatter — Language Registry', () => {
 		assert.strictEqual(languageRegistry.isLanguageSupported('javascript'), false);
 	});
 
-	test('json language ID is NOT supported', () => {
-		assert.strictEqual(languageRegistry.isLanguageSupported('json'), false);
+	test('json language ID is supported', () => {
+		assert.ok(languageRegistry.isLanguageSupported('json'));
 	});
 
 	test('getByLanguageId returns typescript descriptor', () => {
@@ -109,6 +109,12 @@ suite('ATM Formatter — Language Registry', () => {
 		const desc = languageRegistry.getByExtension('.astro');
 		assert.ok(desc);
 		assert.strictEqual(desc.id, 'astro');
+	});
+
+	test('getByExtension finds .json files', () => {
+		const desc = languageRegistry.getByExtension('.json');
+		assert.ok(desc);
+		assert.strictEqual(desc.id, 'json');
 	});
 
 	test('astro does not support range formatting', () => {
@@ -283,6 +289,19 @@ suite('ATM Formatter — Formatter Service', () => {
 
 	test('getParserForLanguageId returns astro parser', () => {
 		assert.strictEqual(service.getParserForLanguageId('astro'), 'astro');
+	});
+
+	test('getParserForLanguageId returns json parser', () => {
+		assert.strictEqual(service.getParserForLanguageId('json'), 'json');
+	});
+
+	test('formats JSON', async () => {
+		const result = await service.formatDocument({
+			text: '{"name":"ATM","enabled":true}',
+			parser: 'json',
+		});
+		assert.strictEqual(result.error, undefined);
+		assert.ok(result.formatted.includes('"name": "ATM"'));
 	});
 
 	test('formats Astro code', async () => {
