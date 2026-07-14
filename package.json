@@ -91,6 +91,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "atm.beforeAfter.showBefore",
+        "title": "ATM: Preview Selection Before Changes",
+        "icon": "$(diff)"
+      },
+      {
         "command": "atm.compareCode.open",
         "title": "ATM: Compare Code",
         "icon": "$(activate-breakpoints)"
@@ -1042,9 +1047,15 @@
     ],
     "keybindings": [
       {
+        "command": "atm.beforeAfter.showBefore",
+        "key": "alt+v",
+        "mac": "alt+v",
+        "when": "editorTextFocus && editorHasSelection && resourceScheme == file"
+      },
+      {
         "command": "atm.commitEmoji.auto",
-        "key": "alt+.",
-        "mac": "alt+."
+        "key": "alt+\\",
+        "mac": "alt+\\"
       },
       {
         "command": "atm.commitEmoji.show",
@@ -1178,6 +1189,11 @@
         }
       ],
       "editor/context": [
+        {
+          "command": "atm.beforeAfter.showBefore",
+          "group": "1_modification",
+          "when": "editorHasSelection && resourceScheme == file"
+        },
         {
           "command": "atm.screenshotCode",
           "group": "1_modification",
@@ -1443,6 +1459,7 @@
     "markdown-it": "^14.1.1",
     "mermaid": "^11.12.3",
     "npm-run-all": "^4.1.5",
+    "punycode": "^2.3.1",
     "ts-morph": "^28.0.0",
     "type-fest": "^5.4.4",
     "typescript": "^5.7.3",

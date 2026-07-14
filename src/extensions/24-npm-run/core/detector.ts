@@ -50,7 +50,7 @@ function toPackageInfo(dir: string, manifest: Record<string, unknown>): PackageI
     if (engines && typeof engines === 'object' && 'vscode' in engines) {
         return undefined;
     }
-    if (!manifest['publishConfig'] && !manifest['repository']) {
+    if (!manifest['publishConfig']) {
         return undefined;
     }
     return { dir, name, version };

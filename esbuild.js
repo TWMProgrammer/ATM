@@ -71,6 +71,11 @@ async function main() {
 		sourcesContent: false,
 		platform: 'node',
 		outfile: 'dist/extension.js',
+		// node-fetch 2 still imports Node's deprecated built-in `punycode` module.
+		// Bundle the maintained userland package instead to keep activation clean.
+		alias: {
+			punycode: 'punycode/',
+		},
 		// bufferutil / utf-8-validate are optional native accelerators probed by
 		// `ws` inside try/catch — leave them unresolved instead of bundling.
 		// @astrojs/compiler loads a ~5 MB WASM file at runtime via import.meta.url;
