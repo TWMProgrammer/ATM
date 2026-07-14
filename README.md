@@ -1,15 +1,19 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="ATM Banner">
-</div>
+  <a href="https://www.gohit.xyz/extension/atm" target="_blank">
+    <img
+      src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp"
+      width="100%"
+    >
+  </a>
 
-<p align="center">
+<p>
   <img src="https://vsmarketplacebadges.dev/version-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=VERSION" alt="Version">&nbsp;
   <img src="https://vsmarketplacebadges.dev/downloads-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=Downloads" alt="Downloads">&nbsp;
   <img src="https://vsmarketplacebadges.dev/rating-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=RATING" alt="Rating">&nbsp;
   <a href="https://github.com/bastndev/ATM"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/star.png" width="26.6px" alt="Github Star ⭐️"></a>
 </p>
 
-<p align="center">
+<p>
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ES.md">Español 🇪🇸</a> |
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ZH.md">中文 🇨🇳</a> |
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_DE.md">Deutsch 🇩🇪</a> |
@@ -23,11 +27,11 @@
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_AR.md">العربية 🇸🇦</a><span>...</span>
 </p>
 
-<div align="center">
   <h3>🏧 +21 extensions & configurations ready.</h3>
   <p>
     <strong>ATM</strong> is an all-in-one VS Code extension that replaces 17 separate tools with one cohesive, beautifully designed package. From inline spell checking and intelligent <code>.env</code> security to gorgeous code screenshots and advanced Git tools — everything you need, nothing you don't.
   </p>
+  
 </div>
 
 <br>
@@ -355,7 +359,7 @@ ext install bastndev.atm
 |                     **[Gohit X](https://gohit.xyz)**                      |
 |                          _Creator & Maintainer_                           |
 
-- 🐦 **[X](https://twitter.com/gohitx)** : For questions and discussions.
+- 🐦 **[X](https://x.com/intent/follow?screen_name=gohitx)** : For questions and discussions.
 - 🌱 **[IG](https://instagram.com/gohitx)** : **`new`** – Project previews & life updates.
 - 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** : Code, Software and development insights.
 
