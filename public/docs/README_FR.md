@@ -1,19 +1,23 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp" width="100%" alt="Bannière ATM">
-</div>
+  <a href="https://www.gohit.xyz/extension/atm" target="_blank">
+    <img
+      src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/banner.webp"
+      width="100%"
+    >
+  </a>
 
-<p align="center">
+<p>
   <img src="https://vsmarketplacebadges.dev/version-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=VERSION" alt="Version">&nbsp;
-  <img src="https://vsmarketplacebadges.dev/downloads-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=Downloads" alt="Téléchargements">&nbsp;
-  <img src="https://vsmarketplacebadges.dev/rating-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=RATING" alt="Note">&nbsp;
-  <a href="https://github.com/bastndev/ATM"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/star.png" width="26.6px" alt="Étoile GitHub ⭐️"></a>
+  <img src="https://vsmarketplacebadges.dev/downloads-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=Downloads" alt="Downloads">&nbsp;
+  <img src="https://vsmarketplacebadges.dev/rating-short/bastndev.atm.jpg?style=for-the-badge&colorA=ffffff&colorB=000000&label=RATING" alt="Rating">&nbsp;
+  <a href="https://github.com/bastndev/ATM"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/star.png" width="26.6px" alt="Github Star ⭐️"></a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/bastndev/ATM">English 🇺🇸</a> |
+<p>
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ES.md">Español 🇪🇸</a> |
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_ZH.md">中文 🇨🇳</a> |
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_DE.md">Deutsch 🇩🇪</a> |
+  <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_FR.md">Français 🇫🇷</a> |
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_JA.md">日本語 🇯🇵</a> |
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_KO.md">한국어 🇰🇷</a> |
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_PT.md">Português 🇧🇷</a> |
@@ -23,285 +27,193 @@
   <a href="https://github.com/bastndev/ATM/blob/main/public/docs/README_AR.md">العربية 🇸🇦</a><span>...</span>
 </p>
 
-<div align="center">
-  <h3>🏧 +21 extensions et configurations prêtes.</h3>
+  <h3>🏧 +30 extensions & configurations prêtes.</h3>
   <p>
-    <strong>ATM</strong> est une extension tout-en-un pour VS Code qui remplace 17 outils séparés par un paquet cohérent et soigneusement conçu. De la correction orthographique en ligne et la sécurité intelligente de <code>.env</code> aux captures de code élégantes et aux outils Git avancés: tout ce qu'il faut, rien de superflu.
+    <strong>ATM</strong> est une boîte à outils tout-en-un et multilingue pour VS Code qui remplace plus de 30 outils séparés par un package cohérent et magnifiquement conçu. De la correction orthographique en ligne et de la sécurité intelligente des <code>.env</code> aux magnifiques captures de code, navigateur intégré, serveurs de développement et outils Git avancés — tout ce dont tu as besoin, rien de superflu. Rapide comme un fantôme. Fonctionne sur VS Code, Cursor, Windsurf, Trae.ai & Kiro.
   </p>
+
 </div>
 
 <br>
 
+## 📑 Table des matières
+
+- [Extensions Included](#-extensions-included)
+- [Preview Gallery](#-preview-gallery)
+- [Settings](#-settings)
+- [Keyboard Shortcuts](#-keyboard-shortcuts)
+- [Installation](#installation)
+- [About Me](#about-me)
+- [Sponsors](#sponsors)
+- [Complementary Extensions](#-complementary-extensions)
+
+<br>
+
+## 🧩 Extensions incluses
+
 <table width="100%">
   <thead>
     <tr>
-      <th width="19%" align="center">Icône</th>
-      <th width="16%" align="center">Nom</th>
-      <th width="56%">Description</th>
-      <th width="14%" align="center">Taille</th>
+      <th width="15%" align="center">Icône</th>
+      <th width="20%" align="center">Extension</th>
+      <th width="65%">Description</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-21.webp" alt="ATM Translate" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Translate</b></a></td>
-      <td>Traduisez de manière transparente du code, de la documentation et du texte directement dans l'éditeur à l'aide d'un panneau webview intuitif et d'une intégration d'API sécurisée.</td>
-      <td align="center"><b>52KB</b></td>
+      <td>Traduisez du code, de la documentation et du texte de manière transparente directement dans l'éditeur via un panneau webview intuitif et une intégration d'API sécurisée.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — ATM Translate</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="Aperçu — ATM Translate" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-1.webp" alt="AI Data" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>AI Data</b></a></td>
       <td>Surveille et affiche la consommation de données IA (Antigravity) avec des infobulles informatives en temps réel.</td>
-      <td align="center"><b>56KB</b></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — AI Data</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-1.jpg" width="100%" alt="Aperçu — AI Data" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-2.webp" alt="Code Spell" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-2.webp" alt="Code Spell" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Code Spell</b></a></td>
       <td>Correcteur orthographique pour le code avec dictionnaire anglais, termes techniques, actions rapides et exclusions configurables.</td>
-      <td align="center"><b>156KB</b></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Code Spell</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-2.jpg" width="100%" alt="Aperçu — Code Spell" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-3.webp" alt="Color Debugging" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-3.webp" alt="Color Debugging" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Color Debugging</b></a></td>
       <td>Outils visuels de débogage des couleurs avec gestion d'état et contrôles intégrés dans la barre inférieure.</td>
-      <td align="center"><b>28KB</b></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Color Debugging</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-3.jpg" width="100%" alt="Aperçu — Color Debugging" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-4.webp" alt="Comments Code" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-4.webp" alt="Comments Code" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Comments Code</b></a></td>
-      <td>Améliore la lisibilité des commentaires avec des décorations visuelles, un contrôle par langage et un rendu optimisé. <code>TODO:</code> / <code>FIXME:</code> / <code>MARK:</code></td>
-      <td align="center"><b>44KB</b></td>
+      <td>Améliore la lisibilité des commentaires grâce à des décorations visuelles, un contrôle linguistique et un rendu optimisé. <code>TODO:</code> / <code>FIXME:</code> / <code>MARK:</code></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Comments Code</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-4.jpg" width="100%" alt="Aperçu — Comments Code" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-5.webp" alt="Env Lens" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-5.webp" alt="Env Lens" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Env Lens</b></a></td>
-      <td>Analyse les fichiers <code>.env</code> en toute sécurité et masque les valeurs avec BLUR (masquer/afficher temporairement) via des décorations et interactions au survol.</td>
-      <td align="center"><b>32KB</b></td>
+      <td>Analyse les fichiers <code>.env</code> en toute sécurité et masque les valeurs avec BLUR ou MASK à l'aide de décorateurs et d'interactions au survol.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Env Lens</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-5.jpg" width="100%" alt="Aperçu — Env Lens" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-6.webp" alt="Error Lens" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-6.webp" alt="Error Lens" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Error Lens</b></a></td>
       <td>Affiche les erreurs et avertissements directement en ligne pour accélérer la détection et la résolution des diagnostics.</td>
-      <td align="center"><b>28KB</b></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Error Lens</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-6.jpg" width="100%" alt="Aperçu — Error Lens" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-7.webp" alt="Git Better" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-7.webp" alt="Git Better" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Git Better</b></a></td>
-      <td>Panneau Git amélioré avec mini-vue blame et outils visuels soignés pour examiner l'historique et les changements du dépôt.</td>
-      <td align="center"><b>368KB</b></td>
+      <td>Panneau Git amélioré avec mini-vue blame et outils visuels élégants pour examiner l'historique et les modifications du dépôt.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Git Better</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-7.jpg" width="100%" alt="Aperçu — Git Better" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-8.webp" alt="Image Preview" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-8.webp" alt="Image Preview" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Image Preview</b></a></td>
-      <td>Prévisualise les images avec dimensions et taille de fichier directement dans l'éditeur.</td>
-      <td align="center"><b>56KB</b></td>
+      <td>Prévisualise les images avec leurs dimensions et leur taille de fichier directement en ligne dans ton éditeur de code.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Image Preview</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-8.jpg" width="100%" alt="Aperçu — Image Preview" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-9.webp" alt="Markdown Text" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-9.webp" alt="Markdown Text" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Markdown Text</b></a></td>
-      <td>Renforce Markdown avec des fonctions modernes comme l'aperçu intégré des diagrammes Mermaid.</td>
-      <td align="center"><b>52KB</b></td>
+      <td>Supercharge Markdown avec des fonctionnalités modernes comme l'aperçu intégré de diagrammes Mermaid et des snippets.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Markdown Text</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-9.jpg" width="100%" alt="Aperçu — Markdown Text" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-10.webp" alt="Markdown MDX" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-10.webp" alt="Markdown MDX" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Markdown MDX</b></a></td>
       <td>Prise en charge complète de la syntaxe MDX et aperçu en direct via compilation React/esbuild. Accès rapide avec <code>Shift + Alt + M</code>.</td>
-      <td align="center"><b>400KB</b></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Markdown MDX</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-10.jpg" width="100%" alt="Aperçu — Markdown MDX" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-11.webp" alt="Screenshot Code" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-11.webp" alt="Screenshot Code" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Screenshot Code</b></a></td>
-      <td>Génère de superbes captures de fragments de code avec des styles de présentation prêts pour les réseaux sociaux.</td>
-      <td align="center"><b>100KB</b></td>
+      <td>Génère des captures d'écran époustouflantes de tes extraits de code avec des styles de présentation prêts à être partagés sur les réseaux sociaux.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Screenshot Code</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-11.jpg" width="100%" alt="Aperçu — Screenshot Code" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-12.webp" alt="SVG Better" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-12.webp" alt="SVG Better" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>SVG Better</b></a></td>
-      <td>Améliore ton flux SVG grâce à une vue divisée automatique et une optimisation de fichiers intégrée.</td>
-      <td align="center"><b>12KB</b></td>
+      <td>Élève ton flux de travail SVG grâce à une vue fractionnée automatique et une optimisation de fichiers intégrée.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — SVG Better</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-12.jpg" width="100%" alt="Aperçu — SVG Better" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-13.webp" alt="Translate Doc" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-13.webp" alt="Translate Doc" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Translate Doc</b></a></td>
       <td>Traduit la documentation et les notes de version nativement dans l'éditeur avec <code>Ctrl + Shift + Space</code>.</td>
-      <td align="center"><b>56KB</b></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Translate Doc</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-13.jpg" width="100%" alt="Aperçu — Translate Doc" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-14.webp" alt="Version Package" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-14.webp" alt="Version Package" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Version Package</b></a></td>
-      <td>Gère les versions dans <code>package.json</code> avec un parseur sémantique, des états au survol et des décorations.</td>
-      <td align="center"><b>56KB</b></td>
+      <td>Gère les versions des packages dans <code>package.json</code> de manière transparente avec un analyseur sémantique, des états au survol et des décorateurs.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Version Package</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-14.jpg" width="100%" alt="Aperçu — Version Package" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-15.webp" alt="Voice TTS" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-15.webp" alt="Voice TTS" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Voice TTS</b></a></td>
-      <td>Lit le texte à voix haute directement dans l'éditeur. Utilise <code>Shift + Space</code> pour lire et <code>Shift + Alt + Space</code> pour choisir une voix.</td>
-      <td align="center"><b>80KB</b></td>
+      <td>Lit le texte à voix haute directement dans l'éditeur. Utilise <code>Shift + Space</code> pour lire et <code>Shift + Alt + Space</code> pour sélectionner une voix.</td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Voice TTS</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-15.jpg" width="100%" alt="Aperçu — Voice TTS" />
-        </details>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-16.webp" alt="Color Box" width="100" /></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-16.webp" alt="Color Box" width="80" /></td>
       <td align="center"><a href="https://github.com/bastndev/ATM"><b>Color Box</b></a></td>
       <td>Détection et mise en évidence ultra-rapides des couleurs en ligne dans plusieurs formats web modernes.</td>
-      <td align="center"><b>20KB</b></td>
     </tr>
     <tr>
-      <td colspan="4">
-        <details>
-          <summary><b>🖼️ Aperçu — Color Box</b></summary>
-          <br>
-          <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-16.jpg" width="100%" alt="Aperçu — Color Box" />
-        </details>
-      </td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="ATM Focus" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Focus</b></a></td>
+      <td>Tableau de bord de productivité avec minuteur Pomodoro, YouTube Music / AM Radio et vue de consommation de données IA.</td>
     </tr>
     <tr>
-      <td align="center">17</td>
-      <td align="center"><b>🧩</b></td>
-      <td>Le tout regroupé dans un seul paquet léger.</td>
-      <td align="center"><b><code>1.5MB</code></b></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Tailwind CSS" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Tailwind CSS</b></a></td>
+      <td>Plie/déplie les chaînes de classes Tailwind CSS et désactive l'extension sans quitter l'éditeur.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Terminal Sound" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Terminal Sound</b></a></td>
+      <td>Retour audio pour les commandes terminal via l'intégration shell de VS Code, avec volume ajustable et sons personnalisés.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/logos/atm-22.webp" alt="Bracket Lynx" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Bracket Lynx</b></a></td>
+      <td>Décorations et assistants de crochets conscients du framework pour garder les structures de code complexes lisibles d'un coup d'œil.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Git Commands" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Git Commands</b></a></td>
+      <td>Panneau de référence visuelle des commandes Git — parcours les catégories, copie les commandes et apprends Git sans quitter VS Code.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Compare Code" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Compare Code</b></a></td>
+      <td>Vue de comparaison de code côte à côte pour des diffs rapides et des revues de code directement dans l'éditeur.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="ATM Browser" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Browser</b></a></td>
+      <td>Navigateur intégré basé sur Chromium dans VS Code avec moteur de recherche et qualité configurables.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="NPM Run" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>NPM Run</b></a></td>
+      <td>Assistants de publication pour les packages npm — exécute les releases patch, minor, major ou beta depuis la barre d'état.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Go Live" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Go Live</b></a></td>
+      <td>Serveur de développement local avec rechargement en direct, fallback SPA, support HTTPS et en-têtes personnalisés. <code>Alt + L, Alt + O</code>.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Run Dev" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Run Dev</b></a></td>
+      <td>Détecte automatiquement ton script de développement du framework et l'exécute en une seule frappe, puis ouvre l'URL locale. <code>Alt + G</code>.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="ATM Lint" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Lint</b></a></td>
+      <td>Moteur de lint léger avec Quick Fixes basés sur des suggestions et avertissements opérationnels ESLint optionnels.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="ATM Formatter" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>ATM Formatter</b></a></td>
+      <td>Formateur basé sur Prettier pour TypeScript, TSX, CSS, Astro et JSON avec prise en charge <code>.atmignore</code>.</td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Commit Emoji" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Commit Emoji</b></a></td>
+      <td>Insère des emojis de commit conventionnels dans la boîte de message SCM, avec correspondance automatique, emojis personnalisés et tri par utilisation. <code>Alt + .</code></td>
+    </tr>
+    <tr>
+      <td align="center"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/atm-image.png" alt="Before After" width="80" /></td>
+      <td align="center"><a href="https://github.com/bastndev/ATM"><b>Before After</b></a></td>
+      <td>Prévisualise la sélection actuelle telle qu'elle existait dans le <code>HEAD</code> Git, puis copie ou restaure le code original. <code>Alt + V</code>.</td>
     </tr>
   </tbody>
 </table>
@@ -310,15 +222,188 @@
 
 <br>
 
+## 🖼️ Galerie d'aperçus
+
+Clique sur un aperçu pour l'agrandir.
+
+<details>
+  <summary><b>ATM Translate</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-21.png" width="100%" alt="Translate Preview" />
+</details>
+
+<details>
+  <summary><b>AI Data</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-1.jpg" width="100%" alt="AI Preview" />
+</details>
+
+<details>
+  <summary><b>Code Spell</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-2.jpg" width="100%" alt="Code Preview" />
+</details>
+
+<details>
+  <summary><b>Color Debugging</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-3.jpg" width="100%" alt="Color Preview" />
+</details>
+
+<details>
+  <summary><b>Comments Code</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-4.jpg" width="100%" alt="Comments Preview" />
+</details>
+
+<details>
+  <summary><b>Env Lens</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-5.jpg" width="100%" alt="Env Preview" />
+</details>
+
+<details>
+  <summary><b>Error Lens</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-6.jpg" width="100%" alt="Error Preview" />
+</details>
+
+<details>
+  <summary><b>Git Better</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-7.jpg" width="100%" alt="Git Preview" />
+</details>
+
+<details>
+  <summary><b>Image Preview</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-8.jpg" width="100%" alt="Image Preview" />
+</details>
+
+<details>
+  <summary><b>Markdown Text</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-9.jpg" width="100%" alt="Markdown Preview" />
+</details>
+
+<details>
+  <summary><b>Markdown MDX</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-10.jpg" width="100%" alt="Markdown Preview" />
+</details>
+
+<details>
+  <summary><b>Screenshot Code</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-11.jpg" width="100%" alt="Screenshot Preview" />
+</details>
+
+<details>
+  <summary><b>SVG Better</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-12.jpg" width="100%" alt="SVG Preview" />
+</details>
+
+<details>
+  <summary><b>Translate Doc</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-13.jpg" width="100%" alt="Translate Preview" />
+</details>
+
+<details>
+  <summary><b>Version Package</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-14.jpg" width="100%" alt="Version Preview" />
+</details>
+
+<details>
+  <summary><b>Voice TTS</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-15.jpg" width="100%" alt="Voice Preview" />
+</details>
+
+<details>
+  <summary><b>Color Box</b></summary>
+  <br>
+  <img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/images/tutorial/t-16.jpg" width="100%" alt="Color Box Preview" />
+</details>
+
+---
+
+<br>
+
 ## [+] Activer ou désactiver les paramètres
 
-Tu peux personnaliser le comportement d'ATM directement dans les paramètres de VS Code. Ajuste l'expérience exactement comme tu le souhaites:
+Tu peux personnaliser le comportement d'ATM directement via tes paramètres VS Code. Ajuste l'expérience exactement à ton goût:
 
-- `atm.cursor.animation` - _Active ou désactive les animations du curseur._
-- `atm.breadcrumbs.animation` - _Active ou désactive les animations du fil d'Ariane._
-- `atm.files.animation` - _Active ou désactive les animations de l'explorateur de fichiers._
+### Apparence & animations
+- `atm.cursor.animation` — _Activer/désactiver les animations du curseur._
+- `atm.breadcrumbs.animation` — _Activer/désactiver les animations du fil d'Ariane._
+- `atm.files.animation` — _Activer/désactiver les animations de l'explorateur de fichiers._
 
-> 💡 **Astuce pro:** Mets régulièrement l'extension à jour pour profiter des dernières fonctionnalités, améliorations de performance et correctifs de sécurité.
+### Qualité du code
+- `atm.lint.enableSuggestions` — _Activer les Quick Fixes de lint basés sur des suggestions (par exemple, <code>==</code> vers <code>===</code>)._
+- `atm.lint.showOperationalWarnings` — _Afficher les avertissements opérationnels ESLint comme diagnostics._
+- `atm.codeSpell.customWords` — _Mots personnalisés ajoutés au dictionnaire ATM Code-Spell._
+
+### Sécurité & confidentialité
+- `atm.envLens.renderMode` — _Comment les valeurs <code>.env</code> sont masquées: <code>blur</code> conserve la forme visible, <code>mask</code> masque complètement le texte._
+- `atm.envLens.revealDurationMs` — _Durée pendant laquelle une valeur env révélée reste visible._
+- `atm.envLens.ultraSecureMode` — _Désactiver toutes les actions de révélation au survol pour une sécurité maximale._
+
+### Formatage
+- `atm.formatter.enable` — _Activer ATM Formatter pour les fichiers TypeScript, TSX, CSS, Astro et JSON._
+- `atm.formatter.printWidth`, `atm.formatter.tabWidth`, `atm.formatter.useTabs`, `atm.formatter.semi`, `atm.formatter.singleQuote`, `atm.formatter.trailingComma` — _Options de formatage compatibles Prettier._
+- `atm.formatter.ignorePath` — _Chemin vers le fichier d'ignore (par défaut <code>.atmignore</code>)._
+
+### Serveurs de développement
+- `atm.goLive.port` — _Port du serveur live; le port libre suivant est utilisé automatiquement s'il est occupé._
+- `atm.goLive.host` — _Interface hôte à laquelle Go Live se lie (utilisez <code>0.0.0.0</code> pour l'exposer sur votre réseau local)._
+- `atm.runDev.packageManager` — _Gestionnaire de packages utilisé pour exécuter le script de développement (<code>auto</code>, <code>bun</code>, <code>npm</code>, <code>pnpm</code>, <code>yarn</code>)._
+- `atm.runDev.autoOpen` — _Ouvrir automatiquement le navigateur une fois que le serveur de développement affiche son URL locale._
+
+### Traduction
+- `atm.translate.provider` — _Fournisseur de traduction principal (auto, Google Unofficial, MyMemory, LibreTranslate, DeepL, Google Cloud)._
+- `atm.translate.fallbackProviders` — _Ordre de secours utilisé lorsque le fournisseur principal échoue._
+- `atm.translate.deepLEndpoint` — _Type de point de terminaison DeepL (<code>free</code> ou <code>pro</code>)._
+
+### Commits Git
+- `atm.commitEmoji.outputType` — _Insérer le caractère emoji ou le code de commit (par exemple <code>:sparkles:</code>)._
+- `atm.commitEmoji.insertPosition` — _Où insérer l'emoji: <code>start</code>, <code>end</code> ou <code>cursor</code>._
+- `atm.commitEmoji.addCustomEmoji` — _Ajouter tes propres entrées emoji au sélecteur._
+
+> 💡 **Astuce pro:** Ouvre <code>settings.json</code> (ou recherche <code>atm.</code> dans l'interface des paramètres) pour explorer chaque option. Mets régulièrement l'extension à jour pour disposer des dernières fonctionnalités, améliorations de performance et correctifs de sécurité.
+
+<br>
+
+---
+
+## ⌨️ Raccourcis clavier
+
+ATM enregistre des raccourcis orientés productivité dès l'installation. Tu peux remplacer chacun d'eux dans <code>Fichier → Préférences → Raccourcis clavier</code>.
+
+| Raccourci | Commande | Contexte |
+| :------- | :------ | :------ |
+| <kbd>Alt</kbd> + <kbd>V</kbd> | Aperçu de la sélection avant les modifications | Éditeur avec sélection |
+| <kbd>Alt</kbd> + <kbd>\</kbd> | Commit Emoji (attribuer le meilleur automatiquement) | Global |
+| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>.</kbd> | Sélecteur de Commit Emoji | Global |
+| <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>\</kbd> | Compare Code | Global |
+| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>\</kbd> | Ouvrir ATM IRA | Global |
+| <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> | Ouvrir ATM Browser | Global |
+| <kbd>Shift</kbd> + <kbd>Space</kbd> | Voice TTS: Copier & Lire | Global |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>Space</kbd> | Voice TTS: Sélectionner une voix | Global |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Traduire la page d'extension | Page d'extension active |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Musique: Lecture/Pause | Sinon |
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>M</kbd> | Ouvrir l'aperçu MDX | Fichier MDX |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> | Traduire les notes de version | Notes de version actives |
+| <kbd>Alt</kbd> + <kbd>R</kbd> | Musique: Station AM aléatoire | Global |
+| <kbd>Alt</kbd> + <kbd>L</kbd>, <kbd>Alt</kbd> + <kbd>O</kbd> | Go Live: Démarrer le serveur | Global |
+| <kbd>Alt</kbd> + <kbd>L</kbd>, <kbd>Alt</kbd> + <kbd>C</kbd> | Go Live: Arrêter le serveur | Global |
+| <kbd>Alt</kbd> + <kbd>G</kbd> | Run Dev: Démarrer | Global |
+| <kbd>Ctrl</kbd> + <kbd>G</kbd> | Run Dev: Redémarrer | Global |
+| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>G</kbd> | Run Dev: Arrêter | Global |
+
+> 🍎 Sous macOS, <kbd>Ctrl</kbd> devient <kbd>⌘</kbd> pour les raccourcis qui spécifient un raccourci macOS. Run Dev redémarrer/arrêter utilisent intentionnellement <kbd>Ctrl</kbd> sur les deux plateformes.
 
 <br>
 
@@ -352,11 +437,11 @@ ext install bastndev.atm
 
 | [![gohitx](https://github.com/gohitx.png?size=100)](https://gohit.xyz/me) |
 | :-----------------------------------------------------------------------: |
-|                     **[Gohit X](https://gohit.xyz)**                      |
-|                          _Créateur et mainteneur_                           |
+| **[Gohit X](https://gohit.xyz)** |
+| _Creator & Maintainer_ |
 
-- 🐦 **[X](https://twitter.com/gohitx)** : Pour les questions et discussions.
-- 🌱 **[IG](https://instagram.com/gohitx)** : **`new`** – Aperçus de projets et nouvelles personnelles.
+- 🐦 **[X](https://x.com/intent/follow?screen_name=gohitx)** : Pour les questions et discussions.
+- 🌱 **[IG](https://instagram.com/gohitx)** : **`new`** – Aperçus de projets & nouvelles de la vie.
 - 🔴 **[YouTube](https://www.youtube.com/@gohitx?sub_confirmation=1)** : Code, logiciel et perspectives de développement.
 
 <br>
@@ -365,7 +450,7 @@ ext install bastndev.atm
 
 ## Sponsors <a href="https://github.com/sponsors/bastndev"><img src="https://raw.githubusercontent.com/bastndev/ATM/refs/heads/main/public/github/icons/sponsor.png" alt="Image" width="28px" align="center"/></a>
 
-Merci à toutes les personnes qui soutiennent ce projet! Vos contributions rendent possibles les mises à jour et les nouvelles extensions.
+Merci à tous ceux qui soutiennent ce projet! Vos contributions rendent possibles les mises à jour et les nouvelles extensions.
 
 <div align="center">
   <table>
@@ -405,20 +490,19 @@ Merci à toutes les personnes qui soutiennent ce projet! Vos contributions rende
   🧩 Extensions complémentaires
 </h2>
 
-| Icône                                                                                                                                                                                                                                      | Extension                                                          | Description                                                                                                                                                         |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![My Skills](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/my-skills/0.0.1/1779741612213/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.my-skills)  | [My Skills](https://github.com/bastndev/My-Skills)           | Créez, installez et gérez des instructions IA pour vos projets. Enregistrez votre style de code, vos règles et vos flux de travail en tant que compétences pour que votre assistant sache toujours quoi faire. |
-| [![Lynx Keymap Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-keymap/2.3.1/1778538045613/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap) | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | Standardisation ultime des raccourcis dans tous les éditeurs de code. Maximise ta mémoire musculaire et accélère ton flux de travail.                                                    |
-| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)    | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**       | Un pack de thèmes élégant et professionnel avec 6 variantes visuelles (Dark, Light, Night, Ghibli, Coffee, Kiro) et des icônes intégrées.                                            |
-| [![Compare Code](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/compare-code/0.1.0/1759529717256/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.compare-code)  | [Compare Code](https://github.com/bastndev/Compare-Code)           | Permet de comparer du code de façon professionnelle, rapide et claire. Avec une interface moderne et intuitive, c'est idéal pour les développeurs qui veulent gagner en productivité. |
+| Icône | Extension | Description |
+| :--- | :-------- | :---------- |
+| [![F1](https://open-vsx.org/api/bastndev/f1/1.0.0/file/icon.png)](https://open-vsx.org/extension/bastndev/f1) | [F1](https://github.com/bastndev/F1) | Le centre de contrôle IA ultime. Centralise Claude, Copilot ou Cursor dans des terminaux interactifs, crée des workflows personnalisés avec 'My Skills' et donne à l'IA un contexte de codebase instantané avec 'My Memory'. |
+| [![Lynx Keymap Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-keymap/2.3.1/1778538045613/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap) | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | Standardisation ultime des raccourcis clavier dans tous les éditeurs de code. Maximise ta mémoire musculaire et booste ton workflow. |
+| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme) | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)** | Un pack de thèmes élégant et professionnel avec 6 variantes visuelles (Dark, Light, Night, Ghibli, Coffee, Kiro) et des icônes intégrées. |
 
 <br>
 
 <div align="center">
-  
-  **Profite-en 🎉 ATM est maintenant installé!**  
-  *Si tu trouves un bug ou as un retour, tu peux [ouvrir une issue](https://github.com/bastndev/atm/issues/new)*
 
-<sub>Fait au 🇵🇪 par <a href="https://gohit.xyz">Gohit X</a> · Sous licence <a href="https://github.com/bastndev/ATM/blob/main/LICENSE"><code>MIT</code></a></sub>
+  **Profite-en 🎉 (ATM) est maintenant installé!**
+  *Si tu trouves des bugs ou as des retours, tu peux [ouvrir une issue](https://github.com/bastndev/ATM/issues/new)*
+
+<sub>Made in 🇵🇪 by <a href="https://gohit.xyz">Gohit X</a> · Sous licence <a href="https://github.com/bastndev/ATM/blob/main/LICENSE">`MIT`</a></sub>
 
 </div>
