@@ -1054,8 +1054,8 @@
       },
       {
         "command": "atm.commitEmoji.auto",
-        "key": "alt+.",
-        "mac": "alt+."
+        "key": "alt+\\",
+        "mac": "alt+\\"
       },
       {
         "command": "atm.commitEmoji.show",
