@@ -74,16 +74,37 @@ export function createDecorationStyles() {
     }
   });
 
+  const errorOptions = vscode.window.createTextEditorDecorationType({
+    isWholeLine: false,
+    after: getCommonAfter('4px', '2px 10px'),
+    dark: {
+      after: {
+        backgroundColor: '#ef444422',
+        color: '#f87171',
+      }
+    },
+    light: {
+      after: {
+        backgroundColor: '#fee2e2cc',
+        color: '#b91c1c',
+      }
+    }
+  });
+
   return {
     updateAvailable: updateAvailableOptions,
     updateRecommended: updateRecommendedOptions,
     upToDate: upToDateOptions,
     loading: loadingOptions,
+    error: errorOptions,
     dispose: () => {
       updateAvailableOptions.dispose();
       updateRecommendedOptions.dispose();
       upToDateOptions.dispose();
       loadingOptions.dispose();
+      errorOptions.dispose();
     },
   };
 }
+
+export type VersionDecorationStyles = ReturnType<typeof createDecorationStyles>;
