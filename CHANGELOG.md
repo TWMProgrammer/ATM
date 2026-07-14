@@ -15,6 +15,19 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 <!-- --- -->
 
 ---
+## [2.0.0] - 2026-07-14
+
+### Added
+
+- **Major README refresh**: Rebuilt `README.md` to showcase all 30+ ATM extensions with a Table of Contents, collapsible Preview Gallery, expanded Settings reference, and a Keyboard Shortcuts cheat sheet.
+- **Full localization sync**: Updated all 11 localized READMEs in `public/docs/` (AR, DE, ES, FR, HI, JA, KO, PT, RU, VI, ZH) to match the new English source.
+- **New documented extensions**: Added descriptions for ATM Focus, Tailwind CSS, Terminal Sound, Bracket Lynx, Git Commands, Compare Code, ATM Browser, NPM Run, Go Live, Run Dev, ATM Formatter, Commit Emoji, and Before After.
+
+### Improved
+
+- **Extension discovery**: README now accurately reflects the full extension count (+30) and replaces the outdated "+21 extensions" claim.
+
+---
 
 ## [1.9.5] - 2026-05-18
 
