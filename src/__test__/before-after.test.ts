@@ -18,7 +18,27 @@ suite('Before & After', () => {
 	});
 
 	teardown(() => {
-		fs.rmSync(tempDir, { recursive: true, force: true });
+		if (tempDir && fs.existsSync(tempDir)) {
+			// On Windows, git objects inside the temp directory are read-only,
+			// causing EPERM on deletion. Recursively make everything writable.
+			const makeWritable = (dir: string) => {
+				const files = fs.readdirSync(dir);
+				for (const file of files) {
+					const filePath = path.join(dir, file);
+					const stat = fs.lstatSync(filePath);
+					try {
+						fs.chmodSync(filePath, stat.isDirectory() ? 0o777 : 0o666);
+					} catch {}
+					if (stat.isDirectory()) {
+						makeWritable(filePath);
+					}
+				}
+			};
+			try {
+				makeWritable(tempDir);
+			} catch {}
+			fs.rmSync(tempDir, { recursive: true, force: true });
+		}
 	});
 
 	test('returns the committed file content', async () => {
