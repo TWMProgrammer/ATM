@@ -91,6 +91,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "atm.beforeAfter.showBefore",
+        "title": "ATM: Preview Selection Before Changes",
+        "icon": "$(diff)"
+      },
+      {
         "command": "atm.compareCode.open",
         "title": "ATM: Compare Code",
         "icon": "$(activate-breakpoints)"
@@ -1042,6 +1047,12 @@
     ],
     "keybindings": [
       {
+        "command": "atm.beforeAfter.showBefore",
+        "key": "alt+v",
+        "mac": "alt+v",
+        "when": "editorTextFocus && editorHasSelection && resourceScheme == file"
+      },
+      {
         "command": "atm.commitEmoji.auto",
         "key": "alt+.",
         "mac": "alt+."
@@ -1178,6 +1189,11 @@
         }
       ],
       "editor/context": [
+        {
+          "command": "atm.beforeAfter.showBefore",
+          "group": "1_modification",
+          "when": "editorHasSelection && resourceScheme == file"
+        },
         {
           "command": "atm.screenshotCode",
           "group": "1_modification",
