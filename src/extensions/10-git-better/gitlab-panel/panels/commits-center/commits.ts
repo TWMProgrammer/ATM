@@ -23,13 +23,13 @@ class CommitsManager {
     // Branch color mapping
     private branchColors: Record<string, string> = {};
     private colorPalette = [
-        '#00E676', // Verde neón muy intenso
-        '#FF2A9D', // Rosado/Magenta neón muy vibrante
-        '#00D4FF', // Cyan brillante
-        '#FF9100', // Naranja neón intenso
-        '#B724FF', // Púrpura eléctrico
-        '#FF3D57', // Rojo carmesí intenso
-        '#FFD600', // Amarillo brillante
+        '#00E676', // neon green
+        '#FF2A9D', // neon magenta
+        '#00D4FF', // bright cyan
+        '#FF9100', // neon orange
+        '#B724FF', // electric purple
+        '#FF3D57', // crimson red
+        '#FFD600', // bright yellow
     ];
     private colorIndex = 0;
 

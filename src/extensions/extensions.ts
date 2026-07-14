@@ -21,11 +21,15 @@ import { activateLint } from './02-atm-lint/lint';
 import { activateGlobalStatusBar } from './shared/shared';
 import { activate as activateTerminalSound } from './17-terminal-sound/terminal-sound';
 import { activateTailwindFold } from './16-tailwind-css/tailwind-fold';
-import { activateAtmTranslate } from './21-atm-translate';
 import { activateBracketLynx } from './22-bracket-lynx';
-import { activateCompareCode } from './23-compare-code';
+
 import { activateNpmRun } from './24-npm-run';
-import { activateBrowser } from './25-browser';
+
+import { activateGoLiveDev, activateGoLive, activateRunDev } from './26-27';
+import { activateAtmFormatter } from './28-atm-formatter';
+import { activateCommitEmoji } from './29-commit-emoji';
+import { activateBeforeAfter } from './30-before-after';
+import { activateIra, activateGitCommands, activateAtmTranslate, activateCompareCode, activateBrowser } from './21-23-25';
 
 /**
  * Runs a synchronous sub-extension activation, isolating failures so one
@@ -140,6 +144,30 @@ export function activateExtensions(context: vscode.ExtensionContext): void {
   }
   if (config.get<boolean>('browser.enabled', true)) {
     safeActivate('browser', () => activateBrowser(context));
+  }
+  if (config.get<boolean>('goLive.enabled', true)) {
+    safeActivate('go-live', () => activateGoLive(context));
+  }
+  if (config.get<boolean>('runDev.enabled', true)) {
+    safeActivate('run-dev', () => activateRunDev(context));
+  }
+  if (config.get<boolean>('goLiveDev.enabled', true)) {
+    safeActivate('go-live-dev', () => activateGoLiveDev(context));
+  }
+  if (config.get<boolean>('atmFormatter.enabled', true)) {
+    safeActivate('atm-formatter', () => activateAtmFormatter(context));
+  }
+  if (config.get<boolean>('ira.enabled', true)) {
+    safeActivate('ira', () => activateIra(context));
+  }
+  if (config.get<boolean>('gitCommands.enabled', true)) {
+    safeActivate('git-commands', () => activateGitCommands(context));
+  }
+  if (config.get<boolean>('commitEmoji.enabled', true)) {
+    safeActivate('commit-emoji', () => activateCommitEmoji(context));
+  }
+  if (config.get<boolean>('beforeAfter.enabled', true)) {
+    safeActivate('before-after', () => activateBeforeAfter(context));
   }
 
   // Automatic reload on configuration change

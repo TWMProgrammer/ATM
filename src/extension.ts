@@ -12,8 +12,10 @@ import { deactivateFocus } from './extensions/09-focus/focus';
 import { deactivateLint } from './extensions/02-atm-lint/lint';
 import { deactivateGlobalStatusBar } from './extensions/shared/shared';
 import { deactivateBracketLynx } from './extensions/22-bracket-lynx';
-import { deactivateCompareCode } from './extensions/23-compare-code';
-import { deactivateBrowser } from './extensions/25-browser';
+import { deactivateCompareCode } from './extensions/21-23-25';
+import { deactivateBrowser } from './extensions/21-23-25';
+import { deactivateGoLive, deactivateGoLiveDev, deactivateRunDev } from './extensions/26-27';
+import { deactivateAtmFormatter } from './extensions/28-atm-formatter';
 
 /**
  * Returns `{ extendMarkdownIt }` so that VS Code's
@@ -47,4 +49,8 @@ export async function deactivate(): Promise<void> {
   deactivateBracketLynx();
   deactivateCompareCode();
   deactivateBrowser();
+  await deactivateGoLive();
+  deactivateGoLiveDev();
+  deactivateRunDev();
+  deactivateAtmFormatter();
 }

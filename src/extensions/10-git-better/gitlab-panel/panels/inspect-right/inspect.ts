@@ -23,6 +23,11 @@ class InspectPanelToggle {
                     this.toggle();
                 }
             });
+
+            // narrow (vertical) panel: drawer overlays the table, start collapsed
+            if (window.matchMedia('(max-width: 640px)').matches) {
+                this.toggle();
+            }
         }
     }
 

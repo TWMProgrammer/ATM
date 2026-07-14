@@ -468,7 +468,7 @@ export async function fixSymlinks(binaryDir: string): Promise<void> {
   }
 
   if (!(await fileExists(binaryDir))) {
-    console.warn(`[voice-tts] Piper binary directory not found: ${binaryDir}`);
+    // Piper is installed on demand, so a missing directory is normal at startup.
     return;
   }
 

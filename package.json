@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "1.9.6",
+  "version": "2.0.0",
   "vsce": {
     "dependencies": false
   },
@@ -90,6 +90,11 @@
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "atm.beforeAfter.showBefore",
+        "title": "ATM: Preview Selection Before Changes",
+        "icon": "$(diff)"
+      },
       {
         "command": "atm.compareCode.open",
         "title": "ATM: Compare Code",
@@ -198,9 +203,22 @@
         "command": "atm.translate.open",
         "title": "ATM: Translator",
         "icon": {
-          "light": "src/extensions/21-atm-translate/assets/language.svg",
-          "dark": "src/extensions/21-atm-translate/assets/language.svg"
+          "light": "src/extensions/21-23-25/pages/translate/assets/language.svg",
+          "dark": "src/extensions/21-23-25/pages/translate/assets/language.svg"
         }
+      },
+      {
+        "command": "atm.ira.open",
+        "title": "ATM: IRA",
+        "icon": {
+          "light": "src/assets/atm-logo.png",
+          "dark": "src/assets/atm-logo.png"
+        }
+      },
+      {
+        "command": "atm.gitCommands.open",
+        "title": "ATM: Git Commands",
+        "icon": "$(git-branch)"
       },
       {
         "command": "atm.translate.setDeepLApiKey",
@@ -276,6 +294,77 @@
         "command": "atm.browser.newTab",
         "title": "ATM: Browser — New Tab",
         "icon": "$(add)"
+      },
+      {
+        "command": "atm.goLive.start",
+        "title": "ATM: Open with Live Server (Go Live)",
+        "icon": "$(broadcast)"
+      },
+      {
+        "command": "atm.goLive.stop",
+        "title": "ATM: Stop Live Server",
+        "icon": "$(circle-slash)"
+      },
+      {
+        "command": "atm.goLive.changeWorkspace",
+        "title": "ATM: Live Server — Change Workspace Root"
+      },
+      {
+        "command": "atm.runDev.start",
+        "title": "ATM: Run Dev Server",
+        "icon": "$(play)"
+      },
+      {
+        "command": "atm.runDev.restart",
+        "title": "ATM: Restart Dev Server",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "atm.runDev.stop",
+        "title": "ATM: Stop Dev Server",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "atm.runDev.openBrowser",
+        "title": "ATM: Run Dev — Open in Browser",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "atm.formatter.formatDocument",
+        "title": "ATM Formatter: Format Document",
+        "icon": "$(paint)"
+      },
+      {
+        "command": "atm.formatter.forceFormat",
+        "title": "ATM Formatter: Force Format (ignore .atmignore)",
+        "icon": "$(paint)"
+      },
+      {
+        "command": "atm.formatter.showOutput",
+        "title": "ATM Formatter: Show Output"
+      },
+      {
+        "command": "atm.formatter.addToAtmIgnore",
+        "title": "ATM Formatter: Add to .atmignore"
+      },
+      {
+        "command": "atm.formatter.addToPrettierIgnore",
+        "title": "ATM Formatter: Add to .prettierignore"
+      },
+      {
+        "command": "atm.goLiveDev.toggle",
+        "title": "ATM: Go Live (Dev) — Quick Launch",
+        "icon": "$(broadcast)"
+      },
+      {
+        "command": "atm.commitEmoji.show",
+        "title": "ATM: Commit Emoji",
+        "icon": "$(smiley)"
+      },
+      {
+        "command": "atm.commitEmoji.auto",
+        "title": "ATM: Commit Emoji (Auto-assign best)",
+        "icon": "$(sparkle)"
       }
     ],
     "configuration": {
@@ -291,6 +380,271 @@
           ],
           "default": "none",
           "description": "Choose which layout mode to display upon extension startup. 'pro' places the sidebar on the right and activity bar at the top. 'normal' places the sidebar on the left and activity bar on the default location. 'none' keeps your current layout configuration without making any changes."
+        },
+        "atm.goLive.port": {
+          "type": "number",
+          "default": 3222,
+          "minimum": 0,
+          "maximum": 65535,
+          "description": "Port for ATM Live Server (Go Live). If it is busy, the next free port is used automatically."
+        },
+        "atm.commitEmoji.addCustomEmoji": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "title": "A custom commit emoji entry",
+            "properties": {
+              "emoji": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Add custom emoji entries that appear alongside the built-in commit emoji list."
+        },
+        "atm.commitEmoji.outputType": {
+          "type": "string",
+          "default": "emoji",
+          "enum": [
+            "emoji",
+            "code"
+          ],
+          "enumDescriptions": [
+            "Insert the emoji character (e.g. ✨).",
+            "Insert the commit emoji code (e.g. :sparkles:)."
+          ],
+          "description": "Whether to insert the emoji character or its commit emoji code into the commit message."
+        },
+        "atm.commitEmoji.onlyUseCustomEmoji": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, only the custom emoji list is shown — built-in commit emoji entries are hidden."
+        },
+        "atm.commitEmoji.showEmojiCode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the commit emoji code (e.g. :sparkles:) next to each emoji in the picker."
+        },
+        "atm.commitEmoji.insertPosition": {
+          "type": "string",
+          "default": "start",
+          "enum": [
+            "start",
+            "end",
+            "cursor"
+          ],
+          "enumDescriptions": [
+            "Prepend the emoji at the beginning of the commit message.",
+            "Append the emoji at the end of the commit message.",
+            "Insert the emoji at the current cursor position."
+          ],
+          "description": "Where to insert the selected emoji in the commit message."
+        },
+        "atm.commitEmoji.autoMatch": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically filter the emoji picker based on keywords found in the current commit message."
+        },
+        "atm.commitEmoji.canRepeat": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow multiple emoji in sequence without stripping previously inserted ones."
+        },
+        "atm.goLive.host": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "Host interface Go Live binds to. Use 0.0.0.0 to expose the server on your LAN."
+        },
+        "atm.goLive.root": {
+          "type": "string",
+          "default": "",
+          "description": "Workspace-relative sub-folder to serve as the site root. Empty serves the workspace root."
+        },
+        "atm.goLive.openIn": {
+          "type": "string",
+          "enum": [
+            "external",
+            "simpleBrowser",
+            "none"
+          ],
+          "enumDescriptions": [
+            "Open the served page in your default system browser.",
+            "Open the served page inside VS Code's Simple Browser.",
+            "Start the server without opening any browser."
+          ],
+          "default": "external",
+          "description": "Where Go Live opens the page when the server starts."
+        },
+        "atm.goLive.wait": {
+          "type": "number",
+          "default": 100,
+          "minimum": 0,
+          "description": "Debounce (ms) after a file change before Go Live reloads the browser."
+        },
+        "atm.goLive.fullReload": {
+          "type": "boolean",
+          "default": false,
+          "description": "Reload the whole page on CSS changes instead of hot-swapping stylesheets in place."
+        },
+        "atm.goLive.spaFile": {
+          "type": "string",
+          "default": "",
+          "description": "Root-relative file served for navigation 404s (single-page-app fallback, e.g. index.html)."
+        },
+        "atm.goLive.cors": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add a permissive 'Access-Control-Allow-Origin: *' header to every response."
+        },
+        "atm.goLive.ignoreFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".vscode/**",
+            ".git/**",
+            "node_modules/**",
+            "**/*.scss",
+            "**/*.sass",
+            "**/*.ts"
+          ],
+          "description": "Glob patterns whose changes do not trigger a live reload."
+        },
+        "atm.goLive.headers": {
+          "type": "object",
+          "default": {},
+          "description": "Extra HTTP response headers merged into every Go Live response."
+        },
+        "atm.goLive.mount": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string"
+            }
+          },
+          "default": [],
+          "description": "Mount extra directories under URL prefixes, e.g. [[\"/vendor\", \"./node_modules\"]]."
+        },
+        "atm.goLive.https": {
+          "type": "object",
+          "properties": {
+            "enable": {
+              "type": "boolean",
+              "default": false
+            },
+            "cert": {
+              "type": "string",
+              "default": ""
+            },
+            "key": {
+              "type": "string",
+              "default": ""
+            },
+            "passphrase": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          "default": {
+            "enable": false,
+            "cert": "",
+            "key": "",
+            "passphrase": ""
+          },
+          "additionalProperties": false,
+          "description": "Serve over HTTPS using the given certificate and key file paths."
+        },
+        "atm.goLive.multiRootWorkspaceName": {
+          "type": "string",
+          "default": "",
+          "description": "Remembered workspace folder used as the Go Live root in multi-root workspaces."
+        },
+        "atm.runDev.packageManager": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "bun",
+            "npm",
+            "pnpm",
+            "yarn"
+          ],
+          "default": "auto",
+          "description": "Package manager used to run the dev script. Auto-detects from the packageManager field or lockfile."
+        },
+        "atm.runDev.script": {
+          "type": "string",
+          "default": "",
+          "description": "Script to run (e.g. dev, start). Empty auto-detects the framework's preferred dev/start script."
+        },
+        "atm.runDev.openBrowser": {
+          "type": "string",
+          "enum": [
+            "external",
+            "simpleBrowser",
+            "none"
+          ],
+          "enumDescriptions": [
+            "Open the dev URL in your default system browser.",
+            "Open the dev URL inside VS Code's Simple Browser.",
+            "Never open a browser automatically."
+          ],
+          "default": "external",
+          "description": "Where Run Dev opens the detected dev-server URL (ignored for mobile targets like Expo/React Native/Lynx)."
+        },
+        "atm.runDev.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the browser once the dev server prints its local URL."
+        },
+        "atm.runDev.autoRestartOnConfigChange": {
+          "type": "boolean",
+          "default": false,
+          "description": "Restart the dev server automatically when a watched config or .env file changes (files frameworks usually don't hot-reload)."
+        },
+        "atm.runDev.configWatchGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/*.config.{js,ts,mjs,cjs,mts}",
+            ".env",
+            ".env.*"
+          ],
+          "description": "Glob patterns (relative to the project) watched when autoRestartOnConfigChange is on."
+        },
+        "atm.runDev.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Extra arguments appended to the dev script (e.g. [\"--host\"])."
+        },
+        "atm.runDev.env": {
+          "type": "object",
+          "default": {},
+          "description": "Extra environment variables for the dev-server process."
+        },
+        "atm.runDev.revealTerminalOnStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "Reveal the dev-server terminal panel when it starts (without stealing editor focus). When false (default), it stays hidden — the status bar shows starting/running/failed, and the terminal only auto-opens (with focus) if the dev server exits with an error."
+        },
+        "atm.goLiveDev.showOnStatusbar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the combined Go Live (Dev) pill on the left side of the status bar."
         },
         "atm.browser.executablePath": {
           "type": "string",
@@ -706,10 +1060,112 @@
           "type": "boolean",
           "default": true,
           "description": "Enable ATM Browser engine module."
+        },
+        "atm.formatter.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable ATM Formatter for TypeScript, TSX, CSS, Astro, and JSON files."
+        },
+        "atm.formatter.printWidth": {
+          "type": "number",
+          "default": 120,
+          "minimum": 1,
+          "description": "Maximum line width that Prettier will wrap to."
+        },
+        "atm.formatter.tabWidth": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "description": "Number of spaces per indentation level."
+        },
+        "atm.formatter.useTabs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Indent with tabs instead of spaces."
+        },
+        "atm.formatter.semi": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add semicolons to the end of statements."
+        },
+        "atm.formatter.singleQuote": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use single quotes instead of double quotes."
+        },
+        "atm.formatter.trailingComma": {
+          "type": "string",
+          "enum": [
+            "none",
+            "es5",
+            "all"
+          ],
+          "default": "all",
+          "enumDescriptions": [
+            "No trailing commas.",
+            "Trailing commas where valid in ES5 (objects, arrays).",
+            "Trailing commas wherever possible."
+          ],
+          "description": "Controls trailing commas in multi-line constructs."
+        },
+        "atm.formatter.bracketSpacing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add spaces between brackets in object literals."
+        },
+        "atm.formatter.bracketSameLine": {
+          "type": "boolean",
+          "default": false,
+          "description": "Put the closing > of multi-line JSX/HTML on the same line as the last line."
+        },
+        "atm.formatter.arrowParens": {
+          "type": "string",
+          "enum": [
+            "avoid",
+            "always"
+          ],
+          "default": "always",
+          "enumDescriptions": [
+            "Omit parens for single arrow function parameters.",
+            "Always include parens."
+          ],
+          "description": "Parentheses around single arrow function parameter."
+        },
+        "atm.formatter.endOfLine": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "lf",
+            "crlf",
+            "cr"
+          ],
+          "default": "lf",
+          "enumDescriptions": [
+            "Maintain existing line endings.",
+            "Force LF.",
+            "Force CRLF.",
+            "Force CR (old Mac)."
+          ],
+          "description": "Line ending style for formatted output."
+        },
+        "atm.formatter.requireConfig": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only format files when a Prettier config file (.prettierrc or package.json) is found."
+        },
+        "atm.formatter.ignorePath": {
+          "type": "string",
+          "default": ".atmignore",
+          "description": "Path to the ignore file (relative to the workspace root). Lists files that ATM Formatter should skip."
         }
       }
     },
     "grammars": [
+      {
+        "language": "atmignore",
+        "scopeName": "source.atmignore",
+        "path": "./src/extensions/28-atm-formatter/syntaxes/atmignore.tmLanguage.json"
+      },
       {
         "language": "mdx",
         "scopeName": "source.mdx",
@@ -766,9 +1222,30 @@
     ],
     "keybindings": [
       {
+        "command": "atm.beforeAfter.showBefore",
+        "key": "alt+v",
+        "mac": "alt+v",
+        "when": "editorTextFocus && editorHasSelection && resourceScheme == file"
+      },
+      {
+        "command": "atm.commitEmoji.auto",
+        "key": "alt+\\",
+        "mac": "alt+\\"
+      },
+      {
+        "command": "atm.commitEmoji.show",
+        "key": "ctrl+alt+.",
+        "mac": "cmd+alt+."
+      },
+      {
         "command": "atm.compareCode.open",
         "key": "alt+shift+\\",
         "mac": "alt+shift+\\"
+      },
+      {
+        "command": "atm.ira.open",
+        "key": "ctrl+alt+\\",
+        "mac": "ctrl+cmd+\\"
       },
       {
         "command": "atm.browser.open",
@@ -777,11 +1254,6 @@
       },
       {
         "command": "-workbench.action.gotoLine",
-        "key": "ctrl+g",
-        "mac": "ctrl+g"
-      },
-      {
-        "command": "atm.translate.open",
         "key": "ctrl+g",
         "mac": "ctrl+g"
       },
@@ -828,9 +1300,44 @@
         "command": "atm.music.playRandomAM",
         "key": "alt+r",
         "mac": "alt+r"
+      },
+      {
+        "command": "atm.goLive.start",
+        "key": "alt+l alt+o",
+        "mac": "cmd+l cmd+o"
+      },
+      {
+        "command": "atm.goLive.stop",
+        "key": "alt+l alt+c",
+        "mac": "cmd+l cmd+c"
+      },
+      {
+        "command": "atm.runDev.start",
+        "key": "alt+g",
+        "mac": "alt+g"
+      },
+      {
+        "command": "atm.runDev.restart",
+        "key": "ctrl+g",
+        "mac": "ctrl+g"
+      },
+      {
+        "command": "atm.runDev.stop",
+        "key": "ctrl+alt+g",
+        "mac": "ctrl+alt+g"
       }
     ],
     "languages": [
+      {
+        "id": "atmignore",
+        "aliases": [
+          "ATM Ignore"
+        ],
+        "filenames": [
+          ".atmignore"
+        ],
+        "configuration": "./src/extensions/28-atm-formatter/syntaxes/language-configuration.json"
+      },
       {
         "id": "mdx",
         "aliases": [
@@ -854,9 +1361,22 @@
         {
           "command": "atm.dataId.showConsumption",
           "when": "atm.isAntigravity"
+        },
+        {
+          "command": "atm.formatter.addToAtmIgnore",
+          "when": "false"
+        },
+        {
+          "command": "atm.formatter.addToPrettierIgnore",
+          "when": "false"
         }
       ],
       "editor/context": [
+        {
+          "command": "atm.beforeAfter.showBefore",
+          "group": "1_modification",
+          "when": "editorHasSelection && resourceScheme == file"
+        },
         {
           "command": "atm.screenshotCode",
           "group": "1_modification",
@@ -866,18 +1386,35 @@
           "command": "atm.translate-doc.translateReleaseNotes",
           "group": "1_modification",
           "when": "atm.releaseNotes.active"
+        },
+        {
+          "command": "atm.goLive.start",
+          "group": "navigation@99",
+          "when": "resourceExtname == .html || resourceExtname == .htm || resourceExtname == .xhtml || resourceExtname == .svg"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "atm.goLive.start",
+          "group": "navigation@-1",
+          "when": "resourceExtname == .html || resourceExtname == .htm || resourceExtname == .xhtml || resourceExtname == .svg"
+        },
+        {
+          "command": "atm.formatter.addToAtmIgnore",
+          "group": "7_modification@90",
+          "when": "resourceScheme == file"
+        },
+        {
+          "command": "atm.formatter.addToPrettierIgnore",
+          "group": "7_modification@91",
+          "when": "resourceScheme == file"
         }
       ],
       "editor/title": [
         {
-          "command": "atm.compareCode.open",
-          "group": "navigation@3",
-          "when": "resourceScheme == file"
-        },
-        {
-          "command": "atm.translate.open",
-          "group": "navigation@0",
-          "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json"
+          "command": "atm.ira.open",
+          "group": "navigation@-1",
+          "when": "activeEditor != 'workbench.editor.extension' && resourceExtname != .md && resourceExtname != .json && !atm.ira.active"
         },
         {
           "command": "atm.translate-doc.translateExtension",
@@ -918,17 +1455,19 @@
           "command": "envLens.enableBlur",
           "group": "navigation@50",
           "when": "envLens.isEnvFile && !envLens.blurEnabled"
-        },
-        {
-          "command": "atm.bracketLynx.toggle",
-          "group": "navigation@51",
-          "when": "editorLangId == javascript || editorLangId == typescript || editorLangId == javascriptreact || editorLangId == typescriptreact || editorLangId == html || editorLangId == css || editorLangId == scss || editorLangId == vue || editorLangId == astro || editorLangId == svelte || resourceFilename == package.json"
         }
       ],
       "extension/context": [
         {
           "command": "atm.translate-doc.translateExtension",
           "group": "1_modification"
+        }
+      ],
+      "scm/title": [
+        {
+          "when": "scmProvider == git",
+          "command": "atm.commitEmoji.show",
+          "group": "navigation"
         }
       ]
     },
@@ -1044,6 +1583,10 @@
     }
   },
   "dependencies": {
+    "@astrojs/compiler": "^4.0.0",
+    "prettier-plugin-astro": "^0.14.1",
+    "sass-formatter": "^0.8.0",
+    "prettier": "3.7.4",
     "@mdx-js/mdx": "^3.1.1",
     "NeteaseCloudMusicApi": "^4.30.0",
     "file-type": "^21.3.3",
@@ -1107,6 +1650,7 @@
     "markdown-it": "^14.1.1",
     "mermaid": "^11.12.3",
     "npm-run-all": "^4.1.5",
+    "punycode": "^2.3.1",
     "ts-morph": "^28.0.0",
     "type-fest": "^5.4.4",
     "typescript": "^5.7.3",

@@ -74,7 +74,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 	// ── Status bar item ──────────────────────────────────────────────
 
 	const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-	statusBarItem.text = `${ICON_DEFAULT} AI Data`;
+	statusBarItem.text = `| ${ICON_DEFAULT} AI Data`;
 	statusBarItem.command = 'atm.dataId.showConsumption';
 	statusBarItem.tooltip = new vscode.MarkdownString('*Loading AI usage data...*');
 	statusBarItem.show();
@@ -100,15 +100,6 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 			.join('|');
 	}
 
-	/** Selects the appropriate status bar icon based on the engineered percentage. */
-	function getStatusBarIcon(minRemaining: number): string {
-		// 20% is considered a danger zone (quota might be exhausted shortly).
-		if (minRemaining <= 20) { 
-			return `$(warning)`; 
-		}
-		return ICON_DEFAULT;
-	}
-
 	/**
 	 * Fetches quota data and updates the status bar item.
 	 * Handles connection initialization, hash-based deduplication,
@@ -131,10 +122,10 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 				const processInfo = await processFinder.detectProcessInfo();
 				if (processInfo) {
 					quotaManager.init(processInfo.connectPort, processInfo.csrfToken);
-					statusBarItem.text = `${ICON_DEFAULT} AI Data`;
+					statusBarItem.text = `| ${ICON_DEFAULT} AI Data`;
 					statusBarItem.color = undefined;
 				} else {
-					statusBarItem.text = `${ICON_ERROR} AI Data`;
+					statusBarItem.text = `| ${ICON_ERROR} AI Data`;
 					statusBarItem.color = new vscode.ThemeColor('errorForeground');
 					statusBarItem.tooltip = new vscode.MarkdownString(
 						'Could not connect to the local Antigravity AI process.'
@@ -156,7 +147,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 
 				const measuredModels = snapshot.models.filter(m => m.remainingPercentage !== undefined);
 				if (measuredModels.length === 0) {
-					statusBarItem.text = `${ICON_DEFAULT} AI Data`;
+					statusBarItem.text = `| ${ICON_DEFAULT} AI Data`;
 					statusBarItem.color = undefined;
 				} else {
 					// Use the new, robust global engineered algorithm!
@@ -164,14 +155,19 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 					const engineered = computeEngineeredTokens(snapshot.models, tier);
 					
 					if (engineered.type === 'unlimited') {
-						statusBarItem.text = `✨ AI ∞%`;
+						statusBarItem.text = `| ✨ AI ∞%`;
 						statusBarItem.color = undefined;
 						lastReportedPercentage = 100;
 					} else {
 						const globalPct = Math.round(engineered.percentage);
 						lastReportedPercentage = globalPct;
-						statusBarItem.text = `${getStatusBarIcon(globalPct)} AI ${globalPct}%`;
-						statusBarItem.color = globalPct <= 20 ? new vscode.ThemeColor('editorWarning.foreground') : undefined;
+						// low quota renders plain (like the ATM item next to it) — no warning icon/yellow
+						statusBarItem.text = `| ${ICON_DEFAULT} AI ${globalPct}%`;
+						if (globalPct === 0) {
+							statusBarItem.color = new vscode.ThemeColor('disabledForeground');
+						} else {
+							statusBarItem.color = undefined;
+						}
 					}
 				}
 			}
@@ -180,7 +176,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 		} catch (e) {
 			console.error('[ai-data-id] Error fetching quota:', e);
 			quotaManager.reset();
-			statusBarItem.text = `${ICON_WARNING} AI Data`;
+			statusBarItem.text = `| ${ICON_WARNING} AI Data`;
 			statusBarItem.color = new vscode.ThemeColor('errorForeground');
 			statusBarItem.tooltip = new vscode.MarkdownString(
 				'Partial connection error. Will retry automatically...'
@@ -216,7 +212,7 @@ export function activateDataId(context: vscode.ExtensionContext): void {
 
 	/** Triggers an immediate refresh with visual feedback. */
 	const forceRefresh = async (): Promise<void> => {
-		statusBarItem.text = `${ICON_REFRESH} AI Data`;
+		statusBarItem.text = `| ${ICON_REFRESH} AI Data`;
 		if (lastSnapshot && !isFetching) {
 			statusBarItem.tooltip = buildTooltip(lastSnapshot, true);
 		}

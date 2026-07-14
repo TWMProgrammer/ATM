@@ -1,4 +1,23 @@
 const esbuild = require("esbuild");
+const fs = require("fs");
+const path = require("path");
+
+// Runtime deps externalized in the extension bundle (see `external` below).
+// vsce ("vsce": { "dependencies": false } in package.json) NEVER packs root
+// node_modules — .vscodeignore negations are ignored for it — so copy the full
+// dependency closure into dist/node_modules: Node resolves it first from
+// dist/extension.js. Keep in sync with `external` + package deps.
+const RUNTIME_DEPS = ['@astrojs/compiler', 'sass-formatter', 'suf-log', 's.color'];
+
+function copyRuntimeDeps() {
+	for (const dep of RUNTIME_DEPS) {
+		const src = path.join(__dirname, 'node_modules', dep);
+		const dest = path.join(__dirname, 'dist', 'node_modules', dep);
+		fs.rmSync(dest, { recursive: true, force: true });
+		// dereference: bun/pnpm may symlink packages
+		fs.cpSync(src, dest, { recursive: true, dereference: true });
+	}
+}
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -52,9 +71,26 @@ async function main() {
 		sourcesContent: false,
 		platform: 'node',
 		outfile: 'dist/extension.js',
+		// node-fetch 2 still imports Node's deprecated built-in `punycode` module.
+		// Bundle the maintained userland package instead to keep activation clean.
+		alias: {
+			punycode: 'punycode/',
+		},
 		// bufferutil / utf-8-validate are optional native accelerators probed by
 		// `ws` inside try/catch — leave them unresolved instead of bundling.
-		external: ['vscode', 'NeteaseCloudMusicApi', 'bufferutil', 'utf-8-validate'],
+		// @astrojs/compiler loads a ~5 MB WASM file at runtime via import.meta.url;
+		// externalizing keeps the WASM lazy-loaded from node_modules only when
+		// an .astro file is formatted.
+		external: [
+			'vscode',
+			'NeteaseCloudMusicApi',
+			'bufferutil',
+			'utf-8-validate',
+			'@astrojs/compiler',
+			'@astrojs/compiler/sync',
+			'@astrojs/compiler/utils',
+			'sass-formatter',
+		],
 		logLevel: 'silent',
 		plugins: [extensionEsbuildProblemMatcherPlugin],
 	});
@@ -70,10 +106,12 @@ async function main() {
 			'src/extensions/10-git-better/gitlab-panel/panels/inspect-right/inspect.ts',
 			'src/extensions/14-screenshot-code/ui/webview.ts',
 			'src/extensions/14-screenshot-code/ui/styles.css',
-			'src/extensions/21-atm-translate/ui/atm-translate.ts',
-			'src/extensions/23-compare-code/ui/compare-code.ts',
+			'src/extensions/21-23-25/pages/translate/ui/atm-translate.ts',
+			'src/extensions/21-23-25/pages/compare-code/ui/compare-code.ts',
 			'src/extensions/09-focus/screens/atm-data/screenshot/ui/index.ts',
-			'src/extensions/25-browser/ui/browser.ts'
+			'src/extensions/21-23-25/pages/browser/ui/browser.ts',
+			'src/extensions/21-23-25/ui/ira.ts',
+			'src/extensions/21-23-25/pages/git-commands/ui/git-commands.ts'
 		],
 		bundle: true,
 		format: 'iife',
@@ -123,6 +161,7 @@ async function main() {
 		await focusWebviewCtx.watch();
 		await serverCtx.watch();
 	} else {
+		copyRuntimeDeps();
 		await extensionCtx.rebuild();
 		await extensionCtx.dispose();
 		await browserCtx.rebuild();

@@ -102,6 +102,7 @@ button.icon-btn:hover, button.sidebar-tab:hover {
     flex-direction: row;
     flex-grow: 1;
     overflow: hidden;
+    position: relative; /* anchor for the inspect drawer in narrow mode */
 }
 
 /* ── Skeleton Base Animation ──────────────────────────── */

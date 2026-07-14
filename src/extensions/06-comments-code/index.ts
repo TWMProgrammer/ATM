@@ -12,11 +12,21 @@ export function activateCommentsCode(context: vscode.ExtensionContext) {
    * and show only the keyword (excluding the rest of the comment)
    * ========================================================= */
   const minimapConfig = vscode.workspace.getConfiguration('editor.minimap');
-  const sectionRegex = '^[ \\t]*(?:\\/\\/|#|<!--|;|\\/\\*)[ \\t]*(MARK|TODO|FIXME):';
-  if (minimapConfig.has('sectionHeaderDetectionRegExp')) {
-    minimapConfig.update('sectionHeaderDetectionRegExp', sectionRegex, true).then(undefined, (err) => {
-      console.error('[Comments Code] Failed to update minimap regex:', err);
-    });
+  const settingName = 'markSectionHeaderRegex';
+  const sectionRegex = '\\b(?<label>MARK|TODO|FIXME):';
+
+  if (
+    minimapConfig.has(settingName) &&
+    minimapConfig.inspect<string>(settingName)?.globalValue === undefined
+  ) {
+    minimapConfig
+      .update(settingName, sectionRegex, vscode.ConfigurationTarget.Global)
+      .then(undefined, (err) => {
+        console.error(
+          '[Comments Code] Failed to update minimap section header regex:',
+          err,
+        );
+      });
   }
 
   /* =========================================================

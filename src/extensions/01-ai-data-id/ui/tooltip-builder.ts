@@ -226,8 +226,7 @@ function buildTopSummary(snapshot: QuotaSnapshot): string {
 
 	const safeZone = Math.max(totalMeasured - exhausted - critical, 0);
 	parts.push(
-		`&ensp;$(heart) <span style="color:${COLOR_TEXT_SECONDARY};">Healthy:</span> <span style="color:${COLOR_HEALTHY};">**${safeZone}/${totalMeasured}**</span>`,
-		...(critical  > 0 ? [`$(warning) <span style="color:${COLOR_WARNING};">Low: ${critical}</span>`]         : [])
+		`&ensp;$(heart) <span style="color:${COLOR_TEXT_SECONDARY};">Healthy:</span> <span style="color:${COLOR_HEALTHY};">**${safeZone}/${totalMeasured}**</span>`
 	);
 
 	return joinWithSeparator(parts);
@@ -295,11 +294,11 @@ function buildFooter(timestamp: Date, isRefreshing: boolean): string {
 
 function isClaudePeakHour(date: Date): boolean {
 	const day = date.getUTCDay();
-	// Los fines de semana (0 = Domingo, 6 = Sábado) no hay horas pico según el artículo
+	// no peak hours on weekends
 	if (day === 0 || day === 6) { return false; }
-	
+
 	const hour = date.getUTCHours();
-	// Las horas pico son de 13:00 a 19:00 GMT (5:00 AM a 11:00 AM Pacífico)
+	// peak: 13:00–19:00 UTC (5–11 AM Pacific)
 	return hour >= 13 && hour < 19;
 }
 

@@ -295,6 +295,27 @@
     animation: commit-row-enter 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+/* ── Responsive: narrow / vertical panel ──────────────── */
+/* drop low-value columns progressively so branch/graph/message never overlap */
+@media (max-width: 1000px) {
+    .col-date { display: none; }
+}
+
+@media (max-width: 900px) {
+    .col-changes { display: none; }
+}
+
+@media (max-width: 800px) {
+    .col-author { display: none; }
+    .col-branch { width: 22%; min-width: 64px; }
+    .branch-name { max-width: 56px; }
+}
+
+@media (max-width: 640px) {
+    /* inspect panel floats as a drawer here — table may use the full width */
+    body .graph-table-container { min-width: 0; }
+}
+
 /* ── No search results ────────────────────────────────── */
 .no-results {
     position: absolute;

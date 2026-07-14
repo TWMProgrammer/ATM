@@ -73,5 +73,9 @@
   "Could not test audio. Make sure Terminal Sound extension is active.": "Audio konnte nicht getestet werden. Stellen Sie sicher, dass die Terminal Sound-Erweiterung aktiv ist.",
   "Terminal Audio {0}": "Terminal Audio {0}",
   "No GitHub origin found for this repository.": "Kein GitHub-Ursprung für dieses Repository gefunden.",
-  "Screenshot saved successfully! 📸": "Screenshot erfolgreich gespeichert! 📸"
+  "Screenshot saved successfully! 📸": "Screenshot erfolgreich gespeichert! 📸",
+  "ATM Formatter: no active document": "ATM Formatter: kein aktives Dokument",
+  "ATM Formatter: {0}": "ATM Formatter: {0}",
+  "ATM Formatter: language \"{0}\" is not supported": "ATM Formatter: Sprache \"{0}\" wird nicht unterstützt",
+  "Format with ATM Formatter": "Mit ATM Formatter formatieren"
 }
