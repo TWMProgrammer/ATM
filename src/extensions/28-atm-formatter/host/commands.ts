@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type { AtmFormatterProvider } from './formatterProvider';
 import type { FormatterStatusBar } from './statusBar';
+import { addResourcesToIgnoreFile } from './ignoreCommands';
 
 /**
  * Registers the `atm.formatter.*` commands.
@@ -9,6 +10,7 @@ import type { FormatterStatusBar } from './statusBar';
  *  - `atm.formatter.formatDocument` — format the active document (respects .atmignore)
  *  - `atm.formatter.forceFormat`    — format ignoring .atmignore and requireConfig
  *  - `atm.formatter.showOutput`     — reveal the output channel
+ *  - `atm.formatter.addTo*Ignore`   — append Explorer resources to an ignore file
  */
 
 /** Register all formatter commands. Returns disposables to push. */
@@ -59,5 +61,17 @@ export function registerFormatterCommands(
 		vscode.commands.registerCommand('atm.formatter.showOutput', () => {
 			statusBar.showOutput();
 		}),
+
+		vscode.commands.registerCommand(
+			'atm.formatter.addToAtmIgnore',
+			(resourceUri?: vscode.Uri, selectedUris?: vscode.Uri[]) =>
+				addResourcesToIgnoreFile('.atmignore', resourceUri, selectedUris, outputChannel),
+		),
+
+		vscode.commands.registerCommand(
+			'atm.formatter.addToPrettierIgnore',
+			(resourceUri?: vscode.Uri, selectedUris?: vscode.Uri[]) =>
+				addResourcesToIgnoreFile('.prettierignore', resourceUri, selectedUris, outputChannel),
+		),
 	];
 }

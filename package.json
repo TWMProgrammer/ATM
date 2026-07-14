@@ -91,6 +91,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "atm.beforeAfter.showBefore",
+        "title": "ATM: Preview Selection Before Changes",
+        "icon": "$(diff)"
+      },
+      {
         "command": "atm.compareCode.open",
         "title": "ATM: Compare Code",
         "icon": "$(activate-breakpoints)"
@@ -337,6 +342,14 @@
       {
         "command": "atm.formatter.showOutput",
         "title": "ATM Formatter: Show Output"
+      },
+      {
+        "command": "atm.formatter.addToAtmIgnore",
+        "title": "ATM Formatter: Add to .atmignore"
+      },
+      {
+        "command": "atm.formatter.addToPrettierIgnore",
+        "title": "ATM Formatter: Add to .prettierignore"
       },
       {
         "command": "atm.goLiveDev.toggle",
@@ -904,7 +917,7 @@
         "atm.formatter.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable ATM Formatter for TypeScript, TSX, and CSS files."
+          "description": "Enable ATM Formatter for TypeScript, TSX, CSS, Astro, and JSON files."
         },
         "atm.formatter.printWidth": {
           "type": "number",
@@ -1042,9 +1055,15 @@
     ],
     "keybindings": [
       {
+        "command": "atm.beforeAfter.showBefore",
+        "key": "alt+v",
+        "mac": "alt+v",
+        "when": "editorTextFocus && editorHasSelection && resourceScheme == file"
+      },
+      {
         "command": "atm.commitEmoji.auto",
-        "key": "alt+.",
-        "mac": "alt+."
+        "key": "alt+\\",
+        "mac": "alt+\\"
       },
       {
         "command": "atm.commitEmoji.show",
@@ -1175,9 +1194,22 @@
         {
           "command": "atm.dataId.showConsumption",
           "when": "atm.isAntigravity"
+        },
+        {
+          "command": "atm.formatter.addToAtmIgnore",
+          "when": "false"
+        },
+        {
+          "command": "atm.formatter.addToPrettierIgnore",
+          "when": "false"
         }
       ],
       "editor/context": [
+        {
+          "command": "atm.beforeAfter.showBefore",
+          "group": "1_modification",
+          "when": "editorHasSelection && resourceScheme == file"
+        },
         {
           "command": "atm.screenshotCode",
           "group": "1_modification",
@@ -1199,6 +1231,16 @@
           "command": "atm.goLive.start",
           "group": "navigation@-1",
           "when": "resourceExtname == .html || resourceExtname == .htm || resourceExtname == .xhtml || resourceExtname == .svg"
+        },
+        {
+          "command": "atm.formatter.addToAtmIgnore",
+          "group": "7_modification@90",
+          "when": "resourceScheme == file"
+        },
+        {
+          "command": "atm.formatter.addToPrettierIgnore",
+          "group": "7_modification@91",
+          "when": "resourceScheme == file"
         }
       ],
       "editor/title": [
@@ -1443,6 +1485,7 @@
     "markdown-it": "^14.1.1",
     "mermaid": "^11.12.3",
     "npm-run-all": "^4.1.5",
+    "punycode": "^2.3.1",
     "ts-morph": "^28.0.0",
     "type-fest": "^5.4.4",
     "typescript": "^5.7.3",

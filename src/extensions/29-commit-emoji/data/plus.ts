@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import type { CommitEmojiEntry } from '../core/types';
 
 export const plus: CommitEmojiEntry[] = [
-	{ emoji: '🦄', code: ':unicorn:', description: vscode.l10n.t('qwe Magic or unicorns') },
-	{ emoji: '⚽️', code: ':soccer:', description: vscode.l10n.t('Goo Sports or kicking things off') },
+	{ emoji: '🦄', code: ':unicorn:', description: vscode.l10n.t('Initialize a nested project') },
+	{ emoji: '⚽️', code: ':soccer:', description: vscode.l10n.t('Finish a project or milestone') },
 	{ emoji: '✅', code: ':white_check_mark:', description: vscode.l10n.t('Done or success') },
 	{ emoji: '🟥', code: ':red_square:', description: vscode.l10n.t('Red component or error state') },
 	{ emoji: '🟦', code: ':blue_square:', description: vscode.l10n.t('Blue component or info state') },

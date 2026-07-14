@@ -2,6 +2,7 @@ import type { LanguageDescriptor } from '../types';
 import { typescriptDescriptor } from './typescript';
 import { cssDescriptor } from './css';
 import { astroDescriptor } from './astro';
+import { jsonDescriptor } from './json';
 
 /**
  * Master list of all language descriptors.
@@ -16,6 +17,7 @@ export const languageDescriptors: LanguageDescriptor[] = [
 	typescriptDescriptor,
 	cssDescriptor,
 	astroDescriptor,
+	jsonDescriptor,
 	// ── Future technologies ──────────────────────────────────
 	// lynxDescriptor,     // prettier-plugin-lynx (when available)
 	// lessDescriptor,     // reuses postcss plugin — no new import needed

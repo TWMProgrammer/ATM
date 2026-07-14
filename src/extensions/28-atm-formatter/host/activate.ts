@@ -68,7 +68,7 @@ export function activateAtmFormatter(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(outputChannel);
 	context.subscriptions.push(statusBar);
 
-	outputChannel.appendLine('[formatter] ATM Formatter activated — supported languages: TypeScript, TSX, CSS');
+	outputChannel.appendLine('[formatter] ATM Formatter activated — supported languages: TypeScript, TSX, CSS, Astro, JSON');
 }
 
 export function deactivateAtmFormatter(): void {

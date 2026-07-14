@@ -4,7 +4,7 @@ import { updateFrameworkDecorations, clearFrameworkDecorations, disposeFramework
 import { initializeToggleState, isExtensionEnabled, toggleGlobal } from './actions/toggle';
 import { CONFIG_SECTION, PERFORMANCE_LIMITS } from './core/constants';
 import { clearDocumentCache, clearAllCache } from './core/cache';
-import { updateToolState } from '../shared/atm-control-panel/utils';
+import { updateToolState } from '../shared/00-atm-control-panel/utils';
 
 const debounceTimers = new Map<string, NodeJS.Timeout>();
 

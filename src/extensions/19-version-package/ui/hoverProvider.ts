@@ -1,61 +1,52 @@
 import * as vscode from 'vscode';
-import semver from 'semver';
+import { DependencyInfo } from '../core/parser';
 import { getDocumentCache } from '../core/state';
+import { canUpdateVersionString, getVersionStatus } from '../core/versionStatus';
 
 export class VersionHoverProvider implements vscode.HoverProvider {
-    provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
-        /* =========================================================
-         * ⚡ EXTRACT CACHE
-         * Extract saved cache extremely fast without processing anything extra
-         * ========================================================= */
-        const cache = getDocumentCache(document.uri.toString());
-        const state = cache.get(position.line);
+	provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.ProviderResult<vscode.Hover> {
+		const state = getDocumentCache(document.uri.toString()).get(position.line);
+		if (!state) {
+			return null;
+		}
 
-        if (!state) {
-            return null; // Nothing to show, mouse is not hovering a dependency
-        }
+		const { name, currentVersion, info } = state;
+		const status = getVersionStatus(currentVersion, info);
+		if (status.kind === 'latest' || status.kind === 'newer' || status.kind === 'unknown') {
+			return null;
+		}
 
-        const { name, currentVersion, info } = state;
-        const currentCoerced = semver.coerce(currentVersion);
-        const isUpToDateWithLatest = currentCoerced && info.latest && semver.eq(currentCoerced, info.latest);
+		const hover = new vscode.MarkdownString('', true);
+		hover.isTrusted = { enabledCommands: ['atm.versionPackage.updateVersionString'] };
+		hover.appendMarkdown(`### 📦 **${name}**\n\n`);
+		hover.appendMarkdown(`Current: \`${currentVersion}\` &nbsp;&nbsp; → &nbsp;&nbsp; **Latest: \`${status.latest}\`**\n\n---\n\n`);
 
-        if (isUpToDateWithLatest) {
-            return null; // Extreme performance saving: do not paint hover if already updated
-        }
+		const dependency: DependencyInfo = {
+			name,
+			currentVersion,
+			line: position.line,
+			range: new vscode.Range(position.line, 0, position.line, 0)
+		};
+		const links = [
+			`[NPM](https://www.npmjs.com/package/${encodeURIComponent(name)})`,
+			`[BundlePhobia](https://bundlephobia.com/package/${encodeURIComponent(name)})`
+		];
 
-        const hoverMd = new vscode.MarkdownString('', true);
-        hoverMd.isTrusted = true;
+		if (canUpdateVersionString(currentVersion) && status.target) {
+			const label = status.kind === 'major' ? 'Major upgrade' : status.kind === 'breaking' ? 'Breaking upgrade' : 'Update';
+			links.push(createUpdateLink(label, dependency, status.target, document.uri.toString()));
+		}
 
-        hoverMd.appendMarkdown(`### 📦 **${name}**\n\n`);
-        
-        const currentTag = `<span style="color:#888888;">Current: ${currentVersion}</span>`;
-        const latestTag = `**Latest: \`${info.latest}\`**`;
-        
-        hoverMd.appendMarkdown(`${currentTag} &nbsp;&nbsp; → &nbsp;&nbsp; ${latestTag}\n\n---\n\n`);
+		if (canUpdateVersionString(currentVersion) && status.safeTarget && status.safeTarget !== status.target) {
+			links.push(createUpdateLink(`Safe update (\`${status.safeTarget}\`)`, dependency, status.safeTarget, document.uri.toString()));
+		}
 
-        const depInfoObj = {
-            name,
-            currentVersion,
-            line: position.line,
-            range: new vscode.Range(position.line, 0, position.line, 0)
-        };
+		hover.appendMarkdown(`${links.join('&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;')}\n\n`);
+		return new vscode.Hover(hover);
+	}
+}
 
-        const latestArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.latest, document.uri.toString()]));
-        
-        const isSafeRange = currentVersion.startsWith('^');
-        let updateLink = isSafeRange 
-            ? `<span style="color:#888888;">Update</span>` 
-            : `[Update $(arrow-up)](command:atm.versionPackage.updateVersionString?${latestArgs} "Upgrade to ${info.latest}")`;
-
-        let bottomLine = `[NPM](https://www.npmjs.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[BundlePhobia](https://bundlephobia.com/package/${name})&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;${updateLink}`;
-        
-        if (info.satisfies && info.satisfies !== info.latest && !(currentCoerced && semver.eq(currentCoerced, info.satisfies))) {
-            const satisfiesArgs = encodeURIComponent(JSON.stringify([depInfoObj, info.satisfies, document.uri.toString()]));
-            bottomLine += `&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Safe Patch (\`${info.satisfies}\`)](command:atm.versionPackage.updateVersionString?${satisfiesArgs} "Install safe patch ${info.satisfies}")`;
-        }
-
-        hoverMd.appendMarkdown(bottomLine + `\n\n`);
-
-        return new vscode.Hover(hoverMd);
-    }
+function createUpdateLink(label: string, dependency: DependencyInfo, target: string, uri: string): string {
+	const args = encodeURIComponent(JSON.stringify([dependency, target, uri]));
+	return `[${label}](command:atm.versionPackage.updateVersionString?${args} "Update to ${target}")`;
 }

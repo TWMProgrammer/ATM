@@ -3,7 +3,7 @@ import CommitEmoji from './data';
 import type { CustomCommitEmojiEntry } from './core/types';
 import { loadUsageCounts, sortEmojisByUsage, incrementUsageCount } from './core/usage';
 import { updateCommit, buildTokenPattern } from './core/commitUtils';
-import { getBestEmojiForCommit } from './core/autoEmoji';
+import { getBestEmojiForCommit, getRepositoryChanges } from './core/autoEmoji';
 import {
 	getGitExtension,
 	focusScmInputForRepoIndex,
@@ -151,7 +151,12 @@ export function activateCommitEmoji(context: vscode.ExtensionContext): void {
 		}
 		if (!targetRepo) { return; }
 		
-		const bestEmoji = getBestEmojiForCommit(targetRepo.inputBox.value, context, addCustomEmoji as any);
+		const bestEmoji = getBestEmojiForCommit(
+			targetRepo.inputBox.value,
+			context,
+			addCustomEmoji as any,
+			getRepositoryChanges(targetRepo),
+		);
 		if (!bestEmoji) { return; }
 
 		await incrementUsageCount(context, bestEmoji.code, bestEmoji.emoji);

@@ -45,11 +45,18 @@ export interface RenderContext {
     extensionContext: vscode.ExtensionContext;
 }
 
+export interface ControlPanelQuickPickItem extends vscode.QuickPickItem {
+	readonly command?: string;
+	readonly toolId?: string;
+}
+
 // Constants
 export const CONSTANTS = {
     STATUS_BAR_PRIORITY: 95,
     STATUS_BAR_TEXT: '| ㅤ$(verified-filled) ATMㅤ |',
     DEBOUNCE_DELAY: 150,
+	TOOLTIP_WIDTH: 360,
+	COMPACT_TOOLTIP_WIDTH: 320,
     COMMANDS: {
         STATUS_CLICKED: 'atm.global.statusClicked',
         LAYOUT_NORMAL: 'atm.layout.normal',

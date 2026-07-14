@@ -2,10 +2,10 @@ import * as vscode from 'vscode';
 import type { CommitEmojiEntry } from '../core/types';
 
 export const tooling: CommitEmojiEntry[] = [
-	{ emoji: '🏗️', code: ':building_construction:', description: vscode.l10n.t('Make architectural changes') },
+	{ emoji: '🏗️', code: ':building_construction:', description: vscode.l10n.t('Add new files or make architectural changes') },
 	{ emoji: '📐', code: ':triangular_ruler:', description: vscode.l10n.t('Make architectural or design pattern changes') },
-	{ emoji: '🛠️', code: ':hammer_and_wrench:', description: vscode.l10n.t('Add or update tooling or build scripts') },
-	{ emoji: '🔧', code: ':wrench:', description: vscode.l10n.t('Add or update configuration files') },
+	{ emoji: '🛠️', code: ':hammer_and_wrench:', description: vscode.l10n.t('Edit multiple files or update tooling/build scripts') },
+	{ emoji: '🔧', code: ':wrench:', description: vscode.l10n.t('Edit or adjust one file') },
 	{ emoji: '👷', code: ':construction_worker:', description: vscode.l10n.t('Add or update CI build system') },
 	{ emoji: '🔨', code: ':hammer:', description: vscode.l10n.t('Add or update development scripts') },
 	{ emoji: '📦', code: ':package:', description: vscode.l10n.t('Add or update compiled files or packages') },

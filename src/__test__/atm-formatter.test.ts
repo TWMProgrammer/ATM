@@ -1,8 +1,11 @@
 import * as assert from 'assert';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { suite, test } from 'mocha';
 import { languageRegistry } from '../extensions/28-atm-formatter/core/languageRegistry';
 import { configFromVsCodeSettings, mergeConfig, formatterSettingKeys } from '../extensions/28-atm-formatter/core/options';
-import { isPathIgnored } from '../extensions/28-atm-formatter/core/configResolver';
+import { isPathIgnored, readIgnorePatterns } from '../extensions/28-atm-formatter/core/configResolver';
 import { FormatterService } from '../extensions/28-atm-formatter/core/formatterService';
 
 suite('ATM Formatter — Language Registry', () => {
@@ -22,8 +25,8 @@ suite('ATM Formatter — Language Registry', () => {
 		assert.strictEqual(languageRegistry.isLanguageSupported('javascript'), false);
 	});
 
-	test('json language ID is NOT supported', () => {
-		assert.strictEqual(languageRegistry.isLanguageSupported('json'), false);
+	test('json language ID is supported', () => {
+		assert.ok(languageRegistry.isLanguageSupported('json'));
 	});
 
 	test('getByLanguageId returns typescript descriptor', () => {
@@ -108,6 +111,12 @@ suite('ATM Formatter — Language Registry', () => {
 		assert.strictEqual(desc.id, 'astro');
 	});
 
+	test('getByExtension finds .json files', () => {
+		const desc = languageRegistry.getByExtension('.json');
+		assert.ok(desc);
+		assert.strictEqual(desc.id, 'json');
+	});
+
 	test('astro does not support range formatting', () => {
 		const desc = languageRegistry.getByLanguageId('astro');
 		assert.strictEqual(desc?.rangeFormatting, false);
@@ -179,6 +188,17 @@ suite('ATM Formatter — Options Mapper', () => {
 });
 
 suite('ATM Formatter — Ignore Patterns', () => {
+	test('combines .atmignore and .prettierignore patterns', () => {
+		const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'atm-formatter-'));
+		try {
+			fs.writeFileSync(path.join(workspaceRoot, '.atmignore'), '# generated/\ngenerated/\n');
+			fs.writeFileSync(path.join(workspaceRoot, '.prettierignore'), '# vendor/\nvendor/\n');
+			assert.deepStrictEqual(readIgnorePatterns('.atmignore', workspaceRoot), ['generated/', 'vendor/']);
+		} finally {
+			fs.rmSync(workspaceRoot, { recursive: true, force: true });
+		}
+	});
+
 	test('exact path match ignores file', () => {
 		assert.ok(isPathIgnored('/root/src/foo.ts', '/root', ['src/foo.ts']));
 	});
@@ -269,6 +289,19 @@ suite('ATM Formatter — Formatter Service', () => {
 
 	test('getParserForLanguageId returns astro parser', () => {
 		assert.strictEqual(service.getParserForLanguageId('astro'), 'astro');
+	});
+
+	test('getParserForLanguageId returns json parser', () => {
+		assert.strictEqual(service.getParserForLanguageId('json'), 'json');
+	});
+
+	test('formats JSON', async () => {
+		const result = await service.formatDocument({
+			text: '{"name":"ATM","enabled":true}',
+			parser: 'json',
+		});
+		assert.strictEqual(result.error, undefined);
+		assert.ok(result.formatted.includes('"name": "ATM"'));
 	});
 
 	test('formats Astro code', async () => {

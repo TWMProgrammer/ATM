@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import type { CommitEmojiEntry } from '../core/types';
 
 export const features: CommitEmojiEntry[] = [
-	{ emoji: '✨', code: ':sparkles:', description: vscode.l10n.t('Introduce new features') },
 	{ emoji: '🎉', code: ':tada:', description: vscode.l10n.t('Begin a project') },
 	{ emoji: '💄', code: ':lipstick:', description: vscode.l10n.t('Add or update the UI and style files') },
 	{ emoji: '📱', code: ':iphone:', description: vscode.l10n.t('Work on responsive design') },
