@@ -24,10 +24,7 @@ export function renderMinimalTooltip(
 	const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex];
 
 	md.appendMarkdown(
-		`<img src="${SvgIcons.getWidthSpacer(CONSTANTS.COMPACT_TOOLTIP_WIDTH)}" width="${CONSTANTS.COMPACT_TOOLTIP_WIDTH}" height="1" alt="" />\n`
-	);
-	md.appendMarkdown(
-		`<table width="100%"><tr><td width="36"><img src="${SvgIcons.getBrandMark()}" width="28" height="28" alt="ATM" /></td>` +
+		`<table width="${CONSTANTS.COMPACT_TOOLTIP_WIDTH}"><tr><td width="36"><img src="${SvgIcons.getBrandMark(context.extensionContext)}" width="28" height="28" alt="ATM" /></td>` +
 		'<td><strong>ATM Control Center</strong><br/><sub><span style="color:#8C8C8C;">Compact overview</span></sub></td>' +
 		'<td align="right"><sub><span style="color:#8C8C8C;">COMPACT</span></sub></td></tr></table>\n\n'
 	);

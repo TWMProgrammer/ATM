@@ -22,10 +22,7 @@ export function renderAdvancedTooltip(
 	const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex];
 
 	md.appendMarkdown(
-		`<img src="${SvgIcons.getWidthSpacer(CONSTANTS.TOOLTIP_WIDTH)}" width="${CONSTANTS.TOOLTIP_WIDTH}" height="1" alt="" />\n`
-	);
-	md.appendMarkdown(
-		`<table width="100%"><tr><td width="36"><img src="${SvgIcons.getBrandMark()}" width="28" height="28" alt="ATM" /></td>` +
+		`<table width="${CONSTANTS.TOOLTIP_WIDTH}"><tr><td width="36"><img src="${SvgIcons.getBrandMark(context.extensionContext)}" width="28" height="28" alt="ATM" /></td>` +
 		`<td><strong>ATM Control Center</strong><br/><sub><span style="color:#8C8C8C;">Workspace tools &amp; preferences</span></sub></td>` +
 		`<td align="right"><span style="color:#4EC9B0;">$(pulse) ${activeFeatures} active</span></td></tr></table>\n\n`
 	);
