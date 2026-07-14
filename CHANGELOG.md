@@ -15,6 +15,9 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 <!-- --- -->
 
 ---
+## [2.0.0] - 2026-07-14
+
+---
 
 ## [1.9.5] - 2026-05-18
 
