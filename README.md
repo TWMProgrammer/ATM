@@ -493,15 +493,16 @@ Thank you to everyone who supports this project! Your contributions make updates
 | Icon | Extension | Description |
 | :--- | :-------- | :---------- |
 | [![F1](https://open-vsx.org/api/bastndev/f1/1.0.0/file/icon.png)](https://open-vsx.org/extension/bastndev/f1)                             | [F1](https://github.com/bastndev/F1)                     | The ultimate AI control center. Centralize Claude, Copilot, or Cursor in interactive terminals, create custom workflows with 'My Skills', and give the AI instant codebase context with 'My Memory'. |
-| [![Lynx Keymap Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-keymap/2.3.1/1778538045613/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-keymap) | **[Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro)** | Ultimate keymap standardization across all code editors. Maximizes your muscle memory and supercharges workflow.                                                    |
-| [![Lynx Theme Pro](https://bastndev.gallerycdn.vsassets.io/extensions/bastndev/lynx-theme/4.1.0/1771277734006/Microsoft.VisualStudio.Services.Icons.Default)](https://marketplace.visualstudio.com/items?itemName=bastndev.lynx-theme)    | **[Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)**       | A sleek, professional theme pack with 6 visual variants (Dark, Light, Night, Ghibli, Coffee, Kiro) and integrated icons.                                            |
+| [![Lynx Theme Pro](https://open-vsx.org/api/bastndev/lynx-theme/5.0.0/file/icon.png)](https://open-vsx.org/extension/bastndev/lynx-theme)    | [Lynx Theme Pro](https://github.com/bastndev/Lynx-Theme)       | A professional extension with six available themes: Dark, Light, Night, Ghibli, Coffee, and Kiro—with integrated icons. Each theme is optimized to offer a more pleasant visual experience.                                     |
+| [![Lynx Keymap Pro](https://open-vsx.org/api/bastndev/lynx-keymap/2.6.0/file/icon.png)](https://open-vsx.org/extension/bastndev/lynx-keymap) | [Lynx Keymap Pro](https://github.com/bastndev/Lynx-Keymap-Pro) | Standardizes keyboard shortcuts across all code editors, giving you instant access to any functionality with a single key combination—boosting your workflow and dev experience. **`Now includes shortcuts for 75% keyboards`** |
 
 <br>
 
-<div align="center">
 
-  **Enjoy 🎉 (ATM) is now installed!**
-  *If you find any bugs or have feedback, you can [open an issue](https://github.com/bastndev/ATM/issues/new)*
+<div align="center">
+  
+  **Enjoy 🎉 — (ATM) is now installed!**  
+  *If you find any bugs or have feedback, feel free to [open an issue](https://github.com/bastndev/ATM/issues/new).*
 
 <sub>Made in 🇵🇪 by <a href="https://gohit.xyz">Gohit X</a> · Licensed under <a href="https://github.com/bastndev/ATM/blob/main/LICENSE">`MIT`</a></sub>
 
