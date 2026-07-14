@@ -344,6 +344,14 @@
         "title": "ATM Formatter: Show Output"
       },
       {
+        "command": "atm.formatter.addToAtmIgnore",
+        "title": "ATM Formatter: Add to .atmignore"
+      },
+      {
+        "command": "atm.formatter.addToPrettierIgnore",
+        "title": "ATM Formatter: Add to .prettierignore"
+      },
+      {
         "command": "atm.goLiveDev.toggle",
         "title": "ATM: Go Live (Dev) — Quick Launch",
         "icon": "$(broadcast)"
@@ -909,7 +917,7 @@
         "atm.formatter.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable ATM Formatter for TypeScript, TSX, and CSS files."
+          "description": "Enable ATM Formatter for TypeScript, TSX, CSS, Astro, and JSON files."
         },
         "atm.formatter.printWidth": {
           "type": "number",
@@ -1186,6 +1194,14 @@
         {
           "command": "atm.dataId.showConsumption",
           "when": "atm.isAntigravity"
+        },
+        {
+          "command": "atm.formatter.addToAtmIgnore",
+          "when": "false"
+        },
+        {
+          "command": "atm.formatter.addToPrettierIgnore",
+          "when": "false"
         }
       ],
       "editor/context": [
@@ -1215,6 +1231,16 @@
           "command": "atm.goLive.start",
           "group": "navigation@-1",
           "when": "resourceExtname == .html || resourceExtname == .htm || resourceExtname == .xhtml || resourceExtname == .svg"
+        },
+        {
+          "command": "atm.formatter.addToAtmIgnore",
+          "group": "7_modification@90",
+          "when": "resourceScheme == file"
+        },
+        {
+          "command": "atm.formatter.addToPrettierIgnore",
+          "group": "7_modification@91",
+          "when": "resourceScheme == file"
         }
       ],
       "editor/title": [

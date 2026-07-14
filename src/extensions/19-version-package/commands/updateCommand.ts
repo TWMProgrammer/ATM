@@ -1,84 +1,92 @@
-import * as vscode from 'vscode';
 import semver from 'semver';
+import * as vscode from 'vscode';
 import { DependencyInfo } from '../core/parser';
+import { canUpdateVersionString } from '../core/versionStatus';
 
-export async function updateVersionString(dep: DependencyInfo, newVersion: string, uriString: string) {
-    if (!uriString) { return; }
+export async function updateVersionString(dep: DependencyInfo, newVersion: string, uriString: string): Promise<void> {
+	if (!uriString || !canUpdateVersionString(dep.currentVersion) || !semver.valid(newVersion)) {
+		return;
+	}
 
-    const uri = vscode.Uri.parse(uriString);
-    const editor = vscode.window.visibleTextEditors.find(e => e.document.uri.toString() === uri.toString());
-    if (!editor) { return; }
+	const uri = vscode.Uri.parse(uriString);
+	const editor = vscode.window.visibleTextEditors.find(candidate => candidate.document.uri.toString() === uri.toString());
+	if (!editor) {
+		return;
+	}
 
-    const finalVersionToInject = getVersionToInject(dep.currentVersion, newVersion);
+	const document = editor.document;
+	const replaceRegex = createDependencyRegex(dep);
+	let targetLine = dep.line;
+	let lineText = targetLine >= 0 && targetLine < document.lineCount ? document.lineAt(targetLine).text : '';
 
-    /* =========================================================
-     * 🔍 FIND ACTUAL LINE SAFELY
-     * In case the user edited the file and shifted lines
-     * ========================================================= */
-    let targetLine = dep.line;
-    const document = editor.document;
-    
-    /* =========================================================
-     * ✨ VERIFY SAME LINE
-     * ========================================================= */
-    let lineText = document.lineAt(targetLine).text;
-    const replaceRegex = new RegExp(`"${dep.name}"\\s*:\\s*"${dep.currentVersion}"`);
-    
-    if (!replaceRegex.test(lineText)) {
-        /* =========================================================
-         * 🔄 FALLBACK SEARCH
-         * Search the document to find where it moved
-         * ========================================================= */
-        for(let i=0; i<document.lineCount; i++) {
-            if (replaceRegex.test(document.lineAt(i).text)) {
-                targetLine = i;
-                lineText = document.lineAt(i).text;
-                break;
-            }
-        }
-    }
+	if (!replaceRegex.test(lineText)) {
+		for (let line = 0; line < document.lineCount; line++) {
+			if (replaceRegex.test(document.lineAt(line).text)) {
+				targetLine = line;
+				lineText = document.lineAt(line).text;
+				break;
+			}
+		}
+	}
 
-    const match = replaceRegex.exec(lineText);
-    if (match) {
-        await editor.edit(editBuilder => {
-            const index = match.index;
-            const replacement = `"${dep.name}": "${finalVersionToInject}"`;
-            editBuilder.replace(new vscode.Range(targetLine, index, targetLine, index + match[0].length), replacement);
-        });
-    }
+	const match = replaceRegex.exec(lineText);
+	if (!match) {
+		return;
+	}
+
+	await editor.edit(editBuilder => {
+		const replacement = `"${dep.name}": "${getVersionToInject(dep.currentVersion, newVersion)}"`;
+		editBuilder.replace(
+			new vscode.Range(targetLine, match.index, targetLine, match.index + match[0].length),
+			replacement
+		);
+	});
 }
 
-export async function updateAllVersions(depsToUpdate: {dep: DependencyInfo, newVersion: string}[], document: vscode.TextDocument) {
-    const editor = vscode.window.visibleTextEditors.find(e => e.document === document);
-    if (!editor) { return; }
+export async function updateAllVersions(
+	depsToUpdate: { dep: DependencyInfo; newVersion: string }[],
+	document: vscode.TextDocument
+): Promise<void> {
+	const editor = vscode.window.visibleTextEditors.find(candidate => candidate.document === document);
+	if (!editor) {
+		return;
+	}
 
-    await editor.edit(editBuilder => {
-        /* =========================================================
-         * 🔃 REVERSE ORDER
-         * So that line edits don't affect subsequent line numbers
-         * ========================================================= */
-        const sortedUpdates = [...depsToUpdate].sort((a, b) => b.dep.line - a.dep.line);
+	await editor.edit(editBuilder => {
+		const sortedUpdates = [...depsToUpdate].sort((left, right) => right.dep.line - left.dep.line);
 
-        for (const {dep, newVersion} of sortedUpdates) {
-            const finalVersionToInject = getVersionToInject(dep.currentVersion, newVersion);
-            const lineText = editor.document.lineAt(dep.line).text;
-            const replaceRegex = new RegExp(`"${dep.name}"\\s*:\\s*"${dep.currentVersion}"`);
-            const match = replaceRegex.exec(lineText);
-            
-            if (match) {
-                const index = match.index;
-                const replacement = `"${dep.name}": "${finalVersionToInject}"`;
-                editBuilder.replace(new vscode.Range(dep.line, index, dep.line, index + match[0].length), replacement);
-            }
-        }
-    });
+		for (const { dep, newVersion } of sortedUpdates) {
+			if (
+				!canUpdateVersionString(dep.currentVersion)
+				|| !semver.valid(newVersion)
+				|| dep.line < 0
+				|| dep.line >= editor.document.lineCount
+			) {
+				continue;
+			}
+
+			const lineText = editor.document.lineAt(dep.line).text;
+			const match = createDependencyRegex(dep).exec(lineText);
+			if (match) {
+				const replacement = `"${dep.name}": "${getVersionToInject(dep.currentVersion, newVersion)}"`;
+				editBuilder.replace(
+					new vscode.Range(dep.line, match.index, dep.line, match.index + match[0].length),
+					replacement
+				);
+			}
+		}
+	});
 }
 
 function getVersionToInject(currentVersion: string, newVersion: string): string {
-    /* =========================================================
-     * 🏷️ PRESERVE RANGE PREFIX
-     * Preserve ^, ~, >=, <=, >, <, =
-     * ========================================================= */
-    const prefix = currentVersion.match(/^[~^>=<]*/)?.[0] || '';
-    return `${prefix}${newVersion}`;
+	const prefix = currentVersion.match(/^(?:(?:\^|~|>=|<=|>|<|=)?v?)/)?.[0] ?? '';
+	return `${prefix}${newVersion}`;
+}
+
+function createDependencyRegex(dep: DependencyInfo): RegExp {
+	return new RegExp(`"${escapeRegExp(dep.name)}"\\s*:\\s*"${escapeRegExp(dep.currentVersion)}"`);
+}
+
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

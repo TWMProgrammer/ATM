@@ -32,7 +32,7 @@ export const misc: CommitEmojiEntry[] = [
 	{ emoji: '🥚', code: ':egg:', description: vscode.l10n.t('Add or update an easter egg') },
 	{ emoji: '🙈', code: ':see_no_evil:', description: vscode.l10n.t('Add or update a .gitignore file') },
 	{ emoji: '⚗️', code: ':alembic:', description: vscode.l10n.t('Perform experiments') },
-	{ emoji: '🌱', code: ':seedling:', description: vscode.l10n.t('Add or update seed files') },
+	{ emoji: '🌱', code: ':seedling:', description: vscode.l10n.t('Publish a version from package.json or CHANGELOG.md') },
 	{ emoji: '🚩', code: ':triangular_flag_on_post:', description: vscode.l10n.t('Add, update, or remove feature flags') },
 	{ emoji: '🗑️', code: ':wastebasket:', description: vscode.l10n.t('Deprecate code that needs to be cleaned up') },
 	{ emoji: '🛂', code: ':passport_control:', description: vscode.l10n.t('Work on code related to authorization, roles and permissions') },

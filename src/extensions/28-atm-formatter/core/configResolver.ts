@@ -112,25 +112,34 @@ export function resolveConfigForFile(
 	return { config, configPath };
 }
 
-/* ── .atmignore ────────────────────────────────────────────────────── */
+/* ── Ignore files ──────────────────────────────────────────────────── */
 
 /**
- * Reads a `.atmignore` file and returns the list of non-comment,
- * non-empty patterns.  Returns `[]` if the file doesn't exist.
+ * Reads the configured ignore file and `.prettierignore`, returning
+ * non-comment, non-empty patterns. Returns `[]` if neither file exists.
  */
 export function readIgnorePatterns(ignorePath: string, workspaceRoot: string): string[] {
 	const fullPath = path.isAbsolute(ignorePath)
 		? ignorePath
 		: path.join(workspaceRoot, ignorePath);
-	try {
-		const content = fs.readFileSync(fullPath, 'utf-8');
-		return content
-			.split(/\r?\n/)
-			.map((line) => line.trim())
-			.filter((line) => line.length > 0 && !line.startsWith('#'));
-	} catch {
-		return [];
+	const prettierIgnorePath = path.join(workspaceRoot, '.prettierignore');
+	const ignorePaths = [fullPath];
+	// TODO everything: remove temporary .prettierignore support.
+	if (path.resolve(fullPath) !== path.resolve(prettierIgnorePath)) {
+		ignorePaths.push(prettierIgnorePath);
 	}
+
+	return ignorePaths.flatMap((filePath) => {
+		try {
+			const content = fs.readFileSync(filePath, 'utf-8');
+			return content
+				.split(/\r?\n/)
+				.map((line) => line.trim())
+				.filter((line) => line.length > 0 && !line.startsWith('#'));
+		} catch {
+			return [];
+		}
+	});
 }
 
 /**
