@@ -56,6 +56,7 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
                     e.affectsConfiguration('workbench.activityBar.location') ||
                     e.affectsConfiguration('tailwind-css.enabled') ||
                     e.affectsConfiguration('tailwind-css.autoFold') ||
+                    e.affectsConfiguration('terminalSound.enabled') ||
                     e.affectsConfiguration('atm.bracketLynx.globalEnabled')) {
                     scheduleRender();
                 }
@@ -120,8 +121,9 @@ async function handleStatusBarClick(): Promise<void> {
  * Handles refresh tools command
  */
 function handleRefreshTools(): void {
+    lastRenderedHash = undefined;
     scheduleRender();
-    vscode.window.showInformationMessage(vscode.l10n.t('✓ ATM: Tools refreshed successfully'));
+    vscode.window.setStatusBarMessage('$(check) ATM: Tools refreshed', 1800);
 }
 
 /**
@@ -134,32 +136,15 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
         const targetIsPro = layout.sideBarLocation === 'right' && layout.activityBarLocation === 'top';
 
         if (currentIsPro === targetIsPro) {
-            // Show brief notification for already active layout
-            await vscode.window.withProgress({
-                location: vscode.ProgressLocation.Notification,
-                title: `${layout.displayName} is already active`,
-                cancellable: false
-            }, async () => {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            });
+            vscode.window.setStatusBarMessage(`$(check) ATM: ${layout.displayName} is active`, 1800);
             return;
         }
 
-        // Apply layout changes
         await config.update('sideBar.location', layout.sideBarLocation, vscode.ConfigurationTarget.Global);
         await config.update('activityBar.location', layout.activityBarLocation, vscode.ConfigurationTarget.Global);
 
         scheduleRender();
-
-        // Show brief auto-dismissing notification
-        await vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: `${layout.displayName} activated`,
-            cancellable: false
-        }, async () => {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        });
-
+        vscode.window.setStatusBarMessage(`$(check) ATM: ${layout.displayName} activated`, 1800);
         console.log(`[ATM] Layout applied: ${layout.displayName}`);
     } catch (error) {
         console.error('[ATM] Failed to apply layout:', error);
@@ -171,23 +156,13 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
  * Toggles compact mode
  */
 async function toggleCompactMode(): Promise<void> {
-    const previousMode = isCompactMode;
     isCompactMode = !isCompactMode;
     await extensionContext.globalState.update('atm.compactMode', isCompactMode);
     scheduleRender();
 
     const mode = isCompactMode ? 'Compact' : 'Expanded';
-
-    // Show a brief auto-dismissing notification
-    await vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: `ATM: ${mode} mode activated`,
-        cancellable: false
-    }, async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    });
-
-    console.log(`[ATM] Display mode changed: ${previousMode ? 'Compact' : 'Expanded'} → ${mode}`);
+    vscode.window.setStatusBarMessage(`$(check) ATM: ${mode} view`, 1800);
+    console.log(`[ATM] Display mode changed to ${mode}`);
 }
 
 /**
@@ -211,7 +186,7 @@ async function toggleTerminalSoundMute(): Promise<void> {
     const isCurrentlyEnabled = config.get<boolean>('enabled', true);
     await config.update('enabled', !isCurrentlyEnabled, vscode.ConfigurationTarget.Global);
     scheduleRender();
-    vscode.window.showInformationMessage(vscode.l10n.t('Terminal Audio {0}', isCurrentlyEnabled ? 'Muted' : 'Unmuted'));
+    vscode.window.setStatusBarMessage(`$(check) ATM: Terminal audio ${isCurrentlyEnabled ? 'muted' : 'enabled'}`, 1800);
 }
 
 /**
@@ -237,14 +212,12 @@ function renderHoverUI(): void {
         return;
     }
 
-    const currentHash = generateStateHash();
-    if (lastRenderedHash === currentHash) {
-        return;
-    }
-    lastRenderedHash = currentHash;
-
     try {
         const context = getRenderContext();
+        const currentHash = generateStateHash(context);
+        if (lastRenderedHash === currentHash) {
+            return;
+        }
 
         if (isCompactMode) {
             renderMinimalTooltip(globalStatusBarItem, context);
@@ -258,10 +231,11 @@ function renderHoverUI(): void {
         // Ensure standard theme inheritance (prevents dark grey contrast in debug mode)
         globalStatusBarItem.color = undefined;
         globalStatusBarItem.backgroundColor = undefined;
+        lastRenderedHash = currentHash;
 
         const stats = getToolStats();
         globalStatusBarItem.accessibilityInformation = {
-            label: `ATM Control Center - ${stats.totalTools} active tool${stats.totalTools !== 1 ? 's' : ''} - Click to open menu`,
+            label: `ATM Control Center - ${stats.totalTools} registered tool${stats.totalTools !== 1 ? 's' : ''} - Click to open menu`,
             role: 'button'
         };
     } catch (error) {
@@ -383,17 +357,29 @@ export function checkIsPro(): boolean {
 /**
  * Generates a hash of the current state for caching
  */
-function generateStateHash(): string {
-    const isPro = checkIsPro();
-    const terminalSoundConfig = vscode.workspace.getConfiguration('terminalSound');
-    const isTerminalSoundEnabled = terminalSoundConfig.get<boolean>('enabled', true);
-    const tailwindConfig = vscode.workspace.getConfiguration('tailwind-css');
-    const isTailwindFoldEnabled = tailwindConfig.get<boolean>('enabled', true);
-    const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
-    const bracketLynxConfig = vscode.workspace.getConfiguration('atm.bracketLynx');
-    const isBracketLynxEnabled = bracketLynxConfig.get<boolean>('globalEnabled', true);
-    const toolIds = Array.from(toolRegistry.keys()).sort().join(',');
-    return `${isPro}:${toolIds}:${toolRegistry.size}:${isCompactMode}:${currentTerminalSoundAudioIndex}:${isTerminalSoundEnabled}:${isTailwindFoldEnabled}:${isTailwindAutoFold}:${isBracketLynxEnabled}`;
+function generateStateHash(context: RenderContext): string {
+    const tools = [...context.toolRegistry.values()]
+        .sort((left, right) => left.id.localeCompare(right.id))
+        .map(tool => [
+            tool.id,
+            tool.name,
+            tool.icon,
+            tool.command,
+            tool.description,
+            tool.category,
+            tool.priority,
+            tool.keybinding
+        ]);
+    return JSON.stringify([
+        context.isPro,
+        tools,
+        isCompactMode,
+        context.currentTerminalSoundAudioIndex,
+        context.isTerminalSoundEnabled,
+        context.isTailwindFoldEnabled,
+        context.isTailwindAutoFold,
+        context.isBracketLynxEnabled
+    ]);
 }
 
 /**
