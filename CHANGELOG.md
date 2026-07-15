@@ -18,6 +18,9 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ## [2.0.1] - 2026-05-18
 
+### Improved
+
+- **NPM Run**: Migrated publish workflow setup from legacy `NPM_TOKEN` authentication to npm trusted publishing with OIDC, added safe beta publishing, and preserved the automated `dev` to `main` release flow.
 
 ---
 
