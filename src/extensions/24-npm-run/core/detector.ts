@@ -11,7 +11,7 @@ export interface PackageInfo {
     version: string;
 }
 
-export type ReadinessIssue = 'no-git-repo' | 'no-github-remote';
+export type ReadinessIssue = 'no-git-repo' | 'no-github-remote' | 'no-publish-workflow' | 'legacy-publish-auth';
 
 export interface PackageState {
     pkg: PackageInfo;
@@ -136,6 +136,18 @@ export async function isVersionPublished(name: string, version: string): Promise
     return status === 200;
 }
 
+export function usesLegacyNpmToken(content: string): boolean {
+    return /NODE_AUTH_TOKEN:[ \t]*\$\{\{[ \t]*secrets\.NPM_TOKEN[ \t]*\}\}/.test(content);
+}
+
+function workflowUsesLegacyNpmToken(filePath: string): boolean {
+    try {
+        return usesLegacyNpmToken(fs.readFileSync(filePath, 'utf8'));
+    } catch {
+        return false;
+    }
+}
+
 /** Workflow that publishes on tag push; also used to check beta dist-tag support. */
 export function findPublishWorkflow(repoRoot: string): string | undefined {
     const workflowsDir = path.join(repoRoot, '.github', 'workflows');
@@ -189,5 +201,10 @@ export async function analyzePackageState(pkg: PackageInfo): Promise<PackageStat
     }
 
     state.workflowPath = findPublishWorkflow(state.repoRoot);
+    if (!state.workflowPath) {
+        issues.push('no-publish-workflow');
+    } else if (workflowUsesLegacyNpmToken(state.workflowPath)) {
+        issues.push('legacy-publish-auth');
+    }
     return state;
 }
