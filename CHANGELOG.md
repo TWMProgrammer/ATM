@@ -29,6 +29,34 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ---
 
+## [2.0.1] - 2026-07-14
+
+### Improved
+
+- **NPM Run**: Migrated publish workflow setup from legacy `NPM_TOKEN` authentication to npm trusted publishing with OIDC, added safe beta publishing, and preserved the automated `dev` to `main` release flow.
+
+---
+
+## [2.0.0] - 2026-07-13
+
+### Added
+
+- **ATM Focus**: Added a productivity dashboard with Pomodoro, YouTube Music, AM Radio, and AI usage tracking.
+- **Tailwind CSS**: Added commands to fold and unfold Tailwind class strings and toggle the integration.
+- **Terminal Sound**: Added configurable audio feedback for terminal commands through shell integration.
+- **Git Commands**: Added an in-editor Git command reference with categories, explanations, and copy actions.
+- **Compare Code**: Added side-by-side code comparison tools for quick reviews inside the editor.
+- **ATM Browser**: Added an embedded Chromium browser with configurable search and display quality.
+- **NPM Run**: Added status-bar actions for automated patch, minor, major, and beta npm releases.
+- **Go Live**: Added a local development server with live reload, SPA fallback, HTTPS, and custom headers.
+- **Run Dev**: Added framework-aware dev-script detection, execution, and automatic local URL opening.
+- **ATM Lint**: Added a lightweight lint engine with suggestion-based Quick Fixes and optional ESLint warnings.
+- **ATM Formatter**: Added Prettier-based formatting for TypeScript, TSX, CSS, Astro, and JSON with `.atmignore` support.
+- **Commit Emoji**: Added conventional commit emoji insertion, automatic matching, custom entries, and usage sorting.
+- **Before After**: Added Git `HEAD` comparison for selected code with copy and restore actions.
+
+---
+
 ## [1.9.5] - 2026-05-18
 
 ### Added

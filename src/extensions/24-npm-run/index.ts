@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { PackageState, analyzePackageState, findPublishablePackage } from './core/detector';
 import { ReleaseKind, isReleaseBranch, runRelease } from './core/release';
+import { createPublishWorkflow, migrateLegacyPublishWorkflow, showOidcChecklist } from './core/setup';
 import { createStatusBar, hideStatusBar, issueSummary, showBusy, showState } from './ui/status-bar';
 
 let currentState: PackageState | undefined;
@@ -110,6 +111,44 @@ async function showStatus(): Promise<void> {
     }
     const issue = state.issues[0];
     if (issue) {
+        if (issue === 'no-publish-workflow' && state.repoRoot && state.github) {
+            const create = vscode.l10n.t('Create OIDC workflow');
+            const choice = await vscode.window.showWarningMessage(`${state.pkg.name}: ${issueSummary(issue)}`, create);
+            if (choice === create) {
+                try {
+                    const workflowPath = createPublishWorkflow(state.repoRoot);
+                    await showOidcChecklist(state.pkg.name, state.github, workflowPath);
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : String(error);
+                    void vscode.window.showErrorMessage(message);
+                }
+                void refresh();
+            }
+            return;
+        }
+        if (issue === 'legacy-publish-auth' && state.workflowPath && state.github) {
+            const migrate = vscode.l10n.t('Migrate to OIDC');
+            const open = vscode.l10n.t('Open workflow');
+            const choice = await vscode.window.showWarningMessage(
+                `${state.pkg.name}: ${issueSummary(issue)}`,
+                migrate,
+                open
+            );
+            if (choice === migrate) {
+                if (migrateLegacyPublishWorkflow(state.workflowPath)) {
+                    await showOidcChecklist(state.pkg.name, state.github, state.workflowPath);
+                } else {
+                    void vscode.window.showWarningMessage(
+                        vscode.l10n.t('This custom workflow could not be migrated automatically. Update it manually.')
+                    );
+                    await openWorkflow(state.workflowPath);
+                }
+                void refresh();
+            } else if (choice === open) {
+                await openWorkflow(state.workflowPath);
+            }
+            return;
+        }
         const recheck = vscode.l10n.t('Re-check');
         const choice = await vscode.window.showWarningMessage(`${state.pkg.name}: ${issueSummary(issue)}`, recheck);
         if (choice === recheck) {
@@ -127,4 +166,9 @@ async function showStatus(): Promise<void> {
         return;
     }
     void vscode.window.showInformationMessage(vscode.l10n.t('{0} is ready to release.', state.pkg.name));
+}
+
+async function openWorkflow(filePath: string): Promise<void> {
+    const document = await vscode.workspace.openTextDocument(filePath);
+    await vscode.window.showTextDocument(document);
 }

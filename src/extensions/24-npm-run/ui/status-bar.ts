@@ -34,6 +34,10 @@ export function issueSummary(issue: ReadinessIssue): string {
             return vscode.l10n.t(
                 'No GitHub remote found — releases are published by GitHub Actions, so the repository must live on GitHub.'
             );
+        case 'no-publish-workflow':
+            return vscode.l10n.t('No npm publish workflow found. Create the OIDC workflow before releasing.');
+        case 'legacy-publish-auth':
+            return vscode.l10n.t('The publish workflow still uses NPM_TOKEN. Migrate it to npm trusted publishing.');
     }
 }
 
