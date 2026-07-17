@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { PackageState, analyzePackageState, findPublishablePackage } from './core/detector';
+import { ReleaseStartLock } from './core/release-lock';
 import { ReleaseKind, isReleaseBranch, runRelease } from './core/release';
 import { createPublishWorkflow, migrateLegacyPublishWorkflow, showOidcChecklist } from './core/setup';
 import { createStatusBar, hideStatusBar, issueSummary, showBusy, showState } from './ui/status-bar';
@@ -7,6 +8,7 @@ import { createStatusBar, hideStatusBar, issueSummary, showBusy, showState } fro
 let currentState: PackageState | undefined;
 let releasing = false;
 let refreshTimer: NodeJS.Timeout | undefined;
+const releaseStartLock = new ReleaseStartLock();
 
 interface ConfirmedPublish {
     packageDir: string;
@@ -93,16 +95,16 @@ async function ensureReadyState(): Promise<PackageState | undefined> {
 }
 
 async function release(kind: ReleaseKind): Promise<void> {
-    if (releasing) {
+    if (releasing || !releaseStartLock.tryAcquire()) {
         return;
     }
-    const state = await ensureReadyState();
-    if (!state) {
-        return;
-    }
-    releasing = true;
-    showBusy(state.pkg.name);
     try {
+        const state = await ensureReadyState();
+        if (!state) {
+            return;
+        }
+        releasing = true;
+        showBusy(state.pkg.name);
         await runRelease(state, kind, (version) => {
             void refresh({ packageDir: state.pkg.dir, version });
         });
@@ -110,8 +112,11 @@ async function release(kind: ReleaseKind): Promise<void> {
         const message = error instanceof Error ? error.message : String(error);
         void vscode.window.showErrorMessage(vscode.l10n.t('Release failed: {0}', message));
     } finally {
-        releasing = false;
-        void refresh();
+        if (releasing) {
+            releasing = false;
+            void refresh();
+        }
+        releaseStartLock.release();
     }
 }
 
