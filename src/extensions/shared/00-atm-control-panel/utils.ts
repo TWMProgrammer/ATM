@@ -42,6 +42,7 @@ export interface RenderContext {
     isTailwindFoldEnabled: boolean;
     isTailwindAutoFold: boolean;
     isBracketLynxEnabled: boolean;
+    isCodeSpellEnabled: boolean;
     extensionContext: vscode.ExtensionContext;
 }
 
@@ -68,7 +69,8 @@ export const CONSTANTS = {
 		TAILWIND_TOGGLE_AUTO_FOLD: 'tailwind-css.toggleAutoFold',
 		TAILWIND_TOGGLE_ENABLED: 'tailwind-css.toggleEnabled',
 		BRACKET_LYNX_TOGGLE: 'atm.bracketLynx.toggle',
-		BRACKET_LYNX_CONTROL_PANEL_TOGGLE: 'atm.controlPanel.bracketLynxToggle'
+		BRACKET_LYNX_CONTROL_PANEL_TOGGLE: 'atm.controlPanel.bracketLynxToggle',
+		CODE_SPELL_TOGGLE: 'atm.codeSpell.toggle'
 	},
     LAYOUTS: {
         NORMAL: {

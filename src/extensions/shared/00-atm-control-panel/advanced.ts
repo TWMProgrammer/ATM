@@ -19,12 +19,14 @@ export function renderAdvancedTooltip(
 	const md = createTooltipMarkdown();
 	const stats = getToolStats();
 	const activeFeatures = getActiveFeatureCount(context, stats.activeTools);
+	const pausedControls = getPausedControlCount(context);
 	const currentAudio = CONSTANTS.TERMINAL_SOUND_AUDIO_OPTIONS[context.currentTerminalSoundAudioIndex];
 
 	md.appendMarkdown(
 		`<table width="${CONSTANTS.TOOLTIP_WIDTH}"><tr><td width="36"><img src="${SvgIcons.getBrandMark(context.extensionContext)}" width="28" height="28" alt="ATM" /></td>` +
 		`<td><strong>ATM Control Center</strong><br/><sub><span style="color:#8C8C8C;">Workspace tools &amp; preferences</span></sub></td>` +
-		`<td align="right"><span style="color:#4EC9B0;">$(pulse) ${activeFeatures} active</span></td></tr></table>\n\n`
+		`<td align="right"><strong><span style="color:#4EC9B0;">$(pulse) ${activeFeatures} active</span></strong><br/>` +
+		`<sub><span style="color:#8C8C8C;">${pausedControls > 0 ? `${pausedControls} control${pausedControls === 1 ? '' : 's'} off` : 'All controls on'}</span></sub></td></tr></table>\n\n`
 	);
 	md.appendMarkdown('---\n\n');
 
@@ -45,7 +47,7 @@ export function renderAdvancedTooltip(
 		CONSTANTS.COMMANDS.TAILWIND_TOGGLE_ENABLED,
 		context.isTailwindFoldEnabled ? 'Disable Tailwind Fold' : 'Enable Tailwind Fold'
 	);
-	md.appendMarkdown(`$(symbol-color) **Tailwind Fold** &nbsp; ${tailwindState}<br/>${joinActions(tailwindPrimary, tailwindToggle)}\n\n`);
+	md.appendMarkdown(`$(symbol-color) **Tailwind Fold** &nbsp;&nbsp; ${tailwindState}<br/>${actionRow(tailwindPrimary, tailwindToggle)}\n\n`);
 
 	const bracketState = stateLabel(context.isBracketLynxEnabled, context.isBracketLynxEnabled ? 'On' : 'Off');
 	const bracketToggle = commandLink(
@@ -53,7 +55,15 @@ export function renderAdvancedTooltip(
 		CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE,
 		context.isBracketLynxEnabled ? 'Disable bracket decorations' : 'Enable bracket decorations'
 	);
-	md.appendMarkdown(`$(bracket-dot) **Bracket Lynx** &nbsp; ${bracketState}<br/>${bracketToggle}\n\n`);
+	md.appendMarkdown(`$(bracket-dot) **Bracket Lynx** &nbsp;&nbsp; ${bracketState}<br/>${actionRow(bracketToggle)}\n\n`);
+
+	const codeSpellState = stateLabel(context.isCodeSpellEnabled, context.isCodeSpellEnabled ? 'On' : 'Off');
+	const codeSpellToggle = commandLink(
+		context.isCodeSpellEnabled ? '$(circle-slash) Turn off' : '$(play) Turn on',
+		CONSTANTS.COMMANDS.CODE_SPELL_TOGGLE,
+		context.isCodeSpellEnabled ? 'Disable Code Spell' : 'Enable Code Spell'
+	);
+	md.appendMarkdown(`$(book) **Code Spell** &nbsp;&nbsp; ${codeSpellState}<br/>${actionRow(codeSpellToggle)}\n\n`);
 
 	const normalLayout = context.isPro
 		? commandLink('$(circle-outline) Normal', CONSTANTS.COMMANDS.LAYOUT_NORMAL, 'Use the classic workspace layout')
@@ -61,7 +71,7 @@ export function renderAdvancedTooltip(
 	const proLayout = context.isPro
 		? activeChoice('Pro')
 		: commandLink('$(circle-outline) Pro', CONSTANTS.COMMANDS.LAYOUT_PRO, 'Use the wide-screen workspace layout');
-	md.appendMarkdown(`$(layout) **Layout** &nbsp; ${context.isPro ? stateLabel(true, 'Pro') : stateLabel(true, 'Normal')}<br/>${normalLayout} &nbsp;&nbsp; ${proLayout}\n\n`);
+	md.appendMarkdown(`$(layout) **Layout** &nbsp;&nbsp; ${context.isPro ? stateLabel(true, 'Pro') : stateLabel(true, 'Normal')}<br/>${actionRow(normalLayout, proLayout)}\n\n`);
 
 	const audioWave = `<img src="${SvgIcons.getAudioWave()}" width="16" height="12" alt="Audio" />`;
 	const audioState = stateLabel(context.isTerminalSoundEnabled, context.isTerminalSoundEnabled ? currentAudio.name : 'Muted');
@@ -73,7 +83,7 @@ export function renderAdvancedTooltip(
 		CONSTANTS.COMMANDS.TERMINAL_SOUND_TOGGLE_MUTE,
 		context.isTerminalSoundEnabled ? 'Mute terminal error audio' : 'Enable terminal error audio'
 	);
-	md.appendMarkdown(`${audioWave} &nbsp; **Terminal Sound** &nbsp; ${audioState}<br/>${joinActions(audioTest, audioToggle)}\n\n`);
+	md.appendMarkdown(`${audioWave} &nbsp; **Terminal Sound** &nbsp;&nbsp; ${audioState}<br/>${actionRow(audioTest, audioToggle)}\n\n`);
 
 	md.appendMarkdown('---\n\n');
 	md.appendMarkdown(
@@ -84,7 +94,7 @@ export function renderAdvancedTooltip(
 	);
 	md.appendMarkdown(
 		`<sub><span style="color:${stats.totalTools > 0 ? '#4EC9B0' : '#8C8C8C'};">` +
-		`${stats.totalTools > 0 ? '$(check-all) Ready' : '$(info) Waiting for tool registration'}</span></sub>`
+		`${stats.totalTools > 0 ? '$(check-all) Ready · controls apply instantly' : '$(info) Waiting for tool registration'}</span></sub>`
 	);
 
 	statusBarItem.tooltip = md;
@@ -153,6 +163,11 @@ export async function showAdvancedQuickMenu(context: RenderContext): Promise<voi
 		context.isBracketLynxEnabled ? '$(circle-slash) Turn off Bracket Lynx' : '$(play) Turn on Bracket Lynx',
 		CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE,
 		context.isBracketLynxEnabled ? 'Enabled' : 'Disabled'
+	));
+	items.push(actionItem(
+		context.isCodeSpellEnabled ? '$(circle-slash) Turn off Code Spell' : '$(play) Turn on Code Spell',
+		CONSTANTS.COMMANDS.CODE_SPELL_TOGGLE,
+		context.isCodeSpellEnabled ? 'Enabled' : 'Disabled'
 	));
 
 	items.push(separator('$(layout) Workspace layout'));
@@ -239,11 +254,18 @@ function createTooltipMarkdown(): vscode.MarkdownString {
 }
 
 function getActiveFeatureCount(context: RenderContext, activeTools: number): number {
-	return activeTools + Number(context.isTailwindFoldEnabled) + Number(context.isTerminalSoundEnabled) + 1;
+	return activeTools + Number(context.isTailwindFoldEnabled) + Number(context.isTerminalSoundEnabled) + Number(context.isCodeSpellEnabled) + 1;
+}
+
+function getPausedControlCount(context: RenderContext): number {
+	return Number(!context.isTailwindFoldEnabled) +
+		Number(!context.isBracketLynxEnabled) +
+		Number(!context.isCodeSpellEnabled) +
+		Number(!context.isTerminalSoundEnabled);
 }
 
 function stateLabel(enabled: boolean, label: string): string {
-	return `<sub><span style="color:${enabled ? '#4EC9B0' : '#8C8C8C'};">${enabled ? '$(pass-filled)' : '$(circle-slash)'} ${label}</span></sub>`;
+	return `<span style="color:${enabled ? '#4EC9B0' : '#8C8C8C'};"><strong>${enabled ? '$(pass-filled)' : '$(circle-slash)'} ${label}</strong></span>`;
 }
 
 function activeChoice(label: string): string {
@@ -255,7 +277,11 @@ function commandLink(label: string, command: string, title: string): string {
 }
 
 function joinActions(...actions: string[]): string {
-	return actions.filter(Boolean).join(' &nbsp;&nbsp; ');
+	return actions.filter(Boolean).join(' &nbsp;·&nbsp; ');
+}
+
+function actionRow(...actions: string[]): string {
+	return `<span style="color:#8C8C8C;">$(chevron-right)</span> &nbsp;${joinActions(...actions)}`;
 }
 
 function separator(label: string): ControlPanelQuickPickItem {

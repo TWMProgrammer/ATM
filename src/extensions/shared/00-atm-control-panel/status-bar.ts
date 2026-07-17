@@ -57,7 +57,8 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
                     e.affectsConfiguration('tailwind-css.enabled') ||
                     e.affectsConfiguration('tailwind-css.autoFold') ||
                     e.affectsConfiguration('terminalSound.enabled') ||
-                    e.affectsConfiguration('atm.bracketLynx.globalEnabled')) {
+                    e.affectsConfiguration('atm.bracketLynx.globalEnabled') ||
+                    e.affectsConfiguration('atm.codeSpell.enabled')) {
                     scheduleRender();
                 }
             })
@@ -378,7 +379,8 @@ function generateStateHash(context: RenderContext): string {
         context.isTerminalSoundEnabled,
         context.isTailwindFoldEnabled,
         context.isTailwindAutoFold,
-        context.isBracketLynxEnabled
+        context.isBracketLynxEnabled,
+        context.isCodeSpellEnabled
     ]);
 }
 
@@ -393,6 +395,8 @@ function getRenderContext(): RenderContext {
     const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
     const bracketLynxConfig = vscode.workspace.getConfiguration('atm.bracketLynx');
     const isBracketLynxEnabled = bracketLynxConfig.get<boolean>('globalEnabled', true);
+    const codeSpellConfig = vscode.workspace.getConfiguration('atm.codeSpell');
+    const isCodeSpellEnabled = codeSpellConfig.get<boolean>('enabled', true);
     return {
         toolRegistry,
         isPro: checkIsPro(),
@@ -401,6 +405,7 @@ function getRenderContext(): RenderContext {
         isTailwindFoldEnabled,
         isTailwindAutoFold,
         isBracketLynxEnabled,
+        isCodeSpellEnabled,
         extensionContext
     };
 }

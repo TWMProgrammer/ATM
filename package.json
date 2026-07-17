@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "vsce": {
     "dependencies": false
   },
@@ -733,6 +733,11 @@
           },
           "default": [],
           "description": "Array of custom words added to the ATM Code-Spell dictionary."
+        },
+        "atm.codeSpell.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable ATM Code Spell diagnostics and decorations."
         },
         "atm.lint.enableSuggestions": {
           "type": "boolean",

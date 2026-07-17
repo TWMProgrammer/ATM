@@ -55,6 +55,10 @@ export function renderMinimalTooltip(
 		`$(bracket-dot) **Bracket Lynx** &nbsp; ${compactState(context.isBracketLynxEnabled, context.isBracketLynxEnabled ? 'On' : 'Off')} &nbsp; ` +
 		`[Toggle](command:${CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE} "Toggle Bracket Lynx")\n\n`
 	);
+	md.appendMarkdown(
+		`$(book) **Code Spell** &nbsp; ${compactState(context.isCodeSpellEnabled, context.isCodeSpellEnabled ? 'On' : 'Off')} &nbsp; ` +
+		`[${context.isCodeSpellEnabled ? 'Turn off' : 'Turn on'}](command:${CONSTANTS.COMMANDS.CODE_SPELL_TOGGLE} "Toggle Code Spell")\n\n`
+	);
 	const layoutCommand = context.isPro ? CONSTANTS.COMMANDS.LAYOUT_NORMAL : CONSTANTS.COMMANDS.LAYOUT_PRO;
 	md.appendMarkdown(
 		`$(layout) **Layout** &nbsp; ${compactState(true, context.isPro ? 'Pro' : 'Normal')} &nbsp; ` +
@@ -91,6 +95,11 @@ export async function showMinimalQuickMenu(context: RenderContext): Promise<void
 			context.isBracketLynxEnabled ? '$(circle-slash) Turn off Bracket Lynx' : '$(play) Turn on Bracket Lynx',
 			CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE,
 			context.isBracketLynxEnabled ? 'Enabled' : 'Disabled'
+		),
+		actionItem(
+			context.isCodeSpellEnabled ? '$(circle-slash) Turn off Code Spell' : '$(play) Turn on Code Spell',
+			CONSTANTS.COMMANDS.CODE_SPELL_TOGGLE,
+			context.isCodeSpellEnabled ? 'Enabled' : 'Disabled'
 		),
 		actionItem(
 			context.isPro ? '$(circle-outline) Use Normal layout' : '$(circle-outline) Use Pro layout',
@@ -136,7 +145,7 @@ export async function showMinimalQuickMenu(context: RenderContext): Promise<void
 }
 
 function compactState(enabled: boolean, label: string): string {
-	return `<sub><span style="color:${enabled ? '#4EC9B0' : '#8C8C8C'};">${enabled ? '$(pass-filled)' : '$(circle-slash)'} ${label}</span></sub>`;
+	return `<span style="color:${enabled ? '#4EC9B0' : '#8C8C8C'};"><strong>${enabled ? '$(pass-filled)' : '$(circle-slash)'} ${label}</strong></span>`;
 }
 
 function separator(label: string): ControlPanelQuickPickItem {

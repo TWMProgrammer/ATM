@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import semver from 'semver';
 import { PackageState, isVersionPublished, readPackageInfo } from './detector';
+import { createTagName } from './workflow';
 import {
     abortMerge,
     addFile,
@@ -29,6 +30,11 @@ export interface ReleaseTarget {
 
 const PUBLISH_POLL_INTERVAL_MS = 15000;
 const PUBLISH_TIMEOUT_MS = 8 * 60000;
+
+export interface PublishMonitor {
+    onPublishStarted?: (version: string) => void;
+    onPublishComplete?: (version: string, published: boolean) => void;
+}
 
 /** Only these branches may release; anything else shows a locked button. */
 export function isReleaseBranch(branch: string | undefined): boolean {
@@ -158,11 +164,17 @@ function openUrl(url: string): void {
 
 /**
  * Non-blocking release feedback. Fires an immediate actionable notification
- * (tag pushed, CI publishing) so the status-bar spinner can reset right away,
- * then confirms the npm publish in the background — the old flow blocked the
- * spinner for the whole 8-min poll and the final notification's button click.
+ * (tag pushed, CI publishing), then confirms the npm publish in the background.
+ * The UI remains locked through that confirmation without blocking this release
+ * command for the whole poll or a notification button click.
  */
-function announcePublish(name: string, version: string, npmUrl: string, actionsUrl: string): void {
+function announcePublish(
+    name: string,
+    version: string,
+    npmUrl: string,
+    actionsUrl: string,
+    monitor?: PublishMonitor
+): void {
     const openNpm = vscode.l10n.t('Open npm');
     const openActions = vscode.l10n.t('Open GitHub Actions');
     const onChoice = (choice: string | undefined): void => {
@@ -173,6 +185,8 @@ function announcePublish(name: string, version: string, npmUrl: string, actionsU
         }
     };
 
+    monitor?.onPublishStarted?.(version);
+
     void vscode.window
         .showInformationMessage(
             vscode.l10n.t('🚀 Released {0} v{1} — GitHub Actions is publishing to npm (usually 1–3 min).', name, version),
@@ -182,6 +196,7 @@ function announcePublish(name: string, version: string, npmUrl: string, actionsU
         .then(onChoice);
 
     void waitForPublish(name, version).then((published) => {
+        monitor?.onPublishComplete?.(version, published);
         if (published) {
             void vscode.window
                 .showInformationMessage(vscode.l10n.t('✅ {0}@{1} is live on npm.', name, version), openNpm, openActions)
@@ -224,7 +239,11 @@ function computeReleaseTarget(kind: ReleaseKind, currentVersion: string, baselin
  * back — the user never leaves their branch. Beta: bump+tag on the current
  * branch only, no merge. CI publishes on the tag push.
  */
-export async function runRelease(state: PackageState, kind: ReleaseKind): Promise<void> {
+export async function runRelease(
+    state: PackageState,
+    kind: ReleaseKind,
+    monitor?: PublishMonitor
+): Promise<void> {
     const repoRoot = state.repoRoot;
     const github = state.github;
     if (!repoRoot || !github) {
@@ -240,7 +259,10 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
         throw new Error(vscode.l10n.t('You have uncommitted changes. Commit or stash them first.'));
     }
 
-    const tagName = `v${target.version}`;
+    const tagName = state.tagPattern ? createTagName(state.tagPattern, target.version) : undefined;
+    if (!tagName) {
+        throw new Error(vscode.l10n.t('The publish workflow does not have a supported tag pattern.'));
+    }
     if (await tagExists(repoRoot, tagName)) {
         throw new Error(vscode.l10n.t('Tag {0} already exists. Bump the version in package.json first.', tagName));
     }
@@ -358,8 +380,8 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
         }
     );
 
-    // Git work is done → the spinner can stop now. Feedback runs non-blocking.
+    // Git work is done. Publish confirmation continues in the background.
     const npmUrl = `https://www.npmjs.com/package/${pkg.name}/v/${target.version}`;
     const actionsUrl = `https://github.com/${github.owner}/${github.repo}/actions`;
-    announcePublish(pkg.name, target.version, npmUrl, actionsUrl);
+    announcePublish(pkg.name, target.version, npmUrl, actionsUrl, monitor);
 }
