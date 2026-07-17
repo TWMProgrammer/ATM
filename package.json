@@ -2,7 +2,7 @@
   "name": "atm",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "vsce": {
     "dependencies": false
   },
@@ -371,16 +371,6 @@
       "type": "object",
       "title": "ATM – Image Preview",
       "properties": {
-        "atm.layout.startupMode": {
-          "type": "string",
-          "enum": [
-            "pro",
-            "normal",
-            "none"
-          ],
-          "default": "none",
-          "description": "Choose which layout mode to display upon extension startup. 'pro' places the sidebar on the right and activity bar at the top. 'normal' places the sidebar on the left and activity bar on the default location. 'none' keeps your current layout configuration without making any changes."
-        },
         "atm.goLive.port": {
           "type": "number",
           "default": 3222,
@@ -750,6 +740,11 @@
           },
           "default": [],
           "description": "Array of custom words added to the ATM Code-Spell dictionary."
+        },
+        "atm.codeSpell.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable ATM Code Spell diagnostics and decorations."
         },
         "atm.lint.enableSuggestions": {
           "type": "boolean",

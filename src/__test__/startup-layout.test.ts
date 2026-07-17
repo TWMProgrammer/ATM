@@ -7,13 +7,13 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 suite('Startup Layout Settings Tests', function () {
     this.timeout(15000);
 
-    let originalStartupMode: string | undefined;
+    let originalLayoutMode: string | undefined;
     let originalSidebarLocation: string | undefined;
     let originalActivityBarLocation: string | undefined;
 
     suiteSetup(async () => {
-        const atmConfig = vscode.workspace.getConfiguration('atm.layout');
-        originalStartupMode = atmConfig.get<string>('startupMode');
+        const globalState = vscode.workspace.getConfiguration('workbench') as any;
+        originalLayoutMode = globalState.get('atm.layoutMode');
 
         const workbenchConfig = vscode.workspace.getConfiguration('workbench');
         originalSidebarLocation = workbenchConfig.get<string>('sideBar.location');
@@ -21,8 +21,10 @@ suite('Startup Layout Settings Tests', function () {
     });
 
     suiteTeardown(async () => {
-        const atmConfig = vscode.workspace.getConfiguration('atm.layout');
-        await atmConfig.update('startupMode', originalStartupMode, vscode.ConfigurationTarget.Global);
+        const globalState = vscode.workspace.getConfiguration('workbench') as any;
+        if (originalLayoutMode !== undefined) {
+            await globalState.update('atm.layoutMode', originalLayoutMode, vscode.ConfigurationTarget.Global);
+        }
 
         const workbenchConfig = vscode.workspace.getConfiguration('workbench');
         await workbenchConfig.update('sideBar.location', originalSidebarLocation, vscode.ConfigurationTarget.Global);
@@ -30,9 +32,9 @@ suite('Startup Layout Settings Tests', function () {
         await sleep(500);
     });
 
-    test('should apply Pro layout when startupMode is "pro"', async () => {
-        const atmConfig = vscode.workspace.getConfiguration('atm.layout');
-        await atmConfig.update('startupMode', 'pro', vscode.ConfigurationTarget.Global);
+    test('should apply Pro layout when layoutMode is "pro"', async () => {
+        const globalState = vscode.workspace.getConfiguration('workbench') as any;
+        await globalState.update('atm.layoutMode', 'pro', vscode.ConfigurationTarget.Global);
 
         const workbenchConfig = vscode.workspace.getConfiguration('workbench');
         // Set to non-pro layout first
@@ -40,7 +42,8 @@ suite('Startup Layout Settings Tests', function () {
         await workbenchConfig.update('activityBar.location', 'default', vscode.ConfigurationTarget.Global);
         await sleep(500);
 
-        await activateSideBarSettings();
+        const context = { globalState: {} as any } as vscode.ExtensionContext;
+        await activateSideBarSettings(context);
         await sleep(500);
 
         const freshWorkbenchConfig = vscode.workspace.getConfiguration('workbench');
@@ -48,9 +51,9 @@ suite('Startup Layout Settings Tests', function () {
         assert.strictEqual(freshWorkbenchConfig.get<string>('activityBar.location'), 'top');
     });
 
-    test('should apply Normal layout when startupMode is "normal"', async () => {
-        const atmConfig = vscode.workspace.getConfiguration('atm.layout');
-        await atmConfig.update('startupMode', 'normal', vscode.ConfigurationTarget.Global);
+    test('should apply Normal layout when layoutMode is "normal"', async () => {
+        const globalState = vscode.workspace.getConfiguration('workbench') as any;
+        await globalState.update('atm.layoutMode', 'normal', vscode.ConfigurationTarget.Global);
 
         const workbenchConfig = vscode.workspace.getConfiguration('workbench');
         // Set to pro layout first
@@ -58,7 +61,8 @@ suite('Startup Layout Settings Tests', function () {
         await workbenchConfig.update('activityBar.location', 'top', vscode.ConfigurationTarget.Global);
         await sleep(500);
 
-        await activateSideBarSettings();
+        const context = { globalState: {} as any } as vscode.ExtensionContext;
+        await activateSideBarSettings(context);
         await sleep(500);
 
         const freshWorkbenchConfig = vscode.workspace.getConfiguration('workbench');
@@ -66,17 +70,18 @@ suite('Startup Layout Settings Tests', function () {
         assert.strictEqual(freshWorkbenchConfig.get<string>('activityBar.location'), 'default');
     });
 
-    test('should not change layout when startupMode is "none"', async () => {
-        const atmConfig = vscode.workspace.getConfiguration('atm.layout');
-        await atmConfig.update('startupMode', 'none', vscode.ConfigurationTarget.Global);
+    test('should not change layout when layoutMode is undefined (defaults to "pro")', async () => {
+        const globalState = vscode.workspace.getConfiguration('workbench') as any;
+        await globalState.update('atm.layoutMode', undefined, vscode.ConfigurationTarget.Global);
 
         const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-        // Set to pro layout
+        // Set to pro layout first
         await workbenchConfig.update('sideBar.location', 'right', vscode.ConfigurationTarget.Global);
         await workbenchConfig.update('activityBar.location', 'top', vscode.ConfigurationTarget.Global);
         await sleep(500);
 
-        await activateSideBarSettings();
+        const context = { globalState: {} as any } as vscode.ExtensionContext;
+        await activateSideBarSettings(context);
         await sleep(500);
 
         let freshWorkbenchConfig = vscode.workspace.getConfiguration('workbench');
@@ -88,7 +93,7 @@ suite('Startup Layout Settings Tests', function () {
         await workbenchConfig.update('activityBar.location', 'default', vscode.ConfigurationTarget.Global);
         await sleep(500);
 
-        await activateSideBarSettings();
+        await activateSideBarSettings(context);
         await sleep(500);
 
         freshWorkbenchConfig = vscode.workspace.getConfiguration('workbench');

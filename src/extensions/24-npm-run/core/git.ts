@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { versionFromTag } from './workflow';
 
 const GIT_TIMEOUT_MS = 30000;
 
@@ -72,11 +73,17 @@ export async function tagExists(repoRoot: string, tag: string): Promise<boolean>
     }
 }
 
-/** Latest tag as a bare version (v0.4.0 -> 0.4.0); offline baseline for manual-bump detection. */
-export async function getLastTagVersion(repoRoot: string): Promise<string | undefined> {
+/** Latest package-specific tag as a bare version; offline baseline for manual-bump detection. */
+export async function getLastTagVersion(repoRoot: string, tagPattern: string): Promise<string | undefined> {
     try {
-        const tag = await runGit(repoRoot, ['describe', '--tags', '--abbrev=0']);
-        return tag.startsWith('v') ? tag.slice(1) : tag;
+        const output = await runGit(repoRoot, ['tag', '--list', tagPattern, '--sort=-version:refname']);
+        for (const tag of output.split('\n')) {
+            const version = versionFromTag(tagPattern, tag.trim());
+            if (version) {
+                return version;
+            }
+        }
+        return undefined;
     } catch {
         return undefined;
     }

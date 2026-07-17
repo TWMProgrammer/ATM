@@ -1,51 +1,32 @@
 import * as vscode from 'vscode';
 
 /**
- * Configures native VS Code sidebar and activity bar layout.
- * - Sidebar: right
- * - Activity Bar: top
+ * Restores the saved ATM workspace layout. Pro remains the default for users
+ * who have not selected a layout yet.
  */
-export async function activateSideBarSettings() {
-  const atmConfig = vscode.workspace.getConfiguration('atm.layout');
-  const startupMode = atmConfig.get<string>('startupMode', 'none');
+export async function activateSideBarSettings(context: vscode.ExtensionContext) {
+  const workbenchConfig = vscode.workspace.getConfiguration('workbench');
+  const layoutMode = context.globalState.get<'normal' | 'pro'>(
+    'atm.layoutMode',
+    'pro',
+  );
+  const sideBarLocation = layoutMode === 'pro' ? 'right' : 'left';
+  const activityBarLocation = layoutMode === 'pro' ? 'top' : 'default';
 
-  if (startupMode === 'none') {
-    return;
+  if (workbenchConfig.get<string>('sideBar.location') !== sideBarLocation) {
+    await workbenchConfig.update(
+      'sideBar.location',
+      sideBarLocation,
+      vscode.ConfigurationTarget.Global,
+    );
   }
 
-  const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-
-  if (startupMode === 'pro') {
-    if (workbenchConfig.get<string>('sideBar.location') !== 'right') {
-      await workbenchConfig.update(
-        'sideBar.location',
-        'right',
-        vscode.ConfigurationTarget.Global,
-      );
-    }
-
-    if (workbenchConfig.get<string>('activityBar.location') !== 'top') {
-      await workbenchConfig.update(
-        'activityBar.location',
-        'top',
-        vscode.ConfigurationTarget.Global,
-      );
-    }
-  } else if (startupMode === 'normal') {
-    if (workbenchConfig.get<string>('sideBar.location') !== 'left') {
-      await workbenchConfig.update(
-        'sideBar.location',
-        'left',
-        vscode.ConfigurationTarget.Global,
-      );
-    }
-
-    if (workbenchConfig.get<string>('activityBar.location') !== 'default') {
-      await workbenchConfig.update(
-        'activityBar.location',
-        'default',
-        vscode.ConfigurationTarget.Global,
-      );
-    }
+  if (workbenchConfig.get<string>('activityBar.location') !== activityBarLocation) {
+    await workbenchConfig.update(
+      'activityBar.location',
+      activityBarLocation,
+      vscode.ConfigurationTarget.Global,
+    );
   }
 }
+

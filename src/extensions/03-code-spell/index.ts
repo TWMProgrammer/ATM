@@ -3,6 +3,7 @@ import {
   scheduleDiagnosticsCheck,
   spellDiagnostics,
   clearDiagnostics,
+  clearAllDiagnostics,
 } from './providers/diagnostics';
 import { SpellCodeActionProvider } from './providers/codeActions';
 import {
@@ -11,19 +12,35 @@ import {
   addWordToWorkspaceSettings,
 } from './core/dictionary';
 import { SUPPORTED_LANGUAGES } from './core/exclusions';
+import {
+  CODE_SPELL_CONFIG_SECTION,
+  CODE_SPELL_ENABLED_KEY,
+  isCodeSpellEnabled,
+  toggleCodeSpell,
+} from './core/config';
+import { spellDecorationType } from './ui/styles';
+
+function enableCodeSpell(context: vscode.ExtensionContext): void {
+  initDictionary(context);
+  if (vscode.window.activeTextEditor) {
+    scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
+  }
+}
 
 export function activateCodeSpell(context: vscode.ExtensionContext) {
   /* =========================================================
    * 1️⃣ INITIALIZE DICTIONARY
    * Initialize custom extension dictionary (10k words + Tech Keywords)
    * ========================================================= */
-  initDictionary(context);
+  if (isCodeSpellEnabled()) {
+    initDictionary(context);
+  }
 
   /* =========================================================
    * 2️⃣ REGISTER DIAGNOSTICS PROVIDER
    * Wavy text underlines
    * ========================================================= */
-  context.subscriptions.push(spellDiagnostics);
+  context.subscriptions.push(spellDiagnostics, spellDecorationType);
 
   /* =========================================================
    * 3️⃣ EVENT HOOKS
@@ -58,7 +75,7 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
    * ⚡ IMMEDIATE ACTIVATION
    * Activate immediately if there is any open editor when ATM starts
    * ========================================================= */
-  if (vscode.window.activeTextEditor) {
+  if (isCodeSpellEnabled() && vscode.window.activeTextEditor) {
     scheduleDiagnosticsCheck(vscode.window.activeTextEditor.document);
   }
 
@@ -87,6 +104,13 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
    * Code Action trigger command internally
    * ========================================================= */
   context.subscriptions.push(
+    vscode.commands.registerCommand('atm.codeSpell.toggle', async () => {
+      const enabled = await toggleCodeSpell();
+      vscode.window.setStatusBarMessage(
+        `$(check) ATM: Code Spell ${enabled ? 'enabled' : 'disabled'}`,
+        1800,
+      );
+    }),
     vscode.commands.registerCommand(
       'atm.code-spell.addWordUser',
       async (word: string) => {
@@ -111,6 +135,21 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
         }
       },
     ),
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (
+        !event.affectsConfiguration(
+          `${CODE_SPELL_CONFIG_SECTION}.${CODE_SPELL_ENABLED_KEY}`,
+        )
+      ) {
+        return;
+      }
+
+      if (isCodeSpellEnabled()) {
+        enableCodeSpell(context);
+      } else {
+        clearAllDiagnostics();
+      }
+    }),
   );
 
   console.log(
@@ -119,6 +158,6 @@ export function activateCodeSpell(context: vscode.ExtensionContext) {
 }
 
 export function deactivateCodeSpell() {
-  spellDiagnostics.clear();
+  clearAllDiagnostics();
   console.log('📝 [ATM] Code-Spell Deactivated');
 }

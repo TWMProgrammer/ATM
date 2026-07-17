@@ -57,7 +57,8 @@ export function activateGlobalStatusBar(context: vscode.ExtensionContext): void 
                     e.affectsConfiguration('tailwind-css.enabled') ||
                     e.affectsConfiguration('tailwind-css.autoFold') ||
                     e.affectsConfiguration('terminalSound.enabled') ||
-                    e.affectsConfiguration('atm.bracketLynx.globalEnabled')) {
+                    e.affectsConfiguration('atm.bracketLynx.globalEnabled') ||
+                    e.affectsConfiguration('atm.codeSpell.enabled')) {
                     scheduleRender();
                 }
             })
@@ -134,6 +135,8 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
         const config = vscode.workspace.getConfiguration('workbench');
         const currentIsPro = checkIsPro();
         const targetIsPro = layout.sideBarLocation === 'right' && layout.activityBarLocation === 'top';
+
+        await extensionContext.globalState.update('atm.layoutMode', targetIsPro ? 'pro' : 'normal');
 
         if (currentIsPro === targetIsPro) {
             vscode.window.setStatusBarMessage(`$(check) ATM: ${layout.displayName} is active`, 1800);
@@ -378,7 +381,8 @@ function generateStateHash(context: RenderContext): string {
         context.isTerminalSoundEnabled,
         context.isTailwindFoldEnabled,
         context.isTailwindAutoFold,
-        context.isBracketLynxEnabled
+        context.isBracketLynxEnabled,
+        context.isCodeSpellEnabled
     ]);
 }
 
@@ -393,6 +397,8 @@ function getRenderContext(): RenderContext {
     const isTailwindAutoFold = tailwindConfig.get<boolean>('autoFold', true);
     const bracketLynxConfig = vscode.workspace.getConfiguration('atm.bracketLynx');
     const isBracketLynxEnabled = bracketLynxConfig.get<boolean>('globalEnabled', true);
+    const codeSpellConfig = vscode.workspace.getConfiguration('atm.codeSpell');
+    const isCodeSpellEnabled = codeSpellConfig.get<boolean>('enabled', true);
     return {
         toolRegistry,
         isPro: checkIsPro(),
@@ -401,6 +407,7 @@ function getRenderContext(): RenderContext {
         isTailwindFoldEnabled,
         isTailwindAutoFold,
         isBracketLynxEnabled,
+        isCodeSpellEnabled,
         extensionContext
     };
 }

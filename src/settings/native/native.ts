@@ -5,13 +5,13 @@ import { activateFilesSettings } from './files/files';
 import { activateSideBarSettings } from './side-bar';
 
 export async function activateNativeSettings(
-  _context: vscode.ExtensionContext,
+  context: vscode.ExtensionContext,
 ) {
   try {
     await activateBreadcrumbsSettings();
     await activateCursorSettings();
     await activateFilesSettings();
-    await activateSideBarSettings();
+    await activateSideBarSettings(context);
   } catch (error) {
     console.error('ATM Extension: Error activating native settings.', error);
   }

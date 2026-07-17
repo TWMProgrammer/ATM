@@ -1,12 +1,33 @@
 import * as vscode from 'vscode';
 import { PackageState, analyzePackageState, findPublishablePackage } from './core/detector';
+import { ReleaseStartLock } from './core/release-lock';
 import { ReleaseKind, isReleaseBranch, runRelease } from './core/release';
 import { createPublishWorkflow, migrateLegacyPublishWorkflow, showOidcChecklist } from './core/setup';
-import { createStatusBar, hideStatusBar, issueSummary, showBusy, showState } from './ui/status-bar';
+import {
+    createStatusBar,
+    hideStatusBar,
+    issueSummary,
+    showBusy,
+    showPublishFailed,
+    showPublishing,
+    showState,
+} from './ui/status-bar';
 
 let currentState: PackageState | undefined;
 let releasing = false;
 let refreshTimer: NodeJS.Timeout | undefined;
+const releaseStartLock = new ReleaseStartLock();
+let pendingPublish: PendingPublish | undefined;
+let failedPublish: PendingPublish | undefined;
+
+interface ConfirmedPublish {
+    packageDir: string;
+    version: string;
+}
+
+interface PendingPublish extends ConfirmedPublish {
+    name: string;
+}
 
 export function activateNpmRun(context: vscode.ExtensionContext): void {
     createStatusBar(context);
@@ -52,8 +73,8 @@ function scheduleRefresh(): void {
     }, 1000);
 }
 
-async function refresh(): Promise<void> {
-    if (releasing) {
+async function refresh(confirmedPublish?: ConfirmedPublish): Promise<void> {
+    if (releasing || pendingPublish) {
         return;
     }
     const pkg = findPublishablePackage();
@@ -62,7 +83,17 @@ async function refresh(): Promise<void> {
         hideStatusBar();
         return;
     }
+    if (failedPublish?.packageDir === pkg.dir && failedPublish.version === pkg.version) {
+        showPublishFailed(failedPublish.name, failedPublish.version);
+        return;
+    }
+    failedPublish = undefined;
     currentState = await analyzePackageState(pkg);
+    if (confirmedPublish?.packageDir === pkg.dir) {
+        // The exact version endpoint is already live. Keep the status bar current
+        // even if npm's `latest` metadata takes a little longer to propagate.
+        currentState.publishedVersion = confirmedPublish.version;
+    }
     if (!releasing) {
         showState(currentState);
     }
@@ -83,23 +114,42 @@ async function ensureReadyState(): Promise<PackageState | undefined> {
 }
 
 async function release(kind: ReleaseKind): Promise<void> {
-    if (releasing) {
+    if (releasing || pendingPublish || failedPublish || !releaseStartLock.tryAcquire()) {
         return;
     }
-    const state = await ensureReadyState();
-    if (!state) {
-        return;
-    }
-    releasing = true;
-    showBusy(state.pkg.name);
     try {
-        await runRelease(state, kind);
+        const state = await ensureReadyState();
+        if (!state) {
+            return;
+        }
+        releasing = true;
+        showBusy(state.pkg.name);
+        await runRelease(state, kind, {
+            onPublishStarted: (version) => {
+                pendingPublish = { packageDir: state.pkg.dir, name: state.pkg.name, version };
+                showPublishing(state.pkg.name);
+            },
+            onPublishComplete: (version, published) => {
+                const publish = pendingPublish;
+                pendingPublish = undefined;
+                if (published) {
+                    failedPublish = undefined;
+                    void refresh({ packageDir: state.pkg.dir, version });
+                } else {
+                    failedPublish = publish ?? { packageDir: state.pkg.dir, name: state.pkg.name, version };
+                    showPublishFailed(failedPublish.name, failedPublish.version);
+                }
+            },
+        });
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         void vscode.window.showErrorMessage(vscode.l10n.t('Release failed: {0}', message));
     } finally {
-        releasing = false;
-        void refresh();
+        if (releasing) {
+            releasing = false;
+            void refresh();
+        }
+        releaseStartLock.release();
     }
 }
 
@@ -111,6 +161,10 @@ async function showStatus(): Promise<void> {
     }
     const issue = state.issues[0];
     if (issue) {
+        if (issue === 'monorepo-root') {
+            void vscode.window.showInformationMessage(issueSummary(issue));
+            return;
+        }
         if (issue === 'no-publish-workflow' && state.repoRoot && state.github) {
             const create = vscode.l10n.t('Create OIDC workflow');
             const choice = await vscode.window.showWarningMessage(`${state.pkg.name}: ${issueSummary(issue)}`, create);

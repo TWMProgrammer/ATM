@@ -3,6 +3,7 @@ import * as https from 'https';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { GitHubRepo, getCurrentBranch, getLastTagVersion, getRemoteUrl, getRepoRoot, parseGitHubRepo } from './git';
+import { findPublishWorkflows, findWorkflowForPackage } from './workflow';
 
 export interface PackageInfo {
     /** Absolute path of the folder containing package.json */
@@ -11,13 +12,21 @@ export interface PackageInfo {
     version: string;
 }
 
-export type ReadinessIssue = 'no-git-repo' | 'no-github-remote' | 'no-publish-workflow' | 'legacy-publish-auth';
+export type ReadinessIssue =
+    | 'no-git-repo'
+    | 'no-github-remote'
+    | 'no-publish-workflow'
+    | 'no-package-workflow'
+    | 'unsupported-tag-pattern'
+    | 'monorepo-root'
+    | 'legacy-publish-auth';
 
 export interface PackageState {
     pkg: PackageInfo;
     repoRoot?: string;
     github?: GitHubRepo;
     workflowPath?: string;
+    tagPattern?: string;
     currentBranch?: string;
     /** Latest on npm; undefined = never published OR registry unreachable */
     publishedVersion?: string;
@@ -148,32 +157,6 @@ function workflowUsesLegacyNpmToken(filePath: string): boolean {
     }
 }
 
-/** Workflow that publishes on tag push; also used to check beta dist-tag support. */
-export function findPublishWorkflow(repoRoot: string): string | undefined {
-    const workflowsDir = path.join(repoRoot, '.github', 'workflows');
-    let entries: string[];
-    try {
-        entries = fs.readdirSync(workflowsDir);
-    } catch {
-        return undefined;
-    }
-    for (const entry of entries) {
-        if (!entry.endsWith('.yml') && !entry.endsWith('.yaml')) {
-            continue;
-        }
-        const filePath = path.join(workflowsDir, entry);
-        try {
-            const content = fs.readFileSync(filePath, 'utf8');
-            if (content.includes('npm publish') || content.includes('bun publish')) {
-                return filePath;
-            }
-        } catch {
-            // unreadable file — keep looking
-        }
-    }
-    return undefined;
-}
-
 export async function analyzePackageState(pkg: PackageInfo): Promise<PackageState> {
     const issues: ReadinessIssue[] = [];
     const state: PackageState = { pkg, issues };
@@ -191,7 +174,6 @@ export async function analyzePackageState(pkg: PackageInfo): Promise<PackageStat
     }
 
     state.currentBranch = await getCurrentBranch(state.repoRoot).catch(() => undefined);
-    state.lastTagVersion = await getLastTagVersion(state.repoRoot);
 
     const remoteUrl = await getRemoteUrl(state.repoRoot);
     state.github = parseGitHubRepo(remoteUrl);
@@ -200,11 +182,29 @@ export async function analyzePackageState(pkg: PackageInfo): Promise<PackageStat
         return state;
     }
 
-    state.workflowPath = findPublishWorkflow(state.repoRoot);
-    if (!state.workflowPath) {
-        issues.push('no-publish-workflow');
+    const workflows = findPublishWorkflows(state.repoRoot);
+    const workflow = findWorkflowForPackage(workflows, state.repoRoot, pkg.dir);
+    if (!workflow) {
+        const packageIsRepoRoot = path.resolve(pkg.dir) === path.resolve(state.repoRoot);
+        if (packageIsRepoRoot && workflows.some((candidate) => candidate.workingDirectory !== undefined)) {
+            issues.push('monorepo-root');
+        } else if (packageIsRepoRoot && workflows.length === 0) {
+            issues.push('no-publish-workflow');
+        } else {
+            issues.push('no-package-workflow');
+        }
+        return state;
+    }
+
+    state.workflowPath = workflow.filePath;
+    state.tagPattern = workflow.tagPattern;
+    if (!state.tagPattern) {
+        issues.push('unsupported-tag-pattern');
     } else if (workflowUsesLegacyNpmToken(state.workflowPath)) {
         issues.push('legacy-publish-auth');
+    } else {
+        state.lastTagVersion = await getLastTagVersion(state.repoRoot, state.tagPattern);
     }
+
     return state;
 }
