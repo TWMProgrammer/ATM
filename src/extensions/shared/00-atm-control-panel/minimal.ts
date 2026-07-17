@@ -145,7 +145,7 @@ export async function showMinimalQuickMenu(context: RenderContext): Promise<void
 }
 
 function compactState(enabled: boolean, label: string): string {
-	return `<sub><span style="color:${enabled ? '#4EC9B0' : '#8C8C8C'};">${enabled ? '$(pass-filled)' : '$(circle-slash)'} ${label}</span></sub>`;
+	return `<span style="color:${enabled ? '#4EC9B0' : '#8C8C8C'};"><strong>${enabled ? '$(pass-filled)' : '$(circle-slash)'} ${label}</strong></span>`;
 }
 
 function separator(label: string): ControlPanelQuickPickItem {
