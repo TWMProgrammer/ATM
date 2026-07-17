@@ -16,6 +16,12 @@ Following best practices, ATM adheres to strict semantic versioning for all upda
 
 ---
 
+## [2.0.2] - 2026-07-16
+
+- **Better**:  code spell & npm-run
+
+---
+
 ## [2.0.1] - 2026-07-14
 
 ### Improved
