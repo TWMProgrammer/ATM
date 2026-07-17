@@ -55,6 +55,14 @@ export function renderAdvancedTooltip(
 	);
 	md.appendMarkdown(`$(bracket-dot) **Bracket Lynx** &nbsp; ${bracketState}<br/>${bracketToggle}\n\n`);
 
+	const codeSpellState = stateLabel(context.isCodeSpellEnabled, context.isCodeSpellEnabled ? 'On' : 'Off');
+	const codeSpellToggle = commandLink(
+		context.isCodeSpellEnabled ? '$(circle-slash) Turn off' : '$(play) Turn on',
+		CONSTANTS.COMMANDS.CODE_SPELL_TOGGLE,
+		context.isCodeSpellEnabled ? 'Disable Code Spell' : 'Enable Code Spell'
+	);
+	md.appendMarkdown(`$(book) **Code Spell** &nbsp; ${codeSpellState}<br/>${codeSpellToggle}\n\n`);
+
 	const normalLayout = context.isPro
 		? commandLink('$(circle-outline) Normal', CONSTANTS.COMMANDS.LAYOUT_NORMAL, 'Use the classic workspace layout')
 		: activeChoice('Normal');
@@ -154,6 +162,11 @@ export async function showAdvancedQuickMenu(context: RenderContext): Promise<voi
 		CONSTANTS.COMMANDS.BRACKET_LYNX_TOGGLE,
 		context.isBracketLynxEnabled ? 'Enabled' : 'Disabled'
 	));
+	items.push(actionItem(
+		context.isCodeSpellEnabled ? '$(circle-slash) Turn off Code Spell' : '$(play) Turn on Code Spell',
+		CONSTANTS.COMMANDS.CODE_SPELL_TOGGLE,
+		context.isCodeSpellEnabled ? 'Enabled' : 'Disabled'
+	));
 
 	items.push(separator('$(layout) Workspace layout'));
 	items.push(actionItem(
@@ -239,7 +252,7 @@ function createTooltipMarkdown(): vscode.MarkdownString {
 }
 
 function getActiveFeatureCount(context: RenderContext, activeTools: number): number {
-	return activeTools + Number(context.isTailwindFoldEnabled) + Number(context.isTerminalSoundEnabled) + 1;
+	return activeTools + Number(context.isTailwindFoldEnabled) + Number(context.isTerminalSoundEnabled) + Number(context.isCodeSpellEnabled) + 1;
 }
 
 function stateLabel(enabled: boolean, label: string): string {

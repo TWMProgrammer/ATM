@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { checkText } from '../core/engine';
 import { spellDecorationType } from '../ui/styles';
 import { shouldIgnoreFile, SUPPORTED_LANGUAGES } from '../core/exclusions';
+import { isCodeSpellEnabled } from '../core/config';
 
 export const spellDiagnostics =
   vscode.languages.createDiagnosticCollection('code-spell');
@@ -18,6 +19,10 @@ const DEBOUNCE_DELAY = 400;
  * It will only run if the user stops typing for DEBOUNCE_DELAY ms.
  * ========================================================= */
 export function scheduleDiagnosticsCheck(doc: vscode.TextDocument) {
+  if (!isCodeSpellEnabled()) {
+    return;
+  }
+
   if (doc.uri.scheme !== 'file' && doc.uri.scheme !== 'untitled') {
     return;
   }
@@ -75,6 +80,10 @@ export function clearDiagnostics(doc: vscode.TextDocument) {
  * relying on its extreme lightness to avoid affecting the Main UI Thread.
  * ========================================================= */
 function performCheck(doc: vscode.TextDocument) {
+  if (!isCodeSpellEnabled()) {
+    return;
+  }
+
   const text = doc.getText();
 
   // Engine call
@@ -137,4 +146,19 @@ function performCheck(doc: vscode.TextDocument) {
     .forEach((editor) => {
       editor.setDecorations(spellDecorationType, ranges);
     });
+}
+
+/**
+ * Stops pending checks and removes every Code Spell visual from the workspace.
+ */
+export function clearAllDiagnostics(): void {
+  for (const timer of debounceTimers.values()) {
+    clearTimeout(timer);
+  }
+  debounceTimers.clear();
+  spellDiagnostics.clear();
+
+  for (const editor of vscode.window.visibleTextEditors) {
+    editor.setDecorations(spellDecorationType, []);
+  }
 }

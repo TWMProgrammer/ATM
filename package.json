@@ -734,6 +734,11 @@
           "default": [],
           "description": "Array of custom words added to the ATM Code-Spell dictionary."
         },
+        "atm.codeSpell.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable ATM Code Spell diagnostics and decorations."
+        },
         "atm.lint.enableSuggestions": {
           "type": "boolean",
           "default": true,
