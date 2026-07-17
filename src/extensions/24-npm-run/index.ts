@@ -3,16 +3,30 @@ import { PackageState, analyzePackageState, findPublishablePackage } from './cor
 import { ReleaseStartLock } from './core/release-lock';
 import { ReleaseKind, isReleaseBranch, runRelease } from './core/release';
 import { createPublishWorkflow, migrateLegacyPublishWorkflow, showOidcChecklist } from './core/setup';
-import { createStatusBar, hideStatusBar, issueSummary, showBusy, showState } from './ui/status-bar';
+import {
+    createStatusBar,
+    hideStatusBar,
+    issueSummary,
+    showBusy,
+    showPublishFailed,
+    showPublishing,
+    showState,
+} from './ui/status-bar';
 
 let currentState: PackageState | undefined;
 let releasing = false;
 let refreshTimer: NodeJS.Timeout | undefined;
 const releaseStartLock = new ReleaseStartLock();
+let pendingPublish: PendingPublish | undefined;
+let failedPublish: PendingPublish | undefined;
 
 interface ConfirmedPublish {
     packageDir: string;
     version: string;
+}
+
+interface PendingPublish extends ConfirmedPublish {
+    name: string;
 }
 
 export function activateNpmRun(context: vscode.ExtensionContext): void {
@@ -60,7 +74,7 @@ function scheduleRefresh(): void {
 }
 
 async function refresh(confirmedPublish?: ConfirmedPublish): Promise<void> {
-    if (releasing) {
+    if (releasing || pendingPublish) {
         return;
     }
     const pkg = findPublishablePackage();
@@ -69,6 +83,11 @@ async function refresh(confirmedPublish?: ConfirmedPublish): Promise<void> {
         hideStatusBar();
         return;
     }
+    if (failedPublish?.packageDir === pkg.dir && failedPublish.version === pkg.version) {
+        showPublishFailed(failedPublish.name, failedPublish.version);
+        return;
+    }
+    failedPublish = undefined;
     currentState = await analyzePackageState(pkg);
     if (confirmedPublish?.packageDir === pkg.dir) {
         // The exact version endpoint is already live. Keep the status bar current
@@ -95,7 +114,7 @@ async function ensureReadyState(): Promise<PackageState | undefined> {
 }
 
 async function release(kind: ReleaseKind): Promise<void> {
-    if (releasing || !releaseStartLock.tryAcquire()) {
+    if (releasing || pendingPublish || failedPublish || !releaseStartLock.tryAcquire()) {
         return;
     }
     try {
@@ -105,8 +124,22 @@ async function release(kind: ReleaseKind): Promise<void> {
         }
         releasing = true;
         showBusy(state.pkg.name);
-        await runRelease(state, kind, (version) => {
-            void refresh({ packageDir: state.pkg.dir, version });
+        await runRelease(state, kind, {
+            onPublishStarted: (version) => {
+                pendingPublish = { packageDir: state.pkg.dir, name: state.pkg.name, version };
+                showPublishing(state.pkg.name);
+            },
+            onPublishComplete: (version, published) => {
+                const publish = pendingPublish;
+                pendingPublish = undefined;
+                if (published) {
+                    failedPublish = undefined;
+                    void refresh({ packageDir: state.pkg.dir, version });
+                } else {
+                    failedPublish = publish ?? { packageDir: state.pkg.dir, name: state.pkg.name, version };
+                    showPublishFailed(failedPublish.name, failedPublish.version);
+                }
+            },
         });
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);

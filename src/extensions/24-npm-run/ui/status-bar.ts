@@ -26,6 +26,33 @@ export function showBusy(name: string): void {
     item.show();
 }
 
+export function showPublishing(name: string): void {
+    if (!item) {
+        return;
+    }
+    item.text = `$(sync~spin) ${name}`;
+    item.tooltip = vscode.l10n.t('Waiting for npm to confirm the publication…');
+    item.command = undefined;
+    item.color = new vscode.ThemeColor('disabledForeground');
+    item.backgroundColor = undefined;
+    item.show();
+}
+
+export function showPublishFailed(name: string, version: string): void {
+    if (!item) {
+        return;
+    }
+    item.text = `$(warning) ${name}`;
+    item.tooltip = vscode.l10n.t(
+        'npm has not confirmed v{0} yet. Check the GitHub Actions run before releasing again.',
+        version
+    );
+    item.command = undefined;
+    item.color = undefined;
+    item.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+    item.show();
+}
+
 export function issueSummary(issue: ReadinessIssue): string {
     switch (issue) {
         case 'no-git-repo':
