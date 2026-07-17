@@ -4,6 +4,35 @@
  * technical terms, modern tools, and abbreviations.
  */
 export const TECH_KEYWORDS = [
+
+  // py support
+  'executor',
+  'flow_executor',
+  'endpoint',
+  'formatter_llm',
+  'repr',
+  'isinstance',
+
+  // dataclasses
+  'dataclass',
+
+  // workflow / agent
+  'FlowMatcher',
+  'flow_matcher',
+  'CompactionConfig',
+  'compaction',
+
+  // runtime
+  'tool_endpoint',
+
+  // internals
+  'kb_prefetcher',
+  'KbPrefetcher',
+  'GreetingOrchestrator',
+  'active_request_epoch',
+  'tool_executor',
+
+  // AI
   'gemini',
   'claude',
   'sonnet',
