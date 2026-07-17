@@ -136,6 +136,8 @@ export async function applyLayout(layout: LayoutConfig): Promise<void> {
         const currentIsPro = checkIsPro();
         const targetIsPro = layout.sideBarLocation === 'right' && layout.activityBarLocation === 'top';
 
+        await extensionContext.globalState.update('atm.layoutMode', targetIsPro ? 'pro' : 'normal');
+
         if (currentIsPro === targetIsPro) {
             vscode.window.setStatusBarMessage(`$(check) ATM: ${layout.displayName} is active`, 1800);
             return;
