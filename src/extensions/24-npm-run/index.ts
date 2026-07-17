@@ -8,6 +8,11 @@ let currentState: PackageState | undefined;
 let releasing = false;
 let refreshTimer: NodeJS.Timeout | undefined;
 
+interface ConfirmedPublish {
+    packageDir: string;
+    version: string;
+}
+
 export function activateNpmRun(context: vscode.ExtensionContext): void {
     createStatusBar(context);
 
@@ -52,7 +57,7 @@ function scheduleRefresh(): void {
     }, 1000);
 }
 
-async function refresh(): Promise<void> {
+async function refresh(confirmedPublish?: ConfirmedPublish): Promise<void> {
     if (releasing) {
         return;
     }
@@ -63,6 +68,11 @@ async function refresh(): Promise<void> {
         return;
     }
     currentState = await analyzePackageState(pkg);
+    if (confirmedPublish?.packageDir === pkg.dir) {
+        // The exact version endpoint is already live. Keep the status bar current
+        // even if npm's `latest` metadata takes a little longer to propagate.
+        currentState.publishedVersion = confirmedPublish.version;
+    }
     if (!releasing) {
         showState(currentState);
     }
@@ -93,7 +103,9 @@ async function release(kind: ReleaseKind): Promise<void> {
     releasing = true;
     showBusy(state.pkg.name);
     try {
-        await runRelease(state, kind);
+        await runRelease(state, kind, (version) => {
+            void refresh({ packageDir: state.pkg.dir, version });
+        });
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         void vscode.window.showErrorMessage(vscode.l10n.t('Release failed: {0}', message));

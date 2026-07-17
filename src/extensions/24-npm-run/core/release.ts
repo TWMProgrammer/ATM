@@ -162,7 +162,13 @@ function openUrl(url: string): void {
  * then confirms the npm publish in the background — the old flow blocked the
  * spinner for the whole 8-min poll and the final notification's button click.
  */
-function announcePublish(name: string, version: string, npmUrl: string, actionsUrl: string): void {
+function announcePublish(
+    name: string,
+    version: string,
+    npmUrl: string,
+    actionsUrl: string,
+    onPublished?: (version: string) => void
+): void {
     const openNpm = vscode.l10n.t('Open npm');
     const openActions = vscode.l10n.t('Open GitHub Actions');
     const onChoice = (choice: string | undefined): void => {
@@ -183,6 +189,7 @@ function announcePublish(name: string, version: string, npmUrl: string, actionsU
 
     void waitForPublish(name, version).then((published) => {
         if (published) {
+            onPublished?.(version);
             void vscode.window
                 .showInformationMessage(vscode.l10n.t('✅ {0}@{1} is live on npm.', name, version), openNpm, openActions)
                 .then(onChoice);
@@ -224,7 +231,11 @@ function computeReleaseTarget(kind: ReleaseKind, currentVersion: string, baselin
  * back — the user never leaves their branch. Beta: bump+tag on the current
  * branch only, no merge. CI publishes on the tag push.
  */
-export async function runRelease(state: PackageState, kind: ReleaseKind): Promise<void> {
+export async function runRelease(
+    state: PackageState,
+    kind: ReleaseKind,
+    onPublished?: (version: string) => void
+): Promise<void> {
     const repoRoot = state.repoRoot;
     const github = state.github;
     if (!repoRoot || !github) {
@@ -361,5 +372,5 @@ export async function runRelease(state: PackageState, kind: ReleaseKind): Promis
     // Git work is done → the spinner can stop now. Feedback runs non-blocking.
     const npmUrl = `https://www.npmjs.com/package/${pkg.name}/v/${target.version}`;
     const actionsUrl = `https://github.com/${github.owner}/${github.repo}/actions`;
-    announcePublish(pkg.name, target.version, npmUrl, actionsUrl);
+    announcePublish(pkg.name, target.version, npmUrl, actionsUrl, onPublished);
 }
