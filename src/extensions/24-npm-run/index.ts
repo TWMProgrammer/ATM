@@ -123,6 +123,10 @@ async function showStatus(): Promise<void> {
     }
     const issue = state.issues[0];
     if (issue) {
+        if (issue === 'monorepo-root') {
+            void vscode.window.showInformationMessage(issueSummary(issue));
+            return;
+        }
         if (issue === 'no-publish-workflow' && state.repoRoot && state.github) {
             const create = vscode.l10n.t('Create OIDC workflow');
             const choice = await vscode.window.showWarningMessage(`${state.pkg.name}: ${issueSummary(issue)}`, create);

@@ -36,6 +36,16 @@ export function issueSummary(issue: ReadinessIssue): string {
             );
         case 'no-publish-workflow':
             return vscode.l10n.t('No npm publish workflow found. Create the OIDC workflow before releasing.');
+        case 'no-package-workflow':
+            return vscode.l10n.t(
+                'No publish workflow targets this package. Its publish step must use the package folder as working-directory.'
+            );
+        case 'unsupported-tag-pattern':
+            return vscode.l10n.t(
+                'The package workflow needs one supported tag pattern, such as "v*" or "package-v*".'
+            );
+        case 'monorepo-root':
+            return vscode.l10n.t('This is a monorepo root. Open the package folder you want to release.');
         case 'legacy-publish-auth':
             return vscode.l10n.t('The publish workflow still uses NPM_TOKEN. Migrate it to npm trusted publishing.');
     }
@@ -49,6 +59,15 @@ export function showState(state: PackageState): void {
     const { pkg, issues, publishedVersion, lastTagVersion, currentBranch } = state;
 
     if (issues.length > 0) {
+        if (issues[0] === 'monorepo-root') {
+            item.text = '$(lock) Monorepo release';
+            item.tooltip = issueSummary(issues[0]);
+            item.command = 'atm.npmRun.showStatus';
+            item.color = new vscode.ThemeColor('disabledForeground');
+            item.backgroundColor = undefined;
+            item.show();
+            return;
+        }
         item.text = `$(warning) ${pkg.name}`;
         item.tooltip = issueSummary(issues[0]);
         item.command = 'atm.npmRun.showStatus';

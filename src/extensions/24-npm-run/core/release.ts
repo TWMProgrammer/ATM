@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import semver from 'semver';
 import { PackageState, isVersionPublished, readPackageInfo } from './detector';
+import { createTagName } from './workflow';
 import {
     abortMerge,
     addFile,
@@ -251,7 +252,10 @@ export async function runRelease(
         throw new Error(vscode.l10n.t('You have uncommitted changes. Commit or stash them first.'));
     }
 
-    const tagName = `v${target.version}`;
+    const tagName = state.tagPattern ? createTagName(state.tagPattern, target.version) : undefined;
+    if (!tagName) {
+        throw new Error(vscode.l10n.t('The publish workflow does not have a supported tag pattern.'));
+    }
     if (await tagExists(repoRoot, tagName)) {
         throw new Error(vscode.l10n.t('Tag {0} already exists. Bump the version in package.json first.', tagName));
     }
